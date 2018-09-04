@@ -9,7 +9,7 @@ android {
     }
     compileSdkVersion 27
     defaultConfig {
-        applicationId "ykk.xc.com.xcwms"
+        applicationId "ykk.cb.com.cbwms"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 1

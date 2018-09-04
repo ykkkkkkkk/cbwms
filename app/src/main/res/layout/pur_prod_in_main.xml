@@ -92,7 +92,7 @@
 
     </LinearLayout>
 
-    <ykk.xc.com.xcwms.util.MyViewPager
+    <ykk.cb.com.cbwms.util.MyViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

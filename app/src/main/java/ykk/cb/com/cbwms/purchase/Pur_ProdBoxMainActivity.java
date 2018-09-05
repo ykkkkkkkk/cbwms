@@ -55,11 +55,8 @@ public class Pur_ProdBoxMainActivity extends BaseActivity {
 //        Bundle bundle2 = new Bundle();
 //        bundle2.putSerializable("customer", customer);
 //        fragment1.setArguments(bundle2); // 传参数
-        Pur_ProdBoxFragment1 fragment1 = new Pur_ProdBoxFragment1();
-        Pur_ProdBoxFragment2 fragment2 = new Pur_ProdBoxFragment2();
-
-        listFragment.add(fragment1);
-        listFragment.add(fragment2);
+        listFragment.add(new Pur_ProdBoxFragment1());
+        listFragment.add(new Pur_ProdBoxFragment2());
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));

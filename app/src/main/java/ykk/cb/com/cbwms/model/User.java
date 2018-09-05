@@ -1,8 +1,5 @@
 package ykk.cb.com.cbwms.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -22,6 +19,23 @@ public class User implements Serializable {
     private Department department;
     private String kd_username;
     private String kdUserNumber;
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public Integer getStaffId() {
+        return staffId;
+    }
+
+    public void setStaffId(Integer staffId) {
+        this.staffId = staffId;
+    }
+
     private Integer staffId;
     private Stock stock;
     private StockPosition stockPos;

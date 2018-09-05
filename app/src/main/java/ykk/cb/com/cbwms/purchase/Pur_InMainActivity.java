@@ -58,13 +58,10 @@ public class Pur_InMainActivity extends BaseActivity {
 //        bundle2.putSerializable("customer", customer);
 //        fragment1.setArguments(bundle2); // 传参数
 //        fragment2.setArguments(bundle2); // 传参数
-        Pur_InFragment1 fragment1 = new Pur_InFragment1();
-        Pur_InFragment2 fragment2 = new Pur_InFragment2();
-        Pur_InFragment3 fragment3 = new Pur_InFragment3();
 
-        listFragment.add(fragment1);
-        listFragment.add(fragment2);
-        listFragment.add(fragment3);
+        listFragment.add(new Pur_InFragment1());
+        listFragment.add(new Pur_InFragment2());
+        listFragment.add(new Pur_InFragment3());
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));

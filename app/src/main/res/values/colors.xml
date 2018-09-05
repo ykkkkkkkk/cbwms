@@ -50,6 +50,9 @@
     <color name="thirty_transparent_black">#4d000000</color>
     <color name="c_009900">#009900</color>
     <color name="c_008800">#008800</color>
+    <color name="c_FF0000">#FF0000</color>
+    <color name="c_FF2200">#FF2200</color>
+    <color name="c_FF4400">#FF4400</color>
     <color name="c_FF6600">#FF6600</color>
     <color name="c_fffafa">#FFFAFA</color> 
     <!-- 紫色 -->

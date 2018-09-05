@@ -36,19 +36,7 @@ import ykk.cb.com.cbwms.R;
  *
  */
 public class Comm {
-	public static final String publicPaths = Environment.getExternalStorageDirectory().toString()+"/xcwms/";
-	/**
-	 * WebService
-	 * 基于soap协议
-	 * webService uri
- 	 */
-	public static final String WEB_URI = "http://183.60.183.21:8009/cbsw.asmx";
-	/**
-	 * WebService
-	 * 基于soap协议
-	 * XML的命名空间
-	 */
-	public static final String XMLNS = "http://tempuri.org/";
+	public static final String publicPaths = Environment.getExternalStorageDirectory().toString()+"/cbwms/";
 
 	/**
 	 * 字符串截取

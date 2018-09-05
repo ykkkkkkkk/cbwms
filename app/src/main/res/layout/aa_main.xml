@@ -46,10 +46,39 @@
         android:orientation="horizontal">
 
         <RelativeLayout
+            android:id="@+id/relative0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/_2dp"
+            android:background="@drawable/back_style_blue"
+            android:layout_weight="1">
+
+            <RadioButton
+                android:id="@+id/radio0"
+                android:layout_width="@dimen/_28dp"
+                android:layout_height="@dimen/_28dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/btn_tabradio0_selector"
+                android:button="@null"
+                android:checked="true" />
+
+            <TextView
+                android:id="@+id/tab0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/radio0"
+                android:layout_centerHorizontal="true"
+                android:text="消息"
+                android:textColor="@color/c_6a5acd"
+                android:textSize="@dimen/_14sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
             android:id="@+id/relative1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/_2dp"
+            android:layout_margin="@dimen/_2dp"
             android:layout_weight="1">
 
             <RadioButton
@@ -59,7 +88,7 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/btn_tabradio1_selector"
                 android:button="@null"
-                android:checked="true" />
+                android:checked="false" />
 
             <TextView
                 android:id="@+id/tab1"
@@ -68,7 +97,7 @@
                 android:layout_below="@+id/radio1"
                 android:layout_centerHorizontal="true"
                 android:text="采购"
-                android:textColor="@color/c_6a5acd"
+                android:textColor="@color/black"
                 android:textSize="@dimen/_14sp" />
 
         </RelativeLayout>
@@ -77,7 +106,7 @@
             android:id="@+id/relative2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/_2dp"
+            android:layout_margin="@dimen/_2dp"
             android:layout_weight="1">
 
             <RadioButton
@@ -105,7 +134,7 @@
             android:id="@+id/relative3"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/_2dp"
+            android:layout_margin="@dimen/_2dp"
             android:layout_weight="1">
 
             <RadioButton
@@ -133,7 +162,7 @@
             android:id="@+id/relative4"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/_2dp"
+            android:layout_margin="@dimen/_2dp"
             android:layout_weight="1">
 
             <RadioButton
@@ -161,7 +190,7 @@
             android:id="@+id/relative5"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/_2dp"
+            android:layout_margin="@dimen/_2dp"
             android:layout_weight="1">
 
             <RadioButton
@@ -191,6 +220,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/lin_tab"
+        android:background="@color/white"
         android:layout_below="@+id/relative_title" />
 </RelativeLayout>
 

@@ -30,44 +30,51 @@ public class MainTabFragmentActivity extends BaseActivity {
 
     @BindView(R.id.tv_title)
     TextView tvTitle;
-    @BindView(R.id.relative_title)
-    RelativeLayout relativeTitle;
-    @BindView(R.id.radio1)
-    RadioButton radio1;
-    @BindView(R.id.tab1)
-    TextView tab1;
+
+    @BindView(R.id.relative0)
+    RelativeLayout relative0;
     @BindView(R.id.relative1)
     RelativeLayout relative1;
-    @BindView(R.id.radio2)
-    RadioButton radio2;
-    @BindView(R.id.tab2)
-    TextView tab2;
     @BindView(R.id.relative2)
     RelativeLayout relative2;
-    @BindView(R.id.radio3)
-    RadioButton radio3;
-    @BindView(R.id.tab3)
-    TextView tab3;
     @BindView(R.id.relative3)
     RelativeLayout relative3;
-    @BindView(R.id.radio4)
-    RadioButton radio4;
-    @BindView(R.id.tab4)
-    TextView tab4;
     @BindView(R.id.relative4)
     RelativeLayout relative4;
-    @BindView(R.id.radio5)
-    RadioButton radio5;
-    @BindView(R.id.tab5)
-    TextView tab5;
     @BindView(R.id.relative5)
     RelativeLayout relative5;
-    @BindView(R.id.lin_tab)
-    LinearLayout linTab;
+
+    @BindView(R.id.radio0)
+    RadioButton radio0;
+    @BindView(R.id.radio1)
+    RadioButton radio1;
+    @BindView(R.id.radio2)
+    RadioButton radio2;
+    @BindView(R.id.radio3)
+    RadioButton radio3;
+    @BindView(R.id.radio4)
+    RadioButton radio4;
+    @BindView(R.id.radio5)
+    RadioButton radio5;
+
+    @BindView(R.id.tab0)
+    TextView tab0;
+    @BindView(R.id.tab1)
+    TextView tab1;
+    @BindView(R.id.tab2)
+    TextView tab2;
+    @BindView(R.id.tab3)
+    TextView tab3;
+    @BindView(R.id.tab4)
+    TextView tab4;
+    @BindView(R.id.tab5)
+    TextView tab5;
+
     @BindView(R.id.viewPager)
     ViewPager viewPager;
 
     private MainTabFragmentActivity context = this;
+    private RelativeLayout curRelative;
     private TextView curTv;
     private RadioButton curRadio;
 
@@ -78,13 +85,15 @@ public class MainTabFragmentActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        curTv = tab1;
-        curRadio = radio1;
+        curRelative = relative0;
+        curTv = tab0;
+        curRadio = radio0;
 
         User user = showUserByXml();
         tvTitle.setText("操作员："+user.getUsername());
 
         List<Fragment> listFragment = new ArrayList<Fragment>();
+        listFragment.add(new MainTabFragment0());
         listFragment.add(new MainTabFragment1());
         listFragment.add(new MainTabFragment2());
         listFragment.add(new MainTabFragment3());
@@ -105,19 +114,22 @@ public class MainTabFragmentActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        relative1.performClick();
+                        tabChange(relative0, tab0, radio0, 0);
                         break;
                     case 1:
-                        relative2.performClick();
+                        tabChange(relative1, tab1, radio1, 1);
                         break;
                     case 2:
-                        relative3.performClick();
+                        tabChange(relative2, tab2, radio2, 2);
                         break;
                     case 3:
-                        relative4.performClick();
+                        tabChange(relative3, tab3, radio3, 3);
                         break;
                     case 4:
-                        relative5.performClick();
+                        tabChange(relative4, tab4, radio4, 4);
+                        break;
+                    case 5:
+                        tabChange(relative5, tab5, radio5, 5);
                         break;
                 }
             }
@@ -129,21 +141,8 @@ public class MainTabFragmentActivity extends BaseActivity {
         });
     }
 
-    /**
-     * 选中之后改变样式
-     */
-    private void tabSelected(TextView tv, RadioButton rb) {
-        curRadio.setChecked(false);
-        curTv.setTextColor(Color.parseColor("#1a1a1a"));
-        rb.setChecked(true);
-        tv.setTextColor(Color.parseColor("#6a5acd"));
-        curRadio = rb;
-        curTv = tv;
-    }
-
-
-    @OnClick({R.id.btn_close, R.id.btn_print, R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5,
-              R.id.radio1, R.id.radio2, R.id.radio3, R.id.radio4, R.id.radio5})
+    @OnClick({R.id.btn_close, R.id.btn_print, R.id.relative0, R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5,
+            R.id.radio0, R.id.radio1, R.id.radio2, R.id.radio3, R.id.radio4, R.id.radio5})
     public void onViewClicked(View view) {
         // setCurrentItem第二个参数控制页面切换动画
         //  true:打开/false:关闭
@@ -158,8 +157,8 @@ public class MainTabFragmentActivity extends BaseActivity {
                 build.setPositiveButton("是的", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ActivityCollector.finishAll();
-                        System.exit(0); //凡是非零都表示异常退出!0表示正常退出!
+                    ActivityCollector.finishAll();
+                    System.exit(0); //凡是非零都表示异常退出!0表示正常退出!
                     }
                 });
                 build.setNegativeButton("取消", null);
@@ -171,47 +170,63 @@ public class MainTabFragmentActivity extends BaseActivity {
             case R.id.btn_print: // 打印
                 show(PrintMainActivity.class, null);
                 break;
+            case R.id.relative0:
+                tabChange(relative0, tab0, radio0, 0);
+                break;
             case R.id.relative1:
-                tabSelected(tab1, radio1);
-                viewPager.setCurrentItem(0, false);
+                tabChange(relative1, tab1, radio1, 1);
                 break;
             case R.id.relative2:
-                tabSelected(tab2, radio2);
-                viewPager.setCurrentItem(1, false);
+                tabChange(relative2, tab2, radio2, 2);
                 break;
             case R.id.relative3:
-                tabSelected(tab3, radio3);
-                viewPager.setCurrentItem(2, false);
+                tabChange(relative3, tab3, radio3, 3);
                 break;
             case R.id.relative4:
-                tabSelected(tab4, radio4);
-                viewPager.setCurrentItem(3, false);
+                tabChange(relative4, tab4, radio4, 4);
                 break;
             case R.id.relative5:
-                tabSelected(tab5, radio5);
-                viewPager.setCurrentItem(4, false);
+                tabChange(relative5, tab5, radio5, 5);
+                break;
+            case R.id.radio0: // RadioButton
+                tabChange(relative0, tab0, radio0, 0);
                 break;
             case R.id.radio1: // RadioButton
-                tabSelected(tab1, radio1);
-                viewPager.setCurrentItem(0, false);
+                tabChange(relative1, tab1, radio1, 1);
                 break;
             case R.id.radio2:
-                tabSelected(tab2, radio2);
-                viewPager.setCurrentItem(1, false);
+                tabChange(relative2, tab2, radio2, 2);
                 break;
             case R.id.radio3:
-                tabSelected(tab3, radio3);
-                viewPager.setCurrentItem(2, false);
+                tabChange(relative3, tab3, radio3, 3);
                 break;
             case R.id.radio4:
-                tabSelected(tab4, radio4);
-                viewPager.setCurrentItem(3, false);
+                tabChange(relative4, tab4, radio4, 4);
                 break;
             case R.id.radio5:
-                tabSelected(tab5, radio5);
-                viewPager.setCurrentItem(4, false);
+                tabChange(relative5, tab5, radio5, 5);
                 break;
         }
+    }
+
+    /**
+     * 选中之后改变样式
+     */
+    private void tabSelected(RelativeLayout relative,TextView tv, RadioButton rb) {
+        curRelative.setBackgroundColor(Color.parseColor("#EAEAEA"));
+        curRadio.setChecked(false);
+        curTv.setTextColor(Color.parseColor("#1a1a1a"));
+        relative.setBackgroundResource(R.drawable.back_style_blue);
+        rb.setChecked(true);
+        tv.setTextColor(Color.parseColor("#6a5acd"));
+        curRelative = relative;
+        curRadio = rb;
+        curTv = tv;
+    }
+
+    private void tabChange(RelativeLayout relative, TextView tv, RadioButton radio, int page) {
+        tabSelected(relative, tv, radio);
+        viewPager.setCurrentItem(page, false);
     }
 
     @Override

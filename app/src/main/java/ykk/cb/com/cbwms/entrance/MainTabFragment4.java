@@ -16,35 +16,6 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 public class MainTabFragment4 extends BaseFragment {
 
 
-    @BindView(R.id.tvImg1)
-    TextView tvImg1;
-    @BindView(R.id.tab1)
-    TextView tab1;
-    @BindView(R.id.relative1)
-    RelativeLayout relative1;
-    @BindView(R.id.tvImg2)
-    TextView tvImg2;
-    @BindView(R.id.tab2)
-    TextView tab2;
-    @BindView(R.id.relative2)
-    RelativeLayout relative2;
-    @BindView(R.id.lin_tab)
-    LinearLayout linTab;
-    @BindView(R.id.tvImg3)
-    TextView tvImg3;
-    @BindView(R.id.tab3)
-    TextView tab3;
-    @BindView(R.id.relative3)
-    RelativeLayout relative3;
-    @BindView(R.id.tvImg4)
-    TextView tvImg4;
-    @BindView(R.id.tab4)
-    TextView tab4;
-    @BindView(R.id.relative4)
-    RelativeLayout relative4;
-    @BindView(R.id.lin_tab2)
-    LinearLayout linTab2;
-
     public MainTabFragment4() {
     }
 

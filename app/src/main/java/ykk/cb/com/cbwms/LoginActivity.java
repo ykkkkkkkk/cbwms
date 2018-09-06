@@ -35,7 +35,7 @@ import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.MainTabFragmentActivity;
-import ykk.cb.com.cbwms.entrance.page4.ServiceSetActivity;
+import ykk.cb.com.cbwms.entrance.page5.ServiceSetActivity;
 import ykk.cb.com.cbwms.model.SystemSet;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;

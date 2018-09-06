@@ -4,36 +4,14 @@ package ykk.cb.com.cbwms.entrance;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import butterknife.BindView;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
-import ykk.cb.com.cbwms.purchase.Prod_InActivity;
 import ykk.cb.com.cbwms.purchase.Pur_InMainActivity;
 import ykk.cb.com.cbwms.purchase.Pur_OrderSearchActivity;
-import ykk.cb.com.cbwms.purchase.Pur_ProdBoxMainActivity;
 
 public class MainTabFragment1 extends BaseFragment {
-
-
-    @BindView(R.id.tab1)
-    TextView tab1;
-    @BindView(R.id.relative1)
-    RelativeLayout relative1;
-    @BindView(R.id.tab2)
-    TextView tab2;
-    @BindView(R.id.relative2)
-    RelativeLayout relative2;
-    @BindView(R.id.tab3)
-    TextView tab3;
-    @BindView(R.id.relative3)
-    RelativeLayout relative3;
-    @BindView(R.id.lin_tab)
-    LinearLayout linTab;
 
     public MainTabFragment1() {
     }

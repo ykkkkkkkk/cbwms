@@ -19,18 +19,19 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tvImg1"
+            <ImageView
+                android:id="@+id/imgView1"
                 android:layout_width="@dimen/_70dp"
                 android:layout_height="@dimen/_70dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico4a_1" />
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_1" />
 
             <TextView
-                android:id="@+id/tab1"
+                android:id="@+id/tvMenu1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvImg1"
+                android:layout_below="@+id/imgView1"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="盘点"
@@ -46,18 +47,19 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tvImg2"
+            <ImageView
+                android:id="@+id/imgView2"
                 android:layout_width="@dimen/_70dp"
                 android:layout_height="@dimen/_70dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico4a_2" />
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_2" />
 
             <TextView
-                android:id="@+id/tab2"
+                android:id="@+id/tvMenu2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvImg2"
+                android:layout_below="@+id/imgView2"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="调拨"
@@ -85,18 +87,20 @@
             android:clickable="true"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tvImg3"
+            <ImageView
+                android:id="@+id/imgView3"
                 android:layout_width="@dimen/_70dp"
                 android:layout_height="@dimen/_70dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico4a_3" />
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_3" />
+
 
             <TextView
-                android:id="@+id/tab3"
+                android:id="@+id/tvMenu3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvImg3"
+                android:layout_below="@+id/imgView3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="其他入库"
@@ -113,23 +117,23 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tvImg4"
+            <ImageView
+                android:id="@+id/imgView4"
                 android:layout_width="@dimen/_70dp"
                 android:layout_height="@dimen/_70dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico4a_4" />
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_4" />
 
             <TextView
-                android:id="@+id/tab4"
+                android:id="@+id/tvMenu4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvImg4"
+                android:layout_below="@+id/imgView4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="其他出库"
                 android:textColor="@color/black"
-
                 android:textSize="@dimen/_18sp" />
 
         </RelativeLayout>

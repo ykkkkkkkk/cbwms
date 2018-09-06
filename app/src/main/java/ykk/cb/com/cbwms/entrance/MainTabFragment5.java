@@ -41,7 +41,7 @@ import ykk.cb.com.cbwms.comm.ActivityCollector;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.entrance.page4.ServiceSetActivity;
+import ykk.cb.com.cbwms.entrance.page5.ServiceSetActivity;
 import ykk.cb.com.cbwms.model.AppInfo;
 import ykk.cb.com.cbwms.util.IDownloadContract;
 import ykk.cb.com.cbwms.util.IDownloadPresenter;

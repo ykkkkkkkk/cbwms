@@ -1,4 +1,4 @@
-package ykk.cb.com.cbwms.basics;
+package ykk.cb.com.cbwms.entrance.page0;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-
-import com.solidfire.gson.JsonObject;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -29,53 +25,58 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.adapter.Material_ListAdapter;
-import ykk.cb.com.cbwms.comm.BaseDialogActivity;
+import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.Material;
+import ykk.cb.com.cbwms.entrance.page0.adapter.InStorageMissionAdapter;
+import ykk.cb.com.cbwms.model.InStorageMissionEntry;
+import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
-public class Material_ListActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
+public class InStorageMissionActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
-    @BindView(R.id.btn_close)
-    Button btnClose;
-    @BindView(R.id.et_search)
-    EditText etSearch;
-    @BindView(R.id.btn_search)
-    Button btnSearch;
+    @BindView(R.id.viewRadio1)
+    View viewRadio1;
+    @BindView(R.id.viewRadio2)
+    View viewRadio2;
+    @BindView(R.id.viewRadio3)
+    View viewRadio3;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
 
-    private Material_ListActivity context = this;
+    private InStorageMissionActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Material_ListAdapter mAdapter;
-    private List<Material> listDatas = new ArrayList<>();
+    private InStorageMissionAdapter mAdapter;
+    private List<InStorageMissionEntry> listDatas = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private char entryStatus = '1'; // 检验状态( 1、未检验，2、检验中，3、检验完毕)
+    private View curRadio;
+    private User user;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Material_ListActivity> mActivity;
+        private final WeakReference<InStorageMissionActivity> mActivity;
 
-        public MyHandler(Material_ListActivity activity) {
-            mActivity = new WeakReference<Material_ListActivity>(activity);
+        public MyHandler(InStorageMissionActivity activity) {
+            mActivity = new WeakReference<InStorageMissionActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Material_ListActivity m = mActivity.get();
+            InStorageMissionActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
                 switch (msg.what) {
                     case SUCC1: // 成功
-                        List<Material> list = JsonUtil.strToList2((String) msg.obj, Material.class);
+                        List<InStorageMissionEntry> list = JsonUtil.strToList2((String) msg.obj, InStorageMissionEntry.class);
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
+                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新
 
                         if (m.isRefresh) {
                             m.xRecyclerView.refreshComplete(true);
@@ -89,7 +90,6 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
                         break;
                     case UNSUCC1: // 数据加载失败！
                         m.mAdapter.notifyDataSetChanged();
-                        m.toasts("抱歉，没有加载到数据！");
 
                         break;
                 }
@@ -100,38 +100,40 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
 
     @Override
     public int setLayoutResID() {
-        return R.layout.ab_mtl_list;
+        return R.layout.ab_item0_instoragemission;
     }
 
     @Override
     public void initView() {
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Material_ListAdapter(context, listDatas);
+        mAdapter = new InStorageMissionAdapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
-        xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+    xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
 //        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                Material m = listDatas.get(pos-1);
-                Intent intent = new Intent();
-                intent.putExtra("obj", m);
-                context.setResult(RESULT_OK, intent);
-                context.finish();
+//                    InStorageMissionEntry m = listDatas.get(pos-1);
+//                    Intent intent = new Intent();
+//                    intent.putExtra("obj", m);
+//                    context.setResult(RESULT_OK, intent);
+//                    context.finish();
             }
         });
     }
 
     @Override
     public void initData() {
+        curRadio = viewRadio1;
+        getUserInfo();
         initLoadDatas();
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_search})
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -140,11 +142,34 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
                 context.finish();
 
                 break;
-            case R.id.btn_search: // 查询
+            case R.id.lin_tab1:
+                entryStatus = '1';
+                tabSelected(viewRadio1);
+                initLoadDatas();
+
+                break;
+            case R.id.lin_tab2:
+                entryStatus = '2';
+                tabSelected(viewRadio2);
+                initLoadDatas();
+
+                break;
+            case R.id.lin_tab3:
+                entryStatus = '3';
+                tabSelected(viewRadio3);
                 initLoadDatas();
 
                 break;
         }
+    }
+
+    /**
+     * 选中之后改变样式
+     */
+    private void tabSelected(View v) {
+        curRadio.setBackgroundResource(R.drawable.check_off2);
+        v.setBackgroundResource(R.drawable.check_on);
+        curRadio = v;
     }
 
     private void initLoadDatas() {
@@ -158,11 +183,12 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findMaterialListByParam");
+        String mUrl = Consts.getURL("purchaseInStorageMission/findInStorageMissionEntry_app");
         FormBody formBody = new FormBody.Builder()
-                .add("fNumberAndName", getValues(etSearch).trim())
+                .add("staffId", String.valueOf(user.getStaffId()))
+                .add("entryStatus", String.valueOf(entryStatus))
                 .add("limit", String.valueOf(limit))
-                .add("pageSize", "30")
+                .add("pageSize", "20")
                 .build();
 
         Request request = new Request.Builder()
@@ -189,7 +215,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("Material_ListActivity --> onResponse", result);
+                Log.e("InStorageMissionEntry_ListActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -227,6 +253,13 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
 //        }
     }
 
+    /**
+     *  得到用户对象
+     */
+    private void getUserInfo() {
+        if(user == null) user = showUserByXml();
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -241,4 +274,5 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
         closeHandler(mHandler);
         super.onDestroy();
     }
+
 }

@@ -28,7 +28,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <service android:name=".util.DownloadService" />
@@ -48,41 +48,41 @@
             android:name=".util.blueTooth.BluetoothDeviceListDialog"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/bluetooth_device_list"
-            android:theme="@android:style/Theme.Dialog"/>
+            android:theme="@android:style/Theme.Dialog" />
 
         <!-- 基础模块 -->
         <activity
             android:name=".basics.Supplier_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Dept_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.DeliveryWay_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Cust_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Organization_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Stock_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.StockArea_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.StockPos_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Material_ListActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -101,20 +101,25 @@
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".basics.Batch_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Sequence_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Box_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <!--  消息模块 -->
+        <activity android:name=".entrance.page0.QualityMissionActivity" />
+        <activity android:name=".entrance.page0.InStorageMissionActivity" />
+
 
         <!-- 设置页面用到的界面 -->
         <activity
-            android:name=".entrance.page4.ServiceSetActivity"
+            android:name=".entrance.page5.ServiceSetActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" />
 
         <!-- 采购模块 -->
@@ -122,8 +127,8 @@
             android:name=".purchase.Pur_InMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-        android:name=".purchase.Pur_SelOrderActivity"
-        android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:name=".purchase.Pur_SelOrderActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_SelReceiveOrderActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
@@ -136,9 +141,6 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_SelProdOrderActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity
-            android:name=".purchase.Prod_InActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Prod_InMainActivity"

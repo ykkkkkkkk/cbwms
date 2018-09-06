@@ -27,23 +27,13 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
+import ykk.cb.com.cbwms.entrance.page0.InStorageMissionActivity;
+import ykk.cb.com.cbwms.entrance.page0.QualityMissionActivity;
 import ykk.cb.com.cbwms.model.MsgCount;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;
 
 public class MainTabFragment0 extends BaseFragment {
-
-    @BindView(R.id.relative1)
-    RelativeLayout relative1;
-    @BindView(R.id.relative2)
-    RelativeLayout relative2;
-
-    @BindView(R.id.tab1)
-    TextView tab1;
-    @BindView(R.id.tab2)
-    TextView tab2;
-    @BindView(R.id.tab3)
-    TextView tab3;
 
     @BindView(R.id.tvMsgCount1)
     TextView tvMsgCount1;
@@ -115,11 +105,11 @@ public class MainTabFragment0 extends BaseFragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 采购质检任务单
-//                show(Pur_OrderSearchActivity.class, null);
+                show(QualityMissionActivity.class, null);
 
                 break;
             case R.id.relative2: // 采购收料任务单
-//                show(Pur_InMainActivity.class, null);
+                show(InStorageMissionActivity.class, null);
 
                 break;
             case R.id.relative3: //

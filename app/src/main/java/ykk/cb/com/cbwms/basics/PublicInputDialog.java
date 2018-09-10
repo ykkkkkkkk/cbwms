@@ -175,8 +175,8 @@ public class PublicInputDialog extends BaseDialogActivity {
                 String inputName = getValues(etInput).trim();
                 if (inputType.equals("0") || inputType.equals("0.0")) {
                     inputName = df.format(parseDouble(inputName));
-
-                } else if (inputName.length() == 0) {
+                }
+                if (inputName.length() == 0) {
                     toasts("请输入内容！");
                     return;
                 }

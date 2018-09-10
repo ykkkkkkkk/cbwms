@@ -93,12 +93,13 @@ public class MainTabFragment0 extends BaseFragment {
 
     @Override
     public void initData() {
+        run_findMsgNumber_app();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        run_findMsgNumber_app();
+//        run_findMsgNumber_app();
     }
 
     @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4})

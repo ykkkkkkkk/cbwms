@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.entrance.page0;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,12 +27,13 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseActivity;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page0.adapter.InStorageMissionAdapter;
 import ykk.cb.com.cbwms.model.InStorageMissionEntry;
+import ykk.cb.com.cbwms.model.QualityMissionEntry;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;
-import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 public class InStorageMissionActivity extends BaseActivity implements XRecyclerView.LoadingListener {
@@ -46,7 +48,9 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     XRecyclerView xRecyclerView;
 
     private InStorageMissionActivity context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500;
+    private static final int SUCC1 = 100, UNSUCC1 = 550;
+    private static final int MODIFY = 200, UNMODIFY = 500;
+    private static final int SEL_NUM = 10;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private InStorageMissionAdapter mAdapter;
     private List<InStorageMissionEntry> listDatas = new ArrayList<>();
@@ -55,6 +59,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     private char entryStatus = '1'; // 检验状态( 1、未检验，2、检验中，3、检验完毕)
     private View curRadio;
     private User user;
+    private int curPos; // 当前行
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -92,6 +97,15 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                         m.mAdapter.notifyDataSetChanged();
 
                         break;
+                    case MODIFY: // 更新成功
+                        m.toasts("提交数据成功✔");
+                        m.initLoadDatas();
+
+                        break;
+                    case UNMODIFY: // 更新失败！
+                        Comm.showWarnDialog(m.context,"服务器繁忙，请稍后再试！");
+
+                        break;
                 }
             }
         }
@@ -111,17 +125,15 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
-    xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+        xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
 //        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
-        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+        mAdapter.setCallBack(new InStorageMissionAdapter.MyCallBack() {
             @Override
-            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-//                    InStorageMissionEntry m = listDatas.get(pos-1);
-//                    Intent intent = new Intent();
-//                    intent.putExtra("obj", m);
-//                    context.setResult(RESULT_OK, intent);
-//                    context.finish();
+            public void onClick_num(View v, InStorageMissionEntry entity, int position) {
+                if(entryStatus == '3') return;
+                curPos = position;
+                showInputDialog("数量", String.valueOf(entity.getInStorageFqty()), "0", SEL_NUM);
             }
         });
     }
@@ -221,6 +233,47 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         });
     }
 
+    /**
+     * 提交入库数量
+     */
+    private void run_modifyFqty_app(double num1) {
+        showLoadDialog("提交中...");
+        String mUrl = Consts.getURL("purchaseMission/modifyInStorageFqty_app");
+        InStorageMissionEntry qmEntry = listDatas.get(curPos);
+        FormBody formBody = new FormBody.Builder()
+                .add("id", String.valueOf(qmEntry.getId()))
+                .add("inStorageFqty", String.valueOf(num1))
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNMODIFY);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                if(!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNMODIFY);
+                    return;
+                }
+
+                Message msg = mHandler.obtainMessage(MODIFY, result);
+                Log.e("run_modifyFqty_app --> onResponse", result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
     @Override
     public void onRefresh() {
         isRefresh = true;
@@ -239,18 +292,25 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case SEL_CUST: //查询供应商	返回
-//                if (resultCode == RESULT_OK) {
-//                    supplier = data.getParcelableExtra("obj");
-//                    Log.e("onActivityResult --> SEL_CUST", supplier.getFname());
-//                    if (supplier != null) {
-//                        setTexts(etCustSel, supplier.getFname());
-//                    }
-//                }
-//
-//                break;
-//        }
+        switch (requestCode) {
+            case SEL_NUM: // 数量
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        if(num > listDatas.get(curPos).getFqty()) {
+                            Comm.showWarnDialog(context,"入库数不能大于单据数！");
+                            return;
+                        }
+                        listDatas.get(curPos).setInStorageFqty(num);
+                        run_modifyFqty_app(num);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+        }
     }
 
     /**

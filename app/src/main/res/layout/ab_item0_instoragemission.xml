@@ -235,7 +235,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="1.2"
             android:gravity="center"
             android:text="物料名称"
             android:textColor="#000000"
@@ -254,9 +254,9 @@
             android:layout_width="@dimen/_45dp"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="单据\n数量"
+            android:text="单据数\n入库数"
             android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textSize="@dimen/_11sp" />
 
     </LinearLayout>
 

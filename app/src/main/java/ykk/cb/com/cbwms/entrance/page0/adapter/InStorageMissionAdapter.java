@@ -2,6 +2,7 @@ package ykk.cb.com.cbwms.entrance.page0.adapter;
 
 import android.app.Activity;
 import android.text.Html;
+import android.view.View;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -9,6 +10,8 @@ import java.util.List;
 
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.model.InStorageMissionEntry;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
+import ykk.cb.com.cbwms.purchase.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
 public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageMissionEntry> {
@@ -30,19 +33,34 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, InStorageMissionEntry entity, final int pos) {
+    public void onBindHoder(RecyclerHolder holder, final InStorageMissionEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_fnumber = holder.obtainView(R.id.tv_fnumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_suppName = holder.obtainView(R.id.tv_suppName);
-        TextView tv_num = holder.obtainView(R.id.tv_num);
+        TextView tv_nums = holder.obtainView(R.id.tv_nums);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
         tv_fnumber.setText(entity.getInStorageMission().getInStorageNumber());
         tv_mtlName.setText(entity.getMaterialName());
         tv_suppName.setText(entity.getSupplierName());
-        tv_num.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(entity.getInStorageFqty())+"</font>"));
+        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(entity.getInStorageFqty())+"</font>"));
+
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.tv_nums: // 数量
+                        if(callBack != null) {
+                            callBack.onClick_num(v, entity, pos);
+                        }
+
+                        break;
+                }
+            }
+        };
+        tv_nums.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -50,8 +68,9 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
     }
 
     public interface MyCallBack {
-        void onClick(InStorageMissionEntry entity, int position);
+        void onClick_num(View v, InStorageMissionEntry entity, int position);
     }
+
 
 
 

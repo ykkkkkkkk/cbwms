@@ -251,10 +251,11 @@
             android:textSize="12sp" />
 
         <TextView
+            android:id="@+id/tv_hintName"
             android:layout_width="@dimen/_45dp"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="单据数\n入库数"
+            android:text="可收数"
             android:textColor="#000000"
             android:textSize="@dimen/_11sp" />
 
@@ -263,12 +264,23 @@
     <ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
         android:id="@+id/xRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="#FFFFFF"
         android:overScrollMode="never" />
 
     <!--</LinearLayout>-->
 
     <!--</HorizontalScrollView>-->
+
+    <Button
+        android:id="@+id/btn_prodK3"
+        android:layout_width="match_parent"
+        android:background="@drawable/btn_blue2_selector"
+        android:text="生成到k3"
+        android:visibility="gone"
+        android:textSize="@dimen/_16sp"
+        android:textColor="@color/white"
+        android:layout_height="@dimen/_38dp" />
 
 </LinearLayout>

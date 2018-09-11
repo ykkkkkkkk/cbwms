@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.entrance.page0.InStorageMissionActivity;
 import ykk.cb.com.cbwms.model.InStorageMissionEntry;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.purchase.adapter.Prod_InFragment1Adapter;
@@ -16,12 +17,12 @@ import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
 public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageMissionEntry> {
 
-    private Activity context;
+    private InStorageMissionActivity context;
     private MyCallBack callBack;
     private List<InStorageMissionEntry> datas;
     private DecimalFormat df = new DecimalFormat("#.####");
 
-    public InStorageMissionAdapter(Activity context, List<InStorageMissionEntry> datas) {
+    public InStorageMissionAdapter(InStorageMissionActivity context, List<InStorageMissionEntry> datas) {
         super(datas);
         this.context = context;
         this.datas = datas;
@@ -40,12 +41,26 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_suppName = holder.obtainView(R.id.tv_suppName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
+        TextView tv_check = holder.obtainView(R.id.tv_check);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
         tv_fnumber.setText(entity.getInStorageMission().getInStorageNumber());
         tv_mtlName.setText(entity.getMaterialName());
         tv_suppName.setText(entity.getSupplierName());
-        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(entity.getInStorageFqty())+"</font>"));
+        tv_nums.setText(df.format(entity.getFqty()-entity.getInStorageFqty()));
+
+        if(context.entryStatus == '3') {
+            tv_nums.setVisibility(View.GONE);
+            tv_check.setVisibility(View.VISIBLE);
+            if(entity.getIsCheck()) {
+                tv_check.setBackgroundResource(R.drawable.check_true);
+            } else {
+                tv_check.setBackgroundResource(R.drawable.check_false);
+            }
+        } else {
+            tv_nums.setVisibility(View.VISIBLE);
+            tv_check.setVisibility(View.GONE);
+        }
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override

@@ -15,10 +15,14 @@ public class InStorageMission implements Serializable {
 	private String inStorageNumber;
 	/*收货部门id*/
 	private Integer inStorageDeptId;
+	/*收货部门代码*/
+	private String inStorageDeptNumber;
 	/*收货部门*/
 	private Department inStorageDept;
 	/*收货员id*/
 	private Integer inStorageStaffId;
+	/*收货员代码*/
+	private String inStorageStaffNumber;
 	/*收货员*/
 	private Staff inStorageStaff;
 	/*任务状态 1未开始，2入库中，3部分入库，4完全入库*/
@@ -33,6 +37,8 @@ public class InStorageMission implements Serializable {
 	private String inStorageBillCreateTime;
 	/*入库单据类型 1代表采购入库任务，2代表生产入库任务，3代表委外入库任务*/
 	private Integer inStorageBillType;
+	private Integer recOrgId; // 收料组织id
+	private String recOrgNumber; // 收料组织代码
 
 	public InStorageMission() {
 		super();
@@ -134,14 +140,37 @@ public class InStorageMission implements Serializable {
 		this.inStorageBillType = inStorageBillType;
 	}
 
-	@Override
-	public String toString() {
-		return "InStorageMission [id=" + id + ", inStorageNumber=" + inStorageNumber + ", inStorageDeptId="
-				+ inStorageDeptId + ", inStorageDept=" + inStorageDept + ", inStorageStaffId=" + inStorageStaffId
-				+ ", inStorageStaff=" + inStorageStaff + ", inStorageStatus=" + inStorageStatus + ", inStorageBegTime="
-				+ inStorageBegTime + ", inStorageEndTime=" + inStorageEndTime + ", inStorageBillCreater="
-				+ inStorageBillCreater + ", inStorageBillCreateTime=" + inStorageBillCreateTime + ", inStorageBillType="
-				+ inStorageBillType + "]";
+	public Integer getRecOrgId() {
+		return recOrgId;
 	}
+
+	public void setRecOrgId(Integer recOrgId) {
+		this.recOrgId = recOrgId;
+	}
+
+	public String getRecOrgNumber() {
+		return recOrgNumber;
+	}
+
+	public void setRecOrgNumber(String recOrgNumber) {
+		this.recOrgNumber = recOrgNumber;
+	}
+
+	public String getInStorageDeptNumber() {
+		return inStorageDeptNumber;
+	}
+
+	public void setInStorageDeptNumber(String inStorageDeptNumber) {
+		this.inStorageDeptNumber = inStorageDeptNumber;
+	}
+
+	public String getInStorageStaffNumber() {
+		return inStorageStaffNumber;
+	}
+
+	public void setInStorageStaffNumber(String inStorageStaffNumber) {
+		this.inStorageStaffNumber = inStorageStaffNumber;
+	}
+
 
 }

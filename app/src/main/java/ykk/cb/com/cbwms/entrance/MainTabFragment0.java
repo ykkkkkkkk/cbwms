@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -25,7 +24,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
-import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page0.InStorageMissionActivity;
 import ykk.cb.com.cbwms.entrance.page0.QualityMissionActivity;
@@ -44,6 +42,7 @@ public class MainTabFragment0 extends BaseFragment {
     private MainTabFragment0 context = this;
     private Activity mContext;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
+    private static final int DELAYED_LOAD = 10;
     private User user;
 
     // 消息处理
@@ -76,6 +75,10 @@ public class MainTabFragment0 extends BaseFragment {
 //                        Comm.showWarnDialog(m.mContext,"服务器繁忙，请稍候再试！");
 
                         break;
+                    case DELAYED_LOAD: // 延时刷新
+                        m.run_findMsgNumber_app();
+
+                        break;
                 }
             }
         }
@@ -93,13 +96,13 @@ public class MainTabFragment0 extends BaseFragment {
 
     @Override
     public void initData() {
-        run_findMsgNumber_app();
+        //run_findMsgNumber_app();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-//        run_findMsgNumber_app();
+        mHandler.sendEmptyMessageDelayed(DELAYED_LOAD, 500);
     }
 
     @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4})

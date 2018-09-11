@@ -171,12 +171,17 @@ public class PublicInputDialog extends BaseDialogActivity {
                 context.finish();
 
                 break;
-            case R.id.btn_confirm:
+            case R.id.btn_confirm: // 确定按钮
                 String inputName = getValues(etInput).trim();
                 if (inputType.equals("0") || inputType.equals("0.0")) {
+                    double num = parseDouble(inputName);
+                    if(num == 0) {
+                        toasts("请输入数量！");
+                        return;
+                    }
                     inputName = df.format(parseDouble(inputName));
-                }
-                if (inputName.length() == 0) {
+
+                } else if (inputName.length() == 0) {
                     toasts("请输入内容！");
                     return;
                 }

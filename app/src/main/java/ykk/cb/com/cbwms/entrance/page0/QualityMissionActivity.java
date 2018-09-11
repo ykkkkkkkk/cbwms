@@ -92,7 +92,6 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
                         List<QualityMissionEntry> list = JsonUtil.strToList2((String) msg.obj, QualityMissionEntry.class);
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
-                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新
 
                         if (m.isRefresh) {
                             m.xRecyclerView.refreshComplete(true);
@@ -100,12 +99,15 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
                             m.xRecyclerView.loadMoreComplete(true);
                         }
 
+                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
 
                         break;
                     case UNSUCC1: // 数据加载失败！
                         m.mAdapter.notifyDataSetChanged();
+                        m.xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+                        m.xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
                         break;
                     case MODIFY: // 更新成功
@@ -137,7 +139,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
         xRecyclerView.setLoadingListener(context);
 
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
-//        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -413,18 +415,21 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
      */
     private void submit(View v, char entryStatus) {
         QualityMissionEntry qmE = listDatas.get(curPos);
-        double num1 = parseDouble(getValues(etNum1).trim());
-        double num2 = parseDouble(getValues(etNum2).trim());
-        double num3 = parseDouble(getValues(etNum3).trim());
+        String strNum1 = getValues(etNum1).trim();
+        String strNum2 = getValues(etNum2).trim();
+        String strNum3 = getValues(etNum3).trim();
+        double num1 = parseDouble(strNum1);
+        double num2 = parseDouble(strNum2);
+        double num3 = parseDouble(strNum3);
         if(num1 == 0) {
             Comm.showWarnDialog(context,"请输入“检验数”！");
             return;
         }
-        if(num2 == 0) {
+        if(strNum2.length() == 0) {
             Comm.showWarnDialog(context,"请输入“合格数”！");
             return;
         }
-        if(num3 == 0) {
+        if(strNum2.length() == 0) {
             Comm.showWarnDialog(context,"请输入“不良数”！");
             return;
         }
@@ -437,7 +442,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
             return;
         }
         if(num1 > (qmE.getFqty() - qmE.getCheckedFqty())) {
-            Comm.showWarnDialog(context,"检验数不能大于可检数！");
+            Comm.showWarnDialog(context,"“检验数”不能大于“可检数”！");
             return;
         }
         // 已检数加上检验数等于单据数，状态等于已完成

@@ -27,6 +27,7 @@ public class InStorageMissionEntry implements Serializable {
 	private String materialName;
 	/*物料规格*/
 	private String materialSize;
+	private String unitFnumber; // 单位代码
 	/*源单类型 1代表采购收料通知单*/
 	private Integer relationBillType;
 	/*源单id*/
@@ -66,6 +67,9 @@ public class InStorageMissionEntry implements Serializable {
 	private String supplierName;
 	/*供应商*/
 	private Supplier supplier;
+
+	// 临时用的数据
+	private boolean isCheck; // 是否选中
 
 	public InStorageMissionEntry() {
 		super();
@@ -287,19 +291,21 @@ public class InStorageMissionEntry implements Serializable {
 		this.qualityMissionEntry = qualityMissionEntry;
 	}
 
-	@Override
-	public String toString() {
-		return "InStorageMissionEntry [id=" + id + ", inStorageId=" + inStorageId + ", inStorageMission="
-				+ inStorageMission + ", materialId=" + materialId + ", material=" + material + ", materialNumber="
-				+ materialNumber + ", materialName=" + materialName + ", materialSize=" + materialSize
-				+ ", relationBillType=" + relationBillType + ", relationBillId=" + relationBillId + ", purReceiveOrder="
-				+ purReceiveOrder + ", relationBillNumber=" + relationBillNumber + ", entryId=" + entryId + ", fqty="
-				+ fqty + ", inStorageStockId=" + inStorageStockId + ", inStorageStock=" + inStorageStock
-				+ ", inStorageStockNumber=" + inStorageStockNumber + ", inStorageStockName=" + inStorageStockName
-				+ ", inStorageStockPositionId=" + inStorageStockPositionId + ", stockPosition=" + stockPosition
-				+ ", inStorageStockPositionNumber=" + inStorageStockPositionNumber + ", inStorageFqty=" + inStorageFqty
-				+ ", supplierId=" + supplierId + ", supplierNumber=" + supplierNumber + ", supplierName=" + supplierName
-				+ ", supplier=" + supplier + "]";
+	public String getUnitFnumber() {
+		return unitFnumber;
 	}
-	
+
+	public void setUnitFnumber(String unitFnumber) {
+		this.unitFnumber = unitFnumber;
+	}
+
+	public boolean getIsCheck() {
+		return isCheck;
+	}
+
+	public void setIsCheck(boolean isCheck) {
+		this.isCheck = isCheck;
+	}
+
+
 }

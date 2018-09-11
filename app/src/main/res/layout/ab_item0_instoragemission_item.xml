@@ -49,9 +49,21 @@
         android:id="@+id/tv_nums"
         android:layout_width="@dimen/_45dp"
         android:layout_height="@dimen/_42dp"
-        android:gravity="center"
         android:background="@drawable/back_style_blue2"
+        android:gravity="center"
         android:text="订单数\n入库数"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_check"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@drawable/check_false"
+        android:gravity="center"
+        android:visibility="gone"
         android:textColor="#000000"
         android:textSize="12sp" />
 

@@ -98,7 +98,7 @@
             android:layout_marginLeft="@dimen/_20dp"
             android:layout_weight="1"
             android:background="@drawable/btn_purple_selector"
-            android:text="提交（检验中）"
+            android:text="提交 (检验中)"
             android:textColor="@color/white" />
     </LinearLayout>
 
@@ -125,7 +125,7 @@
             android:layout_marginLeft="@dimen/_20dp"
             android:layout_weight="1"
             android:background="@drawable/btn_blue_selector"
-            android:text="提交（已完成）"
+            android:text="提交 (已完成)"
             android:textColor="@color/white" />
 
 

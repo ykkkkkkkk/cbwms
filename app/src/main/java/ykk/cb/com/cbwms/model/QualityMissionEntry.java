@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
 
@@ -28,7 +29,7 @@ public class QualityMissionEntry implements Serializable {
 	/*物料规格*/
 	private String materialSize;
 	/*源单类型 1代表采购收料通知单*/
-	private Integer relationBillType;
+	private int relationBillType;
 	/*源单id*/
 	private int relationBillId;
 	/*采购收料通知单*/
@@ -46,13 +47,13 @@ public class QualityMissionEntry implements Serializable {
 	/*不合格数量*/
 	private double unQualifiedFqty;
 	/*质检方案id*/
-	private Integer qualityPlanId;
+	private int qualityPlanId;
 	/*质检方案*/
 	private QualityPlan qualityPlan;
 	/*检验状态 1、未检验，2、检验中，3、检验完毕*/
-	private Integer entryStatus;
+	private int entryStatus;
 	/*处理结果 1、质检通过可验收入库，2、质检不通过退回供应商，3、质检不通过暂存，4、待商定处理*/
-	private Integer disposeResult;
+	private int disposeResult;
 	/*备注*/
 	private String remark;
 
@@ -64,6 +65,7 @@ public class QualityMissionEntry implements Serializable {
 	private String supplierName;
 	/*供应商*/
 	private Supplier supplier;
+	private List<QualityPlanDetail> qualityPlanDetailList;
 
 	public int getId() {
 		return id;
@@ -107,10 +109,10 @@ public class QualityMissionEntry implements Serializable {
 	public void setMaterialSize(String materialSize) {
 		this.materialSize = materialSize;
 	}
-	public Integer getRelationBillType() {
+	public int getRelationBillType() {
 		return relationBillType;
 	}
-	public void setRelationBillType(Integer relationBillType) {
+	public void setRelationBillType(int relationBillType) {
 		this.relationBillType = relationBillType;
 	}
 	public int getRelationBillId() {
@@ -161,10 +163,10 @@ public class QualityMissionEntry implements Serializable {
 	public void setUnQualifiedFqty(double unQualifiedFqty) {
 		this.unQualifiedFqty = unQualifiedFqty;
 	}
-	public Integer getQualityPlanId() {
+	public int getQualityPlanId() {
 		return qualityPlanId;
 	}
-	public void setQualityPlanId(Integer qualityPlanId) {
+	public void setQualityPlanId(int qualityPlanId) {
 		this.qualityPlanId = qualityPlanId;
 	}
 	public QualityPlan getQualityPlan() {
@@ -173,10 +175,10 @@ public class QualityMissionEntry implements Serializable {
 	public void setQualityPlan(QualityPlan qualityPlan) {
 		this.qualityPlan = qualityPlan;
 	}
-	public Integer getEntryStatus() {
+	public int getEntryStatus() {
 		return entryStatus;
 	}
-	public void setEntryStatus(Integer entryStatus) {
+	public void setEntryStatus(int entryStatus) {
 		this.entryStatus = entryStatus;
 	}
 	public String getRemark() {
@@ -186,10 +188,10 @@ public class QualityMissionEntry implements Serializable {
 		this.remark = remark;
 	}
 
-	public Integer getDisposeResult() {
+	public int getDisposeResult() {
 		return disposeResult;
 	}
-	public void setDisposeResult(Integer disposeResult) {
+	public void setDisposeResult(int disposeResult) {
 		this.disposeResult = disposeResult;
 	}
 
@@ -223,23 +225,16 @@ public class QualityMissionEntry implements Serializable {
 	public void setMission(QualityMission mission) {
 		this.mission = mission;
 	}
+	public List<QualityPlanDetail> getQualityPlanDetailList() {
+		return qualityPlanDetailList;
+	}
+	public void setQualityPlanDetailList(List<QualityPlanDetail> qualityPlanDetailList) {
+		this.qualityPlanDetailList = qualityPlanDetailList;
+	}
 
 	public QualityMissionEntry() {
 		super();
 	}
 
-	@Override
-	public String toString() {
-		return "QualityMissionEntry [id=" + id + ", missionId=" + missionId + ", mission=" + mission + ", materialId="
-				+ materialId + ", material=" + material + ", materialNumber=" + materialNumber + ", materialName="
-				+ materialName + ", materialSize=" + materialSize + ", relationBillType=" + relationBillType
-				+ ", relationBillId=" + relationBillId + ", purReceiveOrder=" + purReceiveOrder
-				+ ", relationBillNumber=" + relationBillNumber + ", entryId=" + entryId + ", fqty=" + fqty
-				+ ", checkedFqty=" + checkedFqty + ", qualifiedFqty=" + qualifiedFqty + ", unQualifiedFqty="
-				+ unQualifiedFqty + ", qualityPlanId=" + qualityPlanId + ", qualityPlan=" + qualityPlan
-				+ ", entryStatus=" + entryStatus + ", disposeResult=" + disposeResult + ", remark=" + remark
-				+ ", supplierId=" + supplierId + ", supplierNumber=" + supplierNumber + ", supplierName=" + supplierName
-				+ ", supplier=" + supplier + "]";
-	}
 
 }

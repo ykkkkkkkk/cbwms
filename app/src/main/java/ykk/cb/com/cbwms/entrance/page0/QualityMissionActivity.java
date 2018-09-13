@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.entrance.page0;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
@@ -38,8 +40,13 @@ import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page0.adapter.QualityMissionAdapter;
+import ykk.cb.com.cbwms.entrance.page0.adapter.QualityMissionDialogAdapter;
 import ykk.cb.com.cbwms.model.QualityMissionEntry;
+import ykk.cb.com.cbwms.model.QualityMissionEntryResult;
+import ykk.cb.com.cbwms.model.QualityPlanDetail;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.purchase.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
@@ -60,17 +67,18 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
     private QualityMissionActivity context = this;
     private static final int SUCC1 = 100, UNSUCC1 = 550;
     private static final int MODIFY = 200, UNMODIFY = 500;
+    private static final int SEL_NUM = 10, SEL_NUM2 = 11, SEL_NUM3 = 12;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private QualityMissionAdapter mAdapter;
     private List<QualityMissionEntry> listDatas = new ArrayList<>();
+    private List<QualityPlanDetail> listQpd = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     public char entryStatus = '1'; // 检验状态( 1、未检验，2、检验中，3、检验完毕)
     private View curRadio;
-    private int curPos;
+    private int curPos, curPos2;
     private User user;
     private DecimalFormat df = new DecimalFormat("#.####");
-    private EditText etNum1, etNum2, etNum3;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -252,7 +260,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
     /**
      * 提交检验数量
      */
-    private void run_modifyFqty_app(double num1, double num2, double num3, char entryStatus) {
+    private void run_modifyFqty_app(String num1, String num2, String num3, char entryStatus) {
         showLoadDialog("提交中...");
         String mUrl = Consts.getURL("purchaseMission/modifyFqty_app");
         QualityMissionEntry qmEntry = listDatas.get(curPos);
@@ -262,6 +270,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
                 .add("checkedFqty", String.valueOf(num1))
                 .add("qualifiedFqty", String.valueOf(num2))
                 .add("unQualifiedFqty", String.valueOf(num3))
+                .add("strJson", JsonUtil.objectToString(qmEntry))
                 .build();
 
         Request request = new Request.Builder()
@@ -312,31 +321,101 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
      * 检验数量输入
      */
     private AlertDialog alertDialog;
+    private QualityMissionDialogAdapter dialogAdapter;
+    private List<QualityMissionEntry> listItems;
+    private TextView tvCountNum1, tvCountNum2, tvCountNum3;
     private void writeNumDialog() {
         if(df == null) df = new DecimalFormat("#.####");
-        View v = context.getLayoutInflater().inflate(R.layout.ab_item0_instoragemission_dialog, null);
+        View v = context.getLayoutInflater().inflate(R.layout.ab_item0_qualitymission_dialog, null);
         alertDialog = null;
+        dialogAdapter = null;
+        tvCountNum1 = null;
+        tvCountNum2 = null;
+        tvCountNum3 = null;
         alertDialog = new AlertDialog.Builder(context).setView(v).create();
-        etNum1 = null;
-        etNum2 = null;
-        etNum3 = null;
+
         // 初始化id
-        etNum1 = (EditText) v.findViewById(R.id.et_num1);
-        etNum2 = (EditText) v.findViewById(R.id.et_num2);
-        etNum3 = (EditText) v.findViewById(R.id.et_num3);
+        TextView tvNo = (TextView) v.findViewById(R.id.tv_no);
+        TextView tvMtlName = (TextView) v.findViewById(R.id.tv_mtlName);
+        tvCountNum1 = (TextView) v.findViewById(R.id.tv_countNum1);
+        tvCountNum2 = (TextView) v.findViewById(R.id.tv_countNum2);
+        tvCountNum3 = (TextView) v.findViewById(R.id.tv_countNum3);
+
+        XRecyclerView  xRecyclerView2 = (XRecyclerView) v.findViewById(R.id.xRecyclerView);
         Button btnClose = (Button) v.findViewById(R.id.btn_close);
         Button btnSubmit = (Button) v.findViewById(R.id.btn_submit);
         Button btnSubmit2 = (Button) v.findViewById(R.id.btn_submit2);
 
         QualityMissionEntry qmE = listDatas.get(curPos);
-        etNum1.setHint("可检:"+df.format(qmE.getFqty()- qmE.getCheckedFqty()));
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showKeyboard(etNum1);
+        listQpd.clear();
+        List<QualityPlanDetail> list = qmE.getQualityPlanDetailList();
+        listQpd.addAll(list);
+        // 如果该项目没有检验数，就默认用单据数填上检验数
+        for(int i=0; i<listQpd.size(); i++) {
+            QualityPlanDetail qpd = listQpd.get(i);
+            if(qpd.getQualityMissionEntryResult().getQualityCheckFqty() == 0) {
+                qpd.getQualityMissionEntryResult().setQualityCheckFqty(qmE.getFqty());
             }
-        },200);
+        }
+        tvNo.setText(Html.fromHtml("<font color='#666666'>单据编号：</font>"+qmE.getMission().getMissionNumber()));
+        tvMtlName.setText(Html.fromHtml("<font color='#666666'>物料名称：</font>"+qmE.getMaterialName()));
+        // 复制list
+        List<QualityPlanDetail> listTemp = new ArrayList<>();
+        for(int i=0; i<listQpd.size(); i++) {
+            listTemp.add(listQpd.get(i));
+        }
+        // 利用冒泡排序得到最大的不良数
+        for (int i = 0; i < listQpd.size() - 1; i++) {//外层循环控制排序趟数
+            for (int j = 0; j < listQpd.size() - 1 - i; j++) {//内层循环控制每一趟排序多少次
+                QualityPlanDetail qpd1 = listTemp.get(j);
+                QualityMissionEntryResult qmeR1 = qpd1.getQualityMissionEntryResult();
+                QualityPlanDetail qpd2 = listTemp.get(j+1);
+                QualityMissionEntryResult qmeR2 = qpd2.getQualityMissionEntryResult();
+
+                if (qmeR1.getResultUnQualifiedFqty() < qmeR2.getResultUnQualifiedFqty()) {
+                    QualityPlanDetail temp = qpd1;
+                    listTemp.set(j, qpd2);
+                    listTemp.set(j+1, temp);
+                }
+            }
+        }
+        QualityPlanDetail qpdTemp = listTemp.get(0);
+        tvCountNum1.setText(df.format(qpdTemp.getQualityMissionEntryResult().getQualityCheckFqty()));
+        tvCountNum2.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultQualifiedFqty()));
+        tvCountNum3.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultUnQualifiedFqty()));
+        // 初始化listView
+        xRecyclerView2.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        xRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
+        dialogAdapter = new QualityMissionDialogAdapter(context, listQpd);
+        xRecyclerView2.setAdapter(dialogAdapter);
+        xRecyclerView2.setLoadingListener(context);
+
+        xRecyclerView2.setPullRefreshEnabled(false); // 上啦刷新禁用
+        xRecyclerView2.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+
+        dialogAdapter.setCallBack(new QualityMissionDialogAdapter.MyCallBack() {
+            @Override
+            public void onClick_num1(QualityPlanDetail entity, int position) {
+                Log.e("num", "行：" + position);
+                curPos2 = position;
+                showInputDialog("检验数", String.valueOf(entity.getQualityMissionEntryResult().getQualityCheckFqty()), "0", SEL_NUM);
+            }
+
+            @Override
+            public void onClick_num2(QualityPlanDetail entity, int position) {
+                Log.e("num", "行：" + position);
+                curPos2 = position;
+                showInputDialog("合格数", String.valueOf(entity.getQualityMissionEntryResult().getResultQualifiedFqty()), "0", SEL_NUM2);
+            }
+
+            @Override
+            public void onClick_num3(QualityPlanDetail entity, int position) {
+                Log.e("num", "行：" + position);
+                curPos2 = position;
+                showInputDialog("不良品", String.valueOf(entity.getQualityMissionEntryResult().getResultUnQualifiedFqty()), "0", SEL_NUM3);
+            }
+
+        });
 
         // 关闭
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -368,42 +447,6 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
         btnSubmit.setOnClickListener(click);
         btnSubmit2.setOnClickListener(click);
 
-        etNum2.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(alertDialog.getCurrentFocus().getId() == etNum2.getId()) {
-                    double num1 = parseDouble(getValues(etNum1).trim());
-                    double num2 = parseDouble(s.toString().trim());
-                    if (num1 > 0 && num2 > 0) {
-                        double sum = num1 - num2;
-                        etNum3.setText(df.format(sum));
-                    }
-                }
-            }
-            @Override
-            public void afterTextChanged(Editable s) { }
-        });
-
-        etNum3.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(alertDialog.getCurrentFocus().getId() == etNum3.getId()) {
-                    double num1 = parseDouble(getValues(etNum1).trim());
-                    double num3 = parseDouble(s.toString().trim());
-                    if (num1 > 0 && num3 > 0) {
-                        double sum = num1 - num3;
-                        etNum2.setText(df.format(sum));
-                    }
-                }
-            }
-            @Override
-            public void afterTextChanged(Editable s) { }
-        });
-
         Window window = alertDialog.getWindow();
         alertDialog.setCancelable(false);
         alertDialog.show();
@@ -414,41 +457,41 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
      * 提交的方法
      */
     private void submit(View v, char entryStatus) {
-        QualityMissionEntry qmE = listDatas.get(curPos);
-        String strNum1 = getValues(etNum1).trim();
-        String strNum2 = getValues(etNum2).trim();
-        String strNum3 = getValues(etNum3).trim();
-        double num1 = parseDouble(strNum1);
-        double num2 = parseDouble(strNum2);
-        double num3 = parseDouble(strNum3);
-        if(num1 == 0) {
-            Comm.showWarnDialog(context,"请输入“检验数”！");
-            return;
-        }
-        if(strNum2.length() == 0) {
-            Comm.showWarnDialog(context,"请输入“合格数”！");
-            return;
-        }
-        if(strNum2.length() == 0) {
-            Comm.showWarnDialog(context,"请输入“不良数”！");
-            return;
-        }
-        if(num2 > num1) {
-            Comm.showWarnDialog(context,"“合格数”不能大于“检验数”！");
-            return;
-        }
-        if(num3 > num1) {
-            Comm.showWarnDialog(context,"“不良数”不能大于“检验数”！");
-            return;
-        }
-        if(num1 > (qmE.getFqty() - qmE.getCheckedFqty())) {
-            Comm.showWarnDialog(context,"“检验数”不能大于“可检数”！");
-            return;
-        }
-        // 已检数加上检验数等于单据数，状态等于已完成
-        entryStatus = (num1+qmE.getCheckedFqty() == qmE.getFqty() ? '3' : entryStatus);
-
-        run_modifyFqty_app(num1, num2, num3, entryStatus);
+//        QualityMissionEntry qmE = listDatas.get(curPos2);
+//        String strNum1 = getValues(etNum1).trim();
+//        String strNum2 = getValues(etNum2).trim();
+//        String strNum3 = getValues(etNum3).trim();
+//        double num1 = parseDouble(strNum1);
+//        double num2 = parseDouble(strNum2);
+//        double num3 = parseDouble(strNum3);
+//        if(num1 == 0) {
+//            Comm.showWarnDialog(context,"请输入“检验数”！");
+//            return;
+//        }
+//        if(strNum2.length() == 0) {
+//            Comm.showWarnDialog(context,"请输入“合格数”！");
+//            return;
+//        }
+//        if(strNum2.length() == 0) {
+//            Comm.showWarnDialog(context,"请输入“不良数”！");
+//            return;
+//        }
+//        if(num2 > num1) {
+//            Comm.showWarnDialog(context,"“合格数”不能大于“检验数”！");
+//            return;
+//        }
+//        if(num3 > num1) {
+//            Comm.showWarnDialog(context,"“不良数”不能大于“检验数”！");
+//            return;
+//        }
+//        if(num1 > (qmE.getFqty() - qmE.getCheckedFqty())) {
+//            Comm.showWarnDialog(context,"“检验数”不能大于“可检数”！");
+//            return;
+//        }
+//        // 已检数加上检验数等于单据数，状态等于已完成
+//        entryStatus = (num1+qmE.getCheckedFqty() == qmE.getFqty() ? '3' : entryStatus);
+//
+        run_modifyFqty_app(getValues(tvCountNum1), getValues(tvCountNum2), getValues(tvCountNum3), entryStatus);
         hideKeyboard(v);
 
         alertDialog.dismiss();
@@ -457,18 +500,108 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case SEL_CUST: //查询供应商	返回
-//                if (resultCode == RESULT_OK) {
-//                    supplier = data.getParcelableExtra("obj");
-//                    Log.e("onActivityResult --> SEL_CUST", supplier.getFname());
-//                    if (supplier != null) {
-//                        setTexts(etCustSel, supplier.getFname());
-//                    }
-//                }
-//
-//                break;
-//        }
+        switch (requestCode) {
+            case SEL_NUM: //输入数量	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        listQpd.get(curPos2).getQualityMissionEntryResult().setQualityCheckFqty(num);
+                        dialogAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case SEL_NUM2: //输入数量	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        QualityPlanDetail qme = listQpd.get(curPos2);
+                        qme.getQualityMissionEntryResult().setResultQualifiedFqty(num);
+
+                        double num1 = qme.getQualityMissionEntryResult().getQualityCheckFqty();
+                        if (num1 > 0) {
+                            double sum = num1 - num;
+                            qme.getQualityMissionEntryResult().setResultUnQualifiedFqty(sum);
+                        }
+                        // 复制list
+                        List<QualityPlanDetail> listTemp = new ArrayList<>();
+                        for(int i=0; i<listQpd.size(); i++) {
+                            listTemp.add(listQpd.get(i));
+                        }
+                        // 利用冒泡排序得到最大的不良数
+                        for (int i = 0; i < listTemp.size() - 1; i++) {//外层循环控制排序趟数
+                            for (int j = 0; j < listTemp.size() - 1 - i; j++) {//内层循环控制每一趟排序多少次
+                                QualityPlanDetail qpd1 = listTemp.get(j);
+                                QualityMissionEntryResult qmeR1 = qpd1.getQualityMissionEntryResult();
+                                QualityPlanDetail qpd2 = listTemp.get(j+1);
+                                QualityMissionEntryResult qmeR2 = qpd2.getQualityMissionEntryResult();
+
+                                if (qmeR1.getResultUnQualifiedFqty() < qmeR2.getResultUnQualifiedFqty()) {
+                                    QualityPlanDetail temp = qpd1;
+                                    listTemp.set(j, qpd2);
+                                    listTemp.set(j+1, temp);
+                                }
+                            }
+                        }
+                        QualityPlanDetail qpdTemp = listTemp.get(0);
+                        tvCountNum1.setText(df.format(qpdTemp.getQualityMissionEntryResult().getQualityCheckFqty()));
+                        tvCountNum2.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultQualifiedFqty()));
+                        tvCountNum3.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultUnQualifiedFqty()));
+
+                        dialogAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case SEL_NUM3: //输入数量	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        QualityPlanDetail qme = listQpd.get(curPos2);
+                        qme.getQualityMissionEntryResult().setResultUnQualifiedFqty(num);
+
+                        double num1 = qme.getQualityMissionEntryResult().getQualityCheckFqty();
+                        if (num1 > 0) {
+                            double sum = num1 - num;
+                            qme.getQualityMissionEntryResult().setResultQualifiedFqty(sum);
+                        }
+                        // 复制list
+                        List<QualityPlanDetail> listTemp = new ArrayList<>();
+                        for(int i=0; i<listQpd.size(); i++) {
+                            listTemp.add(listQpd.get(i));
+                        }
+                        // 利用冒泡排序得到最大的不良数
+                        for (int i = 0; i < listTemp.size() - 1; i++) {//外层循环控制排序趟数
+                            for (int j = 0; j < listTemp.size() - 1 - i; j++) {//内层循环控制每一趟排序多少次
+                                QualityPlanDetail qpd1 = listTemp.get(j);
+                                QualityMissionEntryResult qmeR1 = qpd1.getQualityMissionEntryResult();
+                                QualityPlanDetail qpd2 = listTemp.get(j+1);
+                                QualityMissionEntryResult qmeR2 = qpd2.getQualityMissionEntryResult();
+
+                                if (qmeR1.getResultUnQualifiedFqty() < qmeR2.getResultUnQualifiedFqty()) {
+                                    QualityPlanDetail temp = qpd1;
+                                    listTemp.set(j, qpd2);
+                                    listTemp.set(j+1, temp);
+                                }
+                            }
+                        }
+                        QualityPlanDetail qpdTemp = listTemp.get(0);
+                        tvCountNum1.setText(df.format(qpdTemp.getQualityMissionEntryResult().getQualityCheckFqty()));
+                        tvCountNum2.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultQualifiedFqty()));
+                        tvCountNum3.setText(df.format(qpdTemp.getQualityMissionEntryResult().getResultUnQualifiedFqty()));
+
+                        dialogAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+        }
     }
 
     /**

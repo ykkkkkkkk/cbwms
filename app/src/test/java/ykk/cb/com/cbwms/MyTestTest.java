@@ -2,31 +2,28 @@ package ykk.cb.com.cbwms;
 
 import org.junit.Test;
 
-import java.util.List;
-
-import ykk.cb.com.cbwms.model.CombineSalOrderEntry;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
-import ykk.cb.com.cbwms.model.sal.DeliOrder;
-import ykk.cb.com.cbwms.util.JsonUtil;
-import ykk.cb.com.cbwms.util.JsonUtil;
-
 public class MyTestTest {
 
     @Test
     public void main() {
-        String a = "[{\"fId\":100501,\"fbillno\":\"FHTZD000002\",\"deliDate\":\"2018-07-27 00:00:00.0\",\"custId\":111036,\"custNumber\":\"1.4.01.0001\",\"custName\":\"北京世骏装饰工程有限公司（荣耀国际金融中心10F电动窗帘）\",\"deliOrgId\":100001,\"deliOrgNumber\":\"003\",\"deliOrgName\":\"佛山工厂\",\"deliOrg\":null,\"mtlId\":103690,\"mtl\":null,\"mtlFnumber\":\"941.101\",\"mtlFname\":\"15灵韵手动铝百叶\",\"mtlUnitName\":\"平方米\",\"stockId\":0,\"stockName\":null,\"stock\":null,\"deliFqty\":4.0,\"deliFremainoutqty\":4.0,\"deliveryWay\":null,\"entryId\":100501,\"isCheck\":0}]";
-//        List<DeliOrder> list = JsonUtil.stringToList(a, DeliOrder.class);
-//        for(int i=0; i<list.size(); i++){
-//            System.out.println("abc:"+ list.get(i).toString());
-//        }
-        for(int i=0; i<5; i++) {
-            System.out.println("parentIIIIIIIIIII");
-            for(int j=0, size2=5; j<size2; j++) {
-                System.out.println("sonJJJJJJJJJJJJJJJ");
-                if(j == 2) {
-                    break;
+        int[] arr = {6, 3, 8, 2, 9, 1};
+        System.out.println("排序前数组为：");
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+        for (int i = 0; i < arr.length - 1; i++) {//外层循环控制排序趟数
+            for (int j = 0; j < arr.length - 1 - i; j++) {//内层循环控制每一趟排序多少次
+                if (arr[j] < arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
                 }
             }
+        }
+        System.out.println();
+        System.out.println("排序后的数组为：");
+        for (int num : arr) {
+            System.out.print(num + " ");
         }
 
     }

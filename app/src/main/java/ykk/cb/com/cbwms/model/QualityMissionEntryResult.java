@@ -8,13 +8,13 @@ package ykk.cb.com.cbwms.model;
 public class QualityMissionEntryResult {
 
 	/*id*/
-	private Integer id;
+	private int id;
 	/*质检任务单单据体id*/
-	private Integer qualityMissionEntryId;
+	private int qualityMissionEntryId;
 	/*质检任务单单据体实体类*/
 	private QualityMissionEntry qualityMissionEntry;
 	/*质检方案明细id*/
-	private Integer qualityPlanDetailId;
+	private int qualityPlanDetailId;
 	/*质检方案明细*/
 //	private QualityPlanDetail qualityPlanDetail;
 	/*检验数量*/
@@ -24,21 +24,21 @@ public class QualityMissionEntryResult {
 	/*不合格数量*/
 	private double resultUnQualifiedFqty;
 	/*检验结果 1、质检通过，2、不通过*/
-	private Integer checkResult;
+	private int checkResult;
 	/*不合格原因*/
 	private String unQualifiedReason;
 	/*备注*/
 	private String resultRemark;
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
-	public Integer getQualityMissionEntryId() {
+	public int getQualityMissionEntryId() {
 		return qualityMissionEntryId;
 	}
-	public void setQualityMissionEntryId(Integer qualityMissionEntryId) {
+	public void setQualityMissionEntryId(int qualityMissionEntryId) {
 		this.qualityMissionEntryId = qualityMissionEntryId;
 	}
 	public QualityMissionEntry getQualityMissionEntry() {
@@ -47,10 +47,10 @@ public class QualityMissionEntryResult {
 	public void setQualityMissionEntry(QualityMissionEntry qualityMissionEntry) {
 		this.qualityMissionEntry = qualityMissionEntry;
 	}
-	public Integer getQualityPlanDetailId() {
+	public int getQualityPlanDetailId() {
 		return qualityPlanDetailId;
 	}
-	public void setQualityPlanDetailId(Integer qualityPlanDetailId) {
+	public void setQualityPlanDetailId(int qualityPlanDetailId) {
 		this.qualityPlanDetailId = qualityPlanDetailId;
 	}
 //	public QualityPlanDetail getQualityPlanDetail() {
@@ -77,10 +77,10 @@ public class QualityMissionEntryResult {
 	public void setResultUnQualifiedFqty(double resultUnQualifiedFqty) {
 		this.resultUnQualifiedFqty = resultUnQualifiedFqty;
 	}
-	public Integer getCheckResult() {
+	public int getCheckResult() {
 		return checkResult;
 	}
-	public void setCheckResult(Integer checkResult) {
+	public void setCheckResult(int checkResult) {
 		this.checkResult = checkResult;
 	}
 	public String getUnQualifiedReason() {

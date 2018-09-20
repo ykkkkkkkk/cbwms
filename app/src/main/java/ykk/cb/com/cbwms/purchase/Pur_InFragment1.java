@@ -580,7 +580,7 @@ public class Pur_InFragment1 extends BaseFragment {
     private boolean isKeyDownEnter(String val, int keyCode) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
             if (val.length() == 0) {
-                Comm.showWarnDialog(mContext, "请扫码条码！");
+                Comm.showWarnDialog(mContext, "请对准条码");
                 return false;
             }
             return true;
@@ -1034,6 +1034,12 @@ public class Pur_InFragment1 extends BaseFragment {
             record.setCreateUserId(user.getId());
             record.setCreateUserName(user.getUsername());
             record.setK3UserFnumber(user.getKdUserNumber());
+            record.setSourceType('1');
+//            record.setTempId(ism.getId());
+//            record.setRelationObj(JsonUtil.objectToString(ism));
+            record.setFsrcBillTypeId("PUR_PurchaseOrder");
+            record.setfRuleId("PUR_PurchaseOrder-STK_InStock");
+            record.setFsTableName("T_PUR_POOrderEntry");
 
             list.add(record);
         }

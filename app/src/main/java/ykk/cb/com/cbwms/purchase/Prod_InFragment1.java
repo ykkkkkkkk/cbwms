@@ -501,7 +501,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private boolean isKeyDownEnter(String val, KeyEvent event, int keyCode) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
             if (val.length() == 0) {
-                Comm.showWarnDialog(mContext, "请扫码条码！");
+                Comm.showWarnDialog(mContext, "请对准条码！");
                 return false;
             }
             return true;

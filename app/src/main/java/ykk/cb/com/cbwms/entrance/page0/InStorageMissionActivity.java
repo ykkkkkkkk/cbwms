@@ -7,10 +7,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -29,16 +32,17 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.Supplier_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page0.adapter.InStorageMissionAdapter;
+import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.InStorageMissionEntry;
-import ykk.cb.com.cbwms.model.QualityMissionEntry;
+import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.ScanningRecord;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
+import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.sal.PickingList;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
@@ -51,6 +55,12 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     View viewRadio2;
     @BindView(R.id.viewRadio3)
     View viewRadio3;
+    @BindView(R.id.lin_edit)
+    LinearLayout linEdit;
+    @BindView(R.id.tv_supplierSel)
+    TextView tvSupplierSel;
+    @BindView(R.id.et_mtlCode)
+    EditText etMtlCode;
     @BindView(R.id.btn_prodK3)
     Button btnProdK3;
     @BindView(R.id.tv_hintName)
@@ -59,18 +69,21 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     XRecyclerView xRecyclerView;
 
     private InStorageMissionActivity context = this;
-    private static final int SUCC1 = 100, UNSUCC1 = 551, FIND1 = 101, UNFIND1 = 550;
+    private static final int SUCC1 = 101, UNSUCC1 = 551, SUCC2 = 102, UNSUCC2 = 552, FIND1 = 103, UNFIND1 = 553;
     private static final int MODIFY = 200, UNMODIFY = 500;
-    private static final int SEL_NUM = 10;
+    private static final int SEL_NUM = 10, RESET = 11, SEL_SUPPLIER = 12;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private InStorageMissionAdapter mAdapter;
     private List<InStorageMissionEntry> listDatas = new ArrayList<>();
+    private Supplier supplier; // 供应商
+    public int supplierId;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     public char entryStatus = '1'; // 检验状态( 1、未检验，2、检验中，3、检验完毕)
     private View curRadio;
     private User user;
     private int curPos; // 当前行
+    private String mtlBarcode; // 对应的条码号
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -101,21 +114,28 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
 
                         m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
-
+//                        if(m.entryStatus != '3') {
+//                            m.linEdit.setVisibility(View.VISIBLE);
+//                            m.setFocusable(m.etMtlCode);
+//                        }
 
                         break;
                     case UNFIND1: // 数据加载失败！
                         m.mAdapter.notifyDataSetChanged();
                         m.xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
                         m.xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+//                        if(m.entryStatus != '3') m.linEdit.setVisibility(View.GONE);
 
                         break;
                     case SUCC1: // 保存
-                        Comm.showWarnDialog(m.context,"生产到K3成功✔");
+                        Comm.showWarnDialog(m.context,"生成到K3成功✔");
+                        m.supplierId = 0;
+                        m.tvSupplierSel.setText("全部");
+                        m.initLoadDatas();
 
                         break;
                     case UNSUCC1: // 保存失败
-                        Comm.showWarnDialog(m.context,"生产到K3失败！");
+                        Comm.showWarnDialog(m.context,"生成到K3失败！");
 
                         break;
                     case MODIFY: // 更新成功
@@ -126,6 +146,18 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                     case UNMODIFY: // 更新失败！
                         Comm.showWarnDialog(m.context,"服务器繁忙，请稍后再试！");
 
+                        break;
+                    case SUCC2: // 扫码成功后进入
+                        BarCodeTable bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
+                        m.getMtlAfter(bt);
+
+                        break;
+                    case UNSUCC2:
+                        Comm.showWarnDialog(m.context,"很抱歉，没能找到数据！");
+
+                        break;
+                    case RESET: // 没有得到数据，就把回车的去掉，恢复正常数据
+                        m.setTexts(m.etMtlCode, m.mtlBarcode);
                         break;
                 }
             }
@@ -151,31 +183,46 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                if(entryStatus == '3') {
-                    InStorageMissionEntry ism = listDatas.get(pos - 1);
-                    int size = listDatas.size();
-                    String fNumber = ism.getInStorageMission().getInStorageNumber();
-                    for (int i = 0; i < size; i++) {
-                        listDatas.get(i).setIsCheck(false);
-                    }
-                    for (int i = 0; i < size; i++) {
-                        InStorageMissionEntry ism2 = listDatas.get(i);
-                        if (fNumber.equals(ism2.getInStorageMission().getInStorageNumber())) {
-                            ism2.setIsCheck(true);
-                        }
-                    }
-
-                    mAdapter.notifyDataSetChanged();
-                }
+//                if(entryStatus == '3') {
+//                    InStorageMissionEntry ism = listDatas.get(pos - 1);
+//                    int size = listDatas.size();
+//                    String fNumber = ism.getInStorageMission().getInStorageNumber();
+//                    for (int i = 0; i < size; i++) {
+//                        listDatas.get(i).setIsCheck(false);
+//                    }
+//                    for (int i = 0; i < size; i++) {
+//                        InStorageMissionEntry ism2 = listDatas.get(i);
+//                        if (fNumber.equals(ism2.getInStorageMission().getInStorageNumber())) {
+//                            ism2.setIsCheck(true);
+//                        }
+//                    }
+//
+//                    mAdapter.notifyDataSetChanged();
+//                }
             }
         });
 
         mAdapter.setCallBack(new InStorageMissionAdapter.MyCallBack() {
             @Override
             public void onClick_num(View v, InStorageMissionEntry entity, int position) {
-                if(entryStatus == '3') return;
+                if(entryStatus == '2' || entryStatus == '3') return;
                 curPos = position;
-                showInputDialog("数量", "", "0", SEL_NUM);
+                showInputDialog("数量", String.valueOf(entity.getFqty()-entity.getInStorageFqty()), "0", SEL_NUM);
+            }
+
+            @Override
+            public void onClick_getSupplier(View v, InStorageMissionEntry entity, int position) {
+                if(supplierId > 0) {
+                    supplierId = 0;
+                    tvSupplierSel.setText("全部");
+                    if(entryStatus == '1') btnProdK3.setVisibility(View.GONE);
+
+                } else {
+                    supplierId = entity.getSupplierId();
+                    tvSupplierSel.setText(entity.getSupplierName());
+                    if(entryStatus == '1') btnProdK3.setVisibility(View.VISIBLE);
+                }
+                initLoadDatas();
             }
         });
     }
@@ -183,11 +230,13 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     @Override
     public void initData() {
         curRadio = viewRadio1;
+        tvHintName.setText(Html.fromHtml("单据数<br/><font color='#6A5ACD'>已收数</font><br/><font color='#009900'>实收数</font>"));
+        hideSoftInputMode(etMtlCode);
         getUserInfo();
         initLoadDatas();
     }
 
-    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.btn_prodK3})
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.tv_supplierSel, R.id.btn_prodK3})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -197,8 +246,10 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
 
                 break;
             case R.id.lin_tab1:
-                btnProdK3.setVisibility(View.GONE);
-                tvHintName.setText("可收数");
+                btnProdK3.setVisibility(View.VISIBLE);
+                supplierId = 0;
+                tvSupplierSel.setText("全部");
+                tvHintName.setText("单据数\n已收数\n实收数");
                 entryStatus = '1';
                 tabSelected(viewRadio1);
                 initLoadDatas();
@@ -206,18 +257,26 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                 break;
             case R.id.lin_tab2:
                 btnProdK3.setVisibility(View.GONE);
-                tvHintName.setText("可收数");
+                supplierId = 0;
+                tvSupplierSel.setText("全部");
+                tvHintName.setText("单据数\n已收数");
                 entryStatus = '2';
                 tabSelected(viewRadio2);
                 initLoadDatas();
 
                 break;
             case R.id.lin_tab3:
-                btnProdK3.setVisibility(View.VISIBLE);
-                tvHintName.setText("选中");
+                linEdit.setVisibility(View.GONE);
+                btnProdK3.setVisibility(View.GONE);
+//                tvHintName.setText("选中");
                 entryStatus = '3';
                 tabSelected(viewRadio3);
                 initLoadDatas();
+
+
+                break;
+            case R.id.tv_supplierSel: // 选择供应商
+//                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, null);
 
                 break;
             case R.id.btn_prodK3: // 生成到k3
@@ -226,17 +285,16 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                     List<InStorageMissionEntry> list = new ArrayList<>();
                     for(int i=0; i<size; i++) {
                         InStorageMissionEntry ism = listDatas.get(i);
-                        if(ism.getIsCheck()) {
+                        if(ism.getInputNum() > 0) {
                             list.add(ism);
                         }
                     }
                     if(list.size() == 0) {
-                        Comm.showWarnDialog(context,"请选择行！");
+                        Comm.showWarnDialog(context,"请在对应行输入数量！");
                         return;
                     }
                     run_addScanningRecord(list);
                 }
-
 
                 break;
         }
@@ -249,6 +307,132 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         curRadio.setBackgroundResource(R.drawable.check_off2);
         v.setBackgroundResource(R.drawable.check_on);
         curRadio = v;
+    }
+
+    @Override
+    public void setListener() {
+        View.OnKeyListener keyListener = new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // 按下事件
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (v.getId()) {
+                        case R.id.et_mtlCode: // 物料
+                            String matNo = getValues(etMtlCode).trim();
+                            if (isKeyDownEnter(matNo, keyCode)) {
+                                if (mtlBarcode != null && mtlBarcode.length() > 0) {
+                                    if(mtlBarcode.equals(matNo)) {
+                                        mtlBarcode = matNo;
+                                    } else {
+                                        String tmp = matNo.replaceFirst(mtlBarcode, "");
+                                        mtlBarcode = tmp.replace("\n", "");
+                                    }
+                                } else {
+                                    mtlBarcode = matNo.replace("\n", "");
+                                }
+                                mHandler.sendEmptyMessage(RESET);
+                                // 执行查询方法
+                                run_smGetDatas();
+                            }
+                            break;
+                    }
+                }
+                return false;
+            }
+        };
+        etMtlCode.setOnKeyListener(keyListener);
+    }
+
+    /**
+     * 是否按了回车键
+     */
+    private boolean isKeyDownEnter(String val, int keyCode) {
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            if (val.length() == 0) {
+                Comm.showWarnDialog(context, "请对准条码！");
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 扫码查询对应的方法
+     */
+    private void run_smGetDatas() {
+        showLoadDialog("加载中...");
+        String mUrl = mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+        String barcode = mtlBarcode;
+        String strCaseId = "11,21"; // 因为这里有物料包装或者物料的码所以不能指定caseId;
+        FormBody formBody = new FormBody.Builder()
+                .add("strCaseId", strCaseId)
+                .add("barcode", barcode)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC2);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                if (!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNSUCC2);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC2, result);
+                Log.e("run_smGetDatas --> onResponse", result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 得到物料信息之后
+     */
+    private void getMtlAfter(BarCodeTable bt) {
+        Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+        boolean isBool = false;
+        for(int i=0, size=listDatas.size(); i<size; i++) {
+            InStorageMissionEntry ism = listDatas.get(i);
+            // 扫码的物料和列表中的是否匹配
+            if(ism.getMaterialId() == mtl.getfMaterialId()) {
+                isBool = true;
+                if(ism.getFqty() == (ism.getInStorageFqty() + ism.getInputNum())) {
+                    continue;
+                }
+                double number = bt.getMaterialCalculateNumber();
+                double fqty = 1;
+                // 计量单位数量
+                if(mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
+                if(number > 0) {
+                    if(number > (ism.getFqty()-ism.getInStorageFqty())) {
+                        Comm.showWarnDialog(context,"第"+(i+1)+"行，“扫码数”➕“已收数”总和不能大于“单据数”！");
+                        return;
+                    }
+                }
+
+                ism.setInputNum(ism.getInputNum()+fqty);
+            }
+        }
+        if(!isBool) {
+            Comm.showWarnDialog(context,"扫描的条码与列表不匹配！");
+            return;
+        }
+        // 修改已收数量
+        mAdapter.notifyDataSetChanged();
+//        run_modifyFqty_app(id,fqtys);
     }
 
     private void initLoadDatas() {
@@ -266,6 +450,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         FormBody formBody = new FormBody.Builder()
                 .add("staffId", String.valueOf(user.getStaffId()))
                 .add("entryStatus", String.valueOf(entryStatus))
+                .add("supplierId", supplierId > 0 ? String.valueOf(supplierId) : "")
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "20")
                 .build();
@@ -303,12 +488,11 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
     /**
      * 提交入库数量
      */
-    private void run_modifyFqty_app(double num1) {
+    private void run_modifyFqty_app(int id, double num1) {
         showLoadDialog("提交中...");
         String mUrl = Consts.getURL("purchaseMission/modifyInStorageFqty_app");
-        InStorageMissionEntry qmEntry = listDatas.get(curPos);
         FormBody formBody = new FormBody.Builder()
-                .add("id", String.valueOf(qmEntry.getId()))
+                .add("id", String.valueOf(id))
                 .add("inStorageFqty", String.valueOf(num1))
                 .build();
 
@@ -377,7 +561,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
             record.setPdaRowno((i+1));
 //            record.setBatchNo(ism.getBatchno());
 //            record.setSequenceNo(ism.getSequenceNo());
-            record.setFqty(ism.getInStorageFqty());
+            record.setFqty(ism.getInputNum());
             record.setFdate(Comm.getSysDate(7));
             record.setPdaNo("");
             // 得到用户对象
@@ -385,6 +569,12 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
             record.setCreateUserId(user.getId());
             record.setCreateUserName(user.getUsername());
             record.setK3UserFnumber(user.getKdUserNumber());
+            record.setSourceType('8');
+            record.setTempId(ism.getId());
+            record.setRelationObj(JsonUtil.objectToString(ism));
+            record.setFsrcBillTypeId("PUR_ReceiveBill");
+            record.setfRuleId("PUR_ReceiveBill-STK_InStock");
+            record.setFsTableName("T_PUR_ReceiveEntry");
 
             list.add(record);
         }
@@ -448,13 +638,24 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
                         InStorageMissionEntry ism = listDatas.get(curPos);
-                        if(num > (ism.getFqty()-ism.getInStorageFqty())) {
-                            Comm.showWarnDialog(context,"输入的数量不能大于“可收数”！");
+                        if((ism.getInStorageFqty()+num) > ism.getFqty()) {
+                            Comm.showWarnDialog(context,"“实收数”➕“已收数”总和不能大于“单据数”！");
                             return;
                         }
-                        ism.setInStorageFqty(num);
-                        run_modifyFqty_app(num);
+                        ism.setInputNum(num);
+//                        run_modifyFqty_app(ism.getId(), num);
                         mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case SEL_SUPPLIER: //查询供应商	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    supplier = (Supplier) data.getSerializableExtra("obj");
+                    Log.e("onActivityResult --> SEL_SUPPLIER", supplier.getfName());
+                    if (supplier != null) {
+                        tvSupplierSel.setText(supplier.getfName());
+                        initLoadDatas();
                     }
                 }
 
@@ -467,6 +668,15 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
      */
     private void getUserInfo() {
         if(user == null) user = showUserByXml();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // 按了删除键，回退键
+        if(event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+            return false;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override

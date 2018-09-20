@@ -27,6 +27,96 @@ public class Material implements Serializable {
 	private int basicUnitId;
 	/*基本单位*/
 	private Unit unit;
+	/*大类id*/
+	private String bigSortId;
+	/*大类名称*/
+	private String bigSortName;
+	/*大类编号*/
+	private String bigSortNumber;
+	/*中类id*/
+	private String middleSortId;
+	/*中类名称*/
+	private String middleSortName;
+	/*中类编号*/
+	private String middleSortNumber;
+	/*小类id*/
+	private String smallSortId;
+	/*小类名称*/
+	private String smallSortName;
+	/*小类编号*/
+	private String smallSortNumber;
+	/*细类id*/
+	private String thinSortId;
+	/*细类名称*/
+	private String thinSortName;
+	/*细类编号*/
+	private String thinSortNumber;
+	/*品牌id*/
+	private String brandId;
+	/*品牌名称*/
+	private String brandName;
+	/*品牌编号*/
+	private String brandNumber;
+	/*系列id*/
+	private String seriesId;
+	/*系列名称*/
+	private String seriesName;
+	/*系列编号*/
+	private String seriesNumber;
+	/*商品id*/
+	private String productId;
+	/*商品名称*/
+	private String productName;
+	/*商品编号*/
+	private String productNumber;
+	/*车系id*/
+	private String carSeriesId;
+	/*车系名称*/
+	private String carSeriesName;
+	/*车系编号*/
+	private String carSeriesNumber;
+	/*车型id*/
+	private String carTypeId;
+	/*车型名称*/
+	private String carTypeName;
+	/*车型编号*/
+	private String carTypeNumber;
+	/*颜色id*/
+	private String colorId;
+	/*颜色名称*/
+	private String colorName;
+	/*颜色编号*/
+	private String colorNumber;
+	/*定价要素id*/
+	private String priceElementId;
+	/*定价要素名称*/
+	private String priceElementName;
+	/*定价要素编号*/
+	private String priceElementNumber;
+	/*工艺Id*/
+	private String technologyId;
+	/*工艺名称*/
+	private String technologyName;
+	/*工艺编号*/
+	private String technologyNumber;
+	/*结构id*/
+	private String structureId;
+	/*结构名称*/
+	private String structureName;
+	/*结构编号*/
+	private String structureNumber;
+	/*类别id*/
+	private String categoryId;
+	/*类别名称*/
+	private String categoryName;
+	/*类别编号*/
+	private String categoryNumber;
+	/*纹路id*/
+	private String linesId;
+	/*纹路名称*/
+	private String linesName;
+	/*纹路编号*/
+	private String linesNumber;
 	/*物料条码*/
 	private String barcode;
 	/*货主名称*/
@@ -98,9 +188,13 @@ public class Material implements Serializable {
 	private String oldNumber;
 	/*k3旧物料名称*/
 	private String oldName;
-	private Stock stock;
-	private StockPosition stockPos;
+	Stock stock;
+	StockPosition stockPos;
+	/*整件仓库和库位*/
+	private Stock fixWholeStock;
+	private StockPosition fixWholeStockPos;
 	private BarCodeTable barcodeTable;
+
 	/*计量单位数量*/
 	private double calculateFqty;
 
@@ -390,11 +484,277 @@ public class Material implements Serializable {
 	public void setStockPos(StockPosition stockPos) {
 		this.stockPos = stockPos;
 	}
-	public BarCodeTable getBarcodeTable() {
-		return barcodeTable;
+	public String getBigSortId() {
+		return bigSortId;
 	}
-	public void setBarcodeTable(BarCodeTable barcodeTable) {
-		this.barcodeTable = barcodeTable;
+	public void setBigSortId(String bigSortId) {
+		this.bigSortId = bigSortId;
+	}
+	public String getBigSortName() {
+		return bigSortName;
+	}
+	public void setBigSortName(String bigSortName) {
+		this.bigSortName = bigSortName;
+	}
+	public String getBigSortNumber() {
+		return bigSortNumber;
+	}
+	public void setBigSortNumber(String bigSortNumber) {
+		this.bigSortNumber = bigSortNumber;
+	}
+	public String getMiddleSortId() {
+		return middleSortId;
+	}
+	public void setMiddleSortId(String middleSortId) {
+		this.middleSortId = middleSortId;
+	}
+	public String getMiddleSortName() {
+		return middleSortName;
+	}
+	public void setMiddleSortName(String middleSortName) {
+		this.middleSortName = middleSortName;
+	}
+	public String getMiddleSortNumber() {
+		return middleSortNumber;
+	}
+	public void setMiddleSortNumber(String middleSortNumber) {
+		this.middleSortNumber = middleSortNumber;
+	}
+	public String getSmallSortId() {
+		return smallSortId;
+	}
+	public void setSmallSortId(String smallSortId) {
+		this.smallSortId = smallSortId;
+	}
+	public String getSmallSortName() {
+		return smallSortName;
+	}
+	public void setSmallSortName(String smallSortName) {
+		this.smallSortName = smallSortName;
+	}
+	public String getSmallSortNumber() {
+		return smallSortNumber;
+	}
+	public void setSmallSortNumber(String smallSortNumber) {
+		this.smallSortNumber = smallSortNumber;
+	}
+	public String getThinSortId() {
+		return thinSortId;
+	}
+	public void setThinSortId(String thinSortId) {
+		this.thinSortId = thinSortId;
+	}
+	public String getThinSortName() {
+		return thinSortName;
+	}
+	public void setThinSortName(String thinSortName) {
+		this.thinSortName = thinSortName;
+	}
+	public String getThinSortNumber() {
+		return thinSortNumber;
+	}
+	public void setThinSortNumber(String thinSortNumber) {
+		this.thinSortNumber = thinSortNumber;
+	}
+	public String getBrandId() {
+		return brandId;
+	}
+	public void setBrandId(String brandId) {
+		this.brandId = brandId;
+	}
+	public String getBrandName() {
+		return brandName;
+	}
+	public void setBrandName(String brandName) {
+		this.brandName = brandName;
+	}
+	public String getBrandNumber() {
+		return brandNumber;
+	}
+	public void setBrandNumber(String brandNumber) {
+		this.brandNumber = brandNumber;
+	}
+	public String getSeriesId() {
+		return seriesId;
+	}
+	public void setSeriesId(String seriesId) {
+		this.seriesId = seriesId;
+	}
+	public String getSeriesName() {
+		return seriesName;
+	}
+	public void setSeriesName(String seriesName) {
+		this.seriesName = seriesName;
+	}
+	public String getSeriesNumber() {
+		return seriesNumber;
+	}
+	public void setSeriesNumber(String seriesNumber) {
+		this.seriesNumber = seriesNumber;
+	}
+	public String getProductId() {
+		return productId;
+	}
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	public String getProductNumber() {
+		return productNumber;
+	}
+	public void setProductNumber(String productNumber) {
+		this.productNumber = productNumber;
+	}
+	public String getCarSeriesId() {
+		return carSeriesId;
+	}
+	public void setCarSeriesId(String carSeriesId) {
+		this.carSeriesId = carSeriesId;
+	}
+	public String getCarSeriesName() {
+		return carSeriesName;
+	}
+	public void setCarSeriesName(String carSeriesName) {
+		this.carSeriesName = carSeriesName;
+	}
+	public String getCarSeriesNumber() {
+		return carSeriesNumber;
+	}
+	public void setCarSeriesNumber(String carSeriesNumber) {
+		this.carSeriesNumber = carSeriesNumber;
+	}
+	public String getCarTypeId() {
+		return carTypeId;
+	}
+	public void setCarTypeId(String carTypeId) {
+		this.carTypeId = carTypeId;
+	}
+	public String getCarTypeName() {
+		return carTypeName;
+	}
+	public void setCarTypeName(String carTypeName) {
+		this.carTypeName = carTypeName;
+	}
+	public String getCarTypeNumber() {
+		return carTypeNumber;
+	}
+	public void setCarTypeNumber(String carTypeNumber) {
+		this.carTypeNumber = carTypeNumber;
+	}
+	public String getColorId() {
+		return colorId;
+	}
+	public void setColorId(String colorId) {
+		this.colorId = colorId;
+	}
+	public String getColorName() {
+		return colorName;
+	}
+	public void setColorName(String colorName) {
+		this.colorName = colorName;
+	}
+	public String getColorNumber() {
+		return colorNumber;
+	}
+	public void setColorNumber(String colorNumber) {
+		this.colorNumber = colorNumber;
+	}
+
+	public String getPriceElementId() {
+		return priceElementId;
+	}
+	public void setPriceElementId(String priceElementId) {
+		this.priceElementId = priceElementId;
+	}
+	public String getPriceElementName() {
+		return priceElementName;
+	}
+	public void setPriceElementName(String priceElementName) {
+		this.priceElementName = priceElementName;
+	}
+	public String getPriceElementNumber() {
+		return priceElementNumber;
+	}
+	public void setPriceElementNumber(String priceElementNumber) {
+		this.priceElementNumber = priceElementNumber;
+	}
+	public String getTechnologyId() {
+		return technologyId;
+	}
+	public void setTechnologyId(String technologyId) {
+		this.technologyId = technologyId;
+	}
+	public String getTechnologyName() {
+		return technologyName;
+	}
+	public void setTechnologyName(String technologyName) {
+		this.technologyName = technologyName;
+	}
+
+	public String getTechnologyNumber() {
+		return technologyNumber;
+	}
+	public void setTechnologyNumber(String technologyNumber) {
+		this.technologyNumber = technologyNumber;
+	}
+	public String getStructureId() {
+		return structureId;
+	}
+	public void setStructureId(String structureId) {
+		this.structureId = structureId;
+	}
+	public String getStructureName() {
+		return structureName;
+	}
+	public void setStructureName(String structureName) {
+		this.structureName = structureName;
+	}
+	public String getStructureNumber() {
+		return structureNumber;
+	}
+	public void setStructureNumber(String structureNumber) {
+		this.structureNumber = structureNumber;
+	}
+	public String getCategoryId() {
+		return categoryId;
+	}
+	public void setCategoryId(String categoryId) {
+		this.categoryId = categoryId;
+	}
+	public String getCategoryName() {
+		return categoryName;
+	}
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+	public String getCategoryNumber() {
+		return categoryNumber;
+	}
+	public void setCategoryNumber(String categoryNumber) {
+		this.categoryNumber = categoryNumber;
+	}
+	public String getLinesId() {
+		return linesId;
+	}
+	public void setLinesId(String linesId) {
+		this.linesId = linesId;
+	}
+	public String getLinesName() {
+		return linesName;
+	}
+	public void setLinesName(String linesName) {
+		this.linesName = linesName;
+	}
+	public String getLinesNumber() {
+		return linesNumber;
+	}
+	public void setLinesNumber(String linesNumber) {
+		this.linesNumber = linesNumber;
 	}
 
 	public double getCalculateFqty() {
@@ -404,26 +764,24 @@ public class Material implements Serializable {
 		this.calculateFqty = calculateFqty;
 	}
 
-	@Override
-	public String toString() {
-		return "Material [id=" + id + ", fMaterialId=" + fMaterialId + ", fNumber=" + fNumber + ", fName=" + fName
-				+ ", userOrgId=" + userOrgId + ", organization=" + organization + ", simpleName=" + simpleName
-				+ ", basicUnitId=" + basicUnitId + ", unit=" + unit + ", barcode=" + barcode + ", ownerName="
-				+ ownerName + ", materialGrade=" + materialGrade + ", materialSize=" + materialSize
-				+ ", materialTypeId=" + materialTypeId + ", materialType=" + materialType + ", validityDate="
-				+ validityDate + ", shelfDate=" + shelfDate + ", safetyStock=" + safetyStock + ", minLackStock="
-				+ minLackStock + ", fixScatteredStockId=" + fixScatteredStockId + ", fixScatteredStockPositionId="
-				+ fixScatteredStockPositionId + ", fixWholeStockId=" + fixWholeStockId + ", fixWholeStockPositionId="
-				+ fixWholeStockPositionId + ", baleBoxNumber=" + baleBoxNumber + ", lastSyncDate=" + lastSyncDate
-				+ ", lastUpdateDate=" + lastUpdateDate + ", remarks=" + remarks + ", isBatchManager=" + isBatchManager
-				+ ", batchRuleId=" + batchRuleId + ", isSnManager=" + isSnManager + ", snRuleId=" + snRuleId
-				+ ", snUnitId=" + snUnitId + ", snManagerTypeId=" + snManagerTypeId + ", isQualityPeriodManager="
-				+ isQualityPeriodManager + ", qualityPeriodUnitId=" + qualityPeriodUnitId + ", qualityPeriod="
-				+ qualityPeriod + ", dataStatus=" + dataStatus + ", isDelete=" + isDelete + ", enabled=" + enabled
-				+ ", isOvercharge=" + isOvercharge + ", receiveMaxScale=" + receiveMaxScale + ", receiveMinScale="
-				+ receiveMinScale + ", oldNumber=" + oldNumber + ", oldName=" + oldName + ", stock=" + stock
-				+ ", stockPos=" + stockPos + ", barcodeTable=" + barcodeTable + ", calculateFqty=" + calculateFqty
-				+ "]";
+	public Stock getFixWholeStock() {
+		return fixWholeStock;
+	}
+	public void setFixWholeStock(Stock fixWholeStock) {
+		this.fixWholeStock = fixWholeStock;
+	}
+	public StockPosition getFixWholeStockPos() {
+		return fixWholeStockPos;
+	}
+	public void setFixWholeStockPos(StockPosition fixWholeStockPos) {
+		this.fixWholeStockPos = fixWholeStockPos;
+	}
+	public BarCodeTable getBarcodeTable() {
+		return barcodeTable;
+	}
+
+	public void setBarcodeTable(BarCodeTable barcodeTable) {
+		this.barcodeTable = barcodeTable;
 	}
 
 }

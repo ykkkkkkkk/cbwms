@@ -32,6 +32,7 @@ public class ScanningRecord implements Serializable {
     private String status;
     private int createUserId;			//创建人id
     private String createUserName;		//创建人
+    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.装箱单，8.采购收料任务单）
     // 新加的
     private String receiveOrgFnumber;
     private String purOrgFnumber;
@@ -48,6 +49,11 @@ public class ScanningRecord implements Serializable {
     private int entryId; // 订单分录内码
     private String k3UserName; // 对应k3的用户
     private String k3UserFnumber; // 对应k3的操作员代码
+    private int tempId; // 来源的主键id
+    private String relationObj; // 来源的对象
+    private String fsrcBillTypeId; // 来源单据类型名称
+    private String fRuleId; // 下推来源单据类型名称
+    private String fsTableName; // 下推来源表体
 
     public int getId() {
         return id;
@@ -279,6 +285,54 @@ public class ScanningRecord implements Serializable {
 
     public void setK3UserFnumber(String k3UserFnumber) {
         this.k3UserFnumber = k3UserFnumber;
+    }
+
+    public char getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(char sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public int getTempId() {
+        return tempId;
+    }
+
+    public void setTempId(int tempId) {
+        this.tempId = tempId;
+    }
+
+    public String getRelationObj() {
+        return relationObj;
+    }
+
+    public void setRelationObj(String relationObj) {
+        this.relationObj = relationObj;
+    }
+
+    public String getFsTableName() {
+        return fsTableName;
+    }
+
+    public void setFsTableName(String fsTableName) {
+        this.fsTableName = fsTableName;
+    }
+
+    public String getfRuleId() {
+        return fRuleId;
+    }
+
+    public void setfRuleId(String fRuleId) {
+        this.fRuleId = fRuleId;
+    }
+
+    public String getFsrcBillTypeId() {
+        return fsrcBillTypeId;
+    }
+
+    public void setFsrcBillTypeId(String fsrcBillTypeId) {
+        this.fsrcBillTypeId = fsrcBillTypeId;
     }
 
     public ScanningRecord() {

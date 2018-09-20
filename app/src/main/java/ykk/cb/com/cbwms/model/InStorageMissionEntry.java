@@ -12,13 +12,13 @@ import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
 public class InStorageMissionEntry implements Serializable {
 
 	/*id*/
-	private Integer id;
+	private int id;
 	/*收货任务单id*/
-	private Integer inStorageId;
+	private int inStorageId;
 	/*收货任务单*/
 	private InStorageMission inStorageMission;
 	/*物料id*/
-	private Integer materialId;
+	private int materialId;
 	/*物料*/
 	private Material material;
 	/*物料代码*/
@@ -29,19 +29,19 @@ public class InStorageMissionEntry implements Serializable {
 	private String materialSize;
 	private String unitFnumber; // 单位代码
 	/*源单类型 1代表采购收料通知单*/
-	private Integer relationBillType;
+	private int relationBillType;
 	/*源单id*/
-	private Integer relationBillId;
+	private int relationBillId;
 	/*采购收料通知单*/
 	private PurReceiveOrder purReceiveOrder;
 	/*源单据号*/
 	private String relationBillNumber;
 	/*k3对应单据分录的id值*/
-	private Integer entryId;
+	private int entryId;
 	/*单据数量*/
 	private double fqty;
 	/*入库仓库id*/
-	private Integer inStorageStockId;
+	private int inStorageStockId;
 	/*入库仓库*/
 	private Stock inStorageStock;
 	/*入库仓库代码*/
@@ -49,7 +49,7 @@ public class InStorageMissionEntry implements Serializable {
 	/*入库仓库名称*/
 	private String inStorageStockName;
 	/*入库仓位id*/
-	private Integer inStorageStockPositionId;
+	private int inStorageStockPositionId;
 	/*入库仓位*/
 	private StockPosition stockPosition;
 	/*入库仓位代码*/
@@ -60,34 +60,38 @@ public class InStorageMissionEntry implements Serializable {
 	private QualityMissionEntry qualityMissionEntry;
 
 	/*k3供应商id*/
-	private Integer supplierId;
+	private int supplierId;
 	/*供应商代码*/
 	private String supplierNumber;
 	/*供应商名称*/
 	private String supplierName;
 	/*供应商*/
 	private Supplier supplier;
-
+	/*分录状态 0代表未生成到k3,1代表已经生成到k3*/
+	private Integer inStorageEntryStatus;
+	/*生成到k3erp数量*/
+	private double inErpFqty;
 	// 临时用的数据
 	private boolean isCheck; // 是否选中
+	private double inputNum; // 输入的数量
 
 	public InStorageMissionEntry() {
 		super();
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public Integer getInStorageId() {
+	public int getInStorageId() {
 		return inStorageId;
 	}
 
-	public void setInStorageId(Integer inStorageId) {
+	public void setInStorageId(int inStorageId) {
 		this.inStorageId = inStorageId;
 	}
 
@@ -99,11 +103,11 @@ public class InStorageMissionEntry implements Serializable {
 		this.inStorageMission = inStorageMission;
 	}
 
-	public Integer getMaterialId() {
+	public int getMaterialId() {
 		return materialId;
 	}
 
-	public void setMaterialId(Integer materialId) {
+	public void setMaterialId(int materialId) {
 		this.materialId = materialId;
 	}
 
@@ -139,19 +143,19 @@ public class InStorageMissionEntry implements Serializable {
 		this.materialSize = materialSize;
 	}
 
-	public Integer getRelationBillType() {
+	public int getRelationBillType() {
 		return relationBillType;
 	}
 
-	public void setRelationBillType(Integer relationBillType) {
+	public void setRelationBillType(int relationBillType) {
 		this.relationBillType = relationBillType;
 	}
 
-	public Integer getRelationBillId() {
+	public int getRelationBillId() {
 		return relationBillId;
 	}
 
-	public void setRelationBillId(Integer relationBillId) {
+	public void setRelationBillId(int relationBillId) {
 		this.relationBillId = relationBillId;
 	}
 
@@ -171,11 +175,11 @@ public class InStorageMissionEntry implements Serializable {
 		this.relationBillNumber = relationBillNumber;
 	}
 
-	public Integer getEntryId() {
+	public int getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(Integer entryId) {
+	public void setEntryId(int entryId) {
 		this.entryId = entryId;
 	}
 
@@ -187,11 +191,11 @@ public class InStorageMissionEntry implements Serializable {
 		this.fqty = fqty;
 	}
 
-	public Integer getInStorageStockId() {
+	public int getInStorageStockId() {
 		return inStorageStockId;
 	}
 
-	public void setInStorageStockId(Integer inStorageStockId) {
+	public void setInStorageStockId(int inStorageStockId) {
 		this.inStorageStockId = inStorageStockId;
 	}
 
@@ -219,11 +223,11 @@ public class InStorageMissionEntry implements Serializable {
 		this.inStorageStockName = inStorageStockName;
 	}
 
-	public Integer getInStorageStockPositionId() {
+	public int getInStorageStockPositionId() {
 		return inStorageStockPositionId;
 	}
 
-	public void setInStorageStockPositionId(Integer inStorageStockPositionId) {
+	public void setInStorageStockPositionId(int inStorageStockPositionId) {
 		this.inStorageStockPositionId = inStorageStockPositionId;
 	}
 
@@ -251,11 +255,11 @@ public class InStorageMissionEntry implements Serializable {
 		this.inStorageFqty = inStorageFqty;
 	}
 
-	public Integer getSupplierId() {
+	public int getSupplierId() {
 		return supplierId;
 	}
 
-	public void setSupplierId(Integer supplierId) {
+	public void setSupplierId(int supplierId) {
 		this.supplierId = supplierId;
 	}
 
@@ -291,12 +295,28 @@ public class InStorageMissionEntry implements Serializable {
 		this.qualityMissionEntry = qualityMissionEntry;
 	}
 
-	public String getUnitFnumber() {
+ 	public String getUnitFnumber() {
 		return unitFnumber;
 	}
 
 	public void setUnitFnumber(String unitFnumber) {
 		this.unitFnumber = unitFnumber;
+	}
+
+	public Integer getInStorageEntryStatus() {
+		return inStorageEntryStatus;
+	}
+
+	public void setInStorageEntryStatus(Integer inStorageEntryStatus) {
+		this.inStorageEntryStatus = inStorageEntryStatus;
+	}
+
+	public double getInErpFqty() {
+		return inErpFqty;
+	}
+
+	public void setInErpFqty(double inErpFqty) {
+		this.inErpFqty = inErpFqty;
 	}
 
 	public boolean getIsCheck() {
@@ -306,6 +326,15 @@ public class InStorageMissionEntry implements Serializable {
 	public void setIsCheck(boolean isCheck) {
 		this.isCheck = isCheck;
 	}
+
+	public double getInputNum() {
+		return inputNum;
+	}
+
+	public void setInputNum(double inputNum) {
+		this.inputNum = inputNum;
+	}
+
 
 
 }

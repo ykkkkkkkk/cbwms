@@ -47,20 +47,32 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
         tv_fnumber.setText(entity.getInStorageMission().getInStorageNumber());
         tv_mtlName.setText(entity.getMaterialName());
         tv_suppName.setText(entity.getSupplierName());
-        tv_nums.setText(df.format(entity.getFqty()-entity.getInStorageFqty()));
+//        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br/><font color='#6A5ACD'>"+df.format(entity.getInStorageFqty())+"</font><br/><font color='#009900'>"+df.format(entity.getInputNum())+"</font>"));
 
-        if(context.entryStatus == '3') {
-            tv_nums.setVisibility(View.GONE);
-            tv_check.setVisibility(View.VISIBLE);
-            if(entity.getIsCheck()) {
-                tv_check.setBackgroundResource(R.drawable.check_true);
+        if(context.entryStatus == '2' || context.entryStatus == '3') {
+//            tv_nums.setVisibility(View.GONE);
+//            tv_check.setVisibility(View.VISIBLE);
+//            if(entity.getIsCheck()) {
+//                tv_check.setBackgroundResource(R.drawable.check_true);
+//            } else {
+//                tv_check.setBackgroundResource(R.drawable.check_false);
+//            }
+            tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br/><font color='#6A5ACD'>"+df.format(entity.getInStorageFqty())+"</font>"));
+            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
+        } else if(context.entryStatus == '1') {
+            if(context.supplierId > 0) {
+                tv_nums.setEnabled(true);
+                tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br/><font color='#6A5ACD'>"+df.format(entity.getInStorageFqty())+"</font><br/><font color='#009900'>"+df.format(entity.getInputNum())+"</font>"));
             } else {
-                tv_check.setBackgroundResource(R.drawable.check_false);
+                tv_nums.setEnabled(false);
+                tv_nums.setText("点击\n供应商");
             }
-        } else {
-            tv_nums.setVisibility(View.VISIBLE);
-            tv_check.setVisibility(View.GONE);
+//            tv_nums.setVisibility(View.VISIBLE);
+//            tv_check.setVisibility(View.GONE);
+            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
         }
+
+
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -72,9 +84,16 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
                         }
 
                         break;
+                    case R.id.tv_suppName: // 供应商
+                        if(callBack != null) {
+                            callBack.onClick_getSupplier(v, entity, pos);
+                        }
+
+                        break;
                 }
             }
         };
+        tv_suppName.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
     }
 
@@ -84,6 +103,7 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
 
     public interface MyCallBack {
         void onClick_num(View v, InStorageMissionEntry entity, int position);
+        void onClick_getSupplier(View v, InStorageMissionEntry entity, int position);
     }
 
 

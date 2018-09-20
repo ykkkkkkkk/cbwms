@@ -57,7 +57,6 @@ import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.purchase.adapter.Prod_InAdapter;
 import ykk.cb.com.cbwms.purchase.adapter.Prod_InFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 
@@ -505,7 +504,7 @@ public class Prod_InFragment2 extends BaseFragment {
     private boolean isKeyDownEnter(String val, KeyEvent event, int keyCode) {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
             if (val.length() == 0) {
-                Comm.showWarnDialog(mContext, "请扫码条码！");
+                Comm.showWarnDialog(mContext, "请对准条码！");
                 return false;
             }
             return true;

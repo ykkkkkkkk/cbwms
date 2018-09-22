@@ -2,6 +2,7 @@ package ykk.cb.com.cbwms.entrance;
 
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -102,6 +103,11 @@ public class MainTabFragment0 extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        SharedPreferences spfConfig = spf(getResStr(R.string.saveConfig));
+        String ip = spfConfig.getString("ip", "192.168.3.214");
+        String port = spfConfig.getString("port", "8080");
+        Consts.setIp(ip);
+        Consts.setPort(port);
         mHandler.sendEmptyMessageDelayed(DELAYED_LOAD, 500);
     }
 

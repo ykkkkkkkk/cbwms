@@ -183,22 +183,21 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-//                if(entryStatus == '3') {
-//                    InStorageMissionEntry ism = listDatas.get(pos - 1);
-//                    int size = listDatas.size();
-//                    String fNumber = ism.getInStorageMission().getInStorageNumber();
-//                    for (int i = 0; i < size; i++) {
-//                        listDatas.get(i).setIsCheck(false);
-//                    }
-//                    for (int i = 0; i < size; i++) {
-//                        InStorageMissionEntry ism2 = listDatas.get(i);
-//                        if (fNumber.equals(ism2.getInStorageMission().getInStorageNumber())) {
-//                            ism2.setIsCheck(true);
-//                        }
-//                    }
-//
-//                    mAdapter.notifyDataSetChanged();
-//                }
+                InStorageMissionEntry entity = listDatas.get(pos-1);
+                if(supplierId > 0) {
+                    supplierId = 0;
+                    tvSupplierSel.setText("全部");
+                    etMtlCode.setVisibility(View.INVISIBLE);
+                    if(entryStatus == '1') btnProdK3.setVisibility(View.GONE);
+
+                } else {
+                    supplierId = entity.getSupplierId();
+                    tvSupplierSel.setText(entity.getSupplierName());
+                    etMtlCode.setVisibility(View.VISIBLE);
+                    setFocusable(etMtlCode);
+                    if(entryStatus == '1') btnProdK3.setVisibility(View.VISIBLE);
+                }
+                initLoadDatas();
             }
         });
 
@@ -210,20 +209,6 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                 showInputDialog("数量", String.valueOf(entity.getFqty()-entity.getInStorageFqty()), "0", SEL_NUM);
             }
 
-            @Override
-            public void onClick_getSupplier(View v, InStorageMissionEntry entity, int position) {
-                if(supplierId > 0) {
-                    supplierId = 0;
-                    tvSupplierSel.setText("全部");
-                    if(entryStatus == '1') btnProdK3.setVisibility(View.GONE);
-
-                } else {
-                    supplierId = entity.getSupplierId();
-                    tvSupplierSel.setText(entity.getSupplierName());
-                    if(entryStatus == '1') btnProdK3.setVisibility(View.VISIBLE);
-                }
-                initLoadDatas();
-            }
         });
     }
 
@@ -246,7 +231,8 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
 
                 break;
             case R.id.lin_tab1:
-                btnProdK3.setVisibility(View.VISIBLE);
+                btnProdK3.setVisibility(View.GONE);
+                etMtlCode.setVisibility(View.INVISIBLE);
                 supplierId = 0;
                 tvSupplierSel.setText("全部");
                 tvHintName.setText("单据数\n已收数\n实收数");
@@ -257,6 +243,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                 break;
             case R.id.lin_tab2:
                 btnProdK3.setVisibility(View.GONE);
+                etMtlCode.setVisibility(View.INVISIBLE);
                 supplierId = 0;
                 tvSupplierSel.setText("全部");
                 tvHintName.setText("单据数\n已收数");
@@ -272,7 +259,6 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                 entryStatus = '3';
                 tabSelected(viewRadio3);
                 initLoadDatas();
-
 
                 break;
             case R.id.tv_supplierSel: // 选择供应商

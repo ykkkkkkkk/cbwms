@@ -32,7 +32,7 @@ public class ScanningRecord implements Serializable {
     private String status;
     private int createUserId;			//创建人id
     private String createUserName;		//创建人
-    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.装箱单，8.采购收料任务单）
+    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
     // 新加的
     private String receiveOrgFnumber;
     private String purOrgFnumber;

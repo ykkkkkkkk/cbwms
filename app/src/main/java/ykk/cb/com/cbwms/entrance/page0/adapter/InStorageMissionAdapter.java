@@ -84,16 +84,9 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
                         }
 
                         break;
-                    case R.id.tv_suppName: // 供应商
-                        if(callBack != null) {
-                            callBack.onClick_getSupplier(v, entity, pos);
-                        }
-
-                        break;
                 }
             }
         };
-        tv_suppName.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
     }
 
@@ -103,7 +96,6 @@ public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageM
 
     public interface MyCallBack {
         void onClick_num(View v, InStorageMissionEntry entity, int position);
-        void onClick_getSupplier(View v, InStorageMissionEntry entity, int position);
     }
 
 

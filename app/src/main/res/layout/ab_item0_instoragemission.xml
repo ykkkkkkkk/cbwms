@@ -248,6 +248,7 @@
             android:layout_weight="1"
             android:background="@drawable/back_style_blue"
             android:hint="物料扫码区"
+            android:visibility="invisible"
             android:inputType="none"
             android:paddingLeft="@dimen/_6dp"
             android:textColor="@color/black"
@@ -323,6 +324,7 @@
         android:layout_height="@dimen/_38dp"
         android:background="@drawable/btn_blue2_selector"
         android:text="生成到k3"
+        android:visibility="gone"
         android:textColor="@color/white"
         android:textSize="@dimen/_16sp" />
 

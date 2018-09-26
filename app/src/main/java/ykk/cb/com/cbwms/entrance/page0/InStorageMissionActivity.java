@@ -350,7 +350,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
         showLoadDialog("加载中...");
         String mUrl = mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
         String barcode = mtlBarcode;
-        String strCaseId = "11,21"; // 因为这里有物料包装或者物料的码所以不能指定caseId;
+        String strCaseId = "11,21,36"; // 因为这里有物料包装或者物料的码所以不能指定caseId;
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", strCaseId)
                 .add("barcode", barcode)

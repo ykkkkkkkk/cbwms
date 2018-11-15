@@ -156,7 +156,7 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findSupplierListByParam");
+        String mUrl = getURL("findSupplierListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))

@@ -124,7 +124,6 @@ public class Pur_InFragment2 extends BaseFragment {
     private User user;
     private Activity mContext;
     private Pur_InMainActivity parent;
-    private char defaultStockVal; // 默认仓库的值
 
     // 消息处理
     private Pur_InFragment2.MyHandler mHandler = new Pur_InFragment2.MyHandler(this);
@@ -306,23 +305,17 @@ public class Pur_InFragment2 extends BaseFragment {
         hideSoftInputMode(mContext, etSourceNo);
         hideSoftInputMode(mContext, etMtlNo);
         getUserInfo();
-        setFocusable(etMtlNo); // 物料代码获取焦点
+    }
 
-        // 得到默认仓库的值
-        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
-        if(defaultStockVal == '2') {
-
-            if(user.getStock() != null) {
-                stock = user.getStock();
-                setTexts(etStock, stock.getfName());
-                stockBarcode = stock.getfName();
-            }
-
-            if(user.getStockPos() != null) {
-                stockP = user.getStockPos();
-                setTexts(etStockPos, stockP.getFnumber());
-                stockPBarcode = stockP.getFnumber();
-            }
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser) {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() { setFocusable(etMtlNo); // 物料代码获取焦点
+                }
+            },200);
         }
     }
 
@@ -940,18 +933,18 @@ public class Pur_InFragment2 extends BaseFragment {
      * 得到物料数据之后，判断库位是否为空
      */
     private boolean smAfterCheck(Material mtl) {
-        if(defaultStockVal == '1' && mtl != null && mtl.getStockPos() != null && mtl.getStockPos().getStockId() > 0) {
-            stock = mtl.getStock();
-            stockP = mtl.getStockPos();
-            setTexts(etStock, stock.getfName());
-            stockBarcode = stock.getfName();
-            setTexts(etStockPos, stockP.getFnumber());
-            stockPBarcode = stockP.getFnumber();
-        } else {
+//        if(defaultStockVal == '1' && mtl != null && mtl.getStockPos() != null && mtl.getStockPos().getStockId() > 0) {
+//            stock = mtl.getStock();
+//            stockP = mtl.getStockPos();
+//            setTexts(etStock, stock.getfName());
+//            stockBarcode = stock.getfName();
+//            setTexts(etStockPos, stockP.getFnumber());
+//            stockPBarcode = stockP.getFnumber();
+//        } else {
             if(sourceBarcode != null) setTexts(etSourceNo, sourceBarcode);
             return smBefore('1');
-        }
-        return true;
+//        }
+//        return true;
     }
 
     /**
@@ -1181,7 +1174,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = Consts.getURL("addScanningRecord");
+        String mUrl = getURL("addScanningRecord");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -1218,28 +1211,28 @@ public class Pur_InFragment2 extends BaseFragment {
         String strCaseId = null;
         switch (curViewFlag) {
             case '1':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockBarcode;
                 isStockLong = false;
                 strCaseId = "12";
                 break;
             case '2':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockPBarcode;
                 strCaseId = "14";
                 break;
             case '3':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockPBarcode;
                 strCaseId = "15";
                 break;
             case '4': // 采购订单
-                mUrl = Consts.getURL("barCodeTable/findBarcode3ByParam");
+                mUrl = getURL("barCodeTable/findBarcode3ByParam");
                 barcode = sourceBarcode;
                 strCaseId = "31";
                 break;
             case '5': // 物料扫码
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
                 strCaseId = "11,21";
                 break;
@@ -1290,7 +1283,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 else strBarcode.append(sr2.getBarcode() + ",");
             }
         }
-        String mUrl = Consts.getURL("findMatIsExistList2");
+        String mUrl = getURL("findMatIsExistList2");
         FormBody formBody = new FormBody.Builder()
                 .add("orderType", "CG") // 单据类型CG代表采购订单，XS销售订单,生产PD
                 .add("strBarcode", strBarcode.toString())

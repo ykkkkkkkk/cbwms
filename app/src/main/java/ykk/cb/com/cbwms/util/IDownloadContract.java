@@ -19,7 +19,8 @@ public interface IDownloadContract {
 
     interface Presenter{
         void checkUpdate(String local);
-        void downApk(Context context);
+//        void downApk(Context context);
+        void downApk(Context context, String url);
         void unbind(Context context);
     }
 }

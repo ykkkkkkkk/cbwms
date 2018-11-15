@@ -886,7 +886,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = Consts.getURL("addScanningRecord");
+        String mUrl = getURL("addScanningRecord");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -923,18 +923,18 @@ public class Prod_InFragment1 extends BaseFragment {
         String strCaseId = null;
         switch (curViewFlag) {
             case '1':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockBarcode;
                 isStockLong = false;
                 strCaseId = "12";
                 break;
             case '2':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockPBarcode;
                 strCaseId = "14";
                 break;
             case '3': // 物料扫码
-                mUrl = Consts.getURL("barCodeTable/findBarcode3ByParam");
+                mUrl = getURL("barCodeTable/findBarcode3ByParam");
                 barcode = mtlBarcode;
                 strCaseId = "34";
                 break;
@@ -985,7 +985,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 else strBarcode.append(sr2.getBarcode() + ",");
             }
         }
-        String mUrl = Consts.getURL("findMatIsExistList2");
+        String mUrl = getURL("findMatIsExistList2");
         FormBody formBody = new FormBody.Builder()
                 .add("orderType", "PD") // 单据类型CG代表采购订单，XS销售订单,生产PD
                 .add("strBarcode", strBarcode.toString())

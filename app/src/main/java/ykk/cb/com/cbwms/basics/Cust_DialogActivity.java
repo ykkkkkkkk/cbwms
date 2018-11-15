@@ -156,7 +156,7 @@ public class Cust_DialogActivity extends BaseDialogActivity implements XRecycler
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findCustomerByParam");
+        String mUrl = getURL("findCustomerByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))

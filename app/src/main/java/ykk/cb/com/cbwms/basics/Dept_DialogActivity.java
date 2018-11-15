@@ -160,7 +160,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findDepartmentListByParam");
+        String mUrl = getURL("findDepartmentListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))

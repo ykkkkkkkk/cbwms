@@ -219,7 +219,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("purchaseMission/findQualityMissionEntry_app");
+        String mUrl = getURL("purchaseMission/findQualityMissionEntry_app");
         FormBody formBody = new FormBody.Builder()
                 .add("staffId", String.valueOf(user.getStaffId()))
                 .add("entryStatus", String.valueOf(entryStatus))
@@ -262,7 +262,7 @@ public class QualityMissionActivity extends BaseActivity implements XRecyclerVie
      */
     private void run_modifyFqty_app(String num1, String num2, String num3, char entryStatus) {
         showLoadDialog("提交中...");
-        String mUrl = Consts.getURL("purchaseMission/modifyFqty_app");
+        String mUrl = getURL("purchaseMission/modifyFqty_app");
         QualityMissionEntry qmEntry = listDatas.get(curPos);
         FormBody formBody = new FormBody.Builder()
                 .add("id", String.valueOf(qmEntry.getId()))

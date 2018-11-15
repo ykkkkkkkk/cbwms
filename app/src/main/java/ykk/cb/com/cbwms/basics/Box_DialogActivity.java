@@ -139,7 +139,7 @@ public class Box_DialogActivity extends BaseDialogActivity {
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("box/findBoxByParam");
+        String mUrl = getURL("box/findBoxByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("NameAndSize", getValues(etSearch).trim())
 //                .add("limit", "10")

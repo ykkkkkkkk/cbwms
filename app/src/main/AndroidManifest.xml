@@ -111,10 +111,16 @@
             android:name=".basics.Box_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.Staff_DialogActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!--  消息模块 -->
         <activity android:name=".entrance.page0.QualityMissionActivity" />
         <activity android:name=".entrance.page0.InStorageMissionActivity" />
+        <!-- 仓库模块 -->
+        <activity android:name=".entrance.page4.StevedoreActivity" />
 
 
         <!-- 设置页面用到的界面 -->

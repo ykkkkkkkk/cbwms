@@ -161,7 +161,7 @@ public class UncaughtException implements UncaughtExceptionHandler {
         String result = writer.toString();
         sb.append(result);
         try {
-            String fileName = "exception.log";
+            String fileName = "exception.txt";
 
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                 String path = Comm.publicPaths+"crash/";

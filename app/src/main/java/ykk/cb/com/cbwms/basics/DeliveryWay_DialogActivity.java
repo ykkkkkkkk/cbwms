@@ -138,7 +138,7 @@ public class DeliveryWay_DialogActivity extends BaseDialogActivity {
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findAssistInfoList");
+        String mUrl = getURL("findAssistInfoList");
         FormBody formBody = new FormBody.Builder()
                 .add("categoryName", "交货方式")
                 .build();

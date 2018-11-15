@@ -12,6 +12,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
+import ykk.cb.com.cbwms.entrance.page4.StevedoreActivity;
+import ykk.cb.com.cbwms.purchase.Pur_OrderSearchActivity;
 
 public class MainTabFragment4 extends BaseFragment {
 
@@ -24,11 +26,12 @@ public class MainTabFragment4 extends BaseFragment {
         return inflater.inflate(R.layout.aa_main_item4, container, false);
     }
 
-    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4})
+    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.relative1:
-                showLoadDialog("连接服务器...");
+            case R.id.relative1: // 装卸单
+                show(StevedoreActivity.class, null);
+
                 break;
             case R.id.relative2:
                 showLoadDialog("连接服务器...");
@@ -37,6 +40,9 @@ public class MainTabFragment4 extends BaseFragment {
                 showLoadDialog("连接服务器...");
                 break;
             case R.id.relative4:
+                showLoadDialog("连接服务器...");
+                break;
+            case R.id.relative5:
                 showLoadDialog("连接服务器...");
                 break;
         }

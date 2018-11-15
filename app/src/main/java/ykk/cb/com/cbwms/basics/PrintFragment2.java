@@ -254,7 +254,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
      */
     private void run_print() {
         showLoadDialog("打印连接中...");
-        String mUrl = Consts.getURL("bigPrint");
+        String mUrl = getURL("bigPrint");
         // 条码号
         FormBody formBody = new FormBody.Builder()
 //                .add("caseId", String.valueOf(caseId))

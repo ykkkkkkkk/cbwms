@@ -15,10 +15,10 @@ public class Consts {
 	/**
 	 * 服务器的地址
 	 */
-	public static final String getURL(String param) {
-		return "http://"+mIp+":"+mPort+"/cbwms/"+param;
-	}
-	public static final String getApkURL() {	return "http://"+mIp+":"+mPort+"/apks/cbwms.apk"; }
+//	public static final String getURL(String param) {
+//		return "http://"+mIp+":"+mPort+"/cbwms/"+param;
+//	}
+//	public static final String getApkURL() {	return "http://"+mIp+":"+mPort+"/apks/cbwms.apk"; }
 
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 

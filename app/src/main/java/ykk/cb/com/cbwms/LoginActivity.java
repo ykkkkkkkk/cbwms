@@ -96,11 +96,9 @@ public class LoginActivity extends BaseActivity {
 
                         break;
                     case UNSUCC1: // 登录失败！
-                        String str = (String) msg.obj;
+                        String str = JsonUtil.strToString((String) msg.obj);
                         if(m.isNULLS(str).length() > 0) {
-                            String failMsg = JsonUtil.strToString((String) msg.obj);
-                            m.toasts(failMsg);
-
+                            m.toasts(str);
                         } else {
                             m.toasts("服务器繁忙，请稍候再试！");
                         }
@@ -111,8 +109,6 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    ;
-
     @Override
     public int setLayoutResID() {
         return R.layout.login;
@@ -121,7 +117,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initData() {
         SharedPreferences spfConfig = spf(getResStr(R.string.saveConfig));
-        String ip = spfConfig.getString("ip", "192.168.3.214");
+        String ip = spfConfig.getString("ip", "192.168.3.198");
         String port = spfConfig.getString("port", "8080");
         Consts.setIp(ip);
         Consts.setPort(port);
@@ -173,7 +169,7 @@ public class LoginActivity extends BaseActivity {
      */
     private void run_appLogin() {
         showLoadDialog("登录中...");
-        String mUrl = Consts.getURL("appLogin");
+        String mUrl = getURL("appLogin");
         FormBody formBody = new FormBody.Builder()
                 .add("username", getValues(etUserName).trim())
                 .add("password", getValues(etPwd).trim())

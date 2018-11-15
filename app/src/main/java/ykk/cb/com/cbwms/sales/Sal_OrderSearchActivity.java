@@ -157,7 +157,7 @@ public class Sal_OrderSearchActivity extends BaseActivity implements XRecyclerVi
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findSalOrderList");
+        String mUrl = getURL("findSalOrderList");
         FormBody formBody = new FormBody.Builder()
 
                 .add("fbillno", getValues(etFbillno).trim())

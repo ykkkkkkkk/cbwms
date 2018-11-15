@@ -928,15 +928,15 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
         String barcode = null;
         switch (curViewFlag) {
             case '1': // 箱码
-                mUrl = Consts.getURL("boxBarCode/findBarcode");
+                mUrl = getURL("boxBarCode/findBarcode");
                 barcode = strBoxBarcode;
                 break;
             case '2': // 物料扫码
-                mUrl = Consts.getURL("barCodeTable/findBarcode2ByParam");
+                mUrl = getURL("barCodeTable/findBarcode2ByParam");
                 barcode = strMtlBarcode;
                 break;
             case '3': // 删除物料扫码
-                mUrl = Consts.getURL("barCodeTable/findBarcode2ByParam");
+                mUrl = getURL("barCodeTable/findBarcode2ByParam");
                 barcode = strMtlBarcode_del;
                 break;
         }
@@ -981,7 +981,7 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
      */
     private void run_save(String json) {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("materialBinningRecord/save");
+        String mUrl = getURL("materialBinningRecord/save");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()
@@ -1021,7 +1021,7 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
      */
     private void run_delete(String json) {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("materialBinningRecord/delete");
+        String mUrl = getURL("materialBinningRecord/delete");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()
@@ -1062,7 +1062,7 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
      */
     private void run_modifyStatus() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("boxBarCode/modifyStatus2");
+        String mUrl = getURL("boxBarCode/modifyStatus2");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()
@@ -1104,7 +1104,7 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
      */
     private void run_modifyBoxIdByBarcode() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("boxBarCode/modifyBoxIdByBarcode");
+        String mUrl = getURL("boxBarCode/modifyBoxIdByBarcode");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()
@@ -1145,7 +1145,7 @@ public class Pur_ProdBoxFragment1 extends BaseFragment {
      */
     private void run_modifyNumber2(int id, final double number) {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("materialBinningRecord/modifyNumber2");
+        String mUrl = getURL("materialBinningRecord/modifyNumber2");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
         getUserInfo();
 

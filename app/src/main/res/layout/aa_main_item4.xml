@@ -17,15 +17,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:clickable="true"
             android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgView1"
-                android:layout_width="@dimen/_70dp"
-                android:layout_height="@dimen/_70dp"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_1" />
+                android:src="@drawable/aa_ico4a_5" />
+
 
             <TextView
                 android:id="@+id/tvMenu1"
@@ -34,9 +36,10 @@
                 android:layout_below="@+id/imgView1"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="盘点"
+                android:text="装卸单"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
+
 
         </RelativeLayout>
 
@@ -49,17 +52,45 @@
 
             <ImageView
                 android:id="@+id/imgView2"
-                android:layout_width="@dimen/_70dp"
-                android:layout_height="@dimen/_70dp"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico4a_2" />
+                android:src="@drawable/aa_ico4a_1" />
 
             <TextView
                 android:id="@+id/tvMenu2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/imgView2"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_3dp"
+                android:text="盘点"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_18sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/imgView3"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_2" />
+
+            <TextView
+                android:id="@+id/tvMenu3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgView3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="调拨"
@@ -80,7 +111,7 @@
         android:orientation="horizontal">
 
         <RelativeLayout
-            android:id="@+id/relative3"
+            android:id="@+id/relative4"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -88,19 +119,19 @@
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/imgView3"
-                android:layout_width="@dimen/_70dp"
-                android:layout_height="@dimen/_70dp"
+                android:id="@+id/imgView4"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/aa_ico4a_3" />
 
 
             <TextView
-                android:id="@+id/tvMenu3"
+                android:id="@+id/tvMenu4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imgView3"
+                android:layout_below="@+id/imgView4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="其他入库"
@@ -111,25 +142,54 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/relative4"
+            android:id="@+id/relative5"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/imgView4"
-                android:layout_width="@dimen/_70dp"
-                android:layout_height="@dimen/_70dp"
+                android:id="@+id/imgView5"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/aa_ico4a_4" />
 
             <TextView
-                android:id="@+id/tvMenu4"
+                android:id="@+id/tvMenu5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imgView4"
+                android:layout_below="@+id/imgView5"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_3dp"
+                android:text="其他出库"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_18sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative6"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/imgView6"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
+                android:layout_centerHorizontal="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/aa_ico4a_4" />
+
+            <TextView
+                android:id="@+id/tvMenu6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgView6"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="其他出库"

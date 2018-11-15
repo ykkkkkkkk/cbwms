@@ -239,7 +239,7 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findPurReceiveOrderList");
+        String mUrl = getURL("findPurReceiveOrderList");
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillno", getValues(etFbillno).trim())
                 .add("supplierId", String.valueOf(supplier.getFsupplierid()))

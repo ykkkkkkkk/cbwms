@@ -9,9 +9,9 @@ import java.io.Serializable;
  * 部门表t_Department
  */
 public class Department implements Serializable {
-    private int id;
+    private Integer id;
     //K3部门id
-    private int fitemID;
+    private Integer fitemID;
     //部门条码
     private String barcode;
     //K3部门编码
@@ -20,6 +20,10 @@ public class Department implements Serializable {
     private String departmentName;
     //K3部门使用组织id
     private String departmentUseOrgId;
+    //调入仓库
+    private Integer inStockId;
+    //使用组织实体类
+    private Organization organization;
     //K3创建组织编码
     private String foundDepartment;
     /*K3数据状态*/
@@ -30,17 +34,25 @@ public class Department implements Serializable {
     private String enabled;
     //K3修改日期
     private String fModifyDate;
+    //前缀标识（用于生产订单生成生产序号时使用）
+    private String prefix;
+    //是否属于装卸部门，1属于，2不属于
+    private int isload;
 
-    public int getId() {
+    public Department() {
+        super();
+    }
+
+    public Integer getId() {
         return id;
     }
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
-    public int getFitemID() {
+    public Integer getFitemID() {
         return fitemID;
     }
-    public void setFitemID(int fitemID) {
+    public void setFitemID(Integer fitemID) {
         this.fitemID = fitemID;
     }
     public String getBarcode() {
@@ -97,9 +109,45 @@ public class Department implements Serializable {
     public void setfModifyDate(String fModifyDate) {
         this.fModifyDate = fModifyDate;
     }
+    public Organization getOrganization() {
+        return organization;
+    }
 
-    public Department() {
-        super();
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public Integer getInStockId() {
+        return inStockId;
+    }
+
+    public void setInStockId(Integer inStockId) {
+        this.inStockId = inStockId;
+    }
+
+    public int getIsload() {
+        return isload;
+    }
+
+    public void setIsload(int isload) {
+        this.isload = isload;
+    }
+
+    @Override
+    public String toString() {
+        return "Department [id=" + id + ", fitemID=" + fitemID + ", barcode=" + barcode + ", departmentNumber="
+                + departmentNumber + ", departmentName=" + departmentName + ", departmentUseOrgId=" + departmentUseOrgId
+                + ", inStockId=" + inStockId + ", organization=" + organization + ", foundDepartment=" + foundDepartment
+                + ", dataStatus=" + dataStatus + ", isDelete=" + isDelete + ", enabled=" + enabled + ", fModifyDate="
+                + fModifyDate + ", prefix=" + prefix + ", isload=" + isload + "]";
     }
 
 }

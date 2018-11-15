@@ -340,7 +340,7 @@ public class Pur_ProdBoxFragment2 extends BaseFragment {
      */
     private void run_smGetDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("securityCode/findListByParam");
+        String mUrl = getURL("securityCode/findListByParam");
         String strCaseId = ""; // 方案id
         FormBody formBody = new FormBody.Builder()
                 .add("securityQrCode2", strBarcode)
@@ -436,7 +436,7 @@ public class Pur_ProdBoxFragment2 extends BaseFragment {
      */
     private void run_save(String json, String json2, String groupNo, String isSnManager) {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("materialBinningRecord/save_prod");
+        String mUrl = getURL("materialBinningRecord/save_prod");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()

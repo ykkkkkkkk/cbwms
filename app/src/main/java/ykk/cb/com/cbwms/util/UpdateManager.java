@@ -33,12 +33,12 @@ public class UpdateManager {
     //提示语
 //    private String updateMsg = "有最新的软件包哦，亲快下载吧~";
     //服务端包的地址url
-    private String apkUrl = Consts.getApkURL();
+    private String apkUrl; // 上个页面传来的下载路径
     private Dialog noticeDialog;
     private Dialog downloadDialog;
     /* 下载包安装路径 */
     private String savePath = Comm.publicPaths + "/updateFile/";
-    private String saveFileName = savePath + "wms.apk";
+    private String saveFileName = savePath + "cbwms.apk";
     /* 进度条与通知ui刷新的handler和msg常量 */
     private ProgressBar mProgress;
     private static final int DOWN_UPDATE = 1;
@@ -61,8 +61,9 @@ public class UpdateManager {
             }
         };
     };
-    public UpdateManager(Activity context) {
+    public UpdateManager(Activity context, String url) {
         this.mContext = context;
+        this.apkUrl = url;
     }
     //外部接口让主Activity调用
     public void checkUpdateInfo(){

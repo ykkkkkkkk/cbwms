@@ -1,4 +1,4 @@
-package ykk.cb.com.cbwms.sales;
+package ykk.cb.com.cbwms.basics;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -32,55 +30,70 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.comm.BaseActivity;
+import ykk.cb.com.cbwms.basics.adapter.Staff_DialogAdapter;
+import ykk.cb.com.cbwms.comm.BaseDialogActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.Customer;
-import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.pur.PurOrder;
-import ykk.cb.com.cbwms.model.sal.PickingList;
-import ykk.cb.com.cbwms.model.sal.PickingList;
-import ykk.cb.com.cbwms.sales.adapter.Sal_SelPickingListAdapter;
+import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
-public class Sal_SelPickingListActivity extends BaseActivity implements XRecyclerView.LoadingListener {
+/**
+ * 选择组织dialog
+ */
+public class Staff_DialogActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
 
+    @BindView(R.id.btn_close)
+    Button btnClose;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
-    @BindView(R.id.et_search)
-    EditText etSearch;
+    @BindView(R.id.et_deptName)
+    EditText etDeptName;
+    @BindView(R.id.et_staff)
+    EditText etStaff;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.tv_isLoad)
+    TextView tvIsLoad;
+    @BindView(R.id.lin_confrim)
+    LinearLayout linConfrim;
 
-    private Sal_SelPickingListActivity context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500;
+    private Staff_DialogActivity context = this;
+    private static final int SUCC1 = 200, UNSUCC1 = 501;
+    private List<Staff> listDatas = new ArrayList<>();
+    private Staff_DialogAdapter mAdapter;
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Sal_SelPickingListAdapter mAdapter;
-    private List<PickingList> listDatas = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int isload; // 是否为装卸部门
+    private boolean isCheckAll = true; // 是否全选了
+    private int deptId;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Sal_SelPickingListActivity> mActivity;
+        private final WeakReference<Staff_DialogActivity> mActivity;
 
-        public MyHandler(Sal_SelPickingListActivity activity) {
-            mActivity = new WeakReference<Sal_SelPickingListActivity>(activity);
+        public MyHandler(Staff_DialogActivity activity) {
+            mActivity = new WeakReference<Staff_DialogActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Sal_SelPickingListActivity m = mActivity.get();
+            Staff_DialogActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
-
                 switch (msg.what) {
                     case SUCC1: // 成功
-                        List<PickingList> list = JsonUtil.strToList2((String) msg.obj, PickingList.class);
+                        List<Staff> list = JsonUtil.strToList2((String) msg.obj, Staff.class);
                         m.listDatas.addAll(list);
+
+                        int size = m.listDatas.size();
+                        for(int i=0; i<size; i++) {
+                            Staff staff = m.listDatas.get(i);
+                            staff.setIsCheck(1);
+                        }
                         m.mAdapter.notifyDataSetChanged();
 
                         if (m.isRefresh) {
@@ -88,53 +101,97 @@ public class Sal_SelPickingListActivity extends BaseActivity implements XRecycle
                         } else if (m.isLoadMore) {
                             m.xRecyclerView.loadMoreComplete(true);
                         }
+
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
+                        if(m.isOnlyDept()) {
+                            m.linConfrim.setVisibility(View.VISIBLE);
+                        } else {
+                            m.linConfrim.setVisibility(View.GONE);
+                        }
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        m.mAdapter.notifyDataSetChanged();
+                        if(m.isOnlyDept()) {
+                            m.linConfrim.setVisibility(View.VISIBLE);
+                        } else {
+                            m.linConfrim.setVisibility(View.GONE);
+                        }
                         m.toasts("抱歉，没有加载到数据！");
 
                         break;
                 }
             }
         }
+    }
 
+    /**
+     * 是否为一个部门的员工
+     * @return
+     */
+    private boolean isOnlyDept() {
+        int size = listDatas.size();
+        if(size == 0) {
+            return false;
+        }
+        String deptName = null;
+        for(int i=0; i<size; i++) {
+            Staff staff = listDatas.get(i);
+            String deptName2 = staff.getDepartment().getDepartmentName();
+            if(deptName != null && !deptName.equals(deptName2)) {
+                return false;
+            }
+            deptName = deptName2;
+        }
+
+        return true;
     }
 
     @Override
     public int setLayoutResID() {
-        return R.layout.sal_sel_pickinglist_order;
+        return R.layout.ab_staff_dialog;
     }
 
     @Override
     public void initView() {
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Sal_SelPickingListAdapter(context, listDatas);
+        mAdapter = new Staff_DialogAdapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
         xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
-
+        // 行点击
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                PickingList pl = listDatas.get(pos-1);
-                int size = listDatas.size();
-                String pickingListNo = pl.getPickingListNo();
-                for(int i=0; i<size; i++) {
-                    listDatas.get(i).setIsCheck(0);
+                int curPos = pos - 1;
+                Staff staff = listDatas.get(curPos);
+                int check = staff.getIsCheck();
+                if(check == 1) {
+                    staff.setIsCheck(0);
+                } else {
+                    staff.setIsCheck(1);
                 }
-                for(int i=0; i<size; i++) {
-                    PickingList pl2 = listDatas.get(i);
-                    if(pickingListNo.equals(pl2.getPickingListNo())) {
-                        pl2.setIsCheck(1);
-                    }
-                }
-
                 mAdapter.notifyDataSetChanged();
+            }
+        });
+        // 部门点击
+        mAdapter.setCallBack(new Staff_DialogAdapter.MyCallBack() {
+            @Override
+            public void onClick(Staff entity, int position) {
+                // 如果是一个部门就不执行
+                if(isOnlyDept()) return;
+
+                if(deptId > 0) {
+                    deptId = 0;
+                    etDeptName.setText("");
+                } else {
+                    deptId = entity.getDeptId();
+                    String deptName = entity.getDepartment().getDepartmentName();
+                    setTexts(etDeptName, deptName);
+                }
+                initLoadDatas();
             }
         });
     }
@@ -142,49 +199,69 @@ public class Sal_SelPickingListActivity extends BaseActivity implements XRecycle
     @Override
     public void initData() {
         bundle();
-        initLoadDatas();
     }
 
     private void bundle() {
         Bundle bundle = context.getIntent().getExtras();
-        if (bundle != null) {
+        if(bundle != null) {
+            isload = bundle.getInt("isload", 0);
+            if(isload == 1) {
+                tvIsLoad.setBackgroundResource(R.drawable.check_on);
+            }
+            initLoadDatas();
         }
     }
 
 
-    @OnClick({R.id.btn_close, R.id.btn_confirm, R.id.btn_search})
+    // 监听事件
+    @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm,R.id.btn_checkAll})
     public void onViewClicked(View view) {
-        Bundle bundle = null;
         switch (view.getId()) {
-            case R.id.btn_close: // 关闭
-                closeHandler(mHandler);
-                context.finish();
-
-                break;
-            case R.id.btn_confirm: // 确认
-                if(listDatas == null || listDatas.size() == 0) {
-                    toasts("请勾选数据行！");
-                    return;
-                }
-                List<PickingList> list = new ArrayList<PickingList>();
-                for(int i = 0, size = listDatas.size(); i<size; i++) {
-                    PickingList p = listDatas.get(i);
-                    if(p.getIsCheck() == 1) {
-                        list.add(p);
-                    }
-                }
-                if(list.size() == 0) {
-                    toasts("请勾选数据行！");
-                    return;
-                }
-                bundle = new Bundle();
-                bundle.putSerializable("checkDatas", (Serializable)list);
-                setResults(context, bundle);
+            case R.id.btn_close:
                 context.finish();
 
                 break;
             case R.id.btn_search:
+                deptId = 0;
                 initLoadDatas();
+
+                break;
+            case R.id.btn_confirm: // 确认
+                if(listDatas.size() == 0) {
+                    Comm.showWarnDialog(context,"请查询数据！");
+                    return;
+                }
+                int size = listDatas.size();
+                List<Staff> list = new ArrayList<>(); // 记录选中的员工行
+                for(int i=0; i<size; i++) {
+                    Staff staff = listDatas.get(i);
+                    if(staff.getIsCheck() == 1) {
+                        list.add(staff);
+                    }
+                }
+                if(list.size() == 0) {
+                    Comm.showWarnDialog(context,"请至少选择一个员工！");
+                    return;
+                }
+                Intent intent = new Intent();
+                intent.putExtra("staffList", (Serializable) list);
+                context.setResult(RESULT_OK, intent);
+                context.finish();
+
+
+                break;
+            case R.id.btn_checkAll: // 全选
+                if(listDatas.size() == 0) {
+                    Comm.showWarnDialog(context,"请查询数据！");
+                    return;
+                }
+                int check = isCheckAll ? 0 : 1;
+                for (int i=0, size2=listDatas.size(); i<size2; i++) {
+                    Staff staff = listDatas.get(i);
+                    staff.setIsCheck(check);
+                }
+                isCheckAll = check == 0 ? false : true;
+                mAdapter.notifyDataSetChanged();
 
                 break;
         }
@@ -201,9 +278,12 @@ public class Sal_SelPickingListActivity extends BaseActivity implements XRecycle
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("pickingList/findAll2");
+        String mUrl = getURL("staff/findByParam_app");
         FormBody formBody = new FormBody.Builder()
-                .add("pickingListNo_fbillno", getValues(etSearch).trim())
+                .add("fNumberAndName", getValues(etStaff).trim())
+                .add("isload", isload > 0 ? String.valueOf(isload) : "")
+                .add("deptName", getValues(etDeptName).trim())
+                .add("deptId", deptId > 0 ? String.valueOf(deptId) : "")
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();
@@ -232,7 +312,7 @@ public class Sal_SelPickingListActivity extends BaseActivity implements XRecycle
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("Sal_SelOrderActivity --> onResponse", result);
+                Log.e("Staff_DialogActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -251,23 +331,6 @@ public class Sal_SelPickingListActivity extends BaseActivity implements XRecycle
         isLoadMore = true;
         limit += 1;
         run_okhttpDatas();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case SEL_CUST: //查询供应商	返回
-//                if (resultCode == RESULT_OK) {
-//                    supplier = data.getParcelableExtra("obj");
-//                    Log.e("onActivityResult --> SEL_CUST", supplier.getFname());
-//                    if (supplier != null) {
-//                        setTexts(etCustSel, supplier.getFname());
-//                    }
-//                }
-//
-//                break;
-//        }
     }
 
     @Override

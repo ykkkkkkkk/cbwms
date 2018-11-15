@@ -159,7 +159,7 @@ public class Organization_DialogActivity extends BaseDialogActivity implements X
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findOrganizationListByParam");
+        String mUrl = getURL("findOrganizationListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))

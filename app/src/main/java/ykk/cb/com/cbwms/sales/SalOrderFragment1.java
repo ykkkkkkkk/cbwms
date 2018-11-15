@@ -167,7 +167,7 @@ public class SalOrderFragment1 extends BaseFragment implements XRecyclerView.Loa
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findSalOrderList");
+        String mUrl = getURL("findSalOrderList");
         FormBody formBody = new FormBody.Builder()
                 .add("custId", String.valueOf(customer.getFcustId()))
 //                .add("limit", "10")

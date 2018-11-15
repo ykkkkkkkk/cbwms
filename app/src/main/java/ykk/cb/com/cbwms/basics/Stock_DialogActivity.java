@@ -160,7 +160,7 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findStockListByParam");
+        String mUrl = getURL("findStockListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))

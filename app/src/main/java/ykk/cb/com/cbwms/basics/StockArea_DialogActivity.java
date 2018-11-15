@@ -168,7 +168,7 @@ public class StockArea_DialogActivity extends BaseDialogActivity implements XRec
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findStockAreaListByParam");
+        String mUrl = getURL("findStockAreaListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("stockId", String.valueOf(stockId))

@@ -104,34 +104,16 @@
             android:layout_height="@dimen/_32dp"
             android:background="@drawable/aa_ico5a_4" />
 
-        <LinearLayout
+
+        <TextView
             android:layout_width="160dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/_20dp"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:text="更新版本"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_20sp" />
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/_32dp"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="更新版本"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_20sp" />
-
-            <TextView
-                android:id="@+id/tv_updatePlan"
-                android:layout_width="32dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="1%"
-                android:textColor="@color/c_009900"
-                android:textSize="@dimen/_12sp"
-                android:visibility="invisible" />
-
-        </LinearLayout>
     </LinearLayout>
 
     <View

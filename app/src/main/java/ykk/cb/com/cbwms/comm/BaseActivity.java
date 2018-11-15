@@ -197,6 +197,17 @@ public abstract class BaseActivity extends AppCompatActivity {
 		return spfOther.getString("session", "");
 	}
 
+	/**
+	 * 得到url
+	 * @param param
+	 * @return
+	 */
+	public String getURL(String param) {
+		SharedPreferences spfConfig = spf(getResStr(R.string.saveConfig));
+		String ip = spfConfig.getString("ip", "192.168.3.198");
+		String port = spfConfig.getString("port", "8080");
+		return "http://"+ip+":"+port+"/cbwms/"+param;
+	}
 
 	public boolean getXmlValues2(SharedPreferences spf, String key) {
 		return spf.getBoolean(key, false);

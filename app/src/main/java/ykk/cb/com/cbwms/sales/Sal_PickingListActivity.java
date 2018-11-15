@@ -859,7 +859,7 @@ public class Sal_PickingListActivity extends BaseActivity {
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = Consts.getURL("pickingList/add");
+        String mUrl = getURL("pickingList/add");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -897,23 +897,23 @@ public class Sal_PickingListActivity extends BaseActivity {
         String isList = ""; // 是否根据单据查询全部
         switch (curViewFlag) {
             case '1': // 仓库
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockBarcode;
                 isStockLong = false;
                 strCaseId = "12";
                 break;
             case '2': // 库位
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockPBarcode;
                 strCaseId = "14";
                 break;
             case '3': // 发货订单
-                mUrl = Consts.getURL("deliverynotice/findBarcode");
+                mUrl = getURL("deliverynotice/findBarcode");
                 barcode = deliBarcode;
                 strCaseId = "";
                 break;
             case '4': // 物料
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
                 strCaseId = "11,21";
                 break;
@@ -966,7 +966,7 @@ public class Sal_PickingListActivity extends BaseActivity {
                 else strBarcode.append(sr2.getBarcode() + ",");
             }
         }
-        String mUrl = Consts.getURL("pickingList/findMatIsExistList");
+        String mUrl = getURL("pickingList/findMatIsExistList");
         FormBody formBody = new FormBody.Builder()
                 .add("orderType", "JH") // 单据类型（CG代表采购订单，XS销售订单,生产PD，JH拣货单）
                 .add("strBarcode", strBarcode.toString())

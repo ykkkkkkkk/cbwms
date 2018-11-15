@@ -1,28 +1,30 @@
 package ykk.cb.com.cbwms.model;
 
-public class Staff {
+import java.io.Serializable;
+
+public class Staff implements Serializable {
 	/*员工id*/
-	private Integer id;
+	private int id;
 	/*k3员工id*/
-	private Integer staffId;
+	private int staffId;
 	/*员工编号*/
 	private String number;
 	/*员工名称*/
 	private String name;
 	/*员工创建组织*/
-	private String staffCreateOrgId;
+	private int staffCreateOrgId;
 	/*员工使用组织*/
-	private String staffUseOrgId;
+	private int staffUseOrgId;
 	/*组织实体类*/
 	private Organization organization;
 	/*员工工作组织*/
-	private String staffWorkOrgId;
+	private int staffWorkOrgId;
 	/*部门id*/
-	private String staffPostDept;
+	private int deptId;
 	/*部门*/
 	private Department department;
 	/*岗位id*/
-	private String staffPost;
+	private int postId;
 	/*岗位*/
 	private Post post;
 	/*K3数据状态*/
@@ -33,120 +35,121 @@ public class Staff {
 	private String enabled;
 	/*修改日期*/
 	private String fModifyDate;
+
+	// 临时字段
+	private int isCheck;
+
 	/**
 	 * 构造方法
 	 */
 	public Staff() {
 		super();
 	}
-	/**
-	 * getter/setter方法
-	 * @return
-	 */
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	public Integer getStaffId() {
+	public int getStaffId() {
 		return staffId;
-	}
-	public void setStaffId(Integer staffId) {
-		this.staffId = staffId;
 	}
 	public String getNumber() {
 		return number;
 	}
-	public void setNumber(String number) {
-		this.number = number;
-	}
 	public String getName() {
 		return name;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getStaffCreateOrgId() {
+	public int getStaffCreateOrgId() {
 		return staffCreateOrgId;
 	}
-	public void setStaffCreateOrgId(String staffCreateOrgId) {
-		this.staffCreateOrgId = staffCreateOrgId;
-	}
-	public String getStaffUseOrgId() {
+	public int getStaffUseOrgId() {
 		return staffUseOrgId;
-	}
-	public void setStaffUseOrgId(String staffUseOrgId) {
-		this.staffUseOrgId = staffUseOrgId;
 	}
 	public Organization getOrganization() {
 		return organization;
 	}
-	public void setOrganization(Organization organization) {
-		this.organization = organization;
-	}
-	public String getStaffWorkOrgId() {
+	public int getStaffWorkOrgId() {
 		return staffWorkOrgId;
 	}
-	public void setStaffWorkOrgId(String staffWorkOrgId) {
-		this.staffWorkOrgId = staffWorkOrgId;
-	}
-	public String getStaffPostDept() {
-		return staffPostDept;
-	}
-	public void setStaffPostDept(String staffPostDept) {
-		this.staffPostDept = staffPostDept;
+	public int getDeptId() {
+		return deptId;
 	}
 	public Department getDepartment() {
 		return department;
 	}
-	public void setDepartment(Department department) {
-		this.department = department;
-	}
-	public String getStaffPost() {
-		return staffPost;
-	}
-	public void setStaffPost(String staffPost) {
-		this.staffPost = staffPost;
+	public int getPostId() {
+		return postId;
 	}
 	public Post getPost() {
 		return post;
 	}
-	public void setPost(Post post) {
-		this.post = post;
-	}
 	public String getDataStatus() {
 		return dataStatus;
-	}
-	public void setDataStatus(String dataStatus) {
-		this.dataStatus = dataStatus;
 	}
 	public String getIsDelete() {
 		return isDelete;
 	}
-	public void setIsDelete(String isDelete) {
-		this.isDelete = isDelete;
-	}
 	public String getEnabled() {
 		return enabled;
-	}
-	public void setEnabled(String enabled) {
-		this.enabled = enabled;
 	}
 	public String getfModifyDate() {
 		return fModifyDate;
 	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public void setStaffId(int staffId) {
+		this.staffId = staffId;
+	}
+	public void setNumber(String number) {
+		this.number = number;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setStaffCreateOrgId(int staffCreateOrgId) {
+		this.staffCreateOrgId = staffCreateOrgId;
+	}
+	public void setStaffUseOrgId(int staffUseOrgId) {
+		this.staffUseOrgId = staffUseOrgId;
+	}
+	public void setOrganization(Organization organization) {
+		this.organization = organization;
+	}
+	public void setStaffWorkOrgId(int staffWorkOrgId) {
+		this.staffWorkOrgId = staffWorkOrgId;
+	}
+	public void setDeptId(int deptId) {
+		this.deptId = deptId;
+	}
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+	public void setPostId(int postId) {
+		this.postId = postId;
+	}
+	public void setPost(Post post) {
+		this.post = post;
+	}
+	public void setDataStatus(String dataStatus) {
+		this.dataStatus = dataStatus;
+	}
+	public void setIsDelete(String isDelete) {
+		this.isDelete = isDelete;
+	}
+	public void setEnabled(String enabled) {
+		this.enabled = enabled;
+	}
 	public void setfModifyDate(String fModifyDate) {
 		this.fModifyDate = fModifyDate;
 	}
-	@Override
-	public String toString() {
-		return "Staff [id=" + id + ", staffId=" + staffId + ", number=" + number + ", name=" + name
-				+ ", staffCreateOrgId=" + staffCreateOrgId + ", staffUseOrgId=" + staffUseOrgId + ", organization="
-				+ organization + ", staffWorkOrgId=" + staffWorkOrgId + ", staffPostDept=" + staffPostDept
-				+ ", department=" + department + ", staffPost=" + staffPost + ", post=" + post + ", dataStatus="
-				+ dataStatus + ", isDelete=" + isDelete + ", enabled=" + enabled + ", fModifyDate=" + fModifyDate + "]";
+
+	public int getIsCheck() {
+		return isCheck;
 	}
-	
+
+	public void setIsCheck(int isCheck) {
+		this.isCheck = isCheck;
+	}
+
+
 
 }

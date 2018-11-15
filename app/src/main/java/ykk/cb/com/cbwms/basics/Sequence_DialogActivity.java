@@ -97,7 +97,7 @@ public class Sequence_DialogActivity extends BaseDialogActivity {
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findSequenceList");
+        String mUrl = getURL("findSequenceList");
         FormBody formBody = new FormBody.Builder()
 //                .add("limit", "10")
 //                .add("pageSize", "100")

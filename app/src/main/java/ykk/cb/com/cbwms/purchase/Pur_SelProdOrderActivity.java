@@ -217,7 +217,7 @@ public class Pur_SelProdOrderActivity extends BaseActivity implements XRecyclerV
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findProdOrderList");
+        String mUrl = getURL("findProdOrderList");
         FormBody formBody = new FormBody.Builder()
                 .add("fbillno", getValues(etSearch).trim())
                 .add("deptId", String.valueOf(department.getFitemID()))

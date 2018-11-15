@@ -41,8 +41,8 @@ public class IDownloadPresenter implements IDownloadContract.Presenter {
      * 模拟网络下载
      */
     @Override
-    public void downApk(Context context) {
-        final String url = Consts.getApkURL();
+    public void downApk(Context context, final String url) {
+//        final String url = Consts.getApkURL();
         if (conn == null)
             conn = new ServiceConnection() {
                 @Override

@@ -178,7 +178,7 @@ public class SalDeliOrderFragment2 extends BaseFragment implements XRecyclerView
     private void run_okhttpDatas() {
         listDatas.clear();
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findDeliOrderList");
+        String mUrl = getURL("findDeliOrderList");
         FormBody formBody = new FormBody.Builder()
                 .add("custId", String.valueOf(customer.getFcustId()))
 //                .add("limit", "10")

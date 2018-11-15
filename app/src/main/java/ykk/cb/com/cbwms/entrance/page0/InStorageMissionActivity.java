@@ -274,6 +274,10 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                         if(ism.getInputNum() > 0) {
                             list.add(ism);
                         }
+                        if((ism.getInputNum() + ism.getInStorageFqty()) > ism.getFqty()) {
+                            Comm.showWarnDialog(context,"第"+(i+1)+"行，“实收数”➕“已收数”总和不能大于“单据数”！");
+                            return;
+                        }
                     }
                     if(list.size() == 0) {
                         Comm.showWarnDialog(context,"请在对应行输入数量！");
@@ -348,7 +352,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
      */
     private void run_smGetDatas() {
         showLoadDialog("加载中...");
-        String mUrl = mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+        String mUrl = mUrl = getURL("barCodeTable/findBarcode4ByParam");
         String barcode = mtlBarcode;
         String strCaseId = "11,21,36"; // 因为这里有物料包装或者物料的码所以不能指定caseId;
         FormBody formBody = new FormBody.Builder()
@@ -395,19 +399,24 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
             // 扫码的物料和列表中的是否匹配
             if(ism.getMaterialId() == mtl.getfMaterialId()) {
                 isBool = true;
-                if(ism.getFqty() == (ism.getInStorageFqty() + ism.getInputNum())) {
+                double fqtySum = ism.getInStorageFqty() + ism.getInputNum();
+                if(fqtySum > ism.getFqty()) {
+                    ism.setInputNum(ism.getFqty()-ism.getInStorageFqty());
+                    break;
+                }
+                if(ism.getFqty() == fqtySum) {
                     continue;
                 }
-                double number = bt.getMaterialCalculateNumber();
-                double fqty = 1;
                 // 计量单位数量
-                if(mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
-                if(number > 0) {
-                    if(number > (ism.getFqty()-ism.getInStorageFqty())) {
-                        Comm.showWarnDialog(context,"第"+(i+1)+"行，“扫码数”➕“已收数”总和不能大于“单据数”！");
-                        return;
-                    }
+                double number = 0;
+                double fqty = 1;
+                if(bt.getCaseId() == 21) {
+                    number = bt.getMaterialCalculateNumber();
+                } else {
+                    number = mtl.getCalculateFqty();
                 }
+
+                fqty = number > 0 ? number : 1;
 
                 ism.setInputNum(ism.getInputNum()+fqty);
             }
@@ -432,7 +441,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("purchaseInStorageMission/findInStorageMissionEntry_app");
+        String mUrl = getURL("purchaseInStorageMission/findInStorageMissionEntry_app");
         FormBody formBody = new FormBody.Builder()
                 .add("staffId", String.valueOf(user.getStaffId()))
                 .add("entryStatus", String.valueOf(entryStatus))
@@ -476,7 +485,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
      */
     private void run_modifyFqty_app(int id, double num1) {
         showLoadDialog("提交中...");
-        String mUrl = Consts.getURL("purchaseMission/modifyInStorageFqty_app");
+        String mUrl = getURL("purchaseMission/modifyInStorageFqty_app");
         FormBody formBody = new FormBody.Builder()
                 .add("id", String.valueOf(id))
                 .add("inStorageFqty", String.valueOf(num1))
@@ -571,7 +580,7 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = Consts.getURL("addScanningRecord");
+        String mUrl = getURL("addScanningRecord");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -624,10 +633,6 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
                         InStorageMissionEntry ism = listDatas.get(curPos);
-                        if((ism.getInStorageFqty()+num) > ism.getFqty()) {
-                            Comm.showWarnDialog(context,"“实收数”➕“已收数”总和不能大于“单据数”！");
-                            return;
-                        }
                         ism.setInputNum(num);
 //                        run_modifyFqty_app(ism.getId(), num);
                         mAdapter.notifyDataSetChanged();

@@ -238,7 +238,7 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findPurPoOrderList");
+        String mUrl = getURL("findPurPoOrderList");
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillno", getValues(etFbillno).trim())
                 .add("supplierId", String.valueOf(supplier.getFsupplierid()))

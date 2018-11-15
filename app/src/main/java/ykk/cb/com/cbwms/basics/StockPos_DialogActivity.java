@@ -166,7 +166,7 @@ public class StockPos_DialogActivity extends BaseDialogActivity implements XRecy
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findStockPositionListByParam");
+        String mUrl = getURL("findStockPositionListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("stockId", String.valueOf(stockId))

@@ -1327,7 +1327,7 @@ public class Sal_OutActivity extends BaseActivity {
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = Consts.getURL("addScanningRecord");
+        String mUrl = getURL("addScanningRecord");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -1364,23 +1364,23 @@ public class Sal_OutActivity extends BaseActivity {
         String strCaseId = null;
         switch (curViewFlag) {
             case '1':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockBarcode;
                 isStockLong = false;
                 strCaseId = "12";
                 break;
             case '2':
-                mUrl = Consts.getURL("barCodeTable/findBarcode4ByParam");
+                mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = stockPBarcode;
                 strCaseId = "14";
                 break;
             case '3': // 物料扫码
-                mUrl = Consts.getURL("barCodeTable/findBarcode3ByParam");
+                mUrl = getURL("barCodeTable/findBarcode3ByParam");
                 barcode = mtlBarcode;
                 strCaseId = "32";
                 break;
             case '4': // 箱子扫码
-                mUrl = Consts.getURL("materialBinningRecord/findList3ByParam");
+                mUrl = getURL("materialBinningRecord/findList3ByParam");
                 barcode = boxBarcode;
                 strCaseId = "";
                 break;
@@ -1445,11 +1445,11 @@ public class Sal_OutActivity extends BaseActivity {
         if(dataType == '1') {
             codes = SUCC3B;
             unCodes = UNSUCC3B;
-            mUrl = Consts.getURL("findMatIsExistList3");
+            mUrl = getURL("findMatIsExistList3");
         } else {
             codes = SUCC3;
             unCodes = UNSUCC3;
-            mUrl = Consts.getURL("findMatIsExistList2");
+            mUrl = getURL("findMatIsExistList2");
         }
         FormBody formBody = new FormBody.Builder()
                 .add("orderType", "XS") // 单据类型CG代表采购订单，XS销售订单,生产PD

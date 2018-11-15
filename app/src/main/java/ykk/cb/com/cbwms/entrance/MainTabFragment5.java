@@ -4,9 +4,11 @@ package ykk.cb.com.cbwms.entrance;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -46,20 +49,21 @@ import ykk.cb.com.cbwms.model.AppInfo;
 import ykk.cb.com.cbwms.util.IDownloadContract;
 import ykk.cb.com.cbwms.util.IDownloadPresenter;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.UpdateManager;
 
 import static android.os.Process.killProcess;
 
 public class MainTabFragment5 extends BaseFragment implements IDownloadContract.View {
 
 //    Unbinder unbinder;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, TEST = 201, UNTEST = 501;
-    @BindView(R.id.tv_updatePlan)
-    TextView tvUpdatePlan;
 
+    private MainTabFragment5 context = this;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, TEST = 201, UNTEST = 501, UPDATE_PLAN = 1;
     private static final int REQUESTCODE = 101;
     private IDownloadPresenter mPresenter;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private Activity mContext = null;
+
 
     public MainTabFragment5() {
     }
@@ -101,6 +105,11 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
                         m.toasts("网络异常，请检查ip和端口！");
 
                         break;
+                    case UPDATE_PLAN: // 更新进度
+                        m.progressBar.setProgress(m.progress);
+                        m.tvDownPlan.setText(String.format(Locale.CHINESE,"%d%%", m.progress));
+
+                        break;
                 }
             }
         }
@@ -130,7 +139,8 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
 
                 break;
             case R.id.lin_item3: // 网络测试
-                run_test();
+                toasts("网络通畅！！！");
+//                run_test();
 
                 break;
             case R.id.lin_item4: // 更新版本
@@ -149,6 +159,44 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
     }
 
     /**
+     * 显示下载的进度
+     */
+    private Dialog downloadDialog;
+    private ProgressBar progressBar;
+    private TextView tvDownPlan;
+    private int progress;
+    private void showDownloadDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+        builder.setTitle("软件更新");
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View v = inflater.inflate(R.layout.progress, null);
+        progressBar = (ProgressBar)v.findViewById(R.id.progress);
+        tvDownPlan = (TextView)v.findViewById(R.id.tv_downPlan);
+        builder.setView(v);
+        // 开发员用的，长按进度条，就关闭下载框
+        tvDownPlan.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                downloadDialog.dismiss();
+                return true;
+            }
+        });
+        // 如果用户点击取消就销毁掉这个系统
+//        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+////                mContext.finish();
+//                dialog.dismiss();
+//            }
+//        });
+        downloadDialog = builder.create();
+        downloadDialog.show();
+        downloadDialog.setCancelable(false);
+        downloadDialog.setCanceledOnTouchOutside(false);
+    }
+
+    /**
      * 提示下载框
      */
     private void showNoticeDialog(String remark) {
@@ -156,15 +204,23 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
                 .setTitle("更新版本").setMessage(remark)
                 .setPositiveButton("下载", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mPresenter.downApk(mContext);
+                        // 得到ip和端口
+                        SharedPreferences spfConfig = spf(getResStr(R.string.saveConfig));
+                        String ip = spfConfig.getString("ip", "192.168.3.198");
+                        String port = spfConfig.getString("port", "8080");
+                        String url = "http://"+ip+":"+port+"/apks/cbwms.apk";
+
+                        showDownloadDialog();
+                        mPresenter.downApk(mContext, url);
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create();// 创建
+//                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                })
+                .create();// 创建
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();// 显示
@@ -193,7 +249,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
      */
     private void run_findAppInfo() {
         showLoadDialog("加载中...");
-        String mUrl = Consts.getURL("findAppInfo");
+        String mUrl = getURL("findAppInfo");
         ;
         FormBody formBody = new FormBody.Builder()
 //                .add("limit", "10")
@@ -225,7 +281,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("MainTabFragment4 --> onResponse", result);
+                Log.e("MainTabFragment5 --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -236,7 +292,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
      */
     private void run_test() {
         showLoadDialog("测试中...");
-        String mUrl = Consts.getURL("");
+        String mUrl = getURL("");
         int len = mUrl.indexOf("mdwms");
         String url = mUrl.substring(0, len);
         Request request = new Request.Builder()
@@ -321,12 +377,12 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
 
     @Override
     public void showUpdate(String version) {
-
     }
 
     @Override
     public void showProgress(int progress) {
-        tvUpdatePlan.setText(String.format(Locale.CHINESE,"%d%%", progress));
+        context.progress = progress;
+        mHandler.sendEmptyMessage(UPDATE_PLAN);
     }
 
     @Override
@@ -336,6 +392,8 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
 
     @Override
     public void showComplete(File file) {
+        if(downloadDialog != null) downloadDialog.dismiss();
+
         try {
             String authority = mContext.getApplicationContext().getPackageName() + ".fileProvider";
             Uri fileUri = FileProvider.getUriForFile(mContext, authority, file);
@@ -359,11 +417,5 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-//        mPresenter.unbind(mContext);
-        super.onDestroyView();
     }
 }

@@ -232,6 +232,8 @@ public class JsonUtil {
      * {"code":100,"msg":"处理成功","extend":{"ykk_string":"abc"}}
      */
     public static String strToString(String strJson) {
+        if(strJson == null || strJson.indexOf("ykk_string") == -1) return null;
+
         JsonObject jsonObj = new JsonParser().parse(strJson).getAsJsonObject();
 
         JsonObject extend = jsonObj.getAsJsonObject("extend");

@@ -25,6 +25,10 @@ public class PurOrder implements Serializable {
     private String mtlFnumber; // 物料编码
     private String mtlFname; // 物料名称
     private String mtlType; // 规格型号
+    /*k3物料超收上限*/
+    private double receiveMaxScale;
+    /*k3物料超收下限*/
+    private double receiveMinScale;
     private String unitFname; // 单位
     private double poFqty; // 采购数量
     private double usableFqty; // 可用的数量
@@ -38,6 +42,12 @@ public class PurOrder implements Serializable {
 
     /*对应k3单据分录号字段*/
     private int entryId;
+    /*装卸数量*/
+    private double disburdenQty;
+    /*单价*/
+    private double fprice;
+    /*金额*/
+    private double famount;
 
     public int getfId() {
         return fId;
@@ -275,18 +285,44 @@ public class PurOrder implements Serializable {
         this.usableFqty = usableFqty;
     }
 
-    @Override
-    public String toString() {
-        return "PurOrder [fId=" + fId + ", fbillno=" + fbillno + ", supplierId=" + supplierId + ", supplierName="
-                + supplierName + ", supplierNumber=" + supplierNumber + ", purPerson=" + purPerson + ", purOrgId="
-                + purOrgId + ", purOrgNumber=" + purOrgNumber + ", purOrgName=" + purOrgName + ", purOrg=" + purOrg
-                + ", deptId=" + deptId + ", deptName=" + deptName + ", poFdate=" + poFdate + ", mtlId=" + mtlId
-                + ", mtl=" + mtl + ", mtlFnumber=" + mtlFnumber + ", mtlFname=" + mtlFname + ", mtlType=" + mtlType
-                + ", unitFname=" + unitFname + ", poFqty=" + poFqty + ", usableFqty=" + usableFqty + ", poFstockinqty="
-                + poFstockinqty + ", receiveOrgId=" + receiveOrgId + ", receiveOrgNumber=" + receiveOrgNumber
-                + ", receiveOrgName=" + receiveOrgName + ", receiveOrg=" + receiveOrg + ", isCheck=" + isCheck
-                + ", bct=" + bct + ", entryId=" + entryId + "]";
+    public double getDisburdenQty() {
+        return disburdenQty;
     }
+
+    public void setDisburdenQty(double disburdenQty) {
+        this.disburdenQty = disburdenQty;
+    }
+
+    public double getReceiveMaxScale() {
+        return receiveMaxScale;
+    }
+
+    public void setReceiveMaxScale(double receiveMaxScale) {
+        this.receiveMaxScale = receiveMaxScale;
+    }
+
+    public double getReceiveMinScale() {
+        return receiveMinScale;
+    }
+
+    public void setReceiveMinScale(double receiveMinScale) {
+        this.receiveMinScale = receiveMinScale;
+    }
+    public double getFprice() {
+        return fprice;
+    }
+    public void setFprice(double fprice) {
+        this.fprice = fprice;
+    }
+
+    public double getFamount() {
+        return famount;
+    }
+
+    public void setFamount(double famount) {
+        this.famount = famount;
+    }
+
 
 
 }

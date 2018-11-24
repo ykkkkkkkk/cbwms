@@ -10,9 +10,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,59 +28,56 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.adapter.Supplier_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseActivity;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.Supplier;
+import ykk.cb.com.cbwms.model.DisburdenMission;
+import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
-import ykk.cb.com.cbwms.purchase.adapter.Pur_SelOrderAdapter;
+import ykk.cb.com.cbwms.purchase.adapter.Pur_SelFragment4Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
-public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.LoadingListener {
+public class Pur_SelFragment4Activity extends BaseActivity implements XRecyclerView.LoadingListener {
 
-    @BindView(R.id.btn_close)
-    Button btnClose;
-    @BindView(R.id.tv_custInfo)
-    TextView tvCustInfo;
-    @BindView(R.id.cbAll)
-    CheckBox cbAll;
-    @BindView(R.id.btn_confirm)
-    Button btnConfirm;
+    @BindView(R.id.viewRadio1)
+    View viewRadio1;
+    @BindView(R.id.viewRadio2)
+    View viewRadio2;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
+    @BindView(R.id.et_search)
+    EditText etSearch;
+    @BindView(R.id.btn_search)
+    Button btnSearch;
 
-    private Pur_SelOrderActivity context = this;
+    private Pur_SelFragment4Activity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
-    private Supplier supplier; // 供应商
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Pur_SelOrderAdapter mAdapter;
-    private List<PurOrder> listDatas = new ArrayList<>();
-    private List<PurOrder> sourceList; // 上个界面传来的数据列表
+    private Pur_SelFragment4Adapter mAdapter;
+    private List<DisburdenMissionEntry> listDatas = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
-    private int isload; // 是否为装卸界面进入的
+    private int fbillType = 2; // 数据来源类型
+    private View curRadio;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Pur_SelOrderActivity> mActivity;
+        private final WeakReference<Pur_SelFragment4Activity> mActivity;
 
-        public MyHandler(Pur_SelOrderActivity activity) {
-            mActivity = new WeakReference<Pur_SelOrderActivity>(activity);
+        public MyHandler(Pur_SelFragment4Activity activity) {
+            mActivity = new WeakReference<Pur_SelFragment4Activity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Pur_SelOrderActivity m = mActivity.get();
+            Pur_SelFragment4Activity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
                 switch (msg.what) {
                     case SUCC1: // 成功
-                        List<PurOrder> list = JsonUtil.strToList2((String) msg.obj, PurOrder.class);
+                        List<DisburdenMissionEntry> list = JsonUtil.strToList2((String) msg.obj, DisburdenMissionEntry.class);
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
 
@@ -92,30 +86,30 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
                         } else if (m.isLoadMore) {
                             m.xRecyclerView.loadMoreComplete(true);
                         }
-                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新开启
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        m.toasts("抱歉，没有加载到数据！");
+                        m.mAdapter.notifyDataSetChanged();
+                        String errMsg = JsonUtil.strToString((String) msg.obj);
+                        m.toasts(errMsg);
 
                         break;
                 }
             }
         }
-
     }
 
     @Override
     public int setLayoutResID() {
-        return R.layout.pur_sel_order;
+        return R.layout.pur_sel_fragment4_order;
     }
 
     @Override
     public void initView() {
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Pur_SelOrderAdapter(context, listDatas);
+        mAdapter = new Pur_SelFragment4Adapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
@@ -125,13 +119,21 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                PurOrder m = listDatas.get(pos-1);
-                int check = m.getIsCheck();
-                if (check == 1) {
-                    m.setIsCheck(0);
-                } else {
-                    m.setIsCheck(1);
+                DisburdenMissionEntry disEntry = listDatas.get(pos-1);
+                DisburdenMission dis = disEntry.getDisMission();
+                int size = listDatas.size();
+                String billNumber = dis.getBillNumber();
+                for(int i=0; i<size; i++) {
+                    listDatas.get(i).setIsCheck(0);
                 }
+                for(int i=0; i<size; i++) {
+                    DisburdenMissionEntry disEntry2 = listDatas.get(i);
+                    DisburdenMission dis2 = disEntry2.getDisMission();
+                    if(billNumber.equals(dis2.getBillNumber())) {
+                        disEntry2.setIsCheck(1);
+                    }
+                }
+
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -139,62 +141,57 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
 
     @Override
     public void initData() {
+        curRadio = viewRadio2;
         bundle();
-        initLoadDatas();
     }
 
     private void bundle() {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
-            isload = bundle.getInt("isload");
-            supplier = (Supplier) bundle.getSerializable("supplier");
-            sourceList = (List<PurOrder>) bundle.getSerializable("sourceList");
-            tvCustInfo.setText("供应商：" + supplier.getfName());
+            fbillType = bundle.getInt("fbillType", 2);
+            switch (fbillType) {
+                case 1:
+                    tabSelected(viewRadio1);
+                    break;
+                case 2:
+                    tabSelected(viewRadio2);
+                    break;
+            }
+            initLoadDatas();
         }
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_confirm})
+
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_confirm, R.id.btn_search})
     public void onViewClicked(View view) {
+        Bundle bundle = null;
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
                 closeHandler(mHandler);
                 context.finish();
 
                 break;
+//            case R.id.lin_tab1:
+//                fbillType = 1;
+//                tabSelected(viewRadio1);
+//                initLoadDatas();
+//
+//                break;
+//            case R.id.lin_tab2:
+//                fbillType = 2;
+//                tabSelected(viewRadio2);
+//                initLoadDatas();
+//
+//                break;
             case R.id.btn_confirm: // 确认
                 if(listDatas == null || listDatas.size() == 0) {
-                    toasts("请选择数据在确认！");
+                    toasts("请勾选数据行！");
                     return;
                 }
-                List<PurOrder> list = new ArrayList<>();
+                List<DisburdenMissionEntry> list = new ArrayList<DisburdenMissionEntry>();
                 for(int i = 0, size = listDatas.size(); i<size; i++) {
-                    PurOrder p = listDatas.get(i);
-
-                    int batch = p.getMtl().getIsBatchManager();
-                    int snNo = p.getMtl().getIsSnManager();
-                    // 选中了行
+                    DisburdenMissionEntry p = listDatas.get(i);
                     if(p.getIsCheck() == 1) {
-                        if(sourceList != null) {
-                            for (int j = 0; j < sourceList.size(); j++) {
-                                PurOrder purOrder2 = sourceList.get(j);
-                                // 如果已经选择了相同的行，就提示
-                                if (p.getfId() == purOrder2.getfId() && p.getMtlId() == purOrder2.getMtlId() && p.getEntryId() == purOrder2.getEntryId()) {
-                                    Comm.showWarnDialog(context, "第" + (i + 1) + "行已经在入库的列表中，不能重复选择！");
-                                    return;
-                                }
-                            }
-                        }
-                        // 启用了批次货序列号，如果还没生码，就提示
-//                        if(p.getBct() == null) {
-//                            Comm.showWarnDialog(context,"第"+(i+1)+"行没有生码，请到PC端“条码管理-条码生成”选择对应单据进行生码，生码后，请刷新数据！");
-//                            return;
-//                        }
-
-//                    if((batch > 0 && isNULLS(p.getBct().getBatchCode()).length() == 0) || (snNo > 0 && isNULLS(p.getBct().getSnCode()).length() == 0)) {
-//                        Comm.showWarnDialog(context,"第"+(i+1)+"行没有生码，请到PC端“条码管理-条码生成”选择对应单据进行生码，生码后，请刷新数据！");
-//                        return;
-//                    }
-
                         list.add(p);
                     }
                 }
@@ -202,32 +199,26 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
                     toasts("请勾选数据行！");
                     return;
                 }
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("checkDatas", (Serializable) list);
+                bundle = new Bundle();
+                bundle.putSerializable("checkDatas", (Serializable)list);
                 setResults(context, bundle);
                 context.finish();
+
+                break;
+            case R.id.btn_search:
+                initLoadDatas();
 
                 break;
         }
     }
 
-    @OnCheckedChanged(R.id.cbAll)
-    public void onViewChecked(CompoundButton buttonView, boolean isChecked) {
-        if (listDatas == null) {
-            return;
-        }
-        if (isChecked) {
-            for (int i = 0, size = listDatas.size(); i < size; i++) {
-                PurOrder p = listDatas.get(i);
-                p.setIsCheck(1);
-            }
-        } else {
-            for (int i = 0, size = listDatas.size(); i < size; i++) {
-                PurOrder p = listDatas.get(i);
-                p.setIsCheck(0);
-            }
-        }
-        mAdapter.notifyDataSetChanged();
+    /**
+     * 选中之后改变样式
+     */
+    private void tabSelected(View v) {
+        curRadio.setBackgroundResource(R.drawable.check_off2);
+        v.setBackgroundResource(R.drawable.check_on);
+        curRadio = v;
     }
 
     private void initLoadDatas() {
@@ -241,12 +232,10 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("findPurPoOrderList");
+        String mUrl = getURL("disburdenMission/findListByParam");
         FormBody formBody = new FormBody.Builder()
-//                .add("fbillno", getValues(etFbillno).trim())
-                .add("isload", String.valueOf(isload))
-                .add("supplierId", String.valueOf(supplier.getFsupplierid()))
-                .add("isDefaultStock", "1") // 查询默认仓库和库位
+                .add("disNo_fbillno", getValues(etSearch).trim())
+                .add("fbillType", String.valueOf(fbillType))
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();
@@ -268,14 +257,15 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
+                Log.e("Pur_SelFragment4Activity --> onResponse", result);
                 if(!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC1);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("Pur_OrderActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

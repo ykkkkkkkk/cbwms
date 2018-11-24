@@ -19,18 +19,17 @@
         android:id="@+id/tv_mats"
         android:layout_width="0dp"
         android:layout_height="@dimen/_46dp"
-        android:layout_weight="1.2"
+        android:layout_weight="1"
         android:gravity="center"
         android:text="物料代码\n名称"
         android:textColor="#000000"
         android:textSize="@dimen/_11sp" />
 
-
     <TextView
         android:id="@+id/tv_stockAP"
         android:layout_width="0dp"
         android:layout_height="@dimen/_46dp"
-        android:layout_weight="0.8"
+        android:layout_weight="0.6"
         android:background="@drawable/back_style_blue2"
         android:gravity="center"
         android:text="仓库\n库位"
@@ -41,20 +40,10 @@
         android:id="@+id/tv_nums"
         android:layout_width="56dp"
         android:layout_height="@dimen/_46dp"
-        android:background="@drawable/back_style_blue2"
+        android:background="@drawable/back_style_blue5"
         android:gravity="center"
-        android:text="订单数\n装卸数"
+        android:text="应收数\n实收数"
         android:textColor="#000000"
         android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/tv_delRow"
-        android:layout_width="@dimen/_38dp"
-        android:layout_height="@dimen/_38dp"
-        android:layout_marginLeft="@dimen/_2dp"
-        android:layout_marginRight="@dimen/_2dp"
-        android:background="@drawable/ico_del"
-        android:gravity="center" />
-
 
 </LinearLayout>

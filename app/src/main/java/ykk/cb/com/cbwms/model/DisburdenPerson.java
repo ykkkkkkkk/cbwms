@@ -10,11 +10,11 @@ import java.io.Serializable;
 public class DisburdenPerson implements Serializable {
 
 	/*id*/
-	private Integer id;
+	private int id;
 	/*单据id*/
-	private Integer dmBillId;
+	private int dmBillId;
 	/*装卸员工id*/
-	private Integer dpStaffId;
+	private int dpStaffId;
 	/*装卸员工*/
 	private Staff dpStaff;
 
@@ -22,19 +22,19 @@ public class DisburdenPerson implements Serializable {
 		super();
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public Integer getDpStaffId() {
+	public int getDpStaffId() {
 		return dpStaffId;
 	}
 
-	public void setDpStaffId(Integer dpStaffId) {
+	public void setDpStaffId(int dpStaffId) {
 		this.dpStaffId = dpStaffId;
 	}
 
@@ -46,11 +46,11 @@ public class DisburdenPerson implements Serializable {
 		this.dpStaff = dpStaff;
 	}
 
-	public Integer getDmBillId() {
+	public int getDmBillId() {
 		return dmBillId;
 	}
 
-	public void setDmBillId(Integer dmBillId) {
+	public void setDmBillId(int dmBillId) {
 		this.dmBillId = dmBillId;
 	}
 

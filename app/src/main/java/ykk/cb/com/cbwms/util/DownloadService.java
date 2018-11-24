@@ -187,7 +187,7 @@ public class DownloadService extends Service {
      */
     private File createFile() {
         String root = Comm.publicPaths+"updateFile/";
-        File file = new File(root,"wms.apk");
+        File file = new File(root,"cbwms.apk");
         if (file.exists()) file.delete();
 
         try {

@@ -29,6 +29,8 @@ public class Pur_InMainActivity extends BaseActivity {
     View viewRadio2;
     @BindView(R.id.viewRadio3)
     View viewRadio3;
+    @BindView(R.id.viewRadio4)
+    View viewRadio4;
     @BindView(R.id.btn_close)
     Button btnClose;
     @BindView(R.id.viewPager)
@@ -52,7 +54,7 @@ public class Pur_InMainActivity extends BaseActivity {
 //            customer = (Customer) bundle.getSerializable("customer");
 //        }
 
-        curRadio = viewRadio1;
+        curRadio = viewRadio4;
         List<Fragment> listFragment = new ArrayList<Fragment>();
 //        Bundle bundle2 = new Bundle();
 //        bundle2.putSerializable("customer", customer);
@@ -62,11 +64,12 @@ public class Pur_InMainActivity extends BaseActivity {
         listFragment.add(new Pur_InFragment1());
         listFragment.add(new Pur_InFragment2());
         listFragment.add(new Pur_InFragment3());
+        listFragment.add(new Pur_InFragment4());
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //ViewPager显示第一个Fragment
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(3);
 
 
         //ViewPager页面切换监听
@@ -97,6 +100,12 @@ public class Pur_InMainActivity extends BaseActivity {
                         viewPager.setCurrentItem(2, false);
 
                         break;
+                    case 3:
+                        tabSelected(viewRadio4);
+                        tvTitle.setText("装卸单入库");
+                        viewPager.setCurrentItem(3, false);
+
+                        break;
                 }
             }
 
@@ -123,7 +132,7 @@ public class Pur_InMainActivity extends BaseActivity {
         curRadio = v;
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_print, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3})
+    @OnClick({R.id.btn_close, R.id.btn_print, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.lin_tab4})
     public void onViewClicked(View view) {
         // setCurrentItem第二个参数控制页面切换动画
         //  true:打开/false:关闭
@@ -172,13 +181,21 @@ public class Pur_InMainActivity extends BaseActivity {
                 viewPager.setCurrentItem(2, false);
 
                 break;
+            case R.id.lin_tab4:
+                tabSelected(viewRadio4);
+                tvTitle.setText("装卸单入库");
+                viewPager.setCurrentItem(3, false);
+
+                break;
         }
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         // 按了删除键，回退键
-        if(event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+//        if(event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+        // 240 为PDA两侧面扫码键，241 为PDA中间扫码键
+        if(!(event.getKeyCode() == 240 || event.getKeyCode() == 241)) {
             return false;
         }
         return super.dispatchKeyEvent(event);

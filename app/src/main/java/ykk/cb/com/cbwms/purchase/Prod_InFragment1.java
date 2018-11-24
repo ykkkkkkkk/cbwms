@@ -698,7 +698,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private void getBarCodeTableAfter(BarCodeTable bt) {
         setTexts(etMatNo, mtlBarcode);
         ScanningRecord2 sr2 = new ScanningRecord2();
-        sr2.setSourceFinterId(bt.getRelationBillId());
+        sr2.setSourceK3Id(bt.getRelationBillId());
         sr2.setSourceFnumber(bt.getRelationBillNumber());
         sr2.setFitemId(bt.getMaterialId());
 //        sr2.setSupplierId(supplier.getFsupplierid());
@@ -841,7 +841,7 @@ public class Prod_InFragment1 extends BaseFragment {
             ScanningRecord record = new ScanningRecord();
             // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库
             record.setType(5);
-            record.setSourceK3Id(sr2.getSourceFinterId());
+            record.setSourceK3Id(sr2.getSourceK3Id());
             record.setSourceFnumber(sr2.getSourceFnumber());
             record.setMtlK3Id(sr2.getFitemId());
             record.setMtlFnumber(sr2.getMtlFnumber());

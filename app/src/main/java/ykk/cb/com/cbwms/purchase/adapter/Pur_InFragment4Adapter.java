@@ -9,23 +9,27 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
+import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.StockPosition;
+import ykk.cb.com.cbwms.model.pur.PurOrder;
+import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
+import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Pur_InFragment3Adapter extends BaseArrayRecyclerAdapter<ScanningRecord2> {
+public class Pur_InFragment4Adapter extends BaseArrayRecyclerAdapter<ScanningRecord2> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
 
-    public Pur_InFragment3Adapter(Activity context, List<ScanningRecord2> datas) {
+    public Pur_InFragment4Adapter(Activity context, List<ScanningRecord2> datas) {
         super(datas);
         this.context = context;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.pur_in_fragment3_item;
+        return R.layout.pur_in_fragment4_item;
     }
 
     @Override
@@ -33,33 +37,20 @@ public class Pur_InFragment3Adapter extends BaseArrayRecyclerAdapter<ScanningRec
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_mats = holder.obtainView(R.id.tv_mats);
-        TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
-        TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
-        // 是否启用序列号
-        if(entity.getMtl().getIsSnManager() == 1) {
-            tv_nums.setEnabled(false);
-            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
-        } else {
-            tv_nums.setEnabled(true);
-            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
-        }
-        String batchNo = Comm.isNULLS(entity.getBatchno());
-        batchNo = batchNo.length() == 0 ? "无" : batchNo;
-        String seqNo = Comm.isNULLS(entity.getSequenceNo());
-        seqNo = seqNo.length() == 0 ? "无" : seqNo;
-        tv_batch_seqNo.setText(batchNo+"\n"+seqNo);
+        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName()+"\n"+entity.getMtl().getMaterialSize());
         double stockqty = entity.getStockqty();
-//        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+(stockqty > 0 ? df.format(stockqty) : "")+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
-        if(entity.getStockPos() != null) {
-            tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
-        } else {
-            tv_stockAP.setText(entity.getStock().getfName());
+
+        Stock stock = entity.getStock();
+        StockPosition stockP = entity.getStockPos();
+        if (stock != null && stockP != null) {
+            tv_stockAP.setText(stock.getfName() + "\n" + stockP.getFnumber());
+        } else if (stock != null && stockP == null) {
+            tv_stockAP.setText(stock.getfName());
         }
 
         View.OnClickListener click = new View.OnClickListener() {
@@ -78,18 +69,11 @@ public class Pur_InFragment3Adapter extends BaseArrayRecyclerAdapter<ScanningRec
                         }
 
                         break;
-                    case R.id.tv_delRow: // 删除行
-                        if(callBack != null) {
-                            callBack.onClick_del(entity, pos);
-                        }
-
-                        break;
                 }
             }
         };
         tv_nums.setOnClickListener(click);
         tv_stockAP.setOnClickListener(click);
-        tv_delRow.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {

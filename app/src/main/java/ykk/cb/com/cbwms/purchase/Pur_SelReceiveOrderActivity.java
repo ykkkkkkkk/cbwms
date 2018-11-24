@@ -65,6 +65,7 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
     private List<PurReceiveOrder> sourceList; // 上个界面传来的数据列表
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int isload; // 是否为装卸界面进入的
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -92,6 +93,7 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
                         } else if (m.isLoadMore) {
                             m.xRecyclerView.loadMoreComplete(true);
                         }
+                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新开启
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
                         break;
@@ -118,8 +120,8 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
-//        xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
-//        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+        xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -145,6 +147,7 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
     private void bundle() {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
+            isload = bundle.getInt("isload");
             supplier = (Supplier) bundle.getSerializable("supplier");
             sourceList = (List<PurReceiveOrder>) bundle.getSerializable("sourceList");
             tvCustInfo.setText("供应商：" + supplier.getfName());
@@ -242,6 +245,7 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
         String mUrl = getURL("findPurReceiveOrderList");
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillno", getValues(etFbillno).trim())
+                .add("isload", String.valueOf(isload))
                 .add("supplierId", String.valueOf(supplier.getFsupplierid()))
                 .add("isDefaultStock", "1") // 查询默认仓库和库位
                 .add("limit", String.valueOf(limit))

@@ -1,13 +1,15 @@
 package ykk.cb.com.cbwms.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 
 public class ScanningRecord2 implements Serializable {
     private int ID;
     private int type;
-    private int sourceFinterId;
+    private int sourceId;
+    private int sourceK3Id;
     private String sourceFnumber;
     private int fitemId; // 物料id
     private Material mtl;
@@ -15,6 +17,7 @@ public class ScanningRecord2 implements Serializable {
     private double fqty; // 应收数量
     private double stockqty; // 实收数量，要插入到表的数量
     private int stockId;
+    private String stockName;
     private Stock stock; // 新加
     private StockPosition stockPos; // 临时用的
     private int stockAreaId;
@@ -51,6 +54,20 @@ public class ScanningRecord2 implements Serializable {
     private String departmentFnumber;
     private String custFnumber;
     private int entryId; // 订单分录内码
+    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单, A.装卸单）
+    private int tempId; // 来源的主键id
+    private String relationObj; // 来源的对象
+    private String fsrcBillTypeId; // 来源单据类型名称
+    private String fRuleId; // 下推来源单据类型名称
+    private String fsTableName; // 下推来源表体
+    private double fprice; // 来源订单单价
+    // 临时变量
+    private int salOrderId; // 关联的销售订单id
+    private String salOrderNo; // 关联的销售订单号
+    private int salOrderNoEntryId; // 关联的销售订单分录id
+    private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private String strBarcodes; // 用逗号拼接的条码号
+
 
     public int getID() {
         return ID;
@@ -64,11 +81,17 @@ public class ScanningRecord2 implements Serializable {
     public void setType(int type) {
         this.type = type;
     }
-    public int getSourceFinterId() {
-        return sourceFinterId;
+    public int getSourceId() {
+        return sourceId;
     }
-    public void setSourceFinterId(int sourceFinterId) {
-        this.sourceFinterId = sourceFinterId;
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
+    }
+    public int getSourceK3Id() {
+        return sourceK3Id;
+    }
+    public void setSourceK3Id(int sourceK3Id) {
+        this.sourceK3Id = sourceK3Id;
     }
     public String getSourceFnumber() {
         return sourceFnumber;
@@ -111,6 +134,12 @@ public class ScanningRecord2 implements Serializable {
     }
     public void setStockId(int stockId) {
         this.stockId = stockId;
+    }
+    public String getStockName() {
+        return stockName;
+    }
+    public void setStockName(String stockName) {
+        this.stockName = stockName;
     }
     public Stock getStock() {
         return stock;
@@ -309,13 +338,83 @@ public class ScanningRecord2 implements Serializable {
     public void setEntryId(int entryId) {
         this.entryId = entryId;
     }
-
     public StockPosition getStockPos() {
         return stockPos;
     }
-
     public void setStockPos(StockPosition stockPos) {
         this.stockPos = stockPos;
+    }
+    public char getSourceType() {
+        return sourceType;
+    }
+    public void setSourceType(char sourceType) {
+        this.sourceType = sourceType;
+    }
+    public int getTempId() {
+        return tempId;
+    }
+    public void setTempId(int tempId) {
+        this.tempId = tempId;
+    }
+    public String getRelationObj() {
+        return relationObj;
+    }
+    public void setRelationObj(String relationObj) {
+        this.relationObj = relationObj;
+    }
+    public String getFsTableName() {
+        return fsTableName;
+    }
+    public void setFsTableName(String fsTableName) {
+        this.fsTableName = fsTableName;
+    }
+    public String getfRuleId() {
+        return fRuleId;
+    }
+    public void setfRuleId(String fRuleId) {
+        this.fRuleId = fRuleId;
+    }
+    public String getFsrcBillTypeId() {
+        return fsrcBillTypeId;
+    }
+    public void setFsrcBillTypeId(String fsrcBillTypeId) {
+        this.fsrcBillTypeId = fsrcBillTypeId;
+    }
+    public String getSalOrderNo() {
+        return salOrderNo;
+    }
+    public int getSalOrderNoEntryId() {
+        return salOrderNoEntryId;
+    }
+    public void setSalOrderNo(String salOrderNo) {
+        this.salOrderNo = salOrderNo;
+    }
+    public void setSalOrderNoEntryId(int salOrderNoEntryId) {
+        this.salOrderNoEntryId = salOrderNoEntryId;
+    }
+    public List<String> getListBarcode() {
+        return listBarcode;
+    }
+    public String getStrBarcodes() {
+        return strBarcodes;
+    }
+    public void setListBarcode(List<String> listBarcode) {
+        this.listBarcode = listBarcode;
+    }
+    public void setStrBarcodes(String strBarcodes) {
+        this.strBarcodes = strBarcodes;
+    }
+    public int getSalOrderId() {
+        return salOrderId;
+    }
+    public void setSalOrderId(int salOrderId) {
+        this.salOrderId = salOrderId;
+    }
+    public double getFprice() {
+        return fprice;
+    }
+    public void setFprice(double fprice) {
+        this.fprice = fprice;
     }
 
     public ScanningRecord2() {

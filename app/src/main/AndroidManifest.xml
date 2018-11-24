@@ -141,12 +141,14 @@
         <activity
             android:name=".purchase.Pur_OrderSearchActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
         <activity
             android:name=".purchase.Pur_ProdBoxMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_SelProdOrderActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".purchase.Pur_SelFragment4Activity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Prod_InMainActivity"

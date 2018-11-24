@@ -15,11 +15,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +38,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Material_ListActivity;
 import ykk.cb.com.cbwms.basics.Organization_DialogActivity;
 import ykk.cb.com.cbwms.basics.Staff_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
@@ -46,13 +46,14 @@ import ykk.cb.com.cbwms.basics.Supplier_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
+import ykk.cb.com.cbwms.entrance.page4.adapter.StevedoreAdapter;
 import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.DisburdenGroup;
+import ykk.cb.com.cbwms.model.DisburdenMission;
 import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
+import ykk.cb.com.cbwms.model.DisburdenPerson;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
-import ykk.cb.com.cbwms.model.ScanningRecord;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -62,11 +63,14 @@ import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
 import ykk.cb.com.cbwms.purchase.Pur_SelOrderActivity;
 import ykk.cb.com.cbwms.purchase.Pur_SelReceiveOrderActivity;
-import ykk.cb.com.cbwms.purchase.adapter.Pur_InFragment3Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 
 public class StevedoreActivity extends BaseActivity {
 
+    @BindView(R.id.lin_tab1)
+    LinearLayout linTab1;
+    @BindView(R.id.lin_tab2)
+    LinearLayout linTab2;
     @BindView(R.id.viewRadio1)
     View viewRadio1;
     @BindView(R.id.viewRadio2)
@@ -97,12 +101,11 @@ public class StevedoreActivity extends BaseActivity {
     private Supplier supplier; // 供应商
     private Stock stock, stock2; // 仓库
     private StockPosition stockP, stockP2; // 库位
-    private Department department; // 部门
     private Organization receiveOrg, purOrg; // 组织
-    private Pur_InFragment3Adapter mAdapter;
-    private List<ScanningRecord2> checkDatas = new ArrayList<>();
-    private List sourceList = new ArrayList<>(); // 当前选择单据行数据
-    private List<DisburdenMissionEntry> disMEntryList = new ArrayList<>(); // 行数据
+    private StevedoreAdapter mAdapter;
+    private List sourceList = new ArrayList<>(); // 行数据
+    private List<DisburdenMissionEntry> checkDatas = new ArrayList<>(); // 行数据
+    private List<DisburdenPerson>  disPersonList  = new ArrayList<>(); // 装卸工
     private String stockBarcode, stockPBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：收料订单， 5：物料
     private int curPos; // 当前行
@@ -111,6 +114,7 @@ public class StevedoreActivity extends BaseActivity {
     private User user;
     private View curRadio;
     private char fbillType = '2'; // 数据来源类型
+    private DecimalFormat df = new DecimalFormat("#.####");
 
     // 消息处理
     private StevedoreActivity.MyHandler mHandler = new StevedoreActivity.MyHandler(this);
@@ -180,22 +184,22 @@ public class StevedoreActivity extends BaseActivity {
                         String[] barcodeArr = strBarcode.split(",");
                         boolean isNext = true; // 是否下一步
                         for (int i = 0, len = barcodeArr.length; i < len; i++) {
-                            for (int j = 0, size = m.checkDatas.size(); j < size; j++) {
-                                ScanningRecord2 sr2 = m.checkDatas.get(j);
-                                mtl = sr2.getMtl();
-                                // 判断扫码表和当前扫的码对比是否一样
-                                if (mtl.getIsSnManager() == 1 && barcodeArr[i].equals(m.checkDatas.get(j).getBarcode())) {
-                                    Comm.showWarnDialog(m.context,"第" + (i + 1) + "行已入库，不能重复操作！");
-                                    isNext = false;
-                                    return;
-                                }
-                            }
+//                            for (int j = 0, size = m.checkDatas.size(); j < size; j++) {
+//                                ScanningRecord2 sr2 = m.checkDatas.get(j);
+//                                mtl = sr2.getMtl();
+//                                // 判断扫码表和当前扫的码对比是否一样
+//                                if (mtl.getIsSnManager() == 1 && barcodeArr[i].equals(m.checkDatas.get(j).getBarcode())) {
+//                                    Comm.showWarnDialog(m.context,"第" + (i + 1) + "行已入库，不能重复操作！");
+//                                    isNext = false;
+//                                    return;
+//                                }
+//                            }
                         }
-                        if(isNext) m.run_addScanningRecord();
+//                        if(isNext) m.run_addScanningRecord();
 
                         break;
                     case UNSUCC3: // 判断是否存在返回
-                        m.run_addScanningRecord();
+//                        m.run_addScanningRecord();
 
                         break;
                 }
@@ -212,18 +216,18 @@ public class StevedoreActivity extends BaseActivity {
     public void initView() {
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Pur_InFragment3Adapter(context, checkDatas);
+        mAdapter = new StevedoreAdapter(context, checkDatas);
         recyclerView.setAdapter(mAdapter);
-        mAdapter.setCallBack(new Pur_InFragment3Adapter.MyCallBack() {
+        mAdapter.setCallBack(new StevedoreAdapter.MyCallBack() {
             @Override
-            public void onClick_num(View v, ScanningRecord2 entity, int position) {
+            public void onClick_num(View v, DisburdenMissionEntry entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0", NUM_RESULT);
+                showInputDialog("数量", String.valueOf(entity.getDisburdenFqty()), "0", NUM_RESULT);
             }
 
             @Override
-            public void onClick_selStock(View v, ScanningRecord2 entity, int position) {
+            public void onClick_selStock(View v, DisburdenMissionEntry entity, int position) {
                 Log.e("selStock", "行：" + position);
                 curPos = position;
 
@@ -231,7 +235,7 @@ public class StevedoreActivity extends BaseActivity {
             }
 
             @Override
-            public void onClick_del(ScanningRecord2 entity, int position) {
+            public void onClick_del(DisburdenMissionEntry entity, int position) {
                 Log.e("del", "行：" + position);
                 checkDatas.remove(position);
                 mAdapter.notifyDataSetChanged();
@@ -247,11 +251,15 @@ public class StevedoreActivity extends BaseActivity {
         getUserInfo();
     }
 
-    @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo,R.id.btn_stock, R.id.btn_stockPos,
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo,R.id.btn_stock, R.id.btn_stockPos,
             R.id.btn_save, R.id.btn_clone, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_stevedoreMan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
+            case R.id.btn_close: // 关闭
+                context.finish();
+
+                break;
             case R.id.btn_print: // 打印条码界面
 //                show(PrintBarcodeActivity.class, null);
 
@@ -263,7 +271,7 @@ public class StevedoreActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab2:
-                fbillType = '1';
+                fbillType = '2';
                 tvSourceNo.setHint("选择收料通知单");
                 tabSelected(viewRadio2);
 
@@ -277,6 +285,7 @@ public class StevedoreActivity extends BaseActivity {
                     return;
                 }
                 bundle = new Bundle();
+                bundle.putInt("isload", 1); // 是否为装卸页面跳转的
                 bundle.putSerializable("supplier", supplier);
                 bundle.putSerializable("sourceList", (Serializable) sourceList);
                 switch (fbillType) {
@@ -326,7 +335,8 @@ public class StevedoreActivity extends BaseActivity {
                 if(!saveBefore()) {
                     return;
                 }
-                run_findMatIsExistList2();
+                run_add();
+//                run_findMatIsExistList2();
 //                run_addScanningRecord();
 
                 break;
@@ -391,16 +401,42 @@ public class StevedoreActivity extends BaseActivity {
             Comm.showWarnDialog(context,"请先插入行！");
             return false;
         }
+        if(getValues(tvReceiveOrg).length() == 0) {
+            Comm.showWarnDialog(context,"请选择收料组织！");
+            return false;
+        }
+        if(getValues(tvStevedoreMan).length() == 0) {
+            Comm.showWarnDialog(context,"请选择装卸工！");
+            return false;
+        }
 
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            if (sr2.getStockqty() == 0) {
-                Comm.showWarnDialog(context,"第" + (i + 1) + "行（实收数）必须大于0！");
+            DisburdenMissionEntry dis = checkDatas.get(i);
+            if(dis.getEntryStock() == null) {
+                Comm.showWarnDialog(context,"第"+(i+1)+"行请选择仓库！");
                 return false;
             }
-            if (sr2.getStockqty() > sr2.getFqty()) {
-                Comm.showWarnDialog(context,"第" + (i + 1) + "行（实收数）不能大于（应收数）！");
+            if (dis.getDisburdenFqty() == 0) {
+                Comm.showWarnDialog(context,"第" + (i + 1) + "行（装卸数）必须大于0！");
+                return false;
+            }
+
+            double fqty = 0;
+            double receiveMaxScale = 0;
+            Object obj = dis.getRelationObj();
+            if(obj instanceof PurOrder) { // 是否为采购订单
+                PurOrder purOrder = (PurOrder) obj;
+                receiveMaxScale = purOrder.getReceiveMaxScale();
+                fqty = purOrder.getUsableFqty()*(1+receiveMaxScale/100);
+
+            } else if(obj instanceof PurReceiveOrder) { // 是否为收料通知单
+                PurReceiveOrder purReceiveOrder = (PurReceiveOrder) obj;
+                receiveMaxScale = purReceiveOrder.getReceiveMaxScale();
+                fqty = purReceiveOrder.getUsableFqty()*(1+receiveMaxScale/100);
+            }
+            if (dis.getDisburdenFqty() > fqty) {
+                Comm.showWarnDialog(context,"第" + (i + 1) + "行（装卸数）不能大于（订单数）"+(receiveMaxScale > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
         }
@@ -482,13 +518,17 @@ public class StevedoreActivity extends BaseActivity {
     private void reset() {
         // 清空物料信息
         tvSourceNo.setText(""); // 来源单
+        tvStevedoreMan.setText("");
+        tvReceiveOrg.setText("");
+        tvPurOrg.setText("");
 
-        setEnables(tvSupplierSel, R.drawable.back_style_blue,true);
-        setEnables(tvReceiveOrg, R.drawable.back_style_blue,true);
-        setEnables(tvPurOrg, R.drawable.back_style_blue,true);
+        getBarCodeTableAfterEnable(true);
         stock2 = null;
         stockP2 = null;
         sourceList.clear();
+        disPersonList.clear();
+        receiveOrg = null;
+        purOrg = null;
     }
 
     private void resetSon() {
@@ -499,14 +539,9 @@ public class StevedoreActivity extends BaseActivity {
         tvSupplierSel.setText("");
         etStock.setText("");
         etStockPos.setText("");
-        tvReceiveOrg.setText("");
-        tvPurOrg.setText("");
         supplier = null;
         stock = null;
         stockP = null;
-        department = null;
-        receiveOrg = null;
-        purOrg = null;
         curViewFlag = '1';
         stockBarcode = null;
         stockPBarcode = null;
@@ -585,10 +620,9 @@ public class StevedoreActivity extends BaseActivity {
                         bundle.putInt("stockId", stock2.getfStockid());
                         showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
                     } else {
-                        ScanningRecord2 sr2 = checkDatas.get(curPos);
-                        sr2.setStockId(stock2.getfStockid());
-                        sr2.setStock(stock2);
-                        sr2.setStockFnumber(stock2.getfNumber());
+                        DisburdenMissionEntry disEntry = checkDatas.get(curPos);
+                        disEntry.setEntryStockId(stock2.getfStockid());
+                        disEntry.setEntryStock(stock2);
                         mAdapter.notifyDataSetChanged();
                     }
                 }
@@ -598,14 +632,11 @@ public class StevedoreActivity extends BaseActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     stockP2 = (StockPosition) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_STOCKP2", stockP2.getFname());
-                    ScanningRecord2 sr2 = checkDatas.get(curPos);
-                    sr2.setStock(stock2);
-                    sr2.setStockId(stock2.getfStockid());
-                    sr2.setStockFnumber(stock2.getfNumber());
-
-                    sr2.setStockPos(stockP2);
-                    sr2.setStockPositionId(stockP2.getId());
-                    sr2.setStockPName(stockP2.getFname());
+                    DisburdenMissionEntry disEntry = checkDatas.get(curPos);
+                    disEntry.setEntryStockId(stock2.getfStockid());
+                    disEntry.setEntryStockPositionId(stockP2.getId());
+                    disEntry.setEntryStock(stock2);
+                    disEntry.setEntryStockPosition(stockP2);
                     mAdapter.notifyDataSetChanged();
                 }
 
@@ -640,7 +671,7 @@ public class StevedoreActivity extends BaseActivity {
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
-                        checkDatas.get(curPos).setStockqty(num);
+                        checkDatas.get(curPos).setDisburdenFqty(num);
                         mAdapter.notifyDataSetChanged();
                     }
                 }
@@ -648,12 +679,17 @@ public class StevedoreActivity extends BaseActivity {
                 break;
             case SEL_STAFF: // 选择员工
                 if (resultCode == Activity.RESULT_OK) {
-                    List<Staff> staffList = (List<Staff>) data.getSerializableExtra("staffList");
+                    List<Staff> list = (List<Staff>) data.getSerializableExtra("staffList");
                     StringBuilder sb = new StringBuilder();
-                    for(int i=0, size=staffList.size(); i<size; i++) {
-                        Staff staff = staffList.get(i);
+                    for(int i=0, size=list.size(); i<size; i++) {
+                        Staff staff = list.get(i);
                         if((i+1) == size) sb.append((i+1)+"."+staff.getName());
                         else sb.append((i+1)+"."+staff.getName()+"，");
+
+                        DisburdenPerson disPerson = new DisburdenPerson();
+                        disPerson.setDpStaffId(staff.getStaffId());
+                        disPerson.setDpStaff(staff);
+                        disPersonList.add(disPerson);
                     }
                     tvStevedoreMan.setText(sb.toString());
                 }
@@ -668,66 +704,39 @@ public class StevedoreActivity extends BaseActivity {
     private void getSourceAfter(List<PurOrder> list) {
         for (int i = 0, size = list.size(); i < size; i++) {
             PurOrder p = list.get(i);
-            ScanningRecord2 sr2 = new ScanningRecord2();
-            sr2.setType(1);
-            sr2.setSourceFinterId(p.getfId());
-            sr2.setSourceFnumber(p.getFbillno());
-            sr2.setFitemId(p.getMtl().getfMaterialId());
-            sr2.setMtl(p.getMtl());
-            sr2.setMtlFnumber(p.getMtl().getfNumber());
-            sr2.setUnitFnumber(p.getMtl().getUnit().getUnitNumber());
-            sr2.setPoFid(p.getfId());
-            sr2.setEntryId(p.getEntryId());
-            sr2.setPoFbillno(p.getFbillno());
-            sr2.setPoFmustqty(p.getUsableFqty());
+            DisburdenMissionEntry disEntry = new DisburdenMissionEntry();
+            disEntry.setDmBillId(0);
+            disEntry.setRelationBillId(p.getfId());
+            disEntry.setRelationBillEntryId(p.getEntryId());
+            disEntry.setMaterialId(p.getMtlId());
+            disEntry.setMaterialNumber(p.getMtlFnumber());
+            disEntry.setMaterialName(p.getMtlFname());
+            disEntry.setDisburdenFqty(p.getUsableFqty());
+            disEntry.setUnitName(p.getUnitFname());
+            disEntry.setEntryStockId(0);
+            disEntry.setEntryStockPositionId(0);
 
-//            sr2.setBatchno(p.getBct().getBatchCode());
-//            sr2.setSequenceNo(p.getBct().getSnCode());
-            sr2.setFqty(p.getUsableFqty());
-            sr2.setStockqty(0);
+            disEntry.setRelationObj(p);
 
-            // 是否启用物料的序列号,如果启用了，则数量为1
-//            if (p.getMtl().getIsSnManager() == 1) {
-//                sr2.setStockqty(1);
-//            }
             if (stock != null) {
-                sr2.setStock(stock);
-                sr2.setStockId(stock.getfStockid());
-                sr2.setStockFnumber(stock.getfNumber());
+                disEntry.setEntryStock(stock);
             }
             if (stockP != null) {
-                sr2.setStockPos(stockP);
-                sr2.setStockPositionId(stockP.getId());
-                sr2.setStockPName(stockP.getFname());
+                disEntry.setEntryStockPosition(stockP);
             }
-            sr2.setSupplierId(p.getSupplierId());
-            sr2.setSupplierName(p.getSupplierName());
-            sr2.setSupplierFnumber(supplier.getfNumber());
-            if (department != null) {
-                sr2.setEmpId(department.getFitemID()); // 部门
-                sr2.setDepartmentFnumber(department.getDepartmentNumber());
-            }
-            // 收料组织
-            if(receiveOrg == null) receiveOrg = new Organization();
-            receiveOrg.setFpkId(p.getReceiveOrgId());
-            receiveOrg.setNumber(p.getReceiveOrgNumber());
-            receiveOrg.setName(p.getReceiveOrgName());
 
-            setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
-            tvReceiveOrg.setText(receiveOrg.getName());
-            sr2.setReceiveOrgFnumber(receiveOrg.getNumber());
             // 采购组织
             if(purOrg == null) purOrg = new Organization();
             purOrg.setFpkId(p.getPurOrgId());
             purOrg.setNumber(p.getPurOrgNumber());
             purOrg.setName(p.getPurOrgName());
 
-            setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
-            tvPurOrg.setText(purOrg.getName());
-            sr2.setPurOrgFnumber(purOrg.getNumber());
-
-            checkDatas.add(sr2);
+            checkDatas.add(disEntry);
         }
+        tvPurOrg.setText(purOrg.getName());
+        tvReceiveOrg.setText("");
+        setEnables(tvSupplierSel, R.drawable.back_style_gray3,false);
+        setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -737,67 +746,46 @@ public class StevedoreActivity extends BaseActivity {
     private void getSourceAfter2(List<PurReceiveOrder> list) {
         for (int i = 0, size = list.size(); i < size; i++) {
             PurReceiveOrder p = list.get(i);
-            ScanningRecord2 sr2 = new ScanningRecord2();
-            sr2.setType(1);
-            sr2.setSourceFinterId(p.getfId());
-            sr2.setSourceFnumber(p.getFbillno());
-            sr2.setFitemId(p.getMtl().getfMaterialId());
-            sr2.setMtl(p.getMtl());
-            sr2.setMtlFnumber(p.getMtl().getfNumber());
-            sr2.setUnitFnumber(p.getMtl().getUnit().getUnitNumber());
-            sr2.setPoFid(p.getfId());
-            sr2.setEntryId(p.getEntryId());
-            sr2.setPoFbillno(p.getFbillno());
-            sr2.setPoFmustqty(p.getUsableFqty());
+            DisburdenMissionEntry disEntry = new DisburdenMissionEntry();
+            disEntry.setDmBillId(0);
+            disEntry.setRelationBillId(p.getfId());
+            disEntry.setRelationBillEntryId(p.getEntryId());
+            disEntry.setMaterialId(p.getMtlId());
+            disEntry.setMaterialNumber(p.getMtlFnumber());
+            disEntry.setMaterialName(p.getMtlFname());
+            disEntry.setDisburdenFqty(p.getUsableFqty());
+            disEntry.setUnitName(p.getUnitFname());
+            disEntry.setEntryStockId(0);
+            disEntry.setEntryStockPositionId(0);
+            disEntry.setRelationFqty(p.getUsableFqty());
 
-//            sr2.setBatchno(p.getBct().getBatchCode());
-//            sr2.setSequenceNo(p.getBct().getSnCode());
-            sr2.setFqty(p.getUsableFqty());
-            sr2.setStockqty(0);
+            disEntry.setRelationObj(p);
 
-            // 是否启用物料的序列号,如果启用了，则数量为1
-//            if (p.getMtl().getIsSnManager() == 1) {
-//                sr2.setStockqty(1);
-//            }
             if (stock != null) {
-                sr2.setStock(stock);
-                sr2.setStockId(stock.getfStockid());
-                sr2.setStockFnumber(stock.getfNumber());
+                disEntry.setEntryStock(stock);
             }
             if (stockP != null) {
-                sr2.setStockPos(stockP);
-                sr2.setStockPositionId(stockP.getId());
-                sr2.setStockPName(stockP.getFname());
+                disEntry.setEntryStockPosition(stockP);
             }
-            sr2.setSupplierId(p.getSupplierId());
-            sr2.setSupplierName(p.getSupplierName());
-            sr2.setSupplierFnumber(supplier.getfNumber());
-            if (department != null) {
-                sr2.setEmpId(department.getFitemID()); // 部门
-                sr2.setDepartmentFnumber(department.getDepartmentNumber());
-            }
+
             // 收料组织
             if(receiveOrg == null) receiveOrg = new Organization();
             receiveOrg.setFpkId(p.getRecOrgId());
             receiveOrg.setNumber(p.getRecOrgNumber());
             receiveOrg.setName(p.getRecOrgName());
 
-            setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
-            tvReceiveOrg.setText(receiveOrg.getName());
-            sr2.setReceiveOrgFnumber(receiveOrg.getNumber());
             // 采购组织
             if(purOrg == null) purOrg = new Organization();
-            purOrg.setFpkId(p.getRecOrgId());
-            purOrg.setNumber(p.getRecOrgNumber());
-            purOrg.setName(p.getRecOrgName());
+            purOrg.setFpkId(p.getPurOrgId());
+            purOrg.setNumber(p.getPurOrgNumber());
+            purOrg.setName(p.getPurOrgName());
 
-            setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
-            tvPurOrg.setText(purOrg.getName());
-            sr2.setPurOrgFnumber(purOrg.getNumber());
-
-            checkDatas.add(sr2);
+            checkDatas.add(disEntry);
         }
 
+        tvReceiveOrg.setText(receiveOrg.getName());
+        tvPurOrg.setText(purOrg.getName());
+        getBarCodeTableAfterEnable(false);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -807,95 +795,18 @@ public class StevedoreActivity extends BaseActivity {
      */
     private void getBarCodeTableAfterEnable(boolean isEnable) {
         if(isEnable) {
+            linTab1.setEnabled(true);
+            linTab2.setEnabled(true);
             setEnables(tvSupplierSel, R.drawable.back_style_blue,true);
             setEnables(tvReceiveOrg, R.drawable.back_style_blue, true);
             setEnables(tvPurOrg, R.drawable.back_style_blue, true);
         } else {
+            linTab1.setEnabled(false);
+            linTab2.setEnabled(false);
             setEnables(tvSupplierSel, R.drawable.back_style_gray3,false);
             setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
             setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
         }
-    }
-
-    /**
-     * 得到条码表的数据 （收料订单）
-     */
-    private void getBarCodeTableAfter_recOrder(BarCodeTable bt) {
-//        setTexts(tvSourceNo, sourceBarcode);
-        // 得到收料订单
-        PurReceiveOrder recOrder = JsonUtil.stringToObject(bt.getRelationObj(), PurReceiveOrder.class);
-        int size = sourceList.size();
-        for (int i = 0; i < size; i++) {
-            PurReceiveOrder p2 = (PurReceiveOrder) sourceList.get(i);
-            // 是否有相同的行，就提示
-            if (recOrder.getfId() == p2.getfId() && recOrder.getMtlId() == p2.getMtlId() && recOrder.getEntryId() == p2.getEntryId()) {
-                Comm.showWarnDialog(context, "第"+(i+1)+"行！，已有相同的数据！");
-                return;
-            }
-        }
-        ScanningRecord2 sr2 = new ScanningRecord2();
-        sr2.setSourceFinterId(bt.getRelationBillId());
-        sr2.setSourceFnumber(bt.getRelationBillNumber());
-        sr2.setFitemId(bt.getMaterialId());
-        sr2.setStockId(stock.getfStockid());
-        sr2.setStock(stock);
-        sr2.setStockFnumber(stock.getfNumber());
-        sr2.setStockPos(stockP);
-        sr2.setStockPositionId(stockP.getId());
-        sr2.setStockPName(stockP.getFname());
-        sr2.setReceiveOrgFnumber(recOrder.getRecOrgNumber());
-        sr2.setPurOrgFnumber(recOrder.getPurOrgNumber());
-        if(supplier == null) supplier = new Supplier();
-        supplier.setFsupplierid(recOrder.getSupplierId());
-        supplier.setfNumber(recOrder.getSupplierNumber());
-        supplier.setfName(recOrder.getSupplierName());
-        setEnables(tvSupplierSel, R.drawable.back_style_gray3, false);
-        tvSupplierSel.setText(recOrder.getSupplierName());
-        sr2.setSupplierId(supplier.getFsupplierid());
-        sr2.setSupplierName(supplier.getfName());
-        sr2.setSupplierFnumber(supplier.getfNumber());
-        // 收料组织
-        if(receiveOrg == null) receiveOrg = new Organization();
-        receiveOrg.setFpkId(recOrder.getRecOrgId());
-        receiveOrg.setNumber(recOrder.getRecOrgNumber());
-        receiveOrg.setName(recOrder.getRecOrgName());
-
-        setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
-        tvReceiveOrg.setText(receiveOrg.getName());
-        // 采购组织
-        if(purOrg == null) purOrg = new Organization();
-        purOrg.setFpkId(recOrder.getPurOrgId());
-        purOrg.setNumber(recOrder.getPurOrgNumber());
-        purOrg.setName(recOrder.getPurOrgName());
-
-        setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
-        tvPurOrg.setText(purOrg.getName());
-
-        sr2.setMtl(bt.getMtl());
-        sr2.setMtlFnumber(bt.getMtl().getfNumber());
-        sr2.setUnitFnumber(bt.getMtl().getUnit().getUnitNumber());
-        Material mtl = bt.getMtl();
-        if(mtl.getIsBatchManager() > 0) {
-            sr2.setBatchno(bt.getBatchCode());
-        }
-        if(mtl.getIsSnManager() > 0) {
-            sr2.setSequenceNo(bt.getSnCode());
-        }
-        if (department != null) {
-            sr2.setEmpId(department.getFitemID());
-            sr2.setDepartmentFnumber(department.getDepartmentNumber());
-        }
-        sr2.setFqty(recOrder.getUsableFqty());
-        sr2.setStockqty(0);
-        sr2.setPoFid(recOrder.getfId());
-        sr2.setEntryId(recOrder.getEntryId());
-        sr2.setPoFbillno(recOrder.getFbillno());
-        sr2.setPoFmustqty(recOrder.getUsableFqty());
-        sr2.setBarcode(bt.getBarcode());
-
-        checkDatas.add(sr2);
-        sourceList.add(recOrder);
-        mAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -922,6 +833,13 @@ public class StevedoreActivity extends BaseActivity {
                 Bundle bundle = new Bundle();
                 bundle.putInt("stockId", stock.getfStockid());
                 showForResult(StockPos_DialogActivity.class, SEL_STOCKP, bundle);
+            } else {
+                for(int i=0, size=checkDatas.size(); i<size; i++) {
+                    DisburdenMissionEntry disEntry = checkDatas.get(i);
+                    disEntry.setEntryStockId(stock.getfStockid());
+                    disEntry.setEntryStock(stock);
+                }
+                mAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -933,6 +851,15 @@ public class StevedoreActivity extends BaseActivity {
         if (stockP != null) {
             setTexts(etStockPos, stockP.getFnumber());
             stockPBarcode = stockP.getFnumber();
+
+            for(int i=0, size=checkDatas.size(); i<size; i++) {
+                DisburdenMissionEntry disEntry = checkDatas.get(curPos);
+                disEntry.setEntryStockId(stock.getfStockid());
+                disEntry.setEntryStockPositionId(stockP.getId());
+                disEntry.setEntryStock(stock);
+                disEntry.setEntryStockPosition(stockP);
+            }
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -957,68 +884,37 @@ public class StevedoreActivity extends BaseActivity {
     /**
      * 保存方法
      */
-    private void run_addScanningRecord() {
+    private void run_add() {
         showLoadDialog("保存中...");
         getUserInfo();
 
-        List<ScanningRecord> list = new ArrayList<>();
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            ScanningRecord record = new ScanningRecord();
-            // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库
-            record.setType(1);
-            record.setSourceK3Id(sr2.getSourceFinterId());
-            record.setSourceFnumber(sr2.getSourceFnumber());
-            record.setMtlK3Id(sr2.getFitemId());
-            record.setMtlFnumber(sr2.getMtlFnumber());
-            record.setUnitFnumber(sr2.getUnitFnumber());
-            record.setStockK3Id(sr2.getStockId());
-            record.setStockFnumber(sr2.getStockFnumber());
-            record.setStockAreaId(sr2.getStockAreaId());
-            record.setStockPositionId(sr2.getStockPositionId());
-            record.setSupplierK3Id(sr2.getSupplierId());
-            record.setSupplierFnumber(sr2.getSupplierFnumber());
-            record.setReceiveOrgFnumber(sr2.getReceiveOrgFnumber());
-            record.setPurOrgFnumber(sr2.getPurOrgFnumber());
-            record.setCustomerK3Id(0);
-            record.setPoFid(sr2.getPoFid());
-            record.setEntryId(sr2.getEntryId());
-            record.setPoFbillno(sr2.getPoFbillno());
-            record.setPoFmustqty(sr2.getPoFmustqty());
+        DisburdenGroup disGroup = new DisburdenGroup();
+        Staff staff = disPersonList.get(0).getDpStaff();
 
-            if (department != null) {
-                record.setDepartmentK3Id(department.getFitemID());
-                record.setDepartmentFnumber(department.getDepartmentNumber());
-            }
-            record.setPdaRowno((i+1));
-            record.setBatchNo(sr2.getBatchno());
-            record.setSequenceNo(sr2.getSequenceNo());
-            record.setBarcode(sr2.getBarcode());
-            record.setFqty(sr2.getStockqty());
-            record.setFdate("");
-            record.setPdaNo("");
-            // 得到用户对象
-            record.setOperationId(user.getId());
-            record.setCreateUserId(user.getId());
-            record.setCreateUserName(user.getUsername());
-            record.setK3UserFnumber(user.getKdUserNumber());
-            record.setSourceType('3');
-//            record.setTempId(ism.getId());
-//            record.setRelationObj(JsonUtil.objectToString(ism));
-            record.setFsrcBillTypeId("PUR_ReceiveBill");
-            record.setfRuleId("PUR_ReceiveBill-STK_InStock");
-            record.setFsTableName("T_PUR_ReceiveEntry");
+        DisburdenMission dis = new DisburdenMission();
+        dis.setFbillType(fbillType);
+        dis.setSupplierId(supplier.getFsupplierid());
+        dis.setDisburdenGroupid(staff.getDeptId());
+        dis.setReceiveOrgId(receiveOrg.getFpkId());
+        dis.setReceiveOrgNumber(receiveOrg.getNumber());
+        dis.setReceiveOrgName(receiveOrg.getName());
+        dis.setPurOrgId(purOrg.getFpkId());
+        dis.setPurOrgNumber(purOrg.getNumber());
+        dis.setPurOrgName(purOrg.getName());
+        dis.setCreateId(user.getId());
+        dis.setCreaterName(user.getUsername());
 
-            list.add(record);
-        }
+        disGroup.setDis(dis); // set 主表
+        disGroup.setDisEntryList(checkDatas); // set 子表
+        disGroup.setDisPersonList(disPersonList); // set 装卸人
 
-        String mJson = JsonUtil.objectToString(list);
+        String mJson = JsonUtil.objectToString(disGroup);
         RequestBody body = RequestBody.create(Consts.JSON, mJson);
         FormBody formBody = new FormBody.Builder()
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = getURL("addScanningRecord");
+        String mUrl = getURL("disburdenMission/add");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -1039,7 +935,7 @@ public class StevedoreActivity extends BaseActivity {
                     mHandler.sendEmptyMessage(UNSUCC1);
                     return;
                 }
-                Log.e("run_addScanningRecord --> onResponse", result);
+                Log.e("run_add --> onResponse", result);
                 mHandler.sendEmptyMessage(SUCC1);
             }
         });
@@ -1106,11 +1002,11 @@ public class StevedoreActivity extends BaseActivity {
         showLoadDialog("加载中...");
         StringBuilder strBarcode = new StringBuilder();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            if(isNULLS(sr2.getBarcode()).length() > 0) {
-                if((i+1) == size) strBarcode.append(sr2.getBarcode());
-                else strBarcode.append(sr2.getBarcode() + ",");
-            }
+            DisburdenMissionEntry sr2 = checkDatas.get(i);
+//            if(isNULLS(sr2.getBarcode()).length() > 0) {
+//                if((i+1) == size) strBarcode.append(sr2.getBarcode());
+//                else strBarcode.append(sr2.getBarcode() + ",");
+//            }
         }
         String mUrl = getURL("findMatIsExistList2");
         FormBody formBody = new FormBody.Builder()

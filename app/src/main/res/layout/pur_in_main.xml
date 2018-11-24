@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -20,7 +19,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="物料"
+            android:text="装卸单入库"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
@@ -38,7 +37,7 @@
     <LinearLayout
         android:id="@+id/lin_tabs"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_42dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -54,7 +53,7 @@
                 android:id="@+id/viewRadio1"
                 android:layout_width="@dimen/_30dp"
                 android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_on" />
+                android:background="@drawable/check_off2" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -83,6 +82,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ems="2"
                 android:gravity="center"
                 android:text="采购订单"
                 android:textColor="@android:color/black"
@@ -107,8 +107,34 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ems="2"
                 android:gravity="center"
                 android:text="收料订单"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lin_tab4"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/viewRadio4"
+                android:layout_width="@dimen/_30dp"
+                android:layout_height="@dimen/_30dp"
+                android:background="@drawable/check_on" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="2"
+                android:gravity="center"
+                android:text="装卸单"
                 android:textColor="@android:color/black"
                 android:textSize="14sp" />
 

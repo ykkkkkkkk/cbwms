@@ -24,10 +24,6 @@ public class DisburdenMission implements Serializable {
 	private int disburdenGroupid;
 	/*装卸班组*/
 	private Department disburdenGroup;
-	/*关联单据id*/
-	private int relationBillId;
-	/*关联单据单号*/
-	private String relationBillNumber;
 	/*收料组织id*/
 	private int receiveOrgId;
 	/*收料组织代码*/
@@ -79,14 +75,6 @@ public class DisburdenMission implements Serializable {
 
 	public Department getDisburdenGroup() {
 		return disburdenGroup;
-	}
-
-	public int getRelationBillId() {
-		return relationBillId;
-	}
-
-	public String getRelationBillNumber() {
-		return relationBillNumber;
 	}
 
 	public int getReceiveOrgId() {
@@ -157,14 +145,6 @@ public class DisburdenMission implements Serializable {
 		this.disburdenGroup = disburdenGroup;
 	}
 
-	public void setRelationBillId(int relationBillId) {
-		this.relationBillId = relationBillId;
-	}
-
-	public void setRelationBillNumber(String relationBillNumber) {
-		this.relationBillNumber = relationBillNumber;
-	}
-
 	public void setReceiveOrgId(int receiveOrgId) {
 		this.receiveOrgId = receiveOrgId;
 	}
@@ -203,17 +183,6 @@ public class DisburdenMission implements Serializable {
 
 	public void setDisburdenPersonList(List<DisburdenPerson> disburdenPersonList) {
 		this.disburdenPersonList = disburdenPersonList;
-	}
-
-	@Override
-	public String toString() {
-		return "DisburdenMission [id=" + id + ", fbillType=" + fbillType + ", billNumber=" + billNumber
-				+ ", supplierId=" + supplierId + ", supplier=" + supplier + ", disburdenGroupid=" + disburdenGroupid
-				+ ", disburdenGroup=" + disburdenGroup + ", relationBillId=" + relationBillId + ", relationBillNumber="
-				+ relationBillNumber + ", receiveOrgId=" + receiveOrgId + ", receiveOrgNumber=" + receiveOrgNumber
-				+ ", receiveOrgName=" + receiveOrgName + ", purOrgId=" + purOrgId + ", purOrgNumber=" + purOrgNumber
-				+ ", purOrgName=" + purOrgName + ", createId=" + createId + ", createDate=" + createDate
-				+ ", createrName=" + createrName + ", disburdenPersonList=" + disburdenPersonList + "]";
 	}
 
 }

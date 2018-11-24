@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Scanning_record
@@ -11,6 +12,7 @@ import java.io.Serializable;
 public class ScanningRecord implements Serializable {
     private int id;
     private int type;
+    private int sourceId;
     private int sourceK3Id;
     private String sourceFnumber;
     private int mtlK3Id;
@@ -32,7 +34,7 @@ public class ScanningRecord implements Serializable {
     private String status;
     private int createUserId;			//创建人id
     private String createUserName;		//创建人
-    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
+    private char sourceType; 			// 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单, A.装卸单）
     // 新加的
     private String receiveOrgFnumber;
     private String purOrgFnumber;
@@ -54,12 +56,29 @@ public class ScanningRecord implements Serializable {
     private String fsrcBillTypeId; // 来源单据类型名称
     private String fRuleId; // 下推来源单据类型名称
     private String fsTableName; // 下推来源表体
+    private String fcarriageNo; // 运输单号
+    private String expressNumber; // 物流公司
+    private int salOrderId; // 销售订单id
+    private String salOrderNo; // 销售订单号
+    private int salOrderEntryId; // 销售订单分录id
+    private double fprice; // 来源订单单价
+    // 临时变量
+    private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private String strBarcodes; // 用逗号拼接的条码号
+    private String kdAccount; // k3 用户的密码
+    private String kdAccountPassword; // k3 用户的密码
 
     public int getId() {
         return id;
     }
     public int getType() {
         return type;
+    }
+    public int getSourceId() {
+        return sourceId;
+    }
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
     }
     public int getSourceK3Id() {
         return sourceK3Id;
@@ -270,75 +289,116 @@ public class ScanningRecord implements Serializable {
     public void setEntryId(int entryId) {
         this.entryId = entryId;
     }
-
     public String getK3UserName() {
         return k3UserName;
     }
-
     public void setK3UserName(String k3UserName) {
         this.k3UserName = k3UserName;
     }
-
     public String getK3UserFnumber() {
         return k3UserFnumber;
     }
-
     public void setK3UserFnumber(String k3UserFnumber) {
         this.k3UserFnumber = k3UserFnumber;
     }
-
     public char getSourceType() {
         return sourceType;
     }
-
     public void setSourceType(char sourceType) {
         this.sourceType = sourceType;
     }
-
     public int getTempId() {
         return tempId;
     }
-
     public void setTempId(int tempId) {
         this.tempId = tempId;
     }
-
     public String getRelationObj() {
         return relationObj;
     }
-
     public void setRelationObj(String relationObj) {
         this.relationObj = relationObj;
     }
-
     public String getFsTableName() {
         return fsTableName;
     }
-
     public void setFsTableName(String fsTableName) {
         this.fsTableName = fsTableName;
     }
-
     public String getfRuleId() {
         return fRuleId;
     }
-
     public void setfRuleId(String fRuleId) {
         this.fRuleId = fRuleId;
     }
-
     public String getFsrcBillTypeId() {
         return fsrcBillTypeId;
     }
-
     public void setFsrcBillTypeId(String fsrcBillTypeId) {
         this.fsrcBillTypeId = fsrcBillTypeId;
+    }
+    public String getFcarriageNo() {
+        return fcarriageNo;
+    }
+    public void setFcarriageNo(String fcarriageNo) {
+        this.fcarriageNo = fcarriageNo;
+    }
+    public String getExpressNumber() {
+        return expressNumber;
+    }
+    public void setExpressNumber(String expressNumber) {
+        this.expressNumber = expressNumber;
+    }
+    public List<String> getListBarcode() {
+        return listBarcode;
+    }
+    public String getStrBarcodes() {
+        return strBarcodes;
+    }
+    public void setListBarcode(List<String> listBarcode) {
+        this.listBarcode = listBarcode;
+    }
+    public void setStrBarcodes(String strBarcodes) {
+        this.strBarcodes = strBarcodes;
+    }
+    public String getKdAccount() {
+        return kdAccount;
+    }
+    public String getKdAccountPassword() {
+        return kdAccountPassword;
+    }
+    public void setKdAccount(String kdAccount) {
+        this.kdAccount = kdAccount;
+    }
+    public void setKdAccountPassword(String kdAccountPassword) {
+        this.kdAccountPassword = kdAccountPassword;
+    }
+    public int getSalOrderId() {
+        return salOrderId;
+    }
+    public String getSalOrderNo() {
+        return salOrderNo;
+    }
+    public int getSalOrderEntryId() {
+        return salOrderEntryId;
+    }
+    public void setSalOrderId(int salOrderId) {
+        this.salOrderId = salOrderId;
+    }
+    public void setSalOrderNo(String salOrderNo) {
+        this.salOrderNo = salOrderNo;
+    }
+    public void setSalOrderEntryId(int salOrderEntryId) {
+        this.salOrderEntryId = salOrderEntryId;
+    }
+    public double getFprice() {
+        return fprice;
+    }
+    public void setFprice(double fprice) {
+        this.fprice = fprice;
     }
 
     public ScanningRecord() {
         super();
     }
-
-
-
 }

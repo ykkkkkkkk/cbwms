@@ -9,24 +9,28 @@ import java.util.List;
  */
 public class DisburdenGroup {
 
-	private DisburdenMission disMission; // 装卸单主表
-	private List<DisburdenMissionEntry> disMEntryList; // 装卸单分录列表
+	private DisburdenMission dis; // 装卸单主表
+	private List<DisburdenMissionEntry> disEntryList; // 装卸单分录列表
 	private List<DisburdenPerson> disPersonList; // 装卸工列表
 
-	public DisburdenMission getDisMission() {
-		return disMission;
+	public DisburdenGroup() {
+		super();
 	}
 
-	public void setDisMission(DisburdenMission disMission) {
-		this.disMission = disMission;
+	public DisburdenMission getDis() {
+		return dis;
 	}
 
-	public List<DisburdenMissionEntry> getDisMEntryList() {
-		return disMEntryList;
+	public void setDis(DisburdenMission dis) {
+		this.dis = dis;
 	}
 
-	public void setDisMEntryList(List<DisburdenMissionEntry> disMEntryList) {
-		this.disMEntryList = disMEntryList;
+	public List<DisburdenMissionEntry> getDisEntryList() {
+		return disEntryList;
+	}
+
+	public void setDisEntryList(List<DisburdenMissionEntry> disEntryList) {
+		this.disEntryList = disEntryList;
 	}
 
 	public List<DisburdenPerson> getDisPersonList() {

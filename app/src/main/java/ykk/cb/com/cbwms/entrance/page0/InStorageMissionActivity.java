@@ -570,6 +570,10 @@ public class InStorageMissionActivity extends BaseActivity implements XRecyclerV
             record.setFsrcBillTypeId("PUR_ReceiveBill");
             record.setfRuleId("PUR_ReceiveBill-STK_InStock");
             record.setFsTableName("T_PUR_ReceiveEntry");
+//            record.setListBarcode(sr2.getListBarcode());
+//            record.setStrBarcodes(sr2.getStrBarcodes());
+            record.setKdAccount(user.getKdAccount());
+            record.setKdAccountPassword(user.getKdAccountPassword());
 
             list.add(record);
         }

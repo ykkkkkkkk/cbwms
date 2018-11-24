@@ -39,7 +39,7 @@ public class Pur_InFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRec
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName()+"\n"+entity.getMtl().getMaterialSize());
+        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
         // 是否启用序列号
         if(entity.getMtl().getIsSnManager() == 1) {
             tv_nums.setEnabled(false);

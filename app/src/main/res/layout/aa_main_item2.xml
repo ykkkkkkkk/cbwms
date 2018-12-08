@@ -19,19 +19,18 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <ImageView
-                android:id="@+id/imgView1"
+            <TextView
+                android:id="@+id/tvImg1"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/aa_ico2a_2" />
+                android:background="@drawable/aa_ico2a_2" />
 
             <TextView
-                android:id="@+id/tvMenu1"
+                android:id="@+id/tab1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imgView1"
+                android:layout_below="@+id/tvImg1"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="生产装箱"
@@ -47,19 +46,18 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <ImageView
-                android:id="@+id/imgView2"
+            <TextView
+                android:id="@+id/tvImg2"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/aa_ico2a_1" />
+                android:background="@drawable/aa_ico2a_1" />
 
             <TextView
-                android:id="@+id/tvMenu2"
+                android:id="@+id/tab2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imgView2"
+                android:layout_below="@+id/tvImg2"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="生产入库"
@@ -74,28 +72,25 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
-            <ImageView
-                android:id="@+id/imgView3"
+            <TextView
+                android:id="@+id/tvImg3"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/aa_ico2a_1" />
+                android:background="@drawable/aa_ico2a_3" />
 
             <TextView
-                android:id="@+id/tvMenu3"
+                android:id="@+id/tab3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/imgView3"
+                android:layout_below="@+id/tvImg3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="生产入库"
+                android:text="工艺查看"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
-
 
         </RelativeLayout>
 
@@ -114,15 +109,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/tvImg4"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico2a_2" />
+                android:background="@drawable/aa_ico2a_4" />
 
             <TextView
                 android:id="@+id/tab4"
@@ -131,7 +125,7 @@
                 android:layout_below="@+id/tvImg4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="生产装箱"
+                android:text="工序汇报"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

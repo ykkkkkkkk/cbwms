@@ -60,6 +60,10 @@ public class BarCodeTable implements Serializable {
 	/*物料计量单位数量*/
 	private double materialCalculateNumber;
 	private MaterialBinningRecord mbr;
+	/*k3对应单据分录的id值*/
+	private int entryId;
+	// 临时用的数据
+	private boolean isLocalCust; // 是否为本地数据
 
 	public BarCodeTable() {
 		super();
@@ -174,14 +178,20 @@ public class BarCodeTable implements Serializable {
 		this.mtl = mtl;
 	}
 
-	@Override
-	public String toString() {
-		return "BarCodeTable [id=" + id + ", snCode=" + snCode + ", caseId=" + caseId + ", batchCode=" + batchCode
-				+ ", createDateTime=" + createDateTime + ", relationBillId=" + relationBillId + ", relationBillNumber="
-				+ relationBillNumber + ", printNumber=" + printNumber + ", materialId=" + materialId
-				+ ", materialNumber=" + materialNumber + ", materialName=" + materialName + ", mtl=" + mtl
-				+ ", barcode=" + barcode + ", isBinding=" + isBinding + ", mtlPack=" + mtlPack + ", relationObj="
-				+ relationObj + ", materialCalculateNumber=" + materialCalculateNumber + ", mbr=" + mbr + "]";
+	public int getEntryId() {
+		return entryId;
+	}
+
+	public void setEntryId(int entryId) {
+		this.entryId = entryId;
+	}
+
+	public boolean getIsLocalCust() {
+		return isLocalCust;
+	}
+
+	public void setIsLocalCust(boolean isLocalCust) {
+		this.isLocalCust = isLocalCust;
 	}
 
 }

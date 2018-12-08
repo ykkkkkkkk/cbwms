@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @Description 岗位表
  */
 
-public class Post implements Serializable{
+public class Post implements Serializable {
 	/*岗位id*/
 	private Integer id;
 	/*k3岗位id*/
@@ -135,6 +135,6 @@ public class Post implements Serializable{
 				+ ", department=" + department + ", dataStatus=" + dataStatus + ", isDelete=" + isDelete + ", enabled="
 				+ enabled + ", fmodifyDate=" + fmodifyDate + "]";
 	}
-	
-	
+
+
 }

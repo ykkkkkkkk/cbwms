@@ -1,6 +1,5 @@
 package ykk.cb.com.cbwms.entrance.page0.adapter;
 
-import android.app.Activity;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -11,8 +10,6 @@ import java.util.List;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.entrance.page0.InStorageMissionActivity;
 import ykk.cb.com.cbwms.model.InStorageMissionEntry;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
-import ykk.cb.com.cbwms.purchase.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
 public class InStorageMissionAdapter extends BaseArrayRecyclerAdapter<InStorageMissionEntry> {

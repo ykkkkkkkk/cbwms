@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
-import ykk.cb.com.cbwms.purchase.Prod_InMainActivity;
-import ykk.cb.com.cbwms.purchase.Pur_ProdBoxMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_BoxMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_InMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_ProcedureReportActivity;
+import ykk.cb.com.cbwms.produce.Prod_ProcessSearchActivity;
 
 public class MainTabFragment2 extends BaseFragment {
 
@@ -25,17 +27,19 @@ public class MainTabFragment2 extends BaseFragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 生产装箱
-                show(Pur_ProdBoxMainActivity.class, null);
+                show(Prod_BoxMainActivity.class, null);
 
                 break;
             case R.id.relative2: // 生产入库
                 show(Prod_InMainActivity.class,null);
 
                 break;
-            case R.id.relative3: //
+            case R.id.relative3: // 工艺查看
+                show(Prod_ProcessSearchActivity.class,null);
 
                 break;
-            case R.id.relative4: //
+            case R.id.relative4: // 工序汇报
+                show(Prod_ProcedureReportActivity.class,null);
 
                 break;
         }

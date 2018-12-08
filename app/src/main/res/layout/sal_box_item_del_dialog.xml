@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_10dp"
@@ -20,14 +19,18 @@
 
 
     <EditText
+        android:id="@+id/et_mtlCodeTmp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:inputType="none" />
+
+    <EditText
         android:id="@+id/et_mtlCode2"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
         android:layout_margin="@dimen/_10dp"
         android:layout_weight="1"
         android:background="@drawable/back_style_blue"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
         android:hint="请在此扫描物料条码完成删除"
         android:inputType="none"
         android:paddingLeft="2dp"

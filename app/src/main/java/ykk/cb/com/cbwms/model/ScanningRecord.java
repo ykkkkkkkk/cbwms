@@ -62,6 +62,8 @@ public class ScanningRecord implements Serializable {
     private String salOrderNo; // 销售订单号
     private int salOrderEntryId; // 销售订单分录id
     private double fprice; // 来源订单单价
+    private String leafNumber; // 来源叶片
+    private String leafNumber2; // 来源叶片1
     // 临时变量
     private List<String> listBarcode; // 记录每行中扫的条码barcode
     private String strBarcodes; // 用逗号拼接的条码号
@@ -396,6 +398,18 @@ public class ScanningRecord implements Serializable {
     }
     public void setFprice(double fprice) {
         this.fprice = fprice;
+    }
+    public String getLeafNumber() {
+        return leafNumber;
+    }
+    public void setLeafNumber(String leafNumber) {
+        this.leafNumber = leafNumber;
+    }
+    public String getLeafNumber2() {
+        return leafNumber2;
+    }
+    public void setLeafNumber2(String leafNumber2) {
+        this.leafNumber2 = leafNumber2;
     }
 
     public ScanningRecord() {

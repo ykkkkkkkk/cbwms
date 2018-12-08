@@ -54,10 +54,18 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
     EditText etStaff;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.btn_checkAll)
+    Button btnCheckAll;
+    @BindView(R.id.btn_confirm)
+    Button btnConfirm;
     @BindView(R.id.tv_isLoad)
     TextView tvIsLoad;
+    @BindView(R.id.tv_check)
+    TextView tvCheck;
     @BindView(R.id.lin_confrim)
     LinearLayout linConfrim;
+    @BindView(R.id.lin_isLoad)
+    LinearLayout linIsLoad;
 
     private Staff_DialogActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
@@ -153,9 +161,22 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
 
     @Override
     public void initView() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            isload = bundle.getInt("isload", 0);
+            if(isload == 1) {
+                tvIsLoad.setBackgroundResource(R.drawable.check_on);
+            } else {
+                linIsLoad.setVisibility(View.GONE);
+                tvCheck.setVisibility(View.GONE);
+                btnCheckAll.setVisibility(View.GONE);
+                btnConfirm.setVisibility(View.GONE);
+            }
+        }
+
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Staff_DialogAdapter(context, listDatas);
+        mAdapter = new Staff_DialogAdapter(context, listDatas, isload);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
@@ -167,13 +188,21 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 int curPos = pos - 1;
                 Staff staff = listDatas.get(curPos);
-                int check = staff.getIsCheck();
-                if(check == 1) {
-                    staff.setIsCheck(0);
-                } else {
-                    staff.setIsCheck(1);
+                if(isload == 1) { // 是装卸部门
+                    int check = staff.getIsCheck();
+                    if (check == 1) {
+                        staff.setIsCheck(0);
+                    } else {
+                        staff.setIsCheck(1);
+                    }
+                    mAdapter.notifyDataSetChanged();
+
+                } else if(isload == 0){ // 非装卸部门
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("staff", staff);
+                    setResults(context, bundle);
+                    context.finish();
                 }
-                mAdapter.notifyDataSetChanged();
             }
         });
         // 部门点击
@@ -198,20 +227,8 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
 
     @Override
     public void initData() {
-        bundle();
+        initLoadDatas();
     }
-
-    private void bundle() {
-        Bundle bundle = context.getIntent().getExtras();
-        if(bundle != null) {
-            isload = bundle.getInt("isload", 0);
-            if(isload == 1) {
-                tvIsLoad.setBackgroundResource(R.drawable.check_on);
-            }
-            initLoadDatas();
-        }
-    }
-
 
     // 监听事件
     @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm,R.id.btn_checkAll})

@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 物料装箱记录类
@@ -37,6 +38,8 @@ public class MaterialBinningRecord implements Serializable {
 	private String relationBillNumber;
 	/*客户id*/
 	private int customerId;
+	/*客户代码*/
+	private String customerNumber;
 	/*客户*/
 	private Customer customer;
 	/**物流方式
@@ -65,6 +68,8 @@ public class MaterialBinningRecord implements Serializable {
 	 * 33代表发货通知单
 	 * 34代表生产任务单
 	 * 35代码采购装箱
+	 * 36代表采购收料通知单
+	 * 37代表复核单
 	 */
 	private int caseId;
 	/* 创建日期  */
@@ -85,7 +90,19 @@ public class MaterialBinningRecord implements Serializable {
 	private double usableFqty;
 	/* 关联单据Json对象 */
 	private String relationObj;
+	/* 关联单据分录id */
+	private int entryId;
+	/* 关联的销售订单号 */
+	private String salOrderNo;
+	/* 关联的销售订单分录id */
+	private int salOrderNoEntryId;
+	/* 物料大类：成品 */
+	private String mtlBigClass;
 
+	// 临时字段
+	private List<String> listBarcode; // 记录每行中扫的条码barcode
+	private String strBarcodes; // 用逗号拼接的条码号
+	private int coveQty;  // 订单套数
 
 	public MaterialBinningRecord() {
 		super();
@@ -323,17 +340,68 @@ public class MaterialBinningRecord implements Serializable {
 		this.usableFqty = usableFqty;
 	}
 
-	@Override
-	public String toString() {
-		return "MaterialBinningRecord [id=" + id + ", fbillType=" + fbillType + ", boxBarCodeId=" + boxBarCodeId
-				+ ", boxBarCode=" + boxBarCode + ", materialId=" + materialId + ", barcode=" + barcode
-				+ ", barcodeSource=" + barcodeSource + ", batchCode=" + batchCode + ", snCode=" + snCode + ", mtl="
-				+ mtl + ", number=" + number + ", relationBillId=" + relationBillId + ", relationBillNumber="
-				+ relationBillNumber + ", customerId=" + customerId + ", customer=" + customer + ", expressType="
-				+ expressType + ", deliveryWay=" + deliveryWay + ", packageWorkType=" + packageWorkType
-				+ ", binningType=" + binningType + ", caseId=" + caseId + ", createDate=" + createDate
-				+ ", createUserId=" + createUserId + ", createUserName=" + createUserName + ", modifyDate=" + modifyDate
-				+ ", modifyUserId=" + modifyUserId + ", modifyUserName=" + modifyUserName + ", relationBillFQTY="
-				+ relationBillFQTY + ", usableFqty=" + usableFqty + ", relationObj=" + relationObj + "]";
+	public String getCustomerNumber() {
+		return customerNumber;
 	}
+
+	public void setCustomerNumber(String customerNumber) {
+		this.customerNumber = customerNumber;
+	}
+
+	public int getEntryId() {
+		return entryId;
+	}
+
+	public void setEntryId(int entryId) {
+		this.entryId = entryId;
+	}
+
+	public String getSalOrderNo() {
+		return salOrderNo;
+	}
+
+	public int getSalOrderNoEntryId() {
+		return salOrderNoEntryId;
+	}
+
+	public void setSalOrderNo(String salOrderNo) {
+		this.salOrderNo = salOrderNo;
+	}
+
+	public void setSalOrderNoEntryId(int salOrderNoEntryId) {
+		this.salOrderNoEntryId = salOrderNoEntryId;
+	}
+
+	public String getMtlBigClass() {
+		return mtlBigClass;
+	}
+
+	public void setMtlBigClass(String mtlBigClass) {
+		this.mtlBigClass = mtlBigClass;
+	}
+
+	public List<String> getListBarcode() {
+		return listBarcode;
+	}
+
+	public void setListBarcode(List<String> listBarcode) {
+		this.listBarcode = listBarcode;
+	}
+
+	public String getStrBarcodes() {
+		return strBarcodes;
+	}
+
+	public void setStrBarcodes(String strBarcodes) {
+		this.strBarcodes = strBarcodes;
+	}
+
+	public int getCoveQty() {
+		return coveQty;
+	}
+
+	public void setCoveQty(int coveQty) {
+		this.coveQty = coveQty;
+	}
+
 }

@@ -12,8 +12,8 @@ android {
         applicationId "ykk.cb.com.cbwms"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 2
-        versionName "1.0.2"
+        versionCode 3
+        versionName "1.0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -48,4 +48,5 @@ dependencies {
     implementation 'com.solidfire.code.gson:gson:2.6.2'
     implementation files('src/main/libs/gprintersdkv1.jar')
     implementation 'com.android.support:design:27.1.1'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
 }

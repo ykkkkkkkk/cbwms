@@ -29,8 +29,9 @@ public class ProdOrder implements Serializable {
 	private int custId; // 客户
 	private String custNumber; // 客户代码
 	private String custName; // 客户名称
+	private int salOrderId; // 销售订单Id
 	private String salOrderNo; // 销售订单号
-
+	private int salOrderEntryId;//销售订单分录entryId
 	/* 对应t_barCodeTable 表中的barcode字段  */
 	private String barcode;
 	/* 对应t_barCodeTable 表中的batchCode字段  */
@@ -62,6 +63,23 @@ public class ProdOrder implements Serializable {
 	private String mtlSize;
 	/* 单据分录生码状态查询，0是默认值代表未生码，1代表已生码 */
 	private int createCodeStatus;
+	/*销售订单里的宽，用于打印装箱清单取值*/
+	private String width;
+	/*销售订单里的高，用于打印装箱清单取值*/
+	private String high;
+	/*销售订单销售组织ID*/
+	private int salOrgId;
+	/*销售订单销售组织编码*/
+	private String salOrgNumber;
+	/*销售订单销售组织名称*/
+	private String salOrgName;
+	/*物料大类*/
+	private String mtlBigClass;
+	/*销售订单交货方式*/
+	private String deliveryWay;
+
+
+	private int isCheck; // 新加的是否选中
 
 	public ProdOrder() {
 		super();
@@ -223,6 +241,14 @@ public class ProdOrder implements Serializable {
 		this.custName = custName;
 	}
 
+	public int getSalOrderId() {
+		return salOrderId;
+	}
+
+	public void setSalOrderId(int salOrderId) {
+		this.salOrderId = salOrderId;
+	}
+
 	public void setSalOrderNo(String salOrderNo) {
 		this.salOrderNo = salOrderNo;
 	}
@@ -251,11 +277,11 @@ public class ProdOrder implements Serializable {
 		this.snCode = snCode;
 	}
 
-	public Integer getEntryId() {
+	public int getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(Integer entryId) {
+	public void setEntryId(int entryId) {
 		this.entryId = entryId;
 	}
 
@@ -347,19 +373,76 @@ public class ProdOrder implements Serializable {
 		this.createCodeStatus = createCodeStatus;
 	}
 
-	@Override
-	public String toString() {
-		return "ProdOrder [fId=" + fId + ", fbillno=" + fbillno + ", fbillType=" + fbillType + ", prodFdate="
-				+ prodFdate + ", prodOrgId=" + prodOrgId + ", prodOrgNumber=" + prodOrgNumber + ", prodOrgName="
-				+ prodOrgName + ", deptId=" + deptId + ", deptNumber=" + deptNumber + ", deptName=" + deptName
-				+ ", mtlId=" + mtlId + ", mtl=" + mtl + ", mtlFnumber=" + mtlFnumber + ", mtlFname=" + mtlFname
-				+ ", unitFname=" + unitFname + ", prodFqty=" + prodFqty + ", custId=" + custId + ", custNumber="
-				+ custNumber + ", custName=" + custName + ", salOrderNo=" + salOrderNo + ", barcode=" + barcode
-				+ ", batchCode=" + batchCode + ", snCode=" + snCode + ", entryId=" + entryId + ", prodSeqNumber="
-				+ prodSeqNumber + ", receiveAddress=" + receiveAddress + ", receivePerson=" + receivePerson
-				+ ", receiveTel=" + receiveTel + ", deliveryCompanyName=" + deliveryCompanyName + ", remarks=" + remarks
-				+ ", planStartDate=" + planStartDate + ", leaf=" + leaf + ", leaf1=" + leaf1 + ", mtlSize=" + mtlSize
-				+ ", createCodeStatus=" + createCodeStatus + "]";
+	public String getWidth() {
+		return width;
+	}
+
+	public void setWidth(String width) {
+		this.width = width;
+	}
+
+	public String getHigh() {
+		return high;
+	}
+
+	public void setHigh(String high) {
+		this.high = high;
+	}
+
+	public Integer getSalOrderEntryId() {
+		return salOrderEntryId;
+	}
+
+	public void setSalOrderEntryId(Integer salOrderEntryId) {
+		this.salOrderEntryId = salOrderEntryId;
+	}
+
+	public int getSalOrgId() {
+		return salOrgId;
+	}
+
+	public void setSalOrgId(int salOrgId) {
+		this.salOrgId = salOrgId;
+	}
+
+	public String getSalOrgNumber() {
+		return salOrgNumber;
+	}
+
+	public void setSalOrgNumber(String salOrgNumber) {
+		this.salOrgNumber = salOrgNumber;
+	}
+
+	public String getSalOrgName() {
+		return salOrgName;
+	}
+
+	public void setSalOrgName(String salOrgName) {
+		this.salOrgName = salOrgName;
+	}
+
+	public String getMtlBigClass() {
+		return mtlBigClass;
+	}
+
+	public void setMtlBigClass(String mtlBigClass) {
+		this.mtlBigClass = mtlBigClass;
+	}
+
+	public String getDeliveryWay() {
+		return deliveryWay;
+	}
+
+	public void setDeliveryWay(String deliveryWay) {
+		this.deliveryWay = deliveryWay;
+	}
+
+	public int getIsCheck() {
+		return isCheck;
+	}
+
+	public void setIsCheck(int isCheck) {
+		this.isCheck = isCheck;
 	}
 
 

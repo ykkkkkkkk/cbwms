@@ -15,12 +15,12 @@ public class Staff_DialogAdapter extends BaseArrayRecyclerAdapter<Staff> {
 
     private Activity context;
     private MyCallBack callBack;
-    private List<Staff> datas;
+    private int isload; // 是否为装卸部门
 
-    public Staff_DialogAdapter(Activity context, List<Staff> datas) {
+    public Staff_DialogAdapter(Activity context, List<Staff> datas, int isload) {
         super(datas);
         this.context = context;
-        this.datas = datas;
+        this.isload = isload;
     }
 
     @Override
@@ -43,11 +43,14 @@ public class Staff_DialogAdapter extends BaseArrayRecyclerAdapter<Staff> {
         tv_fnumber.setText(entity.getNumber());
         tv_fname.setText(entity.getName());
 
+        tv_check.setVisibility(isload > 0 ? View.VISIBLE : View.GONE);
+
         if(entity.getIsCheck() == 1) {
             tv_check.setBackgroundResource(R.drawable.check_on);
         } else {
             tv_check.setBackgroundResource(R.drawable.check_off2);
         }
+
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override

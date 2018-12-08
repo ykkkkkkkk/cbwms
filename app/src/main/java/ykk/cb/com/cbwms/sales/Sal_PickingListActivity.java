@@ -226,7 +226,7 @@ public class Sal_PickingListActivity extends BaseActivity {
 
     @Override
     public int setLayoutResID() {
-        return R.layout.sal_pickinglist;
+        return R.layout.allot_pickinglist;
     }
 
     @Override

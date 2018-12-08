@@ -61,6 +61,8 @@ public class ScanningRecord2 implements Serializable {
     private String fRuleId; // 下推来源单据类型名称
     private String fsTableName; // 下推来源表体
     private double fprice; // 来源订单单价
+    private String leafNumber; // 来源叶片
+    private String leafNumber2; // 来源叶片1
     // 临时变量
     private int salOrderId; // 关联的销售订单id
     private String salOrderNo; // 关联的销售订单号
@@ -415,6 +417,18 @@ public class ScanningRecord2 implements Serializable {
     }
     public void setFprice(double fprice) {
         this.fprice = fprice;
+    }
+    public String getLeafNumber() {
+        return leafNumber;
+    }
+    public void setLeafNumber(String leafNumber) {
+        this.leafNumber = leafNumber;
+    }
+    public String getLeafNumber2() {
+        return leafNumber2;
+    }
+    public void setLeafNumber2(String leafNumber2) {
+        this.leafNumber2 = leafNumber2;
     }
 
     public ScanningRecord2() {

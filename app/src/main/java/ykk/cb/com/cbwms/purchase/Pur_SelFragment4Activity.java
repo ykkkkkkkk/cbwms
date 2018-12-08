@@ -92,6 +92,9 @@ public class Pur_SelFragment4Activity extends BaseActivity implements XRecyclerV
                     case UNSUCC1: // 数据加载失败！
                         m.mAdapter.notifyDataSetChanged();
                         String errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) {
+                            errMsg = "很抱歉，没有找到数据！";
+                        }
                         m.toasts(errMsg);
 
                         break;

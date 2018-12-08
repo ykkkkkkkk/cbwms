@@ -25,6 +25,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,6 +132,7 @@ public class Pur_InFragment3 extends BaseFragment {
     private Activity mContext;
     private Pur_InMainActivity parent;
     private char defaultStockVal; // 默认仓库的值
+    private DecimalFormat df = new DecimalFormat("#.####");
     private String k3Number; // 记录传递到k3返回的单号
 
     // 消息处理
@@ -496,12 +498,14 @@ public class Pur_InFragment3 extends BaseFragment {
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
+            Material mtl = sr2.getMtl();
             if (sr2.getStockqty() == 0) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）必须大于0！");
                 return false;
             }
-            if (sr2.getStockqty() > sr2.getFqty()) {
-                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）！");
+            double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
+            if (sr2.getStockqty() > fqty) {
+                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getReceiveMaxScale() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
         }

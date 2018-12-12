@@ -9,7 +9,6 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -109,6 +109,9 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                                     ValuationType vt = m.popDatasA.get(0);
                                     m.valuationTypeId = vt.getId();
                                     m.tvValuationType.setText(vt.getDescription());
+                                    if(vt.getDescription().indexOf("集体") > -1) {
+                                        m.setEnables(m.tvProcess, R.drawable.back_style_gray3,false);
+                                    }
                                 }
 
                                 break;
@@ -146,6 +149,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                         m.procedureId = 0;
                         m.tvProcess.setText("");
                         m.tvNum.setText("");
+                        m.setEnables(m.tvProcess, R.drawable.back_style_blue,true);
 
                         break;
                     case UNSUCC2: // 数据加载失败！
@@ -228,7 +232,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                     Comm.showWarnDialog(context,"请扫码生产订单的物料条码！");
                     return;
                 }
-                if(getValues(tvProcess).length() == 0) {
+                if(getValues(tvValuationType).indexOf("集体") == -1 && getValues(tvProcess).length() == 0) {
                     Comm.showWarnDialog(context,"请选择工序！");
                     return;
                 }
@@ -236,21 +240,37 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                     Comm.showWarnDialog(context,"请选择数量！");
                     return;
                 }
-                ValuationPayroll vp = new ValuationPayroll();
-                vp.setId(0);
-                vp.setSchedulTeamId(schedulTeamId);
-                if(getValues(tvValuationType).indexOf("集体") > -1) staffId = 0;
-                vp.setStaffId(staffId);
-                vp.setDeptId(deptId);
-                vp.setfMaterialId(mtlId);
-                vp.setProcedureId(procedureId);
-                vp.setValuationTypeId(valuationTypeId);
-                vp.setTotalNumber(parseInt(getValues(tvNum)));
-                vp.setCreaterId(user.getId());
-                vp.setCreaterName(user.getUsername());
-                vp.setValState(1);
-                vp.setCreateWay(1);
-                run_save(vp);
+                List<ValuationPayroll> listVp = new ArrayList<>();
+                int sizeB = popDatasB.size();
+                if(getValues(tvValuationType).indexOf("集体") == -1) {
+                    sizeB = 1;
+                }
+                for(int i=0; i<sizeB; i++) {
+                    ValuationPayroll vp = new ValuationPayroll();
+                    vp.setId(0);
+                    vp.setSchedulTeamId(schedulTeamId);
+                    if(getValues(tvValuationType).indexOf("集体") > -1) {
+                        vp.setStaffId(0);
+                        vp.setAssignState(1);
+                        Procedure pd = popDatasB.get(i);
+                        vp.setProcedureId(pd.getId());
+                    } else {
+                        vp.setStaffId(staffId);
+                        vp.setAssignState(0);
+                        vp.setProcedureId(procedureId);
+                    }
+                    vp.setDeptId(deptId);
+                    vp.setfMaterialId(mtlId);
+                    vp.setValuationTypeId(valuationTypeId);
+                    vp.setTotalNumber(parseInt(getValues(tvNum)));
+                    vp.setCreaterId(user.getId());
+                    vp.setCreaterName(user.getUsername());
+                    vp.setValState(1);
+                    vp.setCreateWay(1);
+
+                    listVp.add(vp);
+                }
+                run_save(listVp);
 
                 break;
         }
@@ -310,6 +330,11 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     ValuationType vt = popDatasA.get(position);
                     valuationTypeId = vt.getId();
+                    if(vt.getDescription().indexOf("集体") > -1) {
+                        setEnables(tvProcess, R.drawable.back_style_gray3,false);
+                    } else {
+                        setEnables(tvProcess, R.drawable.back_style_blue,true);
+                    }
                     tvValuationType.setText(vt.getDescription());
 
                     popWindowA.dismiss();
@@ -517,7 +542,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                     Staff staff = stEntry.getStaff();
                     schedulTeamId = stEntry.getSchedulTeamId();
                     staffId = staff.getStaffId();
-                    deptId = parseInt(staff.getDeptId());
+                    deptId = staff.getDeptId();
                     tvStaff.setText(st.getSchedulTeamName()+"/"+staff.getName());
 
                     popWindowC.dismiss();
@@ -654,10 +679,10 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
     /**
      * 保存
      */
-    private void run_save(ValuationPayroll vp) {
+    private void run_save(List<ValuationPayroll> listVp) {
         showLoadDialog("保存中...");
-        String mUrl = getURL("valuationPayroll/insert");
-        String mJson = JsonUtil.objectToString(vp);
+        String mUrl = getURL("valuationPayroll/insertList");
+        String mJson = JsonUtil.objectToString(listVp);
         FormBody formBody = new FormBody.Builder()
                 .add("strJson", mJson)
                 .build();
@@ -703,18 +728,6 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                         LogUtil.e("EEEEEEEE", JsonUtil.objectToString(prodOrder));
                         relativeInfo.setVisibility(View.VISIBLE);
 
-                        String width = isNULLS(prodOrder.getWidth());
-                        String high = isNULLS(prodOrder.getHigh());
-                        tv1.setText(Html.fromHtml(
-                                "成品编码：<font color='#000000'>"+prodOrder.getMtlFnumber()+"</font>" +
-                                        "<br>" +
-                                        "成品名称：<font color='#000000'>"+prodOrder.getMtlFname()+"</font>" +
-                                        "<br>" +
-                                        (width.length() > 0 ? "宽：<font color='#000000'>"+width+"</font>&emsp " : "") + // &emsp表示一个空格
-                                        (high.length() > 0 ? "高：<font color='#000000'>"+high+"</font>&emsp " : "") + // &emsp表示一个空格
-                                        "数量：<font color='#000000'>"+prodOrder.getProdFqty()+"/"+prodOrder.getUnitFname()+"</font>" +
-                                        "<br>"));
-                        tvRemark.setText("");
                     }
                 }
 

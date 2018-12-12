@@ -745,9 +745,9 @@ public class Prod_InFragment2 extends BaseFragment {
             sr2.setFqty(prodOrder.getProdFqty());
             sr2.setStockqty(mbr.getNumber());
             sr2.setBarcode(mbr.getBarcode());
-            sr2.setSalOrderId(prodOrder.getSalOrderId());
+//            sr2.setSalOrderId(prodOrder.getSalOrderId());
             sr2.setSalOrderNo(prodOrder.getSalOrderNo());
-            sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
+//            sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
             // 入库组织
             if(inOrg == null) inOrg = new Organization();
             inOrg.setFpkId(prodOrder.getProdOrgId());

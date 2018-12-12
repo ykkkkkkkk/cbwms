@@ -86,8 +86,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
     TextView tvBoxAltitude;
     @BindView(R.id.tv_boxVolume)
     TextView tvBoxVolume;
-    @BindView(R.id.et_prodOrderCode)
-    EditText etProdOrderCode;
+//    @BindView(R.id.et_prodOrderCode)
+//    EditText etProdOrderCode;
     @BindView(R.id.et_mtlCode)
     EditText etMtlCode;
     @BindView(R.id.tv_custSel)
@@ -347,7 +347,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     @Override
     public void initData() {
         hideSoftInputMode(mContext, etBoxCode);
-        hideSoftInputMode(mContext, etProdOrderCode);
+//        hideSoftInputMode(mContext, etProdOrderCode);
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
     }
@@ -464,7 +464,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private void reset() {
         btnEnd.setVisibility(View.GONE);
         etBoxCode.setText("");
-        etProdOrderCode.setText("");
+//        etProdOrderCode.setText("");
         etMtlCode.setText("");
         boxBarCode = null;
         prodOrderBarcode = null;
@@ -574,24 +574,24 @@ public class Prod_BoxFragment1 extends BaseFragment {
             }
         });
         // 生产订单
-        etProdOrderCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(s.length() == 0) return;
-                if(boxBarCode == null) {
-                    s.delete(0,s.length());
-                    Comm.showWarnDialog(mContext, "请扫箱码！");
-                    return;
-                }
-                curViewFlag = '2';
-                prodOrderBarcode = s.toString();
-                run_smGetDatas(prodOrderBarcode);
-            }
-        });
+//        etProdOrderCode.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if(s.length() == 0) return;
+//                if(boxBarCode == null) {
+//                    s.delete(0,s.length());
+//                    Comm.showWarnDialog(mContext, "请扫箱码！");
+//                    return;
+//                }
+//                curViewFlag = '2';
+//                prodOrderBarcode = s.toString();
+//                run_smGetDatas(prodOrderBarcode);
+//            }
+//        });
         // 物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -760,11 +760,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
             int status = boxBarCode.getStatus();
             if(status == 0) {
                 tvStatus.setText(Html.fromHtml(""+"<font color='#000000'>状态：未开箱</font>"));
-                setFocusable(etProdOrderCode);
+//                setFocusable(etProdOrderCode);
                 this.status = '0';
             } else if(status == 1) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
-                setFocusable(etProdOrderCode);
+//                setFocusable(etProdOrderCode);
                 btnEnd.setVisibility(View.VISIBLE);
                 this.status = '1';
             } else if(status == 2) {
@@ -827,8 +827,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setCustomer(customer);
 
             if(assist == null) assist = new AssistInfo();
-            String deliveryWay = isNULLS(prodOrder.getDeliveryWay());
-            assist.setfName(deliveryWay);
+//            String deliveryWay = isNULLS(prodOrder.getDeliveryWay());
+//            assist.setfName(deliveryWay);
             mbr.setDeliveryWay(assist.getfName());
             mbr.setPackageWorkType(2);
             mbr.setBinningType(binningType);
@@ -851,8 +851,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setModifyUserId(user.getId());
             mbr.setModifyUserName(user.getUsername());
             mbr.setSalOrderNo(prodOrder.getSalOrderNo());
-            mbr.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
-            mbr.setMtlBigClass(prodOrder.getMtlBigClass());
+//            mbr.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
+//            mbr.setMtlBigClass(prodOrder.getMtlBigClass());
 
             // 物料是否启用序列号
             if(prodOrder.getMtl().getIsSnManager() == 1) {

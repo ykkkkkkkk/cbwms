@@ -50,6 +50,8 @@ public class ValuationPayroll implements Serializable {
 	private int valState;
 	/* 单据来源。0WMS手动创建，1扫码来源创建 */
 	private int createWay;
+	/* 分配状态，0无需分配，1,未分配，2已分配 */
+	private int assignState;
 
 	public ValuationPayroll() {
 		super();
@@ -242,5 +244,13 @@ public class ValuationPayroll implements Serializable {
 	public ValuationPayroll setCreateWay(int createWay) {
 		this.createWay = createWay;
 		return this;
+	}
+
+	public int getAssignState() {
+		return assignState;
+	}
+
+	public void setAssignState(int assignState) {
+		this.assignState = assignState;
 	}
 }

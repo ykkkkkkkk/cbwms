@@ -373,18 +373,18 @@ public class Prod_BoxMainActivity extends BaseActivity {
         rowHigthSum = rowHigthSum + rowSpacing;
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物料名称："+isNULLS(prodOrder.getMtlFname())+" \n");
 
-        String leaf = isNULLS(prodOrder.getLeaf());
-        String leaf2 = isNULLS(prodOrder.getLeaf1());
-        String strTmp = "";
-        if (leaf.length() > 0 && leaf2.length() > 0) strTmp = leaf + " , " + leaf2;
-        else if (leaf.length() > 0) strTmp = leaf;
-        else if (leaf2.length() > 0) strTmp = leaf2;
-        rowHigthSum = rowHigthSum + rowSpacing;
-        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"面料："+strTmp+" \n");
+//        String leaf = isNULLS(prodOrder.getLeaf());
+//        String leaf2 = isNULLS(prodOrder.getLeaf1());
+//        String strTmp = "";
+//        if (leaf.length() > 0 && leaf2.length() > 0) strTmp = leaf + " , " + leaf2;
+//        else if (leaf.length() > 0) strTmp = leaf;
+//        else if (leaf2.length() > 0) strTmp = leaf2;
+//        rowHigthSum = rowHigthSum + rowSpacing;
+//        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"面料："+strTmp+" \n");
         rowHigthSum = rowHigthSum + rowSpacing;
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"数量："+df.format(mbr.getNumber())+" \n");
-        tsc.addText(200, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"宽："+isNULLS(prodOrder.getWidth())+" \n");
-        tsc.addText(360, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"高："+isNULLS(prodOrder.getHigh())+" \n");
+//        tsc.addText(200, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"宽："+isNULLS(prodOrder.getWidth())+" \n");
+//        tsc.addText(360, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"高："+isNULLS(prodOrder.getHigh())+" \n");
 //        rowHigthSum = rowHigthSum + rowSpacing;
 //        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"------------------------------------------------- \n");
 

@@ -24,14 +24,13 @@ public class ProdOrder implements Serializable {
 	private Material mtl; // 物料对象
 	private String mtlFnumber; // 物料编码
 	private String mtlFname; // 物料名称
-	private String unitFname; // 单位
+	private String unitFname; // 单位名称
 	private double prodFqty; // 生产数量
 	private int custId; // 客户
 	private String custNumber; // 客户代码
 	private String custName; // 客户名称
-	private int salOrderId; // 销售订单Id
 	private String salOrderNo; // 销售订单号
-	private int salOrderEntryId;//销售订单分录entryId
+
 	/* 对应t_barCodeTable 表中的barcode字段  */
 	private String barcode;
 	/* 对应t_barCodeTable 表中的batchCode字段  */
@@ -40,7 +39,7 @@ public class ProdOrder implements Serializable {
 	private String snCode;
 
 	/*对应k3单据分录号字段*/
-	private int entryId;
+	private Integer entryId;
 	/*对应k3单据体里的生产顺序号*/
 	private String prodSeqNumber;
 	/*k3收货方地址*/
@@ -55,28 +54,45 @@ public class ProdOrder implements Serializable {
 	private String remarks;
 	/*计划开工时间*/
 	private String planStartDate;
-	/*叶片*/
-	private String leaf;
-	/*叶片1*/
-	private String leaf1;
 	/*物料规格*/
 	private String mtlSize;
-	/* 单据分录生码状态查询，0是默认值代表未生码，1代表已生码 */
-	private int createCodeStatus;
-	/*销售订单里的宽，用于打印装箱清单取值*/
-	private String width;
-	/*销售订单里的高，用于打印装箱清单取值*/
-	private String high;
 	/*销售订单销售组织ID*/
-	private int salOrgId;
+	private int saleOrgId;
 	/*销售订单销售组织编码*/
-	private String salOrgNumber;
+	private String saleOrgNumber;
 	/*销售订单销售组织名称*/
-	private String salOrgName;
-	/*物料大类*/
-	private String mtlBigClass;
-	/*销售订单交货方式*/
-	private String deliveryWay;
+	private String saleOrgName;
+
+	/*生产订单分录业务状态*/
+	//生产订单开工状态--1、计划；2、计划确认；3、下达；4、开工；5、完工；6、结案；7、结算
+	private String prodEntryStatus;
+	/*对应销售订单关闭状态*/
+	//销售订单关闭状态--A、正常；B、已关闭
+	private String salCloseStatus;
+	/*对应销售订单分录业务关闭状态*/
+	//销售订单行关闭状态--A、未关闭；B、业务关闭
+	private String salEntryMrpCloseStatus;
+	/*对应销售订单客户电话*/
+	private String custTel;
+	/*对应销售订单发货类别代码
+	 * 1、普通快递
+	 * 2、加价快递
+	 * 3、物流
+	 * 4、送货上门
+	 * */
+	private String deliveryWayNumber;
+	/*对应销售订单发货类别名称*/
+	private String deliveryWayName;
+	/*对应销售订单发货方式代码*/
+	private String deliveryMethodNumber;
+	/*对应销售订单发货方式名称*/
+	private String deliveryMethodName;
+	/*单位代码*/
+	private String unitFnumber;
+	/*k3物流公司代码*/
+	private String deliveryCompanyNumber;
+	/*对应销售订单是否整单发货，0代表非整单发货，1代表整单发货*/
+	private int singleshipment;
 
 
 	private int isCheck; // 新加的是否选中
@@ -241,14 +257,6 @@ public class ProdOrder implements Serializable {
 		this.custName = custName;
 	}
 
-	public int getSalOrderId() {
-		return salOrderId;
-	}
-
-	public void setSalOrderId(int salOrderId) {
-		this.salOrderId = salOrderId;
-	}
-
 	public void setSalOrderNo(String salOrderNo) {
 		this.salOrderNo = salOrderNo;
 	}
@@ -277,11 +285,11 @@ public class ProdOrder implements Serializable {
 		this.snCode = snCode;
 	}
 
-	public int getEntryId() {
+	public Integer getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(int entryId) {
+	public void setEntryId(Integer entryId) {
 		this.entryId = entryId;
 	}
 
@@ -341,22 +349,6 @@ public class ProdOrder implements Serializable {
 		this.planStartDate = planStartDate;
 	}
 
-	public String getLeaf() {
-		return leaf;
-	}
-
-	public void setLeaf(String leaf) {
-		this.leaf = leaf;
-	}
-
-	public String getLeaf1() {
-		return leaf1;
-	}
-
-	public void setLeaf1(String leaf1) {
-		this.leaf1 = leaf1;
-	}
-
 	public String getMtlSize() {
 		return mtlSize;
 	}
@@ -365,76 +357,116 @@ public class ProdOrder implements Serializable {
 		this.mtlSize = mtlSize;
 	}
 
-	public int getCreateCodeStatus() {
-		return createCodeStatus;
+	public int getSaleOrgId() {
+		return saleOrgId;
 	}
 
-	public void setCreateCodeStatus(int createCodeStatus) {
-		this.createCodeStatus = createCodeStatus;
+	public void setSaleOrgId(int saleOrgId) {
+		this.saleOrgId = saleOrgId;
 	}
 
-	public String getWidth() {
-		return width;
+	public String getSaleOrgNumber() {
+		return saleOrgNumber;
 	}
 
-	public void setWidth(String width) {
-		this.width = width;
+	public void setSaleOrgNumber(String saleOrgNumber) {
+		this.saleOrgNumber = saleOrgNumber;
 	}
 
-	public String getHigh() {
-		return high;
+	public String getSaleOrgName() {
+		return saleOrgName;
 	}
 
-	public void setHigh(String high) {
-		this.high = high;
+	public void setSaleOrgName(String saleOrgName) {
+		this.saleOrgName = saleOrgName;
 	}
 
-	public Integer getSalOrderEntryId() {
-		return salOrderEntryId;
+	public String getProdEntryStatus() {
+		return prodEntryStatus;
 	}
 
-	public void setSalOrderEntryId(Integer salOrderEntryId) {
-		this.salOrderEntryId = salOrderEntryId;
+	public void setProdEntryStatus(String prodEntryStatus) {
+		this.prodEntryStatus = prodEntryStatus;
 	}
 
-	public int getSalOrgId() {
-		return salOrgId;
+	public String getSalCloseStatus() {
+		return salCloseStatus;
 	}
 
-	public void setSalOrgId(int salOrgId) {
-		this.salOrgId = salOrgId;
+	public void setSalCloseStatus(String salCloseStatus) {
+		this.salCloseStatus = salCloseStatus;
 	}
 
-	public String getSalOrgNumber() {
-		return salOrgNumber;
+	public String getSalEntryMrpCloseStatus() {
+		return salEntryMrpCloseStatus;
 	}
 
-	public void setSalOrgNumber(String salOrgNumber) {
-		this.salOrgNumber = salOrgNumber;
+	public void setSalEntryMrpCloseStatus(String salEntryMrpCloseStatus) {
+		this.salEntryMrpCloseStatus = salEntryMrpCloseStatus;
 	}
 
-	public String getSalOrgName() {
-		return salOrgName;
+	public String getCustTel() {
+		return custTel;
 	}
 
-	public void setSalOrgName(String salOrgName) {
-		this.salOrgName = salOrgName;
+	public void setCustTel(String custTel) {
+		this.custTel = custTel;
 	}
 
-	public String getMtlBigClass() {
-		return mtlBigClass;
+	public String getDeliveryMethodNumber() {
+		return deliveryMethodNumber;
 	}
 
-	public void setMtlBigClass(String mtlBigClass) {
-		this.mtlBigClass = mtlBigClass;
+	public void setDeliveryMethodNumber(String deliveryMethodNumber) {
+		this.deliveryMethodNumber = deliveryMethodNumber;
 	}
 
-	public String getDeliveryWay() {
-		return deliveryWay;
+	public String getDeliveryMethodName() {
+		return deliveryMethodName;
 	}
 
-	public void setDeliveryWay(String deliveryWay) {
-		this.deliveryWay = deliveryWay;
+	public void setDeliveryMethodName(String deliveryMethodName) {
+		this.deliveryMethodName = deliveryMethodName;
+	}
+
+	public String getDeliveryWayNumber() {
+		return deliveryWayNumber;
+	}
+
+	public void setDeliveryWayNumber(String deliveryWayNumber) {
+		this.deliveryWayNumber = deliveryWayNumber;
+	}
+
+	public String getDeliveryWayName() {
+		return deliveryWayName;
+	}
+
+	public void setDeliveryWayName(String deliveryWayName) {
+		this.deliveryWayName = deliveryWayName;
+	}
+
+	public String getUnitFnumber() {
+		return unitFnumber;
+	}
+
+	public void setUnitFnumber(String unitFnumber) {
+		this.unitFnumber = unitFnumber;
+	}
+
+	public String getDeliveryCompanyNumber() {
+		return deliveryCompanyNumber;
+	}
+
+	public void setDeliveryCompanyNumber(String deliveryCompanyNumber) {
+		this.deliveryCompanyNumber = deliveryCompanyNumber;
+	}
+
+	public int getSingleshipment() {
+		return singleshipment;
+	}
+
+	public void setSingleshipment(int singleshipment) {
+		this.singleshipment = singleshipment;
 	}
 
 	public int getIsCheck() {

@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,14 +33,13 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.util.interfaces.IFragmentKeyeventListener;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.interfaces.IFragmentKeyeventListener;
 
 public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventListener {
 
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.et_code)
     EditText etCode;
     @BindView(R.id.tv_selectType)
@@ -49,15 +50,14 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
     Button btnSmall;
 
     private PrintFragment2 context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 501, NORMAL = 10;
+    private static final int SUCC1 = 200, UNSUCC1 = 501, SETFOCUS = 1;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int caseId = 34; // （34：生产订单）
     private String barcode; // 对应的条码号
     private Activity mContext;
     private PrintMainActivity parent;
-    private BarCodeTable bt;
-    private ProdOrder prodOrder;
-    private int tabFormat = 1;
+    private int tabFormat = 2; // 1：大标签，2：小标签 ，4：生产装箱清单，5：复核装箱清单
+    private int smType = 1; // 扫码类型  1：生产订单号，2：生产顺序号，3：生产装箱清单，4：复核装箱清单
     private Button curBtn;
 
     // 消息处理
@@ -77,7 +77,16 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                 switch (msg.what) {
                     case SUCC1: // 成功
                         String result = (String) msg.obj;
-                        m.parent.setFragmentPrint2(m.tabFormat, result);
+                        if(m.smType == 1 || m.smType == 2) {
+                            m.parent.setFragmentPrint2(m.tabFormat, result);
+                        } else if(m.smType == 3) { // 生产装箱清单
+                            m.tabFormat = 4;
+                            m.parent.setFragmentPrint2B(m.tabFormat, result);
+
+                        } else if(m.smType == 4) { // 复核装箱清单
+                            m.tabFormat = 5;
+                            m.parent.setFragmentPrint2C(m.tabFormat, result);
+                        }
 
                         break;
                     case UNSUCC1: // 数据加载失败！
@@ -85,8 +94,9 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                         Comm.showWarnDialog(m.mContext,str);
 
                         break;
-                    case NORMAL: // 输入框矫正
-                        m.setTexts(m.etCode, m.barcode);
+                    case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
+                        m.setFocusable(m.etGetFocus);
+                        m.setFocusable(m.etCode);
                         break;
                 }
             }
@@ -102,7 +112,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
 
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.ab_print_fragment0, container, false);
+        return inflater.inflate(R.layout.ab_print_fragment2, container, false);
     }
 
     @Override
@@ -114,10 +124,16 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
+    }
+
+    @Override
     public void initView() {
         mContext = getActivity();
         parent = (PrintMainActivity) mContext;
-        curBtn = btnBig;
+        curBtn = btnSmall;
     }
 
     @Override
@@ -173,40 +189,20 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
 
     @Override
     public void setListener() {
-        View.OnKeyListener keyListener = new View.OnKeyListener() {
+        // 扫码区
+        etCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // 按下事件
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (v.getId()) {
-                        case R.id.et_code: // 物料
-                            String code = getValues(etCode).trim();
-                            if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                                if (code.length() == 0) {
-                                    toasts("请扫码条码！");
-                                    return false;
-                                }
-                                if (barcode != null && barcode.length() > 0) {
-                                    if (barcode.equals(code)) {
-                                        barcode = code;
-                                    } else {
-                                        String tmp = code.replaceFirst(barcode, "");
-                                        barcode = tmp.replace("\n", "");
-                                    }
-                                } else {
-                                    barcode = code.replace("\n", "");
-                                }
-                                mHandler.sendEmptyMessageDelayed(NORMAL, 200);
-                                // 执行查询方法
-                                run_print();
-                            }
-                            break;
-                    }
-                }
-                return false;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.length() == 0) return;
+                barcode = s.toString();
+                // 执行查询方法
+                run_print();
             }
-        };
-        etCode.setOnKeyListener(keyListener);
+        });
     }
 
     /**
@@ -221,7 +217,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
             return;
         }
         // 获取自定义布局文件popupwindow_left.xml的视图
-        final View popV = getLayoutInflater().inflate(R.layout.ab_print_fragment0_type, null);
+        final View popV = getLayoutInflater().inflate(R.layout.ab_print_fragment2_type, null);
         // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
         popWindow = new PopupWindow(popV, v.getWidth(), ViewGroup.LayoutParams.WRAP_CONTENT, true);
         // 设置动画效果
@@ -236,17 +232,47 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
             public void onClick(View v) {
                 int tmpId = 0;
                 switch (v.getId()) {
-                    case R.id.btn1:// 物料表
+                    case R.id.btn1: // 生产订单号
+                        smType = 1;
                         tmpId = v.getId();
                         caseId = 34;
+                        btnBig.setVisibility(View.VISIBLE);
+                        btnSmall.setVisibility(View.VISIBLE);
+
+                        break;
+                    case R.id.btn2: // 生产顺序号
+                        smType = 2;
+                        tmpId = v.getId();
+                        caseId = 34;
+                        btnBig.setVisibility(View.VISIBLE);
+                        btnSmall.setVisibility(View.VISIBLE);
+
+                        break;
+                    case R.id.btn3: // 生产装箱清单
+                        smType = 3;
+                        tmpId = v.getId();
+                        caseId = 34;
+                        btnBig.setVisibility(View.GONE);
+                        btnSmall.setVisibility(View.GONE);
+
+                        break;
+                    case R.id.btn4: // 复核装箱清单
+                        smType = 4;
+                        tmpId = v.getId();
+                        caseId = 37;
+                        btnBig.setVisibility(View.GONE);
+                        btnSmall.setVisibility(View.GONE);
 
                         break;
                 }
                 popWindow.dismiss();
-                tvSelectType.setText("打印类型--" + getValues((Button) popV.findViewById(tmpId)));
+                tvSelectType.setText(getValues((Button) popV.findViewById(tmpId)));
             }
         };
         popV.findViewById(R.id.btn1).setOnClickListener(click);
+        popV.findViewById(R.id.btn2).setOnClickListener(click);
+        popV.findViewById(R.id.btn3).setOnClickListener(click);
+        popV.findViewById(R.id.btn4).setOnClickListener(click);
     }
 
     /**
@@ -254,11 +280,36 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
      */
     private void run_print() {
         showLoadDialog("打印连接中...");
-        String mUrl = getURL("bigPrint");
-        // 条码号
+        String mUrl = null;
+
+        String fbillno = "", prodSeqNumber = "", boxBarCode = "", caseId = "";
+        switch (smType) {
+            case 1: // 生产订单号
+                fbillno = barcode;
+                mUrl = getURL("bigPrint");
+                break;
+            case 2: // 生产顺序号
+                prodSeqNumber = barcode;
+                mUrl = getURL("bigPrint");
+                break;
+            case 3: // 生产装箱清单
+                boxBarCode = barcode;
+                caseId = String.valueOf(context.caseId);
+                mUrl = getURL("boxBarCode/findBarcode");
+                break;
+            case 4: // 复核装箱清单
+                boxBarCode = barcode;
+                caseId = String.valueOf(context.caseId);
+                mUrl = getURL("boxBarCode/findBarcode");
+                break;
+        }
         FormBody formBody = new FormBody.Builder()
-//                .add("caseId", String.valueOf(caseId))
-                .add("prodSeqNumber", barcode)
+                .add("fbillno", fbillno) // 1,2
+                .add("prodSeqNumber", prodSeqNumber) // 1,2
+                .add("smType", String.valueOf(smType)) // 1,2
+                .add("barcode", boxBarCode)  // 3,4
+                .add("caseId", caseId)  // 3,4
+                .add("caseId2", caseId)  // 3,4
                 .build();
 
         Request request = new Request.Builder()
@@ -292,7 +343,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
 
     @Override
     public boolean onFragmentKeyEvent(KeyEvent event) {
-        if(event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+        if(!(event.getKeyCode() == 240 || event.getKeyCode() == 241)) {
             return false;
         }
         return true;

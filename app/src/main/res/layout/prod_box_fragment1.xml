@@ -102,7 +102,7 @@
                 android:id="@+id/tv_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="套数：0"
+                android:text="数量：0"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12sp" />
 
@@ -153,82 +153,6 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="长："
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_boxLength"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
-            android:gravity="center"
-            android:text="宽："
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_boxWidth"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
-            android:gravity="center"
-            android:text="高："
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_boxAltitude"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
-            android:gravity="center"
-            android:text="体积："
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_boxVolume"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
@@ -268,28 +192,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:ems="2"
-            android:gravity="center"
-            android:text="生产订单"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <EditText
-            android:id="@+id/et_prodOrderCode"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:hint="请扫描生产订单条码"
-            android:inputType="none"
-            android:paddingLeft="2dp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="3dp"
             android:ems="2"
             android:gravity="center"
             android:text="物料"
@@ -338,7 +240,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="发货单号"
+            android:text="生产单号"
             android:textColor="#000000"
             android:textSize="12sp" />
 
@@ -364,7 +266,7 @@
             android:layout_width="58dp"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="订单数/套数\n装箱数"
+            android:text="订单数\n装箱数"
             android:textColor="#000000"
             android:textSize="@dimen/_10sp" />
 
@@ -424,9 +326,9 @@
             android:background="@drawable/btn_purple2_selector"
             android:gravity="center"
             android:text="封箱"
-            android:visibility="gone"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_print"
@@ -434,11 +336,11 @@
             android:layout_height="match_parent"
             android:background="@drawable/btn_gray2_selector"
             android:ems="2"
-            android:visibility="gone"
             android:gravity="center"
             android:text="打印\n清单"
             android:textColor="@color/c_666666"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

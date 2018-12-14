@@ -49,7 +49,7 @@ import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.model.SecurityCode;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.produce.adapter.Prod_ProdBoxFragment2Adapter;
+import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 
 import static android.app.Activity.RESULT_OK;
@@ -91,7 +91,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
     private Customer customer; // 客户
     private AssistInfo assist; // 辅助资料--发货方式
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Prod_ProdBoxFragment2Adapter mAdapter;
+    private Prod_BoxFragment2Adapter mAdapter;
     private List<MaterialBinningRecord> listMbr = new ArrayList<>();
     private Activity mContext;
     private User user;
@@ -163,7 +163,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
         mContext = getActivity();
         recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mAdapter = new Prod_ProdBoxFragment2Adapter(mContext, listMbr);
+        mAdapter = new Prod_BoxFragment2Adapter(mContext, listMbr);
         recyclerView.setAdapter(mAdapter);
     }
 

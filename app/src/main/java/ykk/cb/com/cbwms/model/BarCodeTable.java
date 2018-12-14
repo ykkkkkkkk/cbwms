@@ -63,7 +63,7 @@ public class BarCodeTable implements Serializable {
 	/*k3对应单据分录的id值*/
 	private int entryId;
 	// 临时用的数据
-	private boolean isLocalCust; // 是否为本地数据
+	private int combineSalOrderId; // 销售订单拼单主表id
 
 	public BarCodeTable() {
 		super();
@@ -186,12 +186,12 @@ public class BarCodeTable implements Serializable {
 		this.entryId = entryId;
 	}
 
-	public boolean getIsLocalCust() {
-		return isLocalCust;
+	public int getCombineSalOrderId() {
+		return combineSalOrderId;
 	}
 
-	public void setIsLocalCust(boolean isLocalCust) {
-		this.isLocalCust = isLocalCust;
+	public void setCombineSalOrderId(int combineSalOrderId) {
+		this.combineSalOrderId = combineSalOrderId;
 	}
 
 }

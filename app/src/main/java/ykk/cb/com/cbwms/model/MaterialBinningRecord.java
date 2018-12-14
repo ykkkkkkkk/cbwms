@@ -40,6 +40,8 @@ public class MaterialBinningRecord implements Serializable {
 	private int customerId;
 	/*客户代码*/
 	private String customerNumber;
+	/*客户代码*/
+	private String customerName;
 	/*客户*/
 	private Customer customer;
 	/**物流方式
@@ -48,6 +50,8 @@ public class MaterialBinningRecord implements Serializable {
 	 * */
 	private int expressType;
 	private String deliveryWay; // 交货方式
+	/*k3收货方地址*/
+	private String receiveAddress;
 	/**装箱业务类型
 	 * 1代表外购入库
 	 * 2代表销售出库
@@ -102,7 +106,6 @@ public class MaterialBinningRecord implements Serializable {
 	// 临时字段
 	private List<String> listBarcode; // 记录每行中扫的条码barcode
 	private String strBarcodes; // 用逗号拼接的条码号
-	private int coveQty;  // 订单套数
 
 	public MaterialBinningRecord() {
 		super();
@@ -348,6 +351,14 @@ public class MaterialBinningRecord implements Serializable {
 		this.customerNumber = customerNumber;
 	}
 
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
 	public int getEntryId() {
 		return entryId;
 	}
@@ -396,12 +407,12 @@ public class MaterialBinningRecord implements Serializable {
 		this.strBarcodes = strBarcodes;
 	}
 
-	public int getCoveQty() {
-		return coveQty;
+	public String getReceiveAddress() {
+		return receiveAddress;
 	}
 
-	public void setCoveQty(int coveQty) {
-		this.coveQty = coveQty;
+	public void setReceiveAddress(String receiveAddress) {
+		this.receiveAddress = receiveAddress;
 	}
 
 }

@@ -26,11 +26,12 @@ public class ProdOrder implements Serializable {
 	private String mtlFname; // 物料名称
 	private String unitFname; // 单位名称
 	private double prodFqty; // 生产数量
+	private double usableFqty; // 可用的数量
 	private int custId; // 客户
 	private String custNumber; // 客户代码
 	private String custName; // 客户名称
 	private String salOrderNo; // 销售订单号
-
+	private int salOrderEntryId;//销售订单分录entryId
 	/* 对应t_barCodeTable 表中的barcode字段  */
 	private String barcode;
 	/* 对应t_barCodeTable 表中的batchCode字段  */
@@ -39,7 +40,7 @@ public class ProdOrder implements Serializable {
 	private String snCode;
 
 	/*对应k3单据分录号字段*/
-	private Integer entryId;
+	private int entryId;
 	/*对应k3单据体里的生产顺序号*/
 	private String prodSeqNumber;
 	/*k3收货方地址*/
@@ -165,6 +166,14 @@ public class ProdOrder implements Serializable {
 		return prodFqty;
 	}
 
+	public double getUsableFqty() {
+		return usableFqty;
+	}
+
+	public void setUsableFqty(double usableFqty) {
+		this.usableFqty = usableFqty;
+	}
+
 	public int getCustId() {
 		return custId;
 	}
@@ -179,6 +188,14 @@ public class ProdOrder implements Serializable {
 
 	public String getSalOrderNo() {
 		return salOrderNo;
+	}
+
+	public int getSalOrderEntryId() {
+		return salOrderEntryId;
+	}
+
+	public void setSalOrderEntryId(int salOrderEntryId) {
+		this.salOrderEntryId = salOrderEntryId;
 	}
 
 	public void setfId(int fId) {
@@ -285,11 +302,11 @@ public class ProdOrder implements Serializable {
 		this.snCode = snCode;
 	}
 
-	public Integer getEntryId() {
+	public int getEntryId() {
 		return entryId;
 	}
 
-	public void setEntryId(Integer entryId) {
+	public void setEntryId(int entryId) {
 		this.entryId = entryId;
 	}
 

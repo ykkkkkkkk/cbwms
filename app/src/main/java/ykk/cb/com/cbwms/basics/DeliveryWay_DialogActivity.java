@@ -140,7 +140,7 @@ public class DeliveryWay_DialogActivity extends BaseDialogActivity {
         showLoadDialog("加载中...");
         String mUrl = getURL("findAssistInfoList");
         FormBody formBody = new FormBody.Builder()
-                .add("categoryName", "交货方式")
+                .add("categoryName", "发货类别")
                 .build();
 
         Request request = new Request.Builder()

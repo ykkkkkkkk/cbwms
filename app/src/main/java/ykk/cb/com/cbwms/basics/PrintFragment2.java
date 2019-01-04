@@ -56,7 +56,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
     private String barcode; // 对应的条码号
     private Activity mContext;
     private PrintMainActivity parent;
-    private int tabFormat = 2; // 1：大标签，2：小标签 ，4：生产装箱清单，5：复核装箱清单
+    private int tabFormat = 1; // 1：大标签，2：小标签 ，4：生产装箱清单，5：复核装箱清单
     private int smType = 1; // 扫码类型  1：生产订单号，2：生产顺序号，3：生产装箱清单，4：复核装箱清单
     private Button curBtn;
 
@@ -91,6 +91,9 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                         break;
                     case UNSUCC1: // 数据加载失败！
                         String str = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(str).length() == 0) {
+                            str = "很抱歉，没有找到数据！";
+                        }
                         Comm.showWarnDialog(m.mContext,str);
 
                         break;

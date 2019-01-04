@@ -637,6 +637,7 @@ public class Allot_PickingListActivity extends BaseActivity {
             pick.setRelationObj(JsonUtil.objectToString(stkEntry));
             pick.setKdAccount(user.getKdAccount());
             pick.setKdAccountPassword(user.getKdAccountPassword());
+
             pickLists.add(pick);
         }
         String mJson = JsonUtil.objectToString(pickLists);

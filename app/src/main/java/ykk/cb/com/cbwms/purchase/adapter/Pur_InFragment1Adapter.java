@@ -57,8 +57,10 @@ public class Pur_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRec
         tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         if(entity.getStockPos() != null) {
             tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
-        } else {
+        } else if(entity.getStock() != null) {
             tv_stockAP.setText(entity.getStock().getfName());
+        } else {
+            tv_stockAP.setText("");
         }
 
         View.OnClickListener click = new View.OnClickListener() {

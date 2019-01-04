@@ -51,26 +51,26 @@ public class Pur_SelOrderAdapter extends BaseArrayRecyclerAdapter<PurOrder> {
             } else {
                 tv_check.setBackgroundResource(R.drawable.check_false);
             }
-            View.OnClickListener click = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    switch (v.getId()){
-                        case R.id.tv_check: // 选中
+//            View.OnClickListener click = new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    switch (v.getId()){
+//                        case R.id.tv_check: // 选中
 //                            if(callBack != null) {
 //                                callBack.onClick(entity, pos);
 //                            }
-                            int check = datas.get(pos).getIsCheck();
-                            if (check == 1) {
-                                datas.get(pos).setIsCheck(0);
-                            } else {
-                                datas.get(pos).setIsCheck(1);
-                            }
-                            notifyDataSetChanged();
-                            break;
-                    }
-                }
-            };
-            tv_check.setOnClickListener(click);
+//                            int check = datas.get(pos).getIsCheck();
+//                            if (check == 1) {
+//                                datas.get(pos).setIsCheck(0);
+//                            } else {
+//                                datas.get(pos).setIsCheck(1);
+//                            }
+//                            notifyDataSetChanged();
+//                            break;
+//                    }
+//                }
+//            };
+//            tv_check.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {

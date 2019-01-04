@@ -58,8 +58,10 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         if(entity.getStockPos() != null) {
             tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
-        } else {
+        } else if(entity.getStock() != null) {
             tv_stockAP.setText(entity.getStock().getfName());
+        } else {
+            tv_stockAP.setText("");
         }
 
         View.OnClickListener click = new View.OnClickListener() {
@@ -69,6 +71,12 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
                     case R.id.tv_nums: // 数量
                         if(callBack != null) {
                             callBack.onClick_num(v, entity, pos);
+                        }
+
+                        break;
+                    case R.id.tv_stockAP: // 选择仓库
+                        if(callBack != null) {
+                            callBack.onClick_selStock(v, entity, pos);
                         }
 
                         break;
@@ -82,6 +90,7 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
             }
         };
         tv_nums.setOnClickListener(click);
+        tv_stockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
     }
 
@@ -91,6 +100,7 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
 
     public interface MyCallBack {
         void onClick_num(View v, ScanningRecord2 entity, int position);
+        void onClick_selStock(View v, ScanningRecord2 entity, int position);
         void onClick_del(ScanningRecord2 entity, int position);
     }
 

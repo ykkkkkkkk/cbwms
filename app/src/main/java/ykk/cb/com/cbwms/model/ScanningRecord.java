@@ -69,6 +69,7 @@ public class ScanningRecord implements Serializable {
     private String strBarcodes; // 用逗号拼接的条码号
     private String kdAccount; // k3 用户的密码
     private String kdAccountPassword; // k3 用户的密码
+    private ScanningRecordTok3 srTok3; // 提交到k3的字段
 
     public int getId() {
         return id;
@@ -410,6 +411,12 @@ public class ScanningRecord implements Serializable {
     }
     public void setLeafNumber2(String leafNumber2) {
         this.leafNumber2 = leafNumber2;
+    }
+    public ScanningRecordTok3 getSrTok3() {
+        return srTok3;
+    }
+    public void setSrTok3(ScanningRecordTok3 srTok3) {
+        this.srTok3 = srTok3;
     }
 
     public ScanningRecord() {

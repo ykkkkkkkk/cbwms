@@ -120,9 +120,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private char binningType = '2'; // 1.单色装，2.混色装
     private User user;
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private String custNumber;
     private int combineSalOrderId; // 拼单id
-    private String salOrderNo; // 销售订单
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
 
     // 消息处理
@@ -144,6 +142,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     case SUCC1: // 扫码成功后进入
                         switch (m.curViewFlag) {
                             case '1': // 箱码扫码   返回
+                                m.reset(false);
                                 m.boxBarCode = JsonUtil.strToObject((String) msg.obj, BoxBarCode.class);
                                 m.etMtlCode.setText("");
                                 m.getBox();
@@ -169,13 +168,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                         Comm.showWarnDialog(m.mContext,"扫描的生产订单物料对应的销售订单，在系统中拼单单号不一致，请检查！");
                                         return;
                                     }
-
                                 } else if(m.singleshipment == 1) { // 整单发货
                                     if(m.singleshipment != singleshipment2) {
                                         Comm.showWarnDialog(m.mContext,"扫描的数据为整单发货，不能扫描非整单的数据，请检查！");
                                         return;
                                     }
-
                                 } else if(m.checkDatas.size() > 0 && m.singleshipment == 0) { // 非整单发货
                                     if(m.singleshipment != singleshipment2) {
                                         Comm.showWarnDialog(m.mContext,"扫描的数据为非整单发货，不能扫描整单的数据，请检查！");
@@ -203,7 +200,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 if(addRow) {
                                     m.getProdOrderAfter(prodOrder, bt);
                                 } else {
-                                    m.getMtlAfter(bt);
+                                    m.getMtlAfter(prodOrder, bt);
                                 }
 
                                 break;
@@ -480,7 +477,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 新装
-                reset();
+                reset(true);
 
                 break;
         }
@@ -489,12 +486,17 @@ public class Prod_BoxFragment1 extends BaseFragment {
     /**
      * 重置
      */
-    private void reset() {
+    private void reset(boolean isClear) {
+        combineSalOrderId = 0;
+        singleshipment = 0;
         btnEnd.setVisibility(View.GONE);
-        etBoxCode.setText("");
+        if(isClear) {
+            etBoxCode.setText("");
+            boxBarCode = null;
+            setFocusable(etBoxCode);
+        }
 //        etProdOrderCode.setText("");
         etMtlCode.setText("");
-        boxBarCode = null;
         prodOrderBarcode = null;
         mtlBarcode = null;
         mtlBarcode_del = null;
@@ -512,7 +514,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
-        setFocusable(etBoxCode);
     }
 
     /**
@@ -842,12 +843,26 @@ public class Prod_BoxFragment1 extends BaseFragment {
         mbr.setModifyUserName(user.getUsername());
         mbr.setSalOrderNo(prodOrder.getSalOrderNo());
         mbr.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
+        // 单据发货类型 （1、非整非拼，2、整单发货，3、拼单）
+        char orderDeliveryType = '0';
+        if(combineSalOrderId > 0) { // 拼单发货
+            orderDeliveryType = '3';
+        } else if(singleshipment == 1) { // 整单发货
+            orderDeliveryType = '1';
+        } else if(singleshipment == 0) { // 非整单发货
+            orderDeliveryType = '2';
+        }
+        mbr.setOrderDeliveryType(orderDeliveryType);
 
         // 物料是否启用序列号
         if(prodOrder.getMtl().getIsSnManager() == 1) {
-            mbr.setListBarcode(new ArrayList<String>());
-        }
-        mbr.setStrBarcodes("");
+            List<String> list = new ArrayList<String>();
+            list.add(bt.getBarcode());
+            mbr.setBatchCode(bt.getBatchCode());
+            mbr.setSnCode(bt.getSnCode());
+            mbr.setListBarcode(list);
+            mbr.setStrBarcodes(bt.getBarcode());
+        } else mbr.setStrBarcodes("");
         mbr.setRelationObj(JsonUtil.objectToString(prodOrder));
 
         checkDatas.add(mbr);
@@ -882,16 +897,15 @@ public class Prod_BoxFragment1 extends BaseFragment {
     /**
      * 得到扫码物料 数据
      */
-    private void getMtlAfter(BarCodeTable bt) {
-        Material tmpMtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+    private void getMtlAfter(ProdOrder prodOrder, BarCodeTable bt) {
+        Material tmpMtl = prodOrder.getMtl();
 
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
-            Material mtl = mbr.getMtl();
             // 如果扫码相同
-            if (bt.getMaterialId() == mtl.getfMaterialId()) {
+            if (bt.getEntryId() == mbr.getEntryId()) {
                 isFlag = true;
 
                 double fqty = 0;
@@ -937,8 +951,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
 //                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && mbr.getNumber() > mbr.getRelationBillFQTY()) {
                     } else if (mbr.getNumber() > mbr.getUsableFqty()) {
-                        // 数量已满
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（装箱数）不能大于（可用数）！");
+                        return;
+                    } else if (mbr.getNumber() == mbr.getUsableFqty()) {
+                        // 数量已满
+                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已装完！");
                         return;
                     }
                 } else {
@@ -948,9 +965,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         return;
                     }
                     if (mbr.getNumber() == mbr.getUsableFqty()) {
-//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已装完！");
-//                        return;
-                        continue;
+                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已装完！");
+                        return;
                     }
                     list.add(bt.getBarcode());
                     // 拼接条码号，用逗号隔开

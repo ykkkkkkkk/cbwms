@@ -30,8 +30,13 @@ public class ProdOrder implements Serializable {
 	private int custId; // 客户
 	private String custNumber; // 客户代码
 	private String custName; // 客户名称
+	private int salOrderId; // 销售订单号
 	private String salOrderNo; // 销售订单号
 	private int salOrderEntryId;//销售订单分录entryId
+	/*销售订单摘要*/
+	private String salRemarks;
+	/*销售订单分录的订单数量*/
+	private double salFqty;
 	/* 对应t_barCodeTable 表中的barcode字段  */
 	private String barcode;
 	/* 对应t_barCodeTable 表中的batchCode字段  */
@@ -94,7 +99,20 @@ public class ProdOrder implements Serializable {
 	private String deliveryCompanyNumber;
 	/*对应销售订单是否整单发货，0代表非整单发货，1代表整单发货*/
 	private int singleshipment;
-
+	/* 单据分录生码状态查询，0是默认值代表未生码，1代表已生码 */
+	private int createCodeStatus;
+	/*销售订单单价*/
+	private double fprice;
+	/*销售订单金额*/
+	private double famount;
+	/*销售员代码*/
+	private String salerNumber;
+	/*销售员名称*/
+	private String salerName;
+	/*销售部门代码*/
+	private String saleDeptNumber;
+	/*销售部门名称*/
+	private String saleDeptName;
 
 	private int isCheck; // 新加的是否选中
 
@@ -484,6 +502,86 @@ public class ProdOrder implements Serializable {
 
 	public void setSingleshipment(int singleshipment) {
 		this.singleshipment = singleshipment;
+	}
+
+	public int getCreateCodeStatus() {
+		return createCodeStatus;
+	}
+
+	public void setCreateCodeStatus(int createCodeStatus) {
+		this.createCodeStatus = createCodeStatus;
+	}
+
+	public double getFprice() {
+		return fprice;
+	}
+
+	public void setFprice(double fprice) {
+		this.fprice = fprice;
+	}
+
+	public double getFamount() {
+		return famount;
+	}
+
+	public void setFamount(double famount) {
+		this.famount = famount;
+	}
+
+	public int getSalOrderId() {
+		return salOrderId;
+	}
+
+	public void setSalOrderId(int salOrderId) {
+		this.salOrderId = salOrderId;
+	}
+
+	public String getSalerNumber() {
+		return salerNumber;
+	}
+
+	public void setSalerNumber(String salerNumber) {
+		this.salerNumber = salerNumber;
+	}
+
+	public String getSalerName() {
+		return salerName;
+	}
+
+	public void setSalerName(String salerName) {
+		this.salerName = salerName;
+	}
+
+	public String getSaleDeptNumber() {
+		return saleDeptNumber;
+	}
+
+	public void setSaleDeptNumber(String saleDeptNumber) {
+		this.saleDeptNumber = saleDeptNumber;
+	}
+
+	public String getSaleDeptName() {
+		return saleDeptName;
+	}
+
+	public void setSaleDeptName(String saleDeptName) {
+		this.saleDeptName = saleDeptName;
+	}
+
+	public String getSalRemarks() {
+		return salRemarks;
+	}
+
+	public void setSalRemarks(String salRemarks) {
+		this.salRemarks = salRemarks;
+	}
+
+	public double getSalFqty() {
+		return salFqty;
+	}
+
+	public void setSalFqty(double salFqty) {
+		this.salFqty = salFqty;
 	}
 
 	public int getIsCheck() {

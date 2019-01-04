@@ -1,17 +1,15 @@
 package ykk.cb.com.cbwms.basics;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -28,52 +26,52 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.adapter.PrintFragment1Adapter;
-import ykk.cb.com.cbwms.comm.BaseFragment;
-import ykk.cb.com.cbwms.model.Material;
+import ykk.cb.com.cbwms.basics.adapter.Express_DialogAdapter;
+import ykk.cb.com.cbwms.comm.BaseDialogActivity;
+import ykk.cb.com.cbwms.model.ExpressCompany;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
-public class PrintFragment1 extends BaseFragment implements XRecyclerView.LoadingListener {
+/**
+ * 选择组织dialog
+ */
+public class Express_DialogActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
 
+    @BindView(R.id.btn_close)
+    Button btnClose;
+    @BindView(R.id.xRecyclerView)
+    XRecyclerView xRecyclerView;
     @BindView(R.id.et_search)
     EditText etSearch;
     @BindView(R.id.btn_search)
     Button btnSearch;
-    @BindView(R.id.tv_print_type)
-    TextView tvPrintType;
-    @BindView(R.id.xRecyclerView)
-    XRecyclerView xRecyclerView;
 
-    private PrintFragment1 context = this;
-    private List<Material> listDatas = new ArrayList<>();
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502;
-    private PrintFragment1Adapter mAdapter;
+    private Express_DialogActivity context = this;
+    private static final int SUCC1 = 200, UNSUCC1 = 501;
+    private List<ExpressCompany> listDatas = new ArrayList<>();
+    private Express_DialogAdapter mAdapter;
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Activity mContext;
-    private PrintMainActivity parent;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
-    private char printType = '1'; // （1：小标签，2：大标签）
 
     // 消息处理
-    final PrintFragment1.MyHandler mHandler = new PrintFragment1.MyHandler(this);
-    private static class MyHandler extends Handler {
-        private final WeakReference<PrintFragment1> mActivity;
+    private MyHandler mHandler = new MyHandler(this);
 
-        public MyHandler(PrintFragment1 activity) {
-            mActivity = new WeakReference<PrintFragment1>(activity);
+    private static class MyHandler extends Handler {
+        private final WeakReference<Express_DialogActivity> mActivity;
+
+        public MyHandler(Express_DialogActivity activity) {
+            mActivity = new WeakReference<Express_DialogActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            PrintFragment1 m = mActivity.get();
+            Express_DialogActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
-
                 switch (msg.what) {
                     case SUCC1: // 成功
-                        String json = (String) msg.obj;
-                        List<Material> list = JsonUtil.strToList2(json, Material.class);
+                        List<ExpressCompany> list = JsonUtil.strToList2((String) msg.obj, ExpressCompany.class);
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
 
@@ -82,8 +80,7 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
                         } else if (m.isLoadMore) {
                             m.xRecyclerView.loadMoreComplete(true);
                         }
-
-                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新禁用
+                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新开启
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
                         break;
@@ -94,59 +91,54 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
                 }
             }
         }
+
     }
 
     @Override
-    public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.ab_print_fragment1, container, false);
+    public int setLayoutResID() {
+        return R.layout.ab_express_dialog;
     }
 
     @Override
     public void initView() {
-        mContext = getActivity();
-        parent = (PrintMainActivity) mContext;
-
-        xRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-        xRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mAdapter = new PrintFragment1Adapter(mContext, listDatas);
+        xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mAdapter = new Express_DialogAdapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
         xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
-        mAdapter.setCallBack(new PrintFragment1Adapter.MyCallBack() {
+        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onPrint(Material e, int pos) {
-            Log.e("onPrint1", e.getfName());
-            // 打印
-//            connectBluetoothBefore();
-            String result = JsonUtil.objectToString(e);
-            parent.setFragmentPrint(0, result);
+            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                ExpressCompany expressCompany = listDatas.get(pos-1);
+                Intent intent = new Intent();
+                intent.putExtra("obj", expressCompany);
+                context.setResult(RESULT_OK, intent);
+                context.finish();
             }
         });
     }
 
     @Override
     public void initData() {
-        // initLoadDatas();
+        initLoadDatas();
     }
 
-    @OnClick({R.id.btn_search, R.id.tv_print_type})
-    public void onViewClicked(View v) {
-        switch (v.getId()) {
-            case R.id.btn_search: // 查询数据
-                initLoadDatas();
+
+    // 监听事件
+    @OnClick({R.id.btn_close, R.id.btn_search})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_close:
+                closeHandler(mHandler);
+                context.finish();
 
                 break;
-            case R.id.tv_print_type: // 打印类型（小标和大标）
-                if(printType == '1') {
-                    tvPrintType.setText("大标打印");
-                    printType = '2';
-                } else {
-                    tvPrintType.setText("小标打印");
-                    printType = '1';
-                }
+            case R.id.btn_search:
+                initLoadDatas();
 
                 break;
         }
@@ -160,12 +152,10 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
 
     /**
      * 通过okhttp加载数据
-     * 仓库信息，库区，库位，部门，物料
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("material/findMaterialListByParam3");
-        String searchName = getValues(etSearch).trim();
+        String mUrl = getURL("expressCompany/findExpressCompanyByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))
@@ -178,10 +168,7 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
                 .post(formBody)
                 .build();
 
-        // step 3：创建 Call 对象
         Call call = okHttpClient.newCall(request);
-
-        //step 4: 开始异步请求
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -199,7 +186,7 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("PrintFragment1 --> onResponse", result);
+                Log.e("Express_DialogActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -221,15 +208,17 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
     }
 
     @Override
-    public void onDestroyView() {
-        closeHandler(mHandler);
-        mBinder.unbind();
-        super.onDestroyView();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            closeHandler(mHandler);
+            context.finish();
+        }
+        return false;
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
+        closeHandler(mHandler);
         super.onDestroy();
-//        mContext.unregisterReceiver(mReceiver);
     }
 }

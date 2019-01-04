@@ -55,11 +55,13 @@ public class Pur_InFragment3Adapter extends BaseArrayRecyclerAdapter<ScanningRec
         tv_batch_seqNo.setText(batchNo+"\n"+seqNo);
         double stockqty = entity.getStockqty();
 //        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+(stockqty > 0 ? df.format(stockqty) : "")+"</font>"));
-        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
+        tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         if(entity.getStockPos() != null) {
             tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
-        } else {
+        } else if(entity.getStock() != null) {
             tv_stockAP.setText(entity.getStock().getfName());
+        } else {
+            tv_stockAP.setText("");
         }
 
         View.OnClickListener click = new View.OnClickListener() {

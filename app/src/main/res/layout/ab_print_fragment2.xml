@@ -56,10 +56,10 @@
             android:id="@+id/btn_big"
             android:layout_width="136dp"
             android:layout_height="match_parent"
-            android:background="@drawable/back_style_gray3"
+            android:background="@drawable/shape_purple1a"
             android:gravity="center"
             android:text="大标签"
-            android:textColor="#666666"
+            android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
         <Button
@@ -67,10 +67,10 @@
             android:layout_width="96dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/_20dp"
-            android:background="@drawable/shape_purple1a"
+            android:background="@drawable/back_style_gray3"
             android:gravity="center"
             android:text="小标签✔"
-            android:textColor="#FFFFFF"
+            android:textColor="#666666"
             android:textSize="16sp" />
 
     </LinearLayout>

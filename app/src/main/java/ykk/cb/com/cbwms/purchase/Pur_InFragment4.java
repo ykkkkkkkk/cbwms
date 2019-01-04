@@ -195,12 +195,15 @@ public class Pur_InFragment4 extends BaseFragment {
                             ShrinkOrder so = list.get(i);
                             for (int j = 0, size = m.checkDatas.size(); j < size; j++) {
                                 ScanningRecord2 sr2 = m.checkDatas.get(j);
+                                Material mtl2 = sr2.getMtl();
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
-                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
+                                    double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
+//                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
+                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
                                         Comm.showWarnDialog(m.mContext,"第" + (j + 1) + "行已入库数“"+so.getFqty()+"”，当前超出数“"+(so.getFqty()+sr2.getStockqty() - sr2.getFqty())+"”！");
                                         return;
-                                    } else if(so.getFqty() == sr2.getFqty()) {
+                                    } else if(so.getFqty() == fqty) {
                                         Comm.showWarnDialog(m.mContext,"第" + (j + 1) + "行已全部入库，不能重复操作！");
                                         return;
                                     }
@@ -376,7 +379,7 @@ public class Pur_InFragment4 extends BaseFragment {
                 return false;
             }
             double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
-            if (sr2.getStockqty() > fqty) {
+            if ((sr2.getFqty() - sr2.getUsableFqty()) > 0 && sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getReceiveMaxScale() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
@@ -565,11 +568,12 @@ public class Pur_InFragment4 extends BaseFragment {
             sr2.setPoFid(purOrder.getfId());
             sr2.setEntryId(purOrder.getEntryId());
             sr2.setPoFbillno(purOrder.getFbillno());
-            sr2.setPoFmustqty(purOrder.getUsableFqty());
 
 //            sr2.setBatchno(p.getBct().getBatchCode());
 //            sr2.setSequenceNo(p.getBct().getSnCode());
-            sr2.setFqty(purOrder.getUsableFqty());
+            sr2.setUsableFqty(purOrder.getUsableFqty());
+            sr2.setFqty(purOrder.getPoFqty());
+            sr2.setPoFmustqty(purOrder.getPoFqty());
             sr2.setStockqty(disEntry.getDisburdenFqty());
 
             // 是否启用物料的序列号,如果启用了，则数量为1
@@ -631,11 +635,12 @@ public class Pur_InFragment4 extends BaseFragment {
             sr2.setPoFid(purReceiveOrder.getfId());
             sr2.setEntryId(purReceiveOrder.getEntryId());
             sr2.setPoFbillno(purReceiveOrder.getFbillno());
-            sr2.setPoFmustqty(purReceiveOrder.getUsableFqty());
 
 //            sr2.setBatchno(p.getBct().getBatchCode());
 //            sr2.setSequenceNo(p.getBct().getSnCode());
-            sr2.setFqty(purReceiveOrder.getUsableFqty());
+            sr2.setUsableFqty(purReceiveOrder.getUsableFqty());
+            sr2.setFqty(purReceiveOrder.getFactreceiveqty());
+            sr2.setPoFmustqty(purReceiveOrder.getFactreceiveqty());
             sr2.setStockqty(disEntry.getDisburdenFqty());
 
             // 是否启用物料的序列号,如果启用了，则数量为1

@@ -114,6 +114,10 @@
         <activity
             android:name=".basics.Staff_DialogActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".basics.Express_DialogActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:theme="@style/dialogStyle" />
 
         <!--  消息模块 -->
         <activity android:name=".entrance.page0.QualityMissionActivity" />
@@ -168,6 +172,9 @@
         <!-- 销售模块 -->
         <activity
             android:name=".sales.Sal_OutActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_OutMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".sales.Sal_SelOrderActivity"

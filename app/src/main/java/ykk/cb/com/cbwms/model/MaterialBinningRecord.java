@@ -100,8 +100,8 @@ public class MaterialBinningRecord implements Serializable {
 	private String salOrderNo;
 	/* 关联的销售订单分录id */
 	private int salOrderNoEntryId;
-	/* 物料大类：成品 */
-	private String mtlBigClass;
+	/* 单据发货类型 （1、非整非拼，2、整单发货，3、拼单） */
+	private char orderDeliveryType;
 
 	// 临时字段
 	private List<String> listBarcode; // 记录每行中扫的条码barcode
@@ -383,12 +383,12 @@ public class MaterialBinningRecord implements Serializable {
 		this.salOrderNoEntryId = salOrderNoEntryId;
 	}
 
-	public String getMtlBigClass() {
-		return mtlBigClass;
+	public char getOrderDeliveryType() {
+		return orderDeliveryType;
 	}
 
-	public void setMtlBigClass(String mtlBigClass) {
-		this.mtlBigClass = mtlBigClass;
+	public void setOrderDeliveryType(char orderDeliveryType) {
+		this.orderDeliveryType = orderDeliveryType;
 	}
 
 	public List<String> getListBarcode() {

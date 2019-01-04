@@ -31,14 +31,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.adapter.Supplier_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.purchase.adapter.Pur_SelOrderAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
@@ -65,6 +64,7 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isload; // 是否为装卸界面进入的
+    private String curSupplierNumber; // 记录第一次选择的供应商id
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -97,7 +97,8 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        m.toasts("抱歉，没有加载到数据！");
+                        String errMsg = JsonUtil.strToString((String) msg.obj);
+                        Comm.showWarnDialog(m.context, errMsg);
 
                         break;
                 }
@@ -126,6 +127,11 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 PurOrder m = listDatas.get(pos-1);
+                if(curSupplierNumber != null && !curSupplierNumber.equals(m.getSupplierNumber())) {
+                    toasts("当前供应商不一致！");
+                    return;
+                }
+                curSupplierNumber = m.getSupplierNumber();
                 int check = m.getIsCheck();
                 if (check == 1) {
                     m.setIsCheck(0);
@@ -149,7 +155,7 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
             isload = bundle.getInt("isload");
             supplier = (Supplier) bundle.getSerializable("supplier");
             sourceList = (List<PurOrder>) bundle.getSerializable("sourceList");
-            tvCustInfo.setText("供应商：" + supplier.getfName());
+            if(supplier != null) tvCustInfo.setText("供应商：" + supplier.getfName());
         }
     }
 
@@ -245,7 +251,8 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillno", getValues(etFbillno).trim())
                 .add("isload", String.valueOf(isload))
-                .add("supplierId", String.valueOf(supplier.getFsupplierid()))
+//                .add("supplierId", supplier != null ? String.valueOf(supplier.getFsupplierid()) : "")
+                .add("supplierNumber", supplier != null ? supplier.getfNumber() : "")
                 .add("isDefaultStock", "1") // 查询默认仓库和库位
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
@@ -268,14 +275,15 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
+                LogUtil.e("Pur_OrderActivity --> onResponse", result);
                 if(!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC1);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("Pur_OrderActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -303,7 +311,7 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
 //            case SEL_CUST: //查询供应商	返回
 //                if (resultCode == RESULT_OK) {
 //                    supplier = data.getParcelableExtra("obj");
-//                    Log.e("onActivityResult --> SEL_CUST", supplier.getFname());
+//                    LogUtil.e("onActivityResult --> SEL_CUST", supplier.getFname());
 //                    if (supplier != null) {
 //                        setTexts(etCustSel, supplier.getFname());
 //                    }

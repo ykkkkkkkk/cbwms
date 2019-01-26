@@ -309,7 +309,7 @@ public class Sal_OutMainActivity extends BaseActivity {
 //        String custName = "", deliveryCompanyName = "", fDate = "";
 //        if(caseId == 34) {
 //            ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(), ProdOrder.class);
-//            custName = isNULLS(prodOrder.getCustName());
+//            custName = isNULLS(prodOrder.getCombineSalCustName());
 //            deliveryCompanyName = isNULLS(prodOrder.getDeliveryCompanyName());
 //            fDate = isNULLS(prodOrder.getProdFdate());
 //            if(fDate.length() > 6) {
@@ -317,7 +317,7 @@ public class Sal_OutMainActivity extends BaseActivity {
 //            }
 //        } else if(caseId == 37) {
 //            DeliOrder deliOrder = JsonUtil.stringToObject(mbr.getRelationObj(), DeliOrder.class);
-//            custName = isNULLS(deliOrder.getCustName());
+//            custName = isNULLS(deliOrder.getCombineSalCustName());
 //            deliveryCompanyName = isNULLS(deliOrder.getDeliveryCompanyName());
 //            fDate = isNULLS(deliOrder.getDeliDate());
 //            if(fDate.length() > 6) {

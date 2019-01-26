@@ -77,12 +77,6 @@ public class StevedoreActivity extends BaseActivity {
     View viewRadio2;
     @BindView(R.id.tv_supplierSel)
     TextView tvSupplierSel;
-    @BindView(R.id.et_stock)
-    EditText etStock;
-    @BindView(R.id.et_stockPos)
-    EditText etStockPos;
-    @BindView(R.id.btn_stockPos)
-    Button btnStockPos;
     @BindView(R.id.tv_sourceNo)
     TextView tvSourceNo;
     @BindView(R.id.recyclerView)
@@ -95,9 +89,9 @@ public class StevedoreActivity extends BaseActivity {
     TextView tvStevedoreMan;
 
     private StevedoreActivity context = this;
-    private static final int SEL_ORDER = 9, SEL_ORDER2 = 10, SEL_SUPPLIER = 11, SEL_STOCK = 12, SEL_STOCKP = 13, SEL_ORG = 14, SEL_ORG2 = 15, SEL_STOCK2 = 16, SEL_STOCKP2 = 17, SEL_STAFF = 18;
+    private static final int SEL_ORDER = 9, SEL_ORDER2 = 10, SEL_SUPPLIER = 11, SEL_ORG = 12, SEL_ORG2 = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502;
-    private static final int NUM_RESULT = 50, RESET = 60;
+    private static final int NUM_RESULT = 50;
     private Supplier supplier; // 供应商
     private Stock stock, stock2; // 仓库
     private StockPosition stockP, stockP2; // 库位
@@ -151,32 +145,18 @@ public class StevedoreActivity extends BaseActivity {
                             case '1': // 仓库
                                 bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
                                 m.stock = JsonUtil.stringToObject(bt.getRelationObj(), Stock.class);
-                                m.getStockAfter();
 
                                 break;
                             case '2': // 库位
                                 bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
                                 m.stockP = JsonUtil.stringToObject(bt.getRelationObj(), StockPosition.class);
-                                m.getStockPAfter();
 
                                 break;
                         }
 
                         break;
                     case UNSUCC2:
-                        m.mHandler.sendEmptyMessageDelayed(RESET, 200);
                         Comm.showWarnDialog(m.context,"很抱歉，没能找到数据！");
-
-                        break;
-                    case RESET: // 没有得到数据，就把回车的去掉，恢复正常数据
-                        switch (m.curViewFlag) {
-                            case '1': // 仓库
-                                m.setTexts(m.etStock, m.stockBarcode);
-                                break;
-                            case '2': // 库位
-                                m.setTexts(m.etStockPos, m.stockPBarcode);
-                                break;
-                        }
 
                         break;
                     case SUCC3: // 判断是否存在返回
@@ -245,13 +225,11 @@ public class StevedoreActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        hideSoftInputMode(etStock);
-        hideSoftInputMode(etStockPos);
         curRadio = viewRadio2;
         getUserInfo();
     }
 
-    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo,R.id.btn_stock, R.id.btn_stockPos,
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo,
             R.id.btn_save, R.id.btn_clone, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_stevedoreMan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -281,9 +259,6 @@ public class StevedoreActivity extends BaseActivity {
 
                 break;
             case R.id.tv_sourceNo: // 选择来源单号
-                if (!smBefore('0')) {
-                    return;
-                }
                 bundle = new Bundle();
                 bundle.putInt("isload", 1); // 是否为装卸页面跳转的
                 bundle.putSerializable("supplier", supplier);
@@ -298,22 +273,6 @@ public class StevedoreActivity extends BaseActivity {
 
                         break;
                 }
-
-                break;
-            case R.id.btn_stock: // 选择仓库
-                isStockLong = false;
-                showForResult(Stock_DialogActivity.class, SEL_STOCK, null);
-
-                break;
-            case R.id.btn_stockPos: // 选择库位
-                if (stock == null) {
-                    Comm.showWarnDialog(context,"请先选择仓库！");
-                    return;
-                }
-                bundle = new Bundle();
-//                bundle.putInt("areaId", stockA.getId());
-                bundle.putInt("stockId", stock.getfStockid());
-                showForResult(StockPos_DialogActivity.class, SEL_STOCKP, bundle);
 
                 break;
             case R.id.tv_receiveOrg: // 收料组织
@@ -375,25 +334,6 @@ public class StevedoreActivity extends BaseActivity {
     }
 
     /**
-     * 选择来源单之前的判断
-     */
-    private boolean smBefore(char flag) {
-        if (supplier == null) {
-            Comm.showWarnDialog(context,"请选择供应商！");
-            return false;
-        }
-//        if (flag == '1' && stock == null) {
-//            Comm.showWarnDialog(context,"请选择仓库！");
-//            return false;
-//        }
-//        if (flag == '1' && stock.isStorageLocation() && stockP == null) {
-//            Comm.showWarnDialog(context,"请选择库位！");
-//            return false;
-//        }
-        return true;
-    }
-
-    /**
      * 选择保存之前的判断
      */
     private boolean saveBefore() {
@@ -413,10 +353,10 @@ public class StevedoreActivity extends BaseActivity {
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             DisburdenMissionEntry dis = checkDatas.get(i);
-            if(dis.getEntryStock() == null) {
-                Comm.showWarnDialog(context,"第"+(i+1)+"行请选择仓库！");
-                return false;
-            }
+//            if(dis.getEntryStock() == null) {
+//                Comm.showWarnDialog(context,"第"+(i+1)+"行请选择仓库！");
+//                return false;
+//            }
             if (dis.getDisburdenFqty() == 0) {
                 Comm.showWarnDialog(context,"第" + (i + 1) + "行（装卸数）必须大于0！");
                 return false;
@@ -443,73 +383,9 @@ public class StevedoreActivity extends BaseActivity {
         return true;
     }
 
-    @OnFocusChange({R.id.et_stock, R.id.et_stockPos})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
-    }
-
-    @OnLongClick({R.id.btn_stock})
-    public boolean onViewLongClicked(View view) {
-        Bundle bundle = null;
-        switch (view.getId()) {
-            case R.id.btn_stock: // 长按选择仓库
-                isStockLong = true;
-                showForResult(Stock_DialogActivity.class, SEL_STOCK, null);
-
-                break;
-        }
-        return true;
-    }
-
     @Override
     public void setListener() {
-        View.OnKeyListener keyListener = new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // 按下事件
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (v.getId()) {
-                        case R.id.et_stock: // 仓库
-                            String whName = getValues(etStock).trim();
-                            if (stockBarcode != null && stockBarcode.length() > 0) {
-                                if(stockBarcode.equals(whName)) {
-                                    stockBarcode = whName;
-                                } else {
-                                    String tmp = whName.replaceFirst(stockBarcode, "");
-                                    stockBarcode = tmp.replace("\n", "");
-                                }
-                            } else {
-                                stockBarcode = whName.replace("\n", "");
-                            }
-                            curViewFlag = '1';
-                            // 执行查询方法
-                            run_smGetDatas();
 
-                            break;
-                        case R.id.et_stockPos: // 库位
-                            String whPos = getValues(etStockPos).trim();
-                            if (stockPBarcode != null && stockPBarcode.length() > 0) {
-                                if(stockBarcode.equals(whPos)) {
-                                    stockPBarcode = whPos;
-                                } else {
-                                    String tmp = whPos.replaceFirst(stockPBarcode, "");
-                                    stockPBarcode = tmp.replace("\n", "");
-                                }
-                            } else {
-                                stockPBarcode = whPos.replace("\n", "");
-                            }
-                            curViewFlag = '2';
-                            // 执行查询方法
-                            run_smGetDatas();
-
-                            break;
-                    }
-                }
-                return false;
-            }
-        };
-        etStock.setOnKeyListener(keyListener);
-        etStockPos.setOnKeyListener(keyListener);
     }
 
     /**
@@ -537,15 +413,12 @@ public class StevedoreActivity extends BaseActivity {
         mAdapter.notifyDataSetChanged();
         reset();
         tvSupplierSel.setText("");
-        etStock.setText("");
-        etStockPos.setText("");
         supplier = null;
         stock = null;
         stockP = null;
         curViewFlag = '1';
         stockBarcode = null;
         stockPBarcode = null;
-        setFocusable(etStock);
     }
 
     @Override
@@ -581,32 +454,6 @@ public class StevedoreActivity extends BaseActivity {
                         sourceList.addAll(list);
                         getSourceAfter2(list);
                     }
-                }
-
-                break;
-            case SEL_STOCK: //查询仓库	返回
-                if (resultCode == Activity.RESULT_OK) {
-                    Stock stock = (Stock) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_STOCK", stock.getfName());
-                    if (this.stock != null && stock != null && stock.getId() == this.stock.getId()) {
-                        // 长按了，并且启用了库区管理
-                        if (isStockLong && stock.isStorageLocation()) {
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("stockId", stock.getfStockid());
-                            showForResult(StockPos_DialogActivity.class, SEL_STOCKP, bundle);
-                        }
-                        return;
-                    }
-                    this.stock = stock;
-                    getStockAfter();
-                }
-
-                break;
-            case SEL_STOCKP: //查询库位	返回
-                if (resultCode == Activity.RESULT_OK) {
-                    stockP = (StockPosition) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_STOCKP", stockP.getFname());
-                    getStockPAfter();
                 }
 
                 break;
@@ -681,6 +528,7 @@ public class StevedoreActivity extends BaseActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     List<Staff> list = (List<Staff>) data.getSerializableExtra("staffList");
                     StringBuilder sb = new StringBuilder();
+                    disPersonList.clear();
                     for(int i=0, size=list.size(); i<size; i++) {
                         Staff staff = list.get(i);
                         if((i+1) == size) sb.append((i+1)+"."+staff.getName());
@@ -703,33 +551,37 @@ public class StevedoreActivity extends BaseActivity {
      */
     private void getSourceAfter(List<PurOrder> list) {
         for (int i = 0, size = list.size(); i < size; i++) {
-            PurOrder p = list.get(i);
+            PurOrder purOrder = list.get(i);
             DisburdenMissionEntry disEntry = new DisburdenMissionEntry();
             disEntry.setDmBillId(0);
-            disEntry.setRelationBillId(p.getfId());
-            disEntry.setRelationBillEntryId(p.getEntryId());
-            disEntry.setMaterialId(p.getMtlId());
-            disEntry.setMaterialNumber(p.getMtlFnumber());
-            disEntry.setMaterialName(p.getMtlFname());
-            disEntry.setDisburdenFqty(p.getUsableFqty());
-            disEntry.setUnitName(p.getUnitFname());
+            disEntry.setRelationBillId(purOrder.getfId());
+            disEntry.setRelationBillEntryId(purOrder.getEntryId());
+            disEntry.setMaterialId(purOrder.getMtlId());
+            disEntry.setMaterialNumber(purOrder.getMtlFnumber());
+            disEntry.setMaterialName(purOrder.getMtlFname());
+            disEntry.setDisburdenFqty(purOrder.getUsableFqty());
+            disEntry.setUnitName(purOrder.getUnitFname());
             disEntry.setEntryStockId(0);
             disEntry.setEntryStockPositionId(0);
 
-            disEntry.setRelationObj(p);
+            disEntry.setRelationObj(purOrder);
 
-            if (stock != null) {
-                disEntry.setEntryStock(stock);
-            }
-            if (stockP != null) {
-                disEntry.setEntryStockPosition(stockP);
-            }
+            Material mtl = purOrder.getMtl();
+            Stock stock = mtl.getStock();
+            StockPosition stockPos = mtl.getStockPos();
+            if(stock != null) disEntry.setEntryStock(stock);
+            if (stockPos != null) disEntry.setEntryStockPosition(stockPos);
+
+            if(supplier == null) supplier = new Supplier();
+            supplier.setFsupplierid(purOrder.getSupplierId());
+            supplier.setfNumber(purOrder.getSupplierNumber());
+            supplier.setfName(purOrder.getSupplierName());
 
             // 采购组织
             if(purOrg == null) purOrg = new Organization();
-            purOrg.setFpkId(p.getPurOrgId());
-            purOrg.setNumber(p.getPurOrgNumber());
-            purOrg.setName(p.getPurOrgName());
+            purOrg.setFpkId(purOrder.getPurOrgId());
+            purOrg.setNumber(purOrder.getPurOrgNumber());
+            purOrg.setName(purOrder.getPurOrgName());
 
             checkDatas.add(disEntry);
         }
@@ -737,6 +589,7 @@ public class StevedoreActivity extends BaseActivity {
         tvReceiveOrg.setText("");
         setEnables(tvSupplierSel, R.drawable.back_style_gray3,false);
         setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
+        tvSupplierSel.setText(supplier.getfName());
         mAdapter.notifyDataSetChanged();
     }
 
@@ -745,46 +598,51 @@ public class StevedoreActivity extends BaseActivity {
      */
     private void getSourceAfter2(List<PurReceiveOrder> list) {
         for (int i = 0, size = list.size(); i < size; i++) {
-            PurReceiveOrder p = list.get(i);
+            PurReceiveOrder recOrder = list.get(i);
             DisburdenMissionEntry disEntry = new DisburdenMissionEntry();
             disEntry.setDmBillId(0);
-            disEntry.setRelationBillId(p.getfId());
-            disEntry.setRelationBillEntryId(p.getEntryId());
-            disEntry.setMaterialId(p.getMtlId());
-            disEntry.setMaterialNumber(p.getMtlFnumber());
-            disEntry.setMaterialName(p.getMtlFname());
-            disEntry.setDisburdenFqty(p.getUsableFqty());
-            disEntry.setUnitName(p.getUnitFname());
+            disEntry.setRelationBillId(recOrder.getfId());
+            disEntry.setRelationBillEntryId(recOrder.getEntryId());
+            disEntry.setMaterialId(recOrder.getMtlId());
+            disEntry.setMaterialNumber(recOrder.getMtlFnumber());
+            disEntry.setMaterialName(recOrder.getMtlFname());
+            disEntry.setDisburdenFqty(recOrder.getUsableFqty());
+            disEntry.setUnitName(recOrder.getUnitFname());
             disEntry.setEntryStockId(0);
             disEntry.setEntryStockPositionId(0);
-            disEntry.setRelationFqty(p.getUsableFqty());
+            disEntry.setRelationFqty(recOrder.getUsableFqty());
 
-            disEntry.setRelationObj(p);
+            disEntry.setRelationObj(recOrder);
 
-            if (stock != null) {
-                disEntry.setEntryStock(stock);
-            }
-            if (stockP != null) {
-                disEntry.setEntryStockPosition(stockP);
-            }
+            Material mtl = recOrder.getMtl();
+            Stock stock = mtl.getStock();
+            StockPosition stockPos = mtl.getStockPos();
+            if(stock != null) disEntry.setEntryStock(stock);
+            if (stockPos != null) disEntry.setEntryStockPosition(stockPos);
+
+            if(supplier == null) supplier = new Supplier();
+            supplier.setFsupplierid(recOrder.getSupplierId());
+            supplier.setfNumber(recOrder.getSupplierNumber());
+            supplier.setfName(recOrder.getSupplierName());
 
             // 收料组织
             if(receiveOrg == null) receiveOrg = new Organization();
-            receiveOrg.setFpkId(p.getRecOrgId());
-            receiveOrg.setNumber(p.getRecOrgNumber());
-            receiveOrg.setName(p.getRecOrgName());
+            receiveOrg.setFpkId(recOrder.getRecOrgId());
+            receiveOrg.setNumber(recOrder.getRecOrgNumber());
+            receiveOrg.setName(recOrder.getRecOrgName());
 
             // 采购组织
             if(purOrg == null) purOrg = new Organization();
-            purOrg.setFpkId(p.getPurOrgId());
-            purOrg.setNumber(p.getPurOrgNumber());
-            purOrg.setName(p.getPurOrgName());
+            purOrg.setFpkId(recOrder.getPurOrgId());
+            purOrg.setNumber(recOrder.getPurOrgNumber());
+            purOrg.setName(recOrder.getPurOrgName());
 
             checkDatas.add(disEntry);
         }
 
         tvReceiveOrg.setText(receiveOrg.getName());
         tvPurOrg.setText(purOrg.getName());
+        tvSupplierSel.setText(supplier.getfName());
         getBarCodeTableAfterEnable(false);
         mAdapter.notifyDataSetChanged();
     }
@@ -806,60 +664,6 @@ public class StevedoreActivity extends BaseActivity {
             setEnables(tvSupplierSel, R.drawable.back_style_gray3,false);
             setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
             setEnables(tvPurOrg, R.drawable.back_style_gray3, false);
-        }
-    }
-
-    /**
-     * 选择（仓库）返回的值
-     */
-    private void getStockAfter() {
-        if (stock != null) {
-            setTexts(etStock, stock.getfName());
-            stockBarcode = stock.getfName();
-            stockP = null;
-            etStockPos.setText("");
-            // 启用库位
-            if (stock.isStorageLocation()) {
-                setEnables(etStockPos, R.drawable.back_style_blue4, true);
-                setEnables(btnStockPos, R.drawable.btn_blue3_selector, true);
-            } else {
-                stockP = null;
-                etStockPos.setText("");
-                setEnables(etStockPos, R.drawable.back_style_gray5, false);
-                setEnables(btnStockPos, R.drawable.back_style_gray6, false);
-            }
-            // 长按了，并且启用了库位管理
-            if (isStockLong && stock.isStorageLocation()) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("stockId", stock.getfStockid());
-                showForResult(StockPos_DialogActivity.class, SEL_STOCKP, bundle);
-            } else {
-                for(int i=0, size=checkDatas.size(); i<size; i++) {
-                    DisburdenMissionEntry disEntry = checkDatas.get(i);
-                    disEntry.setEntryStockId(stock.getfStockid());
-                    disEntry.setEntryStock(stock);
-                }
-                mAdapter.notifyDataSetChanged();
-            }
-        }
-    }
-
-    /**
-     * 选择（库位）返回的值
-     */
-    private void getStockPAfter() {
-        if (stockP != null) {
-            setTexts(etStockPos, stockP.getFnumber());
-            stockPBarcode = stockP.getFnumber();
-
-            for(int i=0, size=checkDatas.size(); i<size; i++) {
-                DisburdenMissionEntry disEntry = checkDatas.get(curPos);
-                disEntry.setEntryStockId(stock.getfStockid());
-                disEntry.setEntryStockPositionId(stockP.getId());
-                disEntry.setEntryStock(stock);
-                disEntry.setEntryStockPosition(stockP);
-            }
-            mAdapter.notifyDataSetChanged();
         }
     }
 

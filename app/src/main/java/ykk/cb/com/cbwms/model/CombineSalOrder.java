@@ -11,9 +11,7 @@ public class CombineSalOrder {
 	private String billNumber;//wms 单据号
 	private String createDate;//拼单创建日期
 	private String createrName;//制单人
-	private int custId; // 客户Id,
-	private String custNumber; // 客户代码,
-	private String custName; // 客户,
+	private String combineSalCustName; // 拼单客户名称（去掉订单里客户名称的最后一位）
 	private String deliveryWay; // 发货方式
 	/*收货地址*/
 	private String receiveAddress;
@@ -54,28 +52,12 @@ public class CombineSalOrder {
 		this.createrName = createrName;
 	}
 
-	public int getCustId() {
-		return custId;
+	public String getCombineSalCustName() {
+		return combineSalCustName;
 	}
 
-	public void setCustId(int custId) {
-		this.custId = custId;
-	}
-
-	public String getCustNumber() {
-		return custNumber;
-	}
-
-	public void setCustNumber(String custNumber) {
-		this.custNumber = custNumber;
-	}
-
-	public String getCustName() {
-		return custName;
-	}
-
-	public void setCustName(String custName) {
-		this.custName = custName;
+	public void setCombineSalCustName(String combineSalCustName) {
+		this.combineSalCustName = combineSalCustName;
 	}
 
 	public String getDeliveryWay() {
@@ -92,13 +74,6 @@ public class CombineSalOrder {
 
 	public void setReceiveAddress(String receiveAddress) {
 		this.receiveAddress = receiveAddress;
-	}
-
-	@Override
-	public String toString() {
-		return "CombineSalOrder [id=" + id + ", billNumber=" + billNumber + ", createDate=" + createDate
-				+ ", createrName=" + createrName + ", custId=" + custId + ", custNumber=" + custNumber + ", custName="
-				+ custName + ", deliveryWay=" + deliveryWay + ", receiveAddress=" + receiveAddress + "]";
 	}
 
 }

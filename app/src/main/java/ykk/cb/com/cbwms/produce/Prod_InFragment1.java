@@ -136,6 +136,7 @@ public class Prod_InFragment1 extends BaseFragment {
             if (m != null) {
                 m.hideLoadDialog();
 
+                String errMsg = null;
                 switch (msg.what) {
                     case SUCC1:
                         m.k3Number = JsonUtil.strToString((String) msg.obj);
@@ -166,7 +167,7 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        String errMsg = JsonUtil.strToString((String)msg.obj);
+                        errMsg = JsonUtil.strToString((String)msg.obj);
                         Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
@@ -220,7 +221,9 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC2:
-                        Comm.showWarnDialog(m.mContext,"很抱歉，没能找到数据！");
+                        errMsg = JsonUtil.strToString((String)msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！";
+                        Comm.showWarnDialog(m.mContext,errMsg);
 
                         break;
                     case SUCC3: // 判断是否存在返回
@@ -280,8 +283,8 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC4:
-                        String errMsg2 = JsonUtil.strToString((String) msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg2);
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
                     case SUCC5: // 更新单据状态   成功
@@ -513,7 +516,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）必须大于0！");
                 return false;
             }
-            if (prodEntryStatus == 4 && sr2.getStockqty() > sr2.getFqty()) {
+            if (prodEntryStatus == 4 && sr2.getStockqty() > sr2.getUsableFqty()) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）！");
                 return false;
             }
@@ -537,7 +540,7 @@ public class Prod_InFragment1 extends BaseFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-                curViewFlag = '3';
+                curViewFlag = '1';
                 mtlBarcode = s.toString();
                 // 执行查询方法
                 run_smGetDatas();
@@ -935,6 +938,7 @@ public class Prod_InFragment1 extends BaseFragment {
             sr2.setDepartmentFnumber(department.getDepartmentNumber());
         }
         sr2.setFqty(prodOrder.getProdFqty());
+        sr2.setUsableFqty(prodOrder.getUsableFqty());
 
         double fqty = 1;
         // 计量单位数量
@@ -1005,7 +1009,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 // 未启用序列号
                 if (tmpMtl.getIsSnManager() == 0) {
                     // 生产数大于装箱数
-                    if (mbr.getFqty() > mbr.getStockqty()) {
+                    if (mbr.getUsableFqty() > mbr.getStockqty()) {
                         // 如果扫的是物料包装条码，就显示个数
                         double number = 0;
                         if(bt != null) number = bt.getMaterialCalculateNumber();
@@ -1029,10 +1033,10 @@ public class Prod_InFragment1 extends BaseFragment {
 //                        }
 
 //                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && mbr.getNumber() > mbr.getRelationBillFQTY()) {
-                    } else if (mbr.getStockqty() > mbr.getFqty()) {
+                    } else if (mbr.getStockqty() > mbr.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实收数）不能大于（应收数）！");
                         return;
-                    } else if(mbr.getStockqty() == mbr.getFqty()) {
+                    } else if(mbr.getStockqty() == mbr.getUsableFqty()) {
                         // 数量已满
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
                         return;
@@ -1043,7 +1047,7 @@ public class Prod_InFragment1 extends BaseFragment {
                         Comm.showWarnDialog(mContext,"该物料条码已在装箱行中，请扫描未使用过的条码！");
                         return;
                     }
-                    if (mbr.getStockqty() == mbr.getFqty()) {
+                    if (mbr.getStockqty() == mbr.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
                         return;
                     }
@@ -1231,7 +1235,8 @@ public class Prod_InFragment1 extends BaseFragment {
                 String result = body.string();
                 LogUtil.e("run_smGetDatas --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC2);
+                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC2, result);

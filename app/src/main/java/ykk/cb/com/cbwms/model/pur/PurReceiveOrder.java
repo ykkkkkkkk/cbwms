@@ -49,7 +49,8 @@ public class PurReceiveOrder implements Serializable {
 	private String unitFnumber; // 单位代码
 	private String unitFname; // 单位
 	private double factreceiveqty; // 送料数量
-	private double finstockbaseqty; // 入库数量
+	private double finstockbaseqty; // 入库数量（审核后）
+	private double finstockjoinbaseqty; // 已经入库的数量（非审核后）
 	private double usableFqty; // 可用数量
 	private int stockId; // 仓库ID
 	private String stockNumber; // 仓库代码
@@ -370,5 +371,11 @@ public class PurReceiveOrder implements Serializable {
 	}
 	public void setFamount(double famount) {
 		this.famount = famount;
+	}
+	public double getFinstockjoinbaseqty() {
+		return finstockjoinbaseqty;
+	}
+	public void setFinstockjoinbaseqty(double finstockjoinbaseqty) {
+		this.finstockjoinbaseqty = finstockjoinbaseqty;
 	}
 }

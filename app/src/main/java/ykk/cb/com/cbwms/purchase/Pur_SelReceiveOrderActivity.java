@@ -100,8 +100,16 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
 
                         break;
                     case UNSUCC1: // 数据加载失败！
+                        m.xRecyclerView.loadMoreComplete(false);
                         String errMsg = JsonUtil.strToString((String) msg.obj);
-                        Comm.showWarnDialog(m.context, errMsg);
+                        if(m.listDatas != null && m.listDatas.size() > 0) {
+                            if (m.isNULLS(errMsg).length() == 0)
+                                errMsg = "数据已经到底了，不能往下查了！";
+                            else errMsg = "服务器超市，请重试！";
+                        } else {
+                            if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器超市，请重试！";
+                        }
+                        m.toasts(errMsg);
 
                         break;
                 }
@@ -140,6 +148,17 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
                     m.setIsCheck(0);
                 } else {
                     m.setIsCheck(1);
+                }
+                boolean isBool = false;
+                for(int i=0; i<listDatas.size(); i++) {
+                    PurReceiveOrder receiveOrder = listDatas.get(i);
+                    if(receiveOrder.getIsCheck() == 1) {
+                        isBool = true;
+                        break;
+                    }
+                }
+                if(!isBool) {
+                    curSupplierNumber = null;
                 }
                 mAdapter.notifyDataSetChanged();
             }
@@ -228,13 +247,32 @@ public class Pur_SelReceiveOrderActivity extends BaseActivity implements XRecycl
         if (isChecked) {
             for (int i = 0, size = listDatas.size(); i < size; i++) {
                 PurReceiveOrder p = listDatas.get(i);
+                if(curSupplierNumber != null && !curSupplierNumber.equals(p.getSupplierNumber())) {
+                    continue;
+                }
+                curSupplierNumber = p.getSupplierNumber();
                 p.setIsCheck(1);
             }
         } else {
             for (int i = 0, size = listDatas.size(); i < size; i++) {
                 PurReceiveOrder p = listDatas.get(i);
+                if(curSupplierNumber != null && !curSupplierNumber.equals(p.getSupplierNumber())) {
+                    continue;
+                }
+                curSupplierNumber = p.getSupplierNumber();
                 p.setIsCheck(0);
             }
+        }
+        boolean isBool = false;
+        for(int i=0; i<listDatas.size(); i++) {
+            PurReceiveOrder receiveOrder = listDatas.get(i);
+            if(receiveOrder.getIsCheck() == 1) {
+                isBool = true;
+                break;
+            }
+        }
+        if(!isBool) {
+            curSupplierNumber = null;
         }
         mAdapter.notifyDataSetChanged();
     }

@@ -24,6 +24,12 @@ public class CombineSalOrderEntry {
 	private double salFcanoutqty; // 可出数量
 	/*拼单单据分录状态，1代表新增、2代表已发货、3代表关闭(同一个单据中进行发货操作的分录状态更新为2，未进行发货操作的分录状态则更新为3)*/
 	private int status;
+	/*订单客户id*/
+	private Integer custId;
+	/*订单客户名称*/
+	private String custName;
+	/*订单客户代码*/
+	private String custNumber;
 
 	public CombineSalOrderEntry() {
 		super();
@@ -157,13 +163,28 @@ public class CombineSalOrderEntry {
 		this.status = status;
 	}
 
-	@Override
-	public String toString() {
-		return "CombineSalOrderEntry [id=" + id + ", billId=" + billId + ", combineSalOrder=" + combineSalOrder
-				+ ", fId=" + fId + ", entryId=" + entryId + ", fbillno=" + fbillno + ", fbillType=" + fbillType
-				+ ", salDate=" + salDate + ", mtlId=" + mtlId + ", mtlFnumber=" + mtlFnumber + ", mtlFname=" + mtlFname
-				+ ", mtlUnitName=" + mtlUnitName + ", salFqty=" + salFqty + ", salFstockoutqty=" + salFstockoutqty
-				+ ", salFcanoutqty=" + salFcanoutqty + ", status=" + status + "]";
+	public Integer getCustId() {
+		return custId;
+	}
+
+	public void setCustId(Integer custId) {
+		this.custId = custId;
+	}
+
+	public String getCustName() {
+		return custName;
+	}
+
+	public void setCustName(String custName) {
+		this.custName = custName;
+	}
+
+	public String getCustNumber() {
+		return custNumber;
+	}
+
+	public void setCustNumber(String custNumber) {
+		this.custNumber = custNumber;
 	}
 
 }

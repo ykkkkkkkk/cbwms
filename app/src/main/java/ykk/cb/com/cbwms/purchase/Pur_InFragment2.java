@@ -200,6 +200,7 @@ public class Pur_InFragment2 extends BaseFragment {
                                 // 扫码成功后，判断必填项是否已经输入了值
                                 m.parent.isChange = true;
                                 m.getBarCodeTableAfter_purOrder(bt);
+                                m.getBarCodeTableAfterEnable(false);
 
                                 break;
                             case '5': // 物料
@@ -844,6 +845,7 @@ public class Pur_InFragment2 extends BaseFragment {
         }
         mAdapter.notifyDataSetChanged();
         tvSupplierSel.setText(supplier.getfName());
+        getBarCodeTableAfterEnable(false);
     }
 
     /**
@@ -970,6 +972,7 @@ public class Pur_InFragment2 extends BaseFragment {
         supplier.setFsupplierid(purOrder.getSupplierId());
         supplier.setfNumber(purOrder.getSupplierNumber());
         supplier.setfName(purOrder.getSupplierName());
+
         setEnables(tvSupplierSel, R.drawable.back_style_gray3, false);
         sr2.setSupplierId(supplier.getFsupplierid());
         sr2.setSupplierName(supplier.getfName());

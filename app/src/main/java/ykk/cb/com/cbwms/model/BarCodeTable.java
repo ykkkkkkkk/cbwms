@@ -63,7 +63,10 @@ public class BarCodeTable implements Serializable {
 	/*k3对应单据分录的id值*/
 	private int entryId;
 	// 临时用的数据
-	private int combineSalOrderId; // 销售订单拼单主表id
+	// 临时数据, 不存表
+	private int combineSalOrderId; // 拼单主表id
+	private int combineSalOrderRow; // 拼单子表行数
+	private double combineSalOrderFqtys; // 拼单子表总数量
 
 	public BarCodeTable() {
 		super();
@@ -192,6 +195,22 @@ public class BarCodeTable implements Serializable {
 
 	public void setCombineSalOrderId(int combineSalOrderId) {
 		this.combineSalOrderId = combineSalOrderId;
+	}
+
+	public int getCombineSalOrderRow() {
+		return combineSalOrderRow;
+	}
+
+	public double getCombineSalOrderFqtys() {
+		return combineSalOrderFqtys;
+	}
+
+	public void setCombineSalOrderRow(int combineSalOrderRow) {
+		this.combineSalOrderRow = combineSalOrderRow;
+	}
+
+	public void setCombineSalOrderFqtys(double combineSalOrderFqtys) {
+		this.combineSalOrderFqtys = combineSalOrderFqtys;
 	}
 
 }

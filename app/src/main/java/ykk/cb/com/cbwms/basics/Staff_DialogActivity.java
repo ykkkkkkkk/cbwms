@@ -62,8 +62,8 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
     TextView tvIsLoad;
     @BindView(R.id.tv_check)
     TextView tvCheck;
-    @BindView(R.id.lin_confrim)
-    LinearLayout linConfrim;
+//    @BindView(R.id.lin_confrim)
+//    LinearLayout linConfrim;
     @BindView(R.id.lin_isLoad)
     LinearLayout linIsLoad;
 
@@ -111,19 +111,19 @@ public class Staff_DialogActivity extends BaseDialogActivity implements XRecycle
                         }
 
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
-                        if(m.isOnlyDept()) {
-                            m.linConfrim.setVisibility(View.VISIBLE);
-                        } else {
-                            m.linConfrim.setVisibility(View.GONE);
-                        }
+//                        if(m.isOnlyDept()) {
+//                            m.linConfrim.setVisibility(View.VISIBLE);
+//                        } else {
+//                            m.linConfrim.setVisibility(View.GONE);
+//                        }
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        if(m.isOnlyDept()) {
-                            m.linConfrim.setVisibility(View.VISIBLE);
-                        } else {
-                            m.linConfrim.setVisibility(View.GONE);
-                        }
+//                        if(m.isOnlyDept()) {
+//                            m.linConfrim.setVisibility(View.VISIBLE);
+//                        } else {
+//                            m.linConfrim.setVisibility(View.GONE);
+//                        }
                         m.toasts("抱歉，没有加载到数据！");
 
                         break;

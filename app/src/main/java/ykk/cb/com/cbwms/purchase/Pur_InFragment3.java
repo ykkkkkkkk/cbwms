@@ -107,7 +107,7 @@ public class Pur_InFragment3 extends BaseFragment {
     private Pur_InFragment3 context = this;
     private static final int SEL_ORDER = 10, SEL_SUPPLIER = 11, SEL_STOCK = 12, SEL_STOCKP = 13, SEL_DEPT = 14, SEL_ORG = 15, SEL_ORG2 = 16, SEL_MTL = 17, SEL_STOCK2 = 18, SEL_STOCKP2 = 19;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
-    private static final int SETFOCUS = 1, NUM_RESULT = 50, RESET = 60;
+    private static final int SETFOCUS = 1, NUM_RESULT = 50;
     private Supplier supplier; // 供应商
     //    private Material mtl;
     private Stock stock1, stock2; // 仓库
@@ -202,6 +202,7 @@ public class Pur_InFragment3 extends BaseFragment {
                                 // 扫码成功后，判断必填项是否已经输入了值
                                 m.parent.isChange = true;
                                 m.getBarCodeTableAfter_recOrder(bt);
+                                m.getBarCodeTableAfterEnable(false);
 
                                 break;
                             case '5': // 物料
@@ -216,33 +217,12 @@ public class Pur_InFragment3 extends BaseFragment {
 
                         break;
                     case UNSUCC2:
-                        m.mHandler.sendEmptyMessageDelayed(RESET, 200);
                         String errMsg = m.isNULLS((String) msg.obj);
                         if(errMsg.length() > 0) {
                             String message = JsonUtil.strToString(errMsg);
                             Comm.showWarnDialog(m.mContext, message);
                         } else {
                             Comm.showWarnDialog(m.mContext,"条码不存在，或者扫错了条码！");
-                        }
-
-                        break;
-                    case RESET: // 没有得到数据，就把回车的去掉，恢复正常数据
-                        switch (m.curViewFlag) {
-                            case '1': // 仓库
-//                                m.setTexts(m.etStock, m.stockBarcode);
-                                break;
-                            case '2': // 库位
-//                                m.setTexts(m.etStockPos, m.stockPBarcode);
-                                break;
-                            case '3': // 部门
-                                m.setTexts(m.etDeptName, m.deptBarcode);
-                                break;
-//                            case '4': // 收料订单
-//                                m.setTexts(m.etSourceNo, m.sourceBarcode);
-//                                break;
-//                            case '5': // 物料
-//                                m.setTexts(m.etMtlNo, m.mtlBarcode);
-//                                break;
                         }
 
                         break;
@@ -813,6 +793,7 @@ public class Pur_InFragment3 extends BaseFragment {
         }
         mAdapter.notifyDataSetChanged();
         tvSupplierSel.setText(supplier.getfName());
+        getBarCodeTableAfterEnable(false);
     }
 
     /**

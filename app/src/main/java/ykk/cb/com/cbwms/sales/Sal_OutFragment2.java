@@ -594,7 +594,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-                curViewFlag = '3';
+                curViewFlag = '1';
                 boxBarcode = s.toString();
                 // 执行查询方法
                 run_smGetDatas(boxBarcode);
@@ -1118,15 +1118,15 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            sr2.setPurOrgFnumber(salOrg.getNumber());
 //
 //            sr2.setCustomerId(deliOrder.getCustId());
-//            sr2.setCustomerName(deliOrder.getCustName());
+//            sr2.setCustomerName(deliOrder.getCombineSalCustName());
 //            sr2.setCustFnumber(deliOrder.getCustNumber());
 //            if(cust == null) {
 //                cust = new Customer();
 //                cust.setFcustId(deliOrder.getCustId());
 //                cust.setCustomerCode(deliOrder.getCustNumber());
-//                cust.setCustomerName(deliOrder.getCustName());
+//                cust.setCustomerName(deliOrder.getCombineSalCustName());
 //
-//                tvCustSel.setText("客户："+deliOrder.getCustName());
+//                tvCustSel.setText("客户："+deliOrder.getCombineSalCustName());
 //            }
 //            sr2.setSourceType('9');
 ////            sr2.setTempId(ism.getId());

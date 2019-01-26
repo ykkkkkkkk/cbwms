@@ -30,6 +30,10 @@ public class BoxBarCode implements Serializable {
 	/* pda扫描箱码查询箱子里的物料列表  */
 	public List<MaterialBinningRecord> mtlBinningRecord;
 
+	// 临时数据, 不存表
+	private int combineSalOrderId; // 拼单主表id
+	private int combineSalOrderRow; // 拼单子表行数
+	private double combineSalOrderFqtys; // 拼单子表总数量
 
 	public BoxBarCode() {
 		super();
@@ -105,11 +109,28 @@ public class BoxBarCode implements Serializable {
 		this.mtlBinningRecord = mtlBinningRecord;
 	}
 
+	public int getCombineSalOrderId() {
+		return combineSalOrderId;
+	}
 
-	@Override
-	public String toString() {
-		return "BoxBarCode [id=" + id + ", boxId=" + boxId + ", barCode=" + barCode + ", status=" + status
-				+ ", roughWeight=" + roughWeight + ", box=" + box + ", mtlBinningRecord=" + mtlBinningRecord + "]";
+	public void setCombineSalOrderId(int combineSalOrderId) {
+		this.combineSalOrderId = combineSalOrderId;
+	}
+
+	public int getCombineSalOrderRow() {
+		return combineSalOrderRow;
+	}
+
+	public double getCombineSalOrderFqtys() {
+		return combineSalOrderFqtys;
+	}
+
+	public void setCombineSalOrderRow(int combineSalOrderRow) {
+		this.combineSalOrderRow = combineSalOrderRow;
+	}
+
+	public void setCombineSalOrderFqtys(double combineSalOrderFqtys) {
+		this.combineSalOrderFqtys = combineSalOrderFqtys;
 	}
 	
 }

@@ -374,6 +374,10 @@ public class Pur_InFragment4 extends BaseFragment {
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             Material mtl = sr2.getMtl();
+            if(sr2.getStockId() == 0) {
+                Comm.showWarnDialog(mContext,"第"+(i+1)+"行请选择仓库！");
+                return false;
+            }
             if (sr2.getStockqty() == 0) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）必须大于0！");
                 return false;
@@ -581,14 +585,17 @@ public class Pur_InFragment4 extends BaseFragment {
 //                sr2.setStockqty(1);
 //            }
             Stock stock = disEntry.getEntryStock();
-            sr2.setStock(stock);
-            sr2.setStockId(stock.getfStockid());
-            sr2.setStockFnumber(stock.getfNumber());
-
+            if(stock != null) {
+                sr2.setStock(stock);
+                sr2.setStockId(stock.getfStockid());
+                sr2.setStockFnumber(stock.getfNumber());
+            }
             StockPosition stockP = disEntry.getEntryStockPosition();
-            sr2.setStockPos(stockP);
-            sr2.setStockPositionId(stockP.getId());
-            sr2.setStockPName(stockP.getFname());
+            if(stockP != null) {
+                sr2.setStockPos(stockP);
+                sr2.setStockPositionId(stockP.getId());
+                sr2.setStockPName(stockP.getFname());
+            }
             Supplier supplier = dis.getSupplier();
             sr2.setSupplierId(supplier.getFsupplierid());
             sr2.setSupplierName(supplier.getfName());
@@ -648,10 +655,11 @@ public class Pur_InFragment4 extends BaseFragment {
 //                sr2.setStockqty(1);
 //            }
             Stock stock = disEntry.getEntryStock();
-            sr2.setStock(stock);
-            sr2.setStockId(stock.getfStockid());
-            sr2.setStockFnumber(stock.getfNumber());
-
+            if(stock != null) {
+                sr2.setStock(stock);
+                sr2.setStockId(stock.getfStockid());
+                sr2.setStockFnumber(stock.getfNumber());
+            }
             StockPosition stockP = disEntry.getEntryStockPosition();
             if(stockP != null) {
                 sr2.setStockPos(stockP);

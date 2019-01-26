@@ -820,7 +820,7 @@
 //            if(customer == null) customer = new Customer();
 //            customer.setFcustId(prodOrder.getCustId());
 //            customer.setCustomerCode(prodOrder.getCustNumber());
-//            customer.setCustomerName(prodOrder.getCustName());
+//            customer.setCustomerName(prodOrder.getCombineSalCustName());
 //
 //            mbr.setCustomerId(prodOrder.getCustId());
 //            mbr.setCustomerNumber(prodOrder.getCustNumber());

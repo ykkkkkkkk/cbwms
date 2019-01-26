@@ -398,7 +398,7 @@
 //
 //                    PickingList p = list.get(0);
 //                    tvPickingListSel.setText(p.getFbillno());
-//                    tvCustSel.setText(p.getCustName());
+//                    tvCustSel.setText(p.getCombineSalCustName());
 //                    getPickingList(list);
 //                }
 //
@@ -563,9 +563,9 @@
 //            tvSalOrg.setText(salOrg.getName());
 //            sr2.setPurOrgFnumber(salOrg.getNumber());
 //            sr2.setCustomerId(pl.getCustId());
-//            sr2.setCustomerName(pl.getCustName());
+//            sr2.setCustomerName(pl.getCombineSalCustName());
 //            sr2.setCustFnumber(pl.getCustNumber());
-//            tvCustSel.setText("客户："+pl.getCustName());
+//            tvCustSel.setText("客户："+pl.getCombineSalCustName());
 //            sr2.setSourceType('6');
 ////            sr2.setTempId(ism.getId());
 ////            sr2.setRelationObj(JsonUtil.objectToString(ism));

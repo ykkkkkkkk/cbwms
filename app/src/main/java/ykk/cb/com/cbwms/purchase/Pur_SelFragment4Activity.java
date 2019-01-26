@@ -29,6 +29,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseActivity;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.DisburdenMission;
 import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
@@ -90,10 +91,14 @@ public class Pur_SelFragment4Activity extends BaseActivity implements XRecyclerV
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        m.mAdapter.notifyDataSetChanged();
+                        m.xRecyclerView.loadMoreComplete(false);
                         String errMsg = JsonUtil.strToString((String) msg.obj);
-                        if(m.isNULLS(errMsg).length() == 0) {
-                            errMsg = "很抱歉，没有找到数据！";
+                        if(m.listDatas != null && m.listDatas.size() > 0) {
+                            if (m.isNULLS(errMsg).length() == 0)
+                                errMsg = "数据已经到底了，不能往下查了！";
+                            else errMsg = "服务器超市，请重试！";
+                        } else {
+                            if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到数据！";
                         }
                         m.toasts(errMsg);
 

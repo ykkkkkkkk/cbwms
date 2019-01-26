@@ -437,7 +437,7 @@ public class Pur_InFragment1 extends BaseFragment {
                     mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
                     return;
                 }
-                curViewFlag = '4';
+                curViewFlag = '1';
                 mtlBarcode = s.toString();
                 // 执行查询方法
                 run_smGetDatas(mtlBarcode);

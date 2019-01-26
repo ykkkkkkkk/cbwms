@@ -121,6 +121,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private User user;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int combineSalOrderId; // 拼单id
+    private int combineSalOrderRow; // 拼单子表行数
+    private double combineSalOrderFqtys; // 拼单子表总数量
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
 
     // 消息处理
@@ -161,6 +163,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 BarCodeTable bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
                                 ProdOrder prodOrder = JsonUtil.stringToObject(bt.getRelationObj(), ProdOrder.class);
                                 int combineSalOrderId2 = bt.getCombineSalOrderId();
+                                int combineSalOrderRow2 = bt.getCombineSalOrderRow();
+                                double combineSalOrderFqtys2 = bt.getCombineSalOrderFqtys();
                                 int singleshipment2 = prodOrder.getSingleshipment();
 
                                 if(m.combineSalOrderId > 0) { // 拼单发货
@@ -179,7 +183,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                         return;
                                     }
                                 }
-                                m.combineSalOrderId = combineSalOrderId2;
+                                m.combineSalOrderId = combineSalOrderId2; // 拼单主表id
+                                m.combineSalOrderRow = combineSalOrderRow2; // 拼单子表行数
+                                m.combineSalOrderFqtys = combineSalOrderFqtys2; // 拼单子表总数量
                                 m.singleshipment = singleshipment2;
 
                                 if(!prodOrder.getDeliveryWayName().equals("物流")) {
@@ -426,13 +432,25 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
                 status = '1';
 
+                double sumFqty = 0;
                 List<MaterialBinningRecord> list = new ArrayList<>();
                 for(int i=0; i<checkDatas.size(); i++) {
                     MaterialBinningRecord mbr = checkDatas.get(i);
-                    if(mbr.getNumber() > 0) list.add(mbr);
+                    if(mbr.getNumber() > 0) {
+                        sumFqty += mbr.getNumber();
+                        list.add(mbr);
+                    }
                 }
-                if(list.size() == 0) {
-                    Comm.showWarnDialog(mContext,"请扫物料条码！");
+                if(sumFqty == 0) {
+                    Comm.showWarnDialog(mContext,"请至少扫描一个物料条码！");
+                    return;
+                }
+                if(combineSalOrderRow > 0 && list.size() < combineSalOrderRow) {
+                    Comm.showWarnDialog(mContext,"当前行和拼单的行数不一致，请检查！");
+                    return;
+                }
+                if(combineSalOrderFqtys > 0 && combineSalOrderFqtys != sumFqty) {
+                    Comm.showWarnDialog(mContext,"当前行和拼单的总数不一致，请检查！");
                     return;
                 }
                 // 把对象转成json字符串
@@ -759,6 +777,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
             tvBoxName.setText(boxBarCode.getBox().getBoxName());
             tvBoxSize.setText(boxBarCode.getBox().getBoxSize());
+            // 拼单的信息
+            combineSalOrderId = boxBarCode.getCombineSalOrderId();
+            combineSalOrderRow = boxBarCode.getCombineSalOrderRow();
+            combineSalOrderFqtys = boxBarCode.getCombineSalOrderFqtys();
 
             mAdapter.notifyDataSetChanged();
         }

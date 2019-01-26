@@ -508,7 +508,7 @@ public class Prod_InFragment1 extends BaseFragment {
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
-            if (sr2.getStockId() == 0) {
+            if (prodEntryStatus == 4 && sr2.getStockId() == 0) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，请选择（仓库）！");
                 return false;
             }
@@ -586,7 +586,7 @@ public class Prod_InFragment1 extends BaseFragment {
     }
 
     /**
-     * 查询计件类型
+     * 查询物料对应的工序
      */
     private void run_itemList() {
         showLoadDialog("加载中...");

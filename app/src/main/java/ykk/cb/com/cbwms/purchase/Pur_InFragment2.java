@@ -128,7 +128,7 @@ public class Pur_InFragment2 extends BaseFragment {
     private String k3Number; // 记录传递到k3返回的单号
 
     // 消息处理
-    private Pur_InFragment2.MyHandler mHandler = new Pur_InFragment2.MyHandler(this);
+    private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
         private final WeakReference<Pur_InFragment2> mActivity;
 
@@ -360,7 +360,9 @@ public class Pur_InFragment2 extends BaseFragment {
 
                 break;
             case R.id.tv_supplierSel: // 选择供应商
-                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, null);
+                bundle = new Bundle();
+                bundle.putInt("caseId", 31);
+                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, bundle);
 
                 break;
             case R.id.btn_sourceNo: // 选择来源单号
@@ -1118,7 +1120,7 @@ public class Pur_InFragment2 extends BaseFragment {
 //            record.setRelationObj(JsonUtil.objectToString(ism));
             record.setFsrcBillTypeId("PUR_PurchaseOrder");
             record.setfRuleId("PUR_PurchaseOrder-STK_InStock");
-            record.setFsTableName("T_PUR_POOrderEntry");
+            record.setFsTableName("t_PUR_POOrderEntry");
             record.setListBarcode(sr2.getListBarcode());
             record.setStrBarcodes(sr2.getStrBarcodes());
             record.setKdAccount(user.getKdAccount());
@@ -1198,7 +1200,7 @@ public class Pur_InFragment2 extends BaseFragment {
             case '5': // 物料扫码
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
-                strCaseId = "11,21";
+                strCaseId = "11,21,31";
                 break;
         }
         FormBody formBody = new FormBody.Builder()

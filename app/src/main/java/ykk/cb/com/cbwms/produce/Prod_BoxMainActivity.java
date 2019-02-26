@@ -104,6 +104,8 @@ public class Prod_BoxMainActivity extends BaseActivity {
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
+        //设置ViewPage缓存界面数，默认为1
+//        viewPager.setOffscreenPageLimit(1);
         //ViewPager显示第一个Fragment
         viewPager.setCurrentItem(0);
 

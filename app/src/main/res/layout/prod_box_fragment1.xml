@@ -179,6 +179,17 @@
             android:textColor="@color/black"
             android:textSize="@dimen/_14sp" />
 
+        <Button
+            android:id="@+id/btn_autoMtl"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/_20dp"
+            android:background="@drawable/btn_purple_selector"
+            android:gravity="center"
+            android:text="自动带出配件"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_14sp" />
+
     </LinearLayout>
 
     <TextView

@@ -8,11 +8,10 @@ import android.view.ViewGroup;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
-import ykk.cb.com.cbwms.sales.Sal_BoxActivity;
 import ykk.cb.com.cbwms.sales.Sal_OrderSearchActivity;
 import ykk.cb.com.cbwms.sales.Sal_OutMainActivity;
+import ykk.cb.com.cbwms.sales.Sal_OutPassMainActivity;
 import ykk.cb.com.cbwms.sales.Sal_PickingListActivity;
-import ykk.cb.com.cbwms.sales.Sal_RecombinationActivity;
 
 public class MainTabFragment3 extends BaseFragment {
 
@@ -24,7 +23,7 @@ public class MainTabFragment3 extends BaseFragment {
         return inflater.inflate(R.layout.aa_main_item3, container, false);
     }
 
-    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6})
+    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 销售订单
@@ -49,6 +48,10 @@ public class MainTabFragment3 extends BaseFragment {
                 break;
             case R.id.relative6: // 销售装箱
 //                show(Sal_BoxActivity.class, null);
+
+                break;
+            case R.id.relative7: // 销售装箱
+                show(Sal_OutPassMainActivity.class, null);
 
                 break;
         }

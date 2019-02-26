@@ -33,6 +33,8 @@ public class User implements Serializable {
     /*k3账号密码*/
     private String kdAccountPassword;
 
+    private Staff staff;
+
     public User() {
         super();
     }
@@ -215,5 +217,13 @@ public class User implements Serializable {
     public User setKdAccountPassword(String kdAccountPassword) {
         this.kdAccountPassword = kdAccountPassword;
         return this;
+    }
+
+    public Staff getStaff() {
+        return staff;
+    }
+
+    public void setStaff(Staff staff) {
+        this.staff = staff;
     }
 }

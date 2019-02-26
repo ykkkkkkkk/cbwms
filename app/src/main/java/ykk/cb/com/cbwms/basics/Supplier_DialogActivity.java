@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.basics;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
@@ -55,6 +56,8 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int isAll; // 是否加载所以供应商
+    private int caseId; // 判断是采购订单，还是收料通知单
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -126,6 +129,12 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
 
     @Override
     public void initData() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            isAll = bundle.getInt("isAll");
+            caseId = bundle.getInt("caseId");
+        }
+
         initLoadDatas();
     }
 
@@ -159,6 +168,8 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
         String mUrl = getURL("findSupplierListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
+                .add("isAll", String.valueOf(isAll))
+                .add("caseId", String.valueOf(caseId))
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

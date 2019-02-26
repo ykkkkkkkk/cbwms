@@ -3,6 +3,8 @@ package ykk.cb.com.cbwms.purchase;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,13 @@ import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.PrintMainActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
+import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.BarCodeTable;
+import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.Material;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
+import ykk.cb.com.cbwms.model.ShrinkOrder;
+import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.MyViewPager;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
 
@@ -41,6 +51,29 @@ public class Pur_InMainActivity extends BaseActivity {
     private View curRadio;
     public boolean isChange; // 返回的时候是否需要判断数据是否保存了
 //    private Customer customer; // 客户
+
+    // 消息处理
+    private MyHandler mHandler = new MyHandler(this);
+    private static class MyHandler extends Handler {
+        private final WeakReference<Pur_InMainActivity> mActivity;
+
+        public MyHandler(Pur_InMainActivity activity) {
+            mActivity = new WeakReference<Pur_InMainActivity>(activity);
+        }
+
+        public void handleMessage(Message msg) {
+            Pur_InMainActivity m = mActivity.get();
+            if (m != null) {
+                m.hideLoadDialog();
+
+                switch (msg.what) {
+                    case 0:
+
+                        break;
+                }
+            }
+        }
+    }
 
     @Override
     public int setLayoutResID() {
@@ -68,6 +101,8 @@ public class Pur_InMainActivity extends BaseActivity {
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
+        //设置ViewPage缓存界面数，默认为1
+        viewPager.setOffscreenPageLimit(3);
         //ViewPager显示第一个Fragment
         viewPager.setCurrentItem(3);
 
@@ -114,6 +149,16 @@ public class Pur_InMainActivity extends BaseActivity {
 
             }
         });
+
+        // 延时跳入到界面2
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                tabSelected(viewRadio4);
+//                tvTitle.setText("装卸单入库");
+//                viewPager.setCurrentItem(3, false);
+//            }
+//        },300);
     }
 
     private void bundle() {

@@ -44,6 +44,8 @@ public class ScanningRecordTok3 implements Serializable {
 	private boolean fpaezSingleshipment;
 	/* 发货方式 */
 	private String fdeliveryMethodNumber;
+	/* 仓管员 */
+	private String stockStaffNumber;
 	/**/
 	/**/
 	/**/
@@ -164,6 +166,13 @@ public class ScanningRecordTok3 implements Serializable {
 
 	public void setFdeliveryMethodNumber(String fdeliveryMethodNumber) {
 		this.fdeliveryMethodNumber = fdeliveryMethodNumber;
+	}
+
+	public String getStockStaffNumber() {
+		return stockStaffNumber;
+	}
+	public void setStockStaffNumber(String stockStaffNumber) {
+		this.stockStaffNumber = stockStaffNumber;
 	}
 
 

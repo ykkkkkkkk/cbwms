@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -55,8 +57,10 @@ import ykk.cb.com.cbwms.model.BoxBarCode;
 import ykk.cb.com.cbwms.model.Customer;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
+import ykk.cb.com.cbwms.model.sal.SalOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment1Adapter;
 import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -102,7 +106,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private Prod_BoxMainActivity parent;
     private Activity mContext;
     private static final int SEL_BOX = 13, SEL_NUM = 14;
-    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508;
     private static final int SETFOCUS = 1, CODE2 = 2;
     private Box box; // 箱子表
     private BoxBarCode boxBarCode; // 箱码表
@@ -347,6 +351,21 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         m.toasts("服务器忙，请稍候操作！");
 
                         break;
+                    case ISAUTO: // 自动带出配件
+                        List<SalOrder> listSal = JsonUtil.strToList((String) msg.obj, SalOrder.class);
+                        m.getSalOrderAfter(listSal);
+
+                        break;
+                    case ISAUTO_NULL: // 自动带出配件 失败
+                        errMsg = m.isNULLS((String) msg.obj);
+                        if(errMsg.length() > 0) {
+                            String message = JsonUtil.strToString(errMsg);
+                            Comm.showWarnDialog(m.mContext, message);
+                        } else {
+                            Comm.showWarnDialog(m.mContext,"很抱歉，没能找到数据！！！");
+                        }
+
+                        break;
                     case CODE2: // Dialog默认得到焦点，隐藏软键盘
 //                        m.hideSoftInputMode(m.mContext, m.etMtlCode2);
 //                        m.setFocusable(m.etMtlCodeTmp);
@@ -393,7 +412,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         getUserInfo();
     }
 
-    @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print, R.id.tv_box})
+    @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print, R.id.tv_box, R.id.btn_autoMtl})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -496,6 +515,18 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 break;
             case R.id.btn_clone: // 新装
                 reset(true);
+
+                break;
+            case R.id.btn_autoMtl: // 自动带出配件
+                if(boxBarCode == null) {
+                    Comm.showWarnDialog(mContext,"请先扫描箱码！");
+                    return;
+                }
+                if(checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext,"箱子里还没有物料，不能查询！");
+                    return;
+                }
+                run_findSalOrderByAutoMtl();
 
                 break;
         }
@@ -870,9 +901,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
         if(combineSalOrderId > 0) { // 拼单发货
             orderDeliveryType = '3';
         } else if(singleshipment == 1) { // 整单发货
-            orderDeliveryType = '1';
-        } else if(singleshipment == 0) { // 非整单发货
             orderDeliveryType = '2';
+        } else if(singleshipment == 0) { // 非整单发货
+            orderDeliveryType = '1';
         }
         mbr.setOrderDeliveryType(orderDeliveryType);
 
@@ -886,6 +917,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setStrBarcodes(bt.getBarcode());
         } else mbr.setStrBarcodes("");
         mbr.setRelationObj(JsonUtil.objectToString(prodOrder));
+        mbr.setIsMtlParts(0);
 
         checkDatas.add(mbr);
 
@@ -897,6 +929,90 @@ public class Prod_BoxFragment1 extends BaseFragment {
         tvCount.setText("数量："+ df.format(sum));
         tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
         tvCustSel.setText("客户："+mbr.getCustomerName());
+        tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
+        setFocusable(etMtlCode);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 得到销售订单的物料配件
+     */
+    private void getSalOrderAfter(List<SalOrder> listSal) {
+        for(int i=0, size=listSal.size(); i<size; i++) {
+            SalOrder salOrder = listSal.get(i);
+            // 判断是否有重复的行
+            boolean isBool = false;
+            for(int j=0, sizeJ=checkDatas.size(); j<sizeJ; j++) {
+                MaterialBinningRecord mbre = checkDatas.get(j);
+                if(salOrder.getFbillno().equals(mbre.getSalOrderNo()) && salOrder.getEntryId() == mbre.getSalOrderNoEntryId()) {
+                    isBool = true;
+                    break;
+                }
+            }
+            if(isBool) continue;
+
+            MaterialBinningRecord mbr = new MaterialBinningRecord();
+            mbr.setId(0);
+            mbr.setFbillType(1); // 单据类型（1：生产装箱，2：销售装箱，3：装箱单）
+            mbr.setBoxBarCodeId(boxBarCode.getId());
+            Material mtl = salOrder.getMtl();
+            mbr.setMtl(mtl);
+            mbr.setMaterialId(salOrder.getMtlId());
+            mbr.setRelationBillId(salOrder.getfId());
+            mbr.setRelationBillNumber(salOrder.getFbillno());
+            mbr.setCustomerId(salOrder.getCustId());
+            mbr.setCustomerNumber(salOrder.getCustNumber());
+            mbr.setCustomerName(salOrder.getCustName());
+            mbr.setDeliveryWay(salOrder.getDeliveryWay());
+            mbr.setPackageWorkType(2);
+            mbr.setBinningType(binningType);
+            mbr.setCaseId(32);
+            mbr.setBarcodeSource('1');
+
+            mbr.setNumber(salOrder.getSalFcanoutqty());
+            mbr.setRelationBillFQTY(salOrder.getSalFcanoutqty());
+            mbr.setUsableFqty(salOrder.getSalFcanoutqty());
+            mbr.setEntryId(salOrder.getEntryId());
+            mbr.setReceiveAddress("");
+            mbr.setBarcode("");
+            // 启用了批次号，在扫物料中加入
+//            if(mbr.getMtl() != null && mbr.getMtl().getIsBatchManager() == 1) {
+//                mbr.setBatchCode(bt.getBatchCode());
+//            }
+            // 启用了序列号
+//            if(mbr.getMtl() != null && mbr.getMtl().getIsSnManager() == 1) {
+//                mbr.setSnCode(bt.getSnCode());
+//            }
+            mbr.setCreateUserId(user.getId());
+            mbr.setCreateUserName(user.getUsername());
+            mbr.setModifyUserId(user.getId());
+            mbr.setModifyUserName(user.getUsername());
+            mbr.setSalOrderNo(salOrder.getFbillno());
+            mbr.setSalOrderNoEntryId(salOrder.getEntryId());
+            // 单据发货类型 （1、非整非拼，2、整单发货，3、拼单）
+            char orderDeliveryType = '0';
+            if (combineSalOrderId > 0) { // 拼单发货
+                orderDeliveryType = '3';
+            } else if (singleshipment == 1) { // 整单发货
+                orderDeliveryType = '2';
+            } else if (singleshipment == 0) { // 非整单发货
+                orderDeliveryType = '1';
+            }
+            mbr.setOrderDeliveryType(orderDeliveryType);
+
+            mbr.setStrBarcodes("");
+            mbr.setRelationObj("");
+            mbr.setIsMtlParts(1);
+
+            checkDatas.add(mbr);
+        }
+
+        // 汇总数量
+        double sum = 0;
+        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
+            sum += checkDatas.get(j).getUsableFqty();
+        }
+        tvCount.setText("数量："+ df.format(sum));
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
@@ -1054,7 +1170,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     // 相同的物料行相等
                     for (int i = 0; i < size; i++) {
                         MaterialBinningRecord forMtl = checkDatas.get(i);
-                        if (bt.getMaterialId() == forMtl.getEntryId()) {
+                        if (bt.getMaterialId() == forMtl.getMaterialId()) {
                             mbr = forMtl;
 
                             break;
@@ -1063,7 +1179,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
             }
             if(mbr == null) {
-                Comm.showWarnDialog(mContext,"扫描物料不在该箱子中！");
+                Comm.showWarnDialog(mContext,"扫描物料不在该箱子中！！！");
                 return;
             }
             // 把对象转成json字符串
@@ -1357,6 +1473,58 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
                 Message msg = mHandler.obtainMessage(MODIFY_NUM, number);
                 Log.e("run_modifyNumber2 --> onResponse", result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 查询销售订单中属于配件的
+     */
+    private void run_findSalOrderByAutoMtl() {
+        showLoadDialog("加载中...");
+        String mUrl = getURL("salOrder/findSalOrderByAutoMtl");
+        StringBuffer strFbillNo = new StringBuffer();
+        Map<String, Boolean> mapFbillNo = new HashMap<String, Boolean>();
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            MaterialBinningRecord mbr = checkDatas.get(i);
+            String fbillNo = mbr.getSalOrderNo();
+            if(mapFbillNo.containsKey(fbillNo)) continue; // 如果已经存了订单号，就下一个
+
+            if((i+1) == size) strFbillNo.append(fbillNo);
+            else strFbillNo.append(fbillNo+",");
+
+            mapFbillNo.put(fbillNo, true);
+        }
+
+        FormBody formBody = new FormBody.Builder()
+                .add("strFbillNo", strFbillNo.toString())
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(ISAUTO_NULL);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findSalOrderByAutoMtl --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(ISAUTO_NULL, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(ISAUTO, result);
                 mHandler.sendMessage(msg);
             }
         });

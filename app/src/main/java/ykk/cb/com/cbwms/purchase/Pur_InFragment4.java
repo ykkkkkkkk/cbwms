@@ -532,6 +532,14 @@ public class Pur_InFragment4 extends BaseFragment {
                 }
 
                 break;
+            case SEL_DEPT: //查询部门	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    department = (Department) data.getSerializableExtra("obj");
+                    Log.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
+                    getDeptAfter();
+                }
+
+                break;
             case NUM_RESULT: // 数量
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle bundle = data.getExtras();

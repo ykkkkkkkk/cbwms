@@ -103,9 +103,9 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
                         if(m.listDatas != null && m.listDatas.size() > 0) {
                             if (m.isNULLS(errMsg).length() == 0)
                                 errMsg = "数据已经到底了，不能往下查了！";
-                            else errMsg = "服务器超市，请重试！";
+                            else errMsg = "服务器超时，请重试！";
                         } else {
-                            if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器超市，请重试！";
+                            if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器超时，请重试！";
                         }
                         m.toasts(errMsg);
 

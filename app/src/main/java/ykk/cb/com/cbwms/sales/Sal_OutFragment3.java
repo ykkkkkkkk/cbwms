@@ -74,7 +74,7 @@
 //    @BindView(R.id.tv_salOrg)
 //    TextView tvSalOrg;
 //    @BindView(R.id.tv_salMan)
-//    TextView tvSalMan;
+//    TextView tvStockStaff;
 //    @BindView(R.id.tv_expressCompany)
 //    TextView tvExpressCompany;
 //    @BindView(R.id.et_expressNo)

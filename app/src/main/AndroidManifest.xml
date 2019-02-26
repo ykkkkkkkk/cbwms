@@ -168,6 +168,9 @@
         <activity
             android:name=".produce.Prod_ProcedureReportActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_StartMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 销售模块 -->
         <activity
@@ -197,6 +200,11 @@
         <activity
             android:name=".sales.Sal_RecombinationActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_OutPassMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+
 
         <activity android:name=".util.ImageLoadActivity" />
         <activity android:name=".MainActivity" />

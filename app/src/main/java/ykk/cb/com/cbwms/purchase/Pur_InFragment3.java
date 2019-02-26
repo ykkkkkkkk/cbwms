@@ -130,7 +130,7 @@ public class Pur_InFragment3 extends BaseFragment {
     private String k3Number; // 记录传递到k3返回的单号
 
     // 消息处理
-    private Pur_InFragment3.MyHandler mHandler = new Pur_InFragment3.MyHandler(this);
+    private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
         private final WeakReference<Pur_InFragment3> mActivity;
 
@@ -336,7 +336,9 @@ public class Pur_InFragment3 extends BaseFragment {
 
                 break;
             case R.id.tv_supplierSel: // 选择供应商
-                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, null);
+                bundle = new Bundle();
+                bundle.putInt("caseId", 36);
+                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, bundle);
 
                 break;
             case R.id.btn_sourceNo: // 选择来源单号
@@ -1143,7 +1145,7 @@ public class Pur_InFragment3 extends BaseFragment {
             case '5': // 物料扫码
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
-                strCaseId = "11,21";
+                strCaseId = "11,21,36";
                 break;
         }
         FormBody formBody = new FormBody.Builder()

@@ -98,9 +98,9 @@ public class Pur_SelFragment4Activity extends BaseActivity implements XRecyclerV
                                 errMsg = "数据已经到底了，不能往下查了！";
                             else errMsg = "服务器超市，请重试！";
                         } else {
-                            if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到数据！";
+                            if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到数据，（k3的采购，收料订单被删除了，在装卸表找不到，请检查）！";
                         }
-                        m.toasts(errMsg);
+                        Comm.showWarnDialog(m.context, errMsg);
 
                         break;
                 }

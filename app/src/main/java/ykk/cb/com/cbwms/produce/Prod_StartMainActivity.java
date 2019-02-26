@@ -21,7 +21,7 @@ import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.util.MyViewPager;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
 
-public class Prod_InMainActivity extends BaseActivity {
+public class Prod_StartMainActivity extends BaseActivity {
 
     @BindView(R.id.viewRadio1)
     View viewRadio1;
@@ -33,14 +33,14 @@ public class Prod_InMainActivity extends BaseActivity {
     MyViewPager viewPager;
     @BindView(R.id.tv_title)
     TextView tvTitle;
-    private Prod_InMainActivity context = this;
+    private Prod_StartMainActivity context = this;
     private View curRadio;
     public boolean isChange; // 返回的时候是否需要判断数据是否保存了
 //    private Customer customer; // 客户
 
     @Override
     public int setLayoutResID() {
-        return R.layout.prod_in_main;
+        return R.layout.prod_start_main;
     }
 
     @Override
@@ -56,11 +56,9 @@ public class Prod_InMainActivity extends BaseActivity {
 //        bundle2.putSerializable("customer", customer);
 //        fragment1.setArguments(bundle2); // 传参数
 //        fragment2.setArguments(bundle2); // 传参数
-        Prod_InFragment1 fragment1 = new Prod_InFragment1();
-//        Prod_InFragment2 fragment2 = new Prod_InFragment2();
+        Prod_StartFragment1 fragment1 = new Prod_StartFragment1();
 
         listFragment.add(fragment1);
-//        listFragment.add(fragment2);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));

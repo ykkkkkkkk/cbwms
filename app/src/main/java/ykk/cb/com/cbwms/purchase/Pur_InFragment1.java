@@ -291,7 +291,9 @@ public class Pur_InFragment1 extends BaseFragment {
 
                 break;
             case R.id.tv_supplierSel: // 选择供应商
-                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, null);
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
+                showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, bundle);
 
                 break;
             case R.id.btn_deptName: // 选择部门

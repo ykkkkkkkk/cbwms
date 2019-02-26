@@ -12,6 +12,7 @@ import ykk.cb.com.cbwms.produce.Prod_BoxMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_InMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcedureReportActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcessSearchActivity;
+import ykk.cb.com.cbwms.produce.Prod_StartMainActivity;
 
 public class MainTabFragment2 extends BaseFragment {
 
@@ -23,7 +24,7 @@ public class MainTabFragment2 extends BaseFragment {
         return inflater.inflate(R.layout.aa_main_item2, container, false);
     }
 
-    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4})
+    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 生产装箱
@@ -40,6 +41,10 @@ public class MainTabFragment2 extends BaseFragment {
                 break;
             case R.id.relative4: // 工序汇报
                 show(Prod_ProcedureReportActivity.class,null);
+
+                break;
+            case R.id.relative5: // 生产开工
+                show(Prod_StartMainActivity.class,null);
 
                 break;
         }

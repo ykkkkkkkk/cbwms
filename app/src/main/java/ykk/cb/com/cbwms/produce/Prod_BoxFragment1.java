@@ -61,22 +61,28 @@ import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
+import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment1Adapter;
 import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
+import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 
 /**
  * 生产装箱--无批次
  */
 public class Prod_BoxFragment1 extends BaseFragment {
 
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.lin_box)
     LinearLayout linBox;
     @BindView(R.id.tv_box)
     TextView tvBox;
     @BindView(R.id.et_boxCode)
     EditText etBoxCode;
+    @BindView(R.id.et_mtlCode)
+    EditText etMtlCode;
     @BindView(R.id.tv_status)
     TextView tvStatus;
     @BindView(R.id.tv_boxName)
@@ -85,8 +91,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
     TextView tvBoxSize;
 //    @BindView(R.id.et_prodOrderCode)
 //    EditText etProdOrderCode;
-    @BindView(R.id.et_mtlCode)
-    EditText etMtlCode;
     @BindView(R.id.tv_custSel)
     TextView tvCustSel;
     @BindView(R.id.tv_deliverSel)
@@ -107,7 +111,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private Activity mContext;
     private static final int SEL_BOX = 13, SEL_NUM = 14;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508;
-    private static final int SETFOCUS = 1, CODE2 = 2;
+    private static final int SETFOCUS = 1, SAOMA = 100;
     private Box box; // 箱子表
     private BoxBarCode boxBarCode; // 箱码表
     private Prod_BoxFragment1Adapter mAdapter;
@@ -116,10 +120,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private char curViewFlag = '1'; // 1：箱子，2：物料
     private DecimalFormat df = new DecimalFormat("#.####");
     private int curPos; // 当前行
-    private AlertDialog delDialog;
-    private EditText etMtlCodeTmp, etMtlCode2;
-    private CheckBox checkClose;
-    private boolean isCloseDelDialog = true; // 是否关闭删除的Dialog
     private char status = '0'; // 箱子状态（0：创建，1：开箱，2：封箱）
     private char binningType = '2'; // 1.单色装，2.混色装
     private User user;
@@ -128,6 +128,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private int combineSalOrderRow; // 拼单子表行数
     private double combineSalOrderFqtys; // 拼单子表总数量
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private Prod_BoxFragment1.MyHandler mHandler = new Prod_BoxFragment1.MyHandler(this);
@@ -214,11 +215,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 }
 
                                 break;
-                            case '4': // 删除物料扫码     返回
-                                BarCodeTable barCodeTable2 = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
-                                m.getBarCodeTable_delete(barCodeTable2);
-
-                                break;
                         }
 
                         break;
@@ -254,33 +250,20 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         break;
                     case DELETE: // 删除 成功
-                        m.checkDatas.clear();
-                        List<MaterialBinningRecord> list2 = JsonUtil.strToList((String) msg.obj, MaterialBinningRecord.class);
-                        m.checkDatas.addAll(list2);
+                        for(int i=m.checkDatas.size()-1; i >= 0; i--){
+                            MaterialBinningRecord mbr = m.checkDatas.get(i);
+                            if(mbr.isCheck()) m.checkDatas.remove(i);
+                        }
                         m.mAdapter.notifyDataSetChanged();
-                        // 如果点击了关闭窗口的复选框
-                        m.setCloseDelDialog();
 
                         break;
                     case UNDELETE: // 删除 失败
-                        JsonObject jsonObj = JsonUtil.strToObject((String) msg.obj, JsonObject.class);
-                        if(jsonObj.has("errMsg")) {
-                            errMsg = jsonObj.get("errMsg").getAsString();
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(errMsg.length() == 0) {
+                            errMsg = "很抱歉，删除失败！";
                             Comm.showWarnDialog(m.mContext, errMsg);
                             return;
                         }
-                        if(jsonObj.has("listSize")) {
-                            int size = jsonObj.get("listSize").getAsInt();
-                            if(size == 0) {
-                                m.tvCustSel.setText("客户：");
-//                                m.setEnables(m.tvCustSel, R.drawable.back_style_gray3, false);
-                                m.checkDatas.clear();
-                                m.tvStatus.setText(Html.fromHtml("状态：<font color='#000000'>未开箱</font>"));
-                                m.tvCount.setText("数量：0");
-                            }
-                        }
-                        m.setCloseDelDialog();
-                        m.mAdapter.notifyDataSetChanged();
 
                         break;
                     case MODIFY: // 修改状态（开箱或封箱） 成功
@@ -366,11 +349,54 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         }
 
                         break;
-                    case CODE2: // Dialog默认得到焦点，隐藏软键盘
-//                        m.hideSoftInputMode(m.mContext, m.etMtlCode2);
-//                        m.setFocusable(m.etMtlCodeTmp);
-                        m.setFocusable(m.etMtlCode2);
+                    case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
+                        m.setFocusable(m.etGetFocus);
+                        switch (m.curViewFlag) {
+                            case '1': // 箱码
+                                m.setFocusable(m.etBoxCode);
+                                break;
+                            case '3': // 物料
+                                m.setFocusable(m.etMtlCode);
+                                break;
+                        }
 
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.curViewFlag) {
+                            case '1': // 箱码扫码   返回
+                                etName = m.getValues(m.etBoxCode);
+                                if (m.strBoxBarcode != null && m.strBoxBarcode.length() > 0) {
+                                    if (m.strBoxBarcode.equals(etName)) {
+                                        m.strBoxBarcode = etName;
+                                    } else
+                                        m.strBoxBarcode = etName.replaceFirst(m.strBoxBarcode, "");
+
+                                } else m.strBoxBarcode = etName;
+                                m.setTexts(m.etBoxCode, m.strBoxBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.strBoxBarcode);
+
+                                break;
+                            case '2': // 生产订单扫码   返回
+
+                                break;
+                            case '3': // 物料扫码     返回
+                                etName = m.getValues(m.etMtlCode);
+                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                                    if (m.mtlBarcode.equals(etName)) {
+                                        m.mtlBarcode = etName;
+                                    } else
+                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                                } else m.mtlBarcode = etName;
+                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.mtlBarcode);
+
+                                break;
+
+                        }
                         break;
                 }
             }
@@ -391,6 +417,21 @@ public class Prod_BoxFragment1 extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Prod_BoxFragment1Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
+        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                MaterialBinningRecord m = checkDatas.get(pos);
+                boolean isCheck = m.isCheck();
+                if (isCheck) { // 选中行的单据所有行全部false
+                    m.setCheck(false);
+                } else { // 选中行的单据所有行全部true
+                    m.setCheck(true);
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
 
         mAdapter.setCallBack(new Prod_BoxFragment1Adapter.MyCallBack() {
             @Override
@@ -402,6 +443,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 showInputDialog("数量", String.valueOf(entity.getNumber()), "0.0", SEL_NUM);
             }
         });
+
     }
 
     @Override
@@ -410,6 +452,12 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //        hideSoftInputMode(mContext, etProdOrderCode);
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
+
+        mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() { setFocusable(etBoxCode); // 物料代码获取焦点
+                }
+            },200);
     }
 
     @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print, R.id.tv_box, R.id.btn_autoMtl})
@@ -438,7 +486,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 if(checkDatas != null && checkDatas.size() > 0) {
-                    deleteRowDialog();
+                    run_delete();
                 } else {
                     Comm.showWarnDialog(mContext,"箱子中没有物料，不能删除！");
                 }
@@ -565,72 +613,25 @@ public class Prod_BoxFragment1 extends BaseFragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * 删除行的dialog
-     */
-    private void deleteRowDialog() {
-        View v = mContext.getLayoutInflater().inflate(R.layout.sal_box_item_del_dialog, null);
-        delDialog = new AlertDialog.Builder(mContext).setView(v).create();
-        // 初始化id
-        etMtlCodeTmp = v.findViewById(R.id.et_mtlCodeTmp);
-        etMtlCode2 = v.findViewById(R.id.et_mtlCode2);
-        Button btnClose = v.findViewById(R.id.btn_close);
-        checkClose = v.findViewById(R.id.check_close);
-        checkClose.setChecked(isCloseDelDialog);
-
-        setFocusable(etMtlCodeTmp);
-
-        // 关闭
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkClose.setChecked(true);
-                setCloseDelDialog();
-            }
-        });
-        etMtlCode2.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-            @Override
-            public void afterTextChanged(Editable s) {
-                if(s.length() == 0) return;
-                curViewFlag = '4';
-                mtlBarcode_del = s.toString();
-                // 执行查询方法
-                run_smGetDatas(mtlBarcode_del);
-            }
-        });
-
-        Window window = delDialog.getWindow();
-        delDialog.setCancelable(false);
-        delDialog.show();
-        window.setGravity(Gravity.CENTER);
-
-        mHandler.sendEmptyMessageDelayed(CODE2,500);
-    }
-
-    /**
-     * 删除扫码的时候是否关闭窗口
-     */
-    private void setCloseDelDialog() {
-        // 如果点击了关闭窗口的复选框
-        if(checkClose.isChecked()) {
-            setFocusable(etMtlCode);
-            etMtlCodeTmp = null;
-            etMtlCode2 = null;
-            delDialog.dismiss();
-            delDialog = null;
-
-            isCloseDelDialog = true;
-        } else {
-            isCloseDelDialog = false;
-        }
-    }
-
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_boxCode: // 箱码
+                        setFocusable(etBoxCode);
+                        break;
+                    case R.id.et_mtlCode: // 物料
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etBoxCode.setOnClickListener(click);
+        etMtlCode.setOnClickListener(click);
+
         // 箱码
         etBoxCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -641,9 +642,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '1';
-                strBoxBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(strBoxBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
         // 生产订单
@@ -674,15 +676,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-//                if (checkDatas.size() == 0) {
-//                    s.delete(0,s.length());
-//                    Comm.showWarnDialog(mContext,"请扫描生产订单！");
-//                    return;
-//                }
                 curViewFlag = '3';
-                mtlBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(mtlBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
@@ -740,6 +738,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                 break;
         }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
     /**
@@ -1131,77 +1130,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     /**
-     * 是否已经捡完货
-     */
-//    private void isPickingEnd() {
-//        int size = checkDatas.size();
-//        int count = 0; // 计数器
-//        for(int i=0; i<size; i++) {
-//            MaterialBinningRecord mbr = checkDatas.get(i);
-//            if(mbr.getNumber() >= mbr.getRelationBillFQTY()) {
-//                count += 1;
-//            }
-//        }
-//        if(count == size) {
-//            toasts("已经装完货了，请保存！");
-//        }
-//    }
-
-    /**
-     * （条码表）删除返回的值
-     */
-    private void getBarCodeTable_delete(BarCodeTable bt) {
-        if (bt != null) {
-            int size = checkDatas.size();
-            MaterialBinningRecord mbr = null;
-            // 已装箱的物料
-            if(size > 0) {
-                if(bt.getCaseId() == 34) {
-                    // 相同的分录行相等
-                    for (int i = 0; i < size; i++) {
-                        MaterialBinningRecord forMtl = checkDatas.get(i);
-                        if (bt.getRelationBillNumber().equals(forMtl.getRelationBillNumber()) && bt.getEntryId() == forMtl.getEntryId()) {
-                            mbr = forMtl;
-
-                            break;
-                        }
-                    }
-                } else {
-                    // 相同的物料行相等
-                    for (int i = 0; i < size; i++) {
-                        MaterialBinningRecord forMtl = checkDatas.get(i);
-                        if (bt.getMaterialId() == forMtl.getMaterialId()) {
-                            mbr = forMtl;
-
-                            break;
-                        }
-                    }
-                }
-            }
-            if(mbr == null) {
-                Comm.showWarnDialog(mContext,"扫描物料不在该箱子中！！！");
-                return;
-            }
-            // 把对象转成json字符串
-            String strJson = JsonUtil.objectToString(mbr);
-            // 添加到箱子并返回箱子的中的物料列表
-            run_delete(strJson, bt.getBarcode());
-        }
-    }
-
-    /**
-     * 扫描物料之后的控制
-     */
-    private void getBarCodeTableAfter() {
-//        setEnables(tvCustSel,R.drawable.back_style_gray3,false);
-        setEnables(tvDeliverSel,R.drawable.back_style_gray3,false);
-        tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
-    }
-
-    /**
      * 扫码查询对应的方法
      */
     private void run_smGetDatas(String val) {
+        isTextChange = false;
         if(val.length() == 0) {
             Comm.showWarnDialog(mContext,"请对准条码！");
             return;
@@ -1225,10 +1157,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 barcode = mtlBarcode;
 //                strCaseId = "11,21,34";
                 strCaseId = "34";
-                break;
-            case '4': // 删除物料扫码
-                mUrl = getURL("barCodeTable/findBarcode2ByParam");
-                barcode = mtlBarcode_del;
                 break;
         }
         String boxId = boxBarCode != null ? String.valueOf(boxBarCode.getBoxId()) : "";
@@ -1312,14 +1240,24 @@ public class Prod_BoxFragment1 extends BaseFragment {
     /**
      * 删除的方法
      */
-    private void run_delete(String json, String barcode) {
+    private void run_delete() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("materialBinningRecord/delete");
+
+        int boxBarCodeId = checkDatas.get(0).getBoxBarCodeId();
+        StringBuffer strMbrId = new StringBuffer();
+        for(int i=0; i<checkDatas.size(); i++) {
+            MaterialBinningRecord mbr = checkDatas.get(i);
+            if(mbr.isCheck() && mbr.getId() > 0) strMbrId.append(mbr.getId()+",");
+        }
+        // 删除最好一个，
+        strMbrId.delete(strMbrId.length()-1, strMbrId.length());
+
+        String mUrl = getURL("materialBinningRecord/delete2");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 
         FormBody formBody = new FormBody.Builder()
-                .add("strJson", json)
-                .add("barcode", barcode)
+                .add("boxBarCodeId", String.valueOf(boxBarCodeId))
+                .add("strMbrId", strMbrId.toString())
                 .build();
 
         Request request = new Request.Builder()

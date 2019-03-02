@@ -50,7 +50,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
     Button btnSmall;
 
     private PrintFragment2 context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 501, SETFOCUS = 1;
+    private static final int SUCC1 = 200, UNSUCC1 = 501, SETFOCUS = 1, SAOMA = 2;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int caseId = 34; // （34：生产订单）
     private String barcode; // 对应的条码号
@@ -59,6 +59,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
     private int tabFormat = 1; // 1：大标签，2：小标签 ，4：生产装箱清单，5：复核装箱清单
     private int smType = 1; // 扫码类型  1：生产订单号，2：生产顺序号，3：生产装箱清单，4：复核装箱清单
     private Button curBtn;
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private PrintFragment2.MyHandler mHandler = new PrintFragment2.MyHandler(this);
@@ -100,6 +101,21 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.etGetFocus);
                         m.setFocusable(m.etCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = m.getValues(m.etCode);
+                        if (m.barcode != null && m.barcode.length() > 0) {
+                            if (m.barcode.equals(etName)) {
+                                m.barcode = etName;
+                            } else
+                                m.barcode = etName.replaceFirst(m.barcode, "");
+
+                        } else m.barcode = etName;
+                        m.setTexts(m.etCode, m.barcode);
+                        // 执行查询方法
+                        m.run_print();
+
                         break;
                 }
             }
@@ -123,13 +139,8 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
         super.setUserVisibleHint(isVisibleToUser);
         if(isVisibleToUser) {
             hideKeyboard(etCode);
+            mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
     }
 
     @Override
@@ -192,6 +203,19 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_code:
+                        setFocusable(etCode);
+                        break;
+                }
+            }
+        };
+        etCode.setOnClickListener(click);
+
         // 扫码区
         etCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -201,9 +225,10 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-                barcode = s.toString();
-                // 执行查询方法
-                run_print();
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
     }
@@ -282,6 +307,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
      * 得到条码号
      */
     private void run_print() {
+        isTextChange = false;
         showLoadDialog("打印连接中...");
         String mUrl = null;
 

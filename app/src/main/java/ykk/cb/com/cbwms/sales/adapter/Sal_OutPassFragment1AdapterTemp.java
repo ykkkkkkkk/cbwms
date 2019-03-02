@@ -1,7 +1,6 @@
 package ykk.cb.com.cbwms.sales.adapter;
 
 import android.app.Activity;
-import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,11 +11,11 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOutStock> {
+public class Sal_OutPassFragment1AdapterTemp extends BaseArrayRecyclerAdapter<SalOutStock> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
 
-    public Sal_OutPassFragment1Adapter(Activity context, List<SalOutStock> datas) {
+    public Sal_OutPassFragment1AdapterTemp(Activity context, List<SalOutStock> datas) {
         super(datas);
         this.context = context;
     }
@@ -31,23 +30,19 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_ckNo = holder.obtainView(R.id.tv_ckNo);
-        TextView tv_curCarriageNo = holder.obtainView(R.id.tv_curCarriageNo);
-        TextView tv_allCarriageNo = holder.obtainView(R.id.tv_allCarriageNo);
-        TextView tv_nums = holder.obtainView(R.id.tv_nums);
-        TextView tv_cust = holder.obtainView(R.id.tv_cust);
+        TextView tv_mtlNo = holder.obtainView(R.id.tv_mtlNo);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
+        TextView tv_num = holder.obtainView(R.id.tv_num);
         TextView tv_check = holder.obtainView(R.id.tv_check);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
         tv_ckNo.setText(entity.getFbillno());
-//        tv_curCarriageNo.setText(entity.getCurCarriageNo());
-        tv_allCarriageNo.setText(Html.fromHtml(entity.getfCarriageNO()));
-        tv_nums.setText(df.format(entity.getSumQty()));
-        tv_cust.setText(entity.getCustName());
+        tv_mtlNo.setText(entity.getMtlNumber());
+        tv_mtlName.setText(entity.getMtlName());
+        tv_num.setText(df.format(entity.getSalOutStockQty()));
         // 是否显示选中列
-//        boolean isShow = entity.getIsMoreOrder() == 1;
-//        tv_check.setVisibility(isShow ? View.VISIBLE : View.GONE);
-        boolean isSm = entity.isSm();
-        tv_curCarriageNo.setText(isSm ? entity.getCurCarriageNo() : "");
+        boolean isShow = entity.getIsMoreOrder() == 1;
+        tv_check.setVisibility(isShow ? View.VISIBLE : View.GONE);
 
         boolean isCheck = entity.isCheck();
         tv_check.setBackgroundResource(isCheck ? R.drawable.check_true : R.drawable.check_false);

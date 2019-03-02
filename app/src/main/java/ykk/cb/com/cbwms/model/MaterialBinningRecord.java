@@ -109,6 +109,7 @@ public class MaterialBinningRecord implements Serializable {
     private List<String> listBarcode; // 记录每行中扫的条码barcode
     private String strBarcodes; // 用逗号拼接的条码号
     private int isMtlParts; // 是否为物料配件
+    private boolean isCheck; // 是否选中
 
 
     public MaterialBinningRecord() {
@@ -425,6 +426,14 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setIsMtlParts(int isMtlParts) {
         this.isMtlParts = isMtlParts;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean isCheck) {
+        this.isCheck = isCheck;
     }
 
 }

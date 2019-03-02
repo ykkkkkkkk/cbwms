@@ -32,14 +32,17 @@ public class Prod_BoxFragment1Adapter extends BaseArrayRecyclerAdapter<MaterialB
     public void onBindHoder(RecyclerHolder holder, final MaterialBinningRecord entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_check = holder.obtainView(R.id.tv_check);
         TextView tv_prodOrderNo = holder.obtainView(R.id.tv_prodOrderNo);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNo = holder.obtainView(R.id.tv_mtlNo);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_deliWay = holder.obtainView(R.id.tv_deliWay);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
         tv_prodOrderNo.setText(entity.getRelationBillNumber());
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
+        tv_mtlNo.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
         String deliWay = Comm.isNULLS(entity.getDeliveryWay());
         tv_deliWay.setText(deliWay);
         // 是否启用批次管理和序列号管理
@@ -52,6 +55,9 @@ public class Prod_BoxFragment1Adapter extends BaseArrayRecyclerAdapter<MaterialB
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
             tv_nums.setEnabled(true);
         }
+        if(entity.isCheck()) tv_check.setBackgroundResource(R.drawable.check_true);
+        else tv_check.setBackgroundResource(R.drawable.check_false);
+
         View.OnClickListener click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {

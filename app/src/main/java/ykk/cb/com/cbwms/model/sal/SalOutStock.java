@@ -15,10 +15,15 @@ public class SalOutStock implements Serializable {
     private String mtlName;//物料名称
     private double salOutStockQty;//销售出库单出库数量
     private String fdocumentStatus; // 单据状态
+    private String custNumber;//客户代码
+    private String custName;//客户名称
+    private double sumQty;//销售出库单总数量
 
     // 临时字段，不存表
     private int isMoreOrder; // 本次查询是否有多个出库单
+    private String curCarriageNo; // 当前扫描的运单号
     private boolean isCheck; // 用于是否选中标识
+    private boolean isSm; // 用于标识是否扫码
 
     public SalOutStock() {
         super();
@@ -128,5 +133,44 @@ public class SalOutStock implements Serializable {
         this.fdocumentStatus = fdocumentStatus;
     }
 
+    public String getCustNumber() {
+        return custNumber;
+    }
+
+    public void setCustNumber(String custNumber) {
+        this.custNumber = custNumber;
+    }
+
+    public String getCustName() {
+        return custName;
+    }
+
+    public void setCustName(String custName) {
+        this.custName = custName;
+    }
+
+    public double getSumQty() {
+        return sumQty;
+    }
+
+    public void setSumQty(double sumQty) {
+        this.sumQty = sumQty;
+    }
+
+    public String getCurCarriageNo() {
+        return curCarriageNo;
+    }
+
+    public void setCurCarriageNo(String curCarriageNo) {
+        this.curCarriageNo = curCarriageNo;
+    }
+
+    public boolean isSm() {
+        return isSm;
+    }
+
+    public void setSm(boolean isSm) {
+        this.isSm = isSm;
+    }
 
 }

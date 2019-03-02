@@ -78,6 +78,8 @@ import ykk.cb.com.cbwms.util.interfaces.IFragmentExec;
  */
 public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.btn_clone)
     Button btnClone;
     @BindView(R.id.btn_save)
@@ -110,7 +112,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private Sal_OutFragment2 context = this;
     private static final int SEL_ORDER = 10, SEL_DEPT = 11, SEL_ORG = 12, SEL_ORG2 = 13, SEL_EXPRESS = 14, SEL_STOCK2 = 15, SEL_STOCKP2 = 16, SEL_STAFF = 17;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, SUCC4 = 204, UNSUCC4 = 504;
-    private static final int SETFOCUS = 1, CODE2 = 2;
+    private static final int SETFOCUS = 1, CODE2 = 2, SAOMA = 3;
     private Customer cust; // 客户
     private Stock stock, stock2; // 仓库
     private Staff stockStaff; // 仓管员
@@ -134,6 +136,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private List<DeliOrder> deliOrderList = new ArrayList<>(); // 保存发货通知单的
     private String k3Number; // 记录传递到k3返回的单号
     private char orderDeliveryType = '0'; // 单据发货类型 （1、非整非拼，2、整单发货，3、拼单）
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -303,6 +306,31 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                             strError2 = "服务器繁忙哦！";
                         }
                         Comm.showWarnDialog(m.mContext,strError2);
+
+                        break;
+                    case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
+                        m.setFocusable(m.etGetFocus);
+                        m.setFocusable(m.etBoxCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.curViewFlag) {
+                            case '1': // 装箱单
+                                etName = m.getValues(m.etBoxCode);
+                                if (m.boxBarcode != null && m.boxBarcode.length() > 0) {
+                                    if (m.boxBarcode.equals(etName)) {
+                                        m.boxBarcode = etName;
+                                    } else
+                                        m.boxBarcode = etName.replaceFirst(m.boxBarcode, "");
+
+                                } else m.boxBarcode = etName;
+                                m.setTexts(m.etBoxCode, m.boxBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.boxBarcode);
+
+                                break;
+                        }
 
                         break;
                 }
@@ -558,6 +586,19 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_boxCode:
+                        setFocusable(etBoxCode);
+                        break;
+                }
+            }
+        };
+        etBoxCode.setOnClickListener(click);
+
         // 箱码
         etBoxCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -568,9 +609,10 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '1';
-                boxBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(boxBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
@@ -1195,6 +1237,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
      * 扫码查询对应的方法
      */
     private void run_smGetDatas(String val) {
+        isTextChange = false;
         if(val.length() == 0) {
             Comm.showWarnDialog(mContext,"请对准条码！");
             return;

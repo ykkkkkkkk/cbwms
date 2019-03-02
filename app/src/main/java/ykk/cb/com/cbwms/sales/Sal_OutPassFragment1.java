@@ -11,13 +11,11 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -50,10 +48,6 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
  */
 public class Sal_OutPassFragment1 extends BaseFragment {
 
-    @BindView(R.id.tv_list)
-    TextView tvList;
-    @BindView(R.id.tv_check)
-    TextView tvCheck;
     @BindView(R.id.et_getFocus)
     EditText etGetFocus;
     @BindView(R.id.et_code)
@@ -62,16 +56,16 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     RecyclerView recyclerView;
 
     private Sal_OutPassFragment1 context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SAOMA = 100, SETFOCUS = 101;
     private Sal_OutPassFragment1Adapter mAdapter;
     private List<SalOutStock> checkDatas = new ArrayList<>();
-    private List<SalOutStockTmp> recordList = new ArrayList<>();
     private String barcode; // 对应的条码号
     private int curPos; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
     private Activity mContext;
     private Sal_OutPassMainActivity parent;
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private Sal_OutPassFragment1.MyHandler mHandler = new Sal_OutPassFragment1.MyHandler(this);
@@ -96,8 +90,8 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC1:
-                        errMsg = JsonUtil.strToString((String)msg.obj);
-                        if(m.isNULLS(errMsg).length() == 0) {
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) {
                             errMsg = "服务器超时，请稍候再试！";
                         }
                         Comm.showWarnDialog(m.mContext, errMsg);
@@ -114,6 +108,29 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                             errMsg = "很抱歉，没有找到数据！";
                         }
                         Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case SETFOCUS: // 焦点重置
+                        m.setFocusable(m.etGetFocus);
+                        m.setFocusable(m.etCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = m.getValues(m.etCode);
+                        if (m.barcode != null && m.barcode.length() > 0) {
+                            if(m.barcode.equals(etName)) {
+                                m.barcode = etName;
+                            } else m.barcode = etName.replaceFirst(m.barcode, "");
+
+                        } else m.barcode = etName;
+                        m.setTexts(m.etCode, m.barcode);
+                        m.isTextChange = false;
+                        // 判断当前行是否有相同的运单号
+                        if (!m.carriageNoExistRow()) {
+                            // 执行查询方法
+                            m.run_smGetDatas(m.barcode);
+                        }
+                        m.mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
 
                         break;
                 }
@@ -141,32 +158,31 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Sal_OutPassFragment1Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 SalOutStock m = checkDatas.get(pos);
-                boolean isShow = m.getIsMoreOrder() == 1;
-                if (isShow) {
-                    String fbillNo = m.getFbillno();
-                    boolean isCheck = m.isCheck();
-                    int size = checkDatas.size();
-                    if (isCheck) { // 选中行的单据所有行全部false
-                        for (int i = 0; i < size; i++) {
-                            SalOutStock salOut = checkDatas.get(i);
-                            if (fbillNo.equals(salOut.getFbillno())) {
-                                salOut.setCheck(false);
-                            }
-                        }
-                    } else { // 选中行的单据所有行全部true
-                        for (int i = 0; i < size; i++) {
-                            SalOutStock salOut = checkDatas.get(i);
-                            if (fbillNo.equals(salOut.getFbillno())) {
-                                salOut.setCheck(true);
-                            }
+                String fbillNo = m.getFbillno();
+                boolean isCheck = m.isCheck();
+                int size = checkDatas.size();
+                if (isCheck) { // 选中行的单据所有行全部false
+                    for (int i = 0; i < size; i++) {
+                        SalOutStock salOut = checkDatas.get(i);
+                        if (fbillNo.equals(salOut.getFbillno())) {
+                            salOut.setCheck(false);
                         }
                     }
-                    mAdapter.notifyDataSetChanged();
+                } else { // 选中行的单据所有行全部true
+                    for (int i = 0; i < size; i++) {
+                        SalOutStock salOut = checkDatas.get(i);
+                        if (fbillNo.equals(salOut.getFbillno())) {
+                            salOut.setCheck(true);
+                        }
+                    }
                 }
+                mAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -181,74 +197,19 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setFocusable(etCode); // 物料代码获取焦点
-                }
-            }, 200);
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
         }
     }
 
-    @OnClick({R.id.btn_pass, R.id.btn_clone})
+    @OnClick({R.id.btn_pass, R.id.btn_clone, R.id.btn_del})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
             case R.id.btn_pass: // 审核
-                if(checkDatas.size() == 0) {
-                    Comm.showWarnDialog(mContext,"请扫描运单号！");
-                    return;
-                }
-                int size = checkDatas.size();
-                SalOutStock salOut = checkDatas.get(0);
-
-                StringBuilder strFbillNo = new StringBuilder() ;
-                if(salOut.getIsMoreOrder() == 1) {
-                    boolean isBool = false;
-                    for(int i=0; i<size; i++) {
-                        SalOutStock s = checkDatas.get(i);
-                        if(s.isCheck()) {
-                            isBool = true;
-                            break;
-                        }
-                    }
-                    if(!isBool) {
-                        Comm.showWarnDialog(mContext,"请至少选中一行出库单！");
-                        return;
-                    }
-
-
-                    // 得到当前要审核的行
-                    for(int i=0; i<size; i++) {
-                        SalOutStock s = checkDatas.get(i);
-                        String fbillNo = s.getFbillno();
-                        if(strFbillNo.indexOf(fbillNo) == -1 && s.isCheck()) {
-                            strFbillNo.append("'"+fbillNo+"',");
-                        }
-                    }
-
-                    // 减去前面'
-                    strFbillNo.delete(0, 1);
-                    // 减去最好一个'，
-                    strFbillNo.delete(strFbillNo.length()-2, strFbillNo.length());
-
-                } else {
-                    for(int i=0; i<recordList.size(); i++) {
-                        SalOutStockTmp sTmp = recordList.get(i);
-                        if(!sTmp.isSM()) {
-                            Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
-                            return;
-                        }
-                    }
-
-                    strFbillNo.append(salOut.getFbillno());
-                }
-
-                run_submitAndPass(strFbillNo.toString());
+                passBefer();
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -267,6 +228,27 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 } else {
                     reset();
                 }
+
+                break;
+            case R.id.btn_del: // 删除行
+                if (checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请扫码运单号！");
+                    return;
+                }
+                boolean isCheck = false;
+                for(int i=checkDatas.size()-1; i >= 0; i--){
+                    SalOutStock sOut = checkDatas.get(i);
+                    if (sOut.isCheck()) {
+                        isCheck = true;
+                        checkDatas.remove(i);
+                    }
+                }
+                if(!isCheck) {
+                    toasts("请选中要删除的行");
+                    return;
+                }
+                mAdapter.notifyDataSetChanged();
+                mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
 
                 break;
         }
@@ -305,22 +287,21 @@ public class Sal_OutPassFragment1 extends BaseFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) return;
-                barcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(barcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
     }
 
     private void reset() {
-        tvList.setVisibility(View.GONE);
-        tvCheck.setVisibility(View.GONE);
         barcode = null;
         etCode.setText("");
-        recordList.clear();
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
 
@@ -328,12 +309,13 @@ public class Sal_OutPassFragment1 extends BaseFragment {
      * 扫码查询对应的方法
      */
     private void run_smGetDatas(String val) {
+        isTextChange = false;
         if (val.length() == 0) {
             Comm.showWarnDialog(mContext, "请对准条码！");
             return;
         }
         showLoadDialog("加载中...");
-        String mUrl = getURL("salOutStock/findSalOutStockList");
+        String mUrl = getURL("salOutStock/findSalOutStockByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fCarriageNO", barcode)
                 .build();
@@ -368,115 +350,84 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     }
 
     /**
+     * 判断行里面是否有相同的运单号
+     */
+    private boolean carriageNoExistRow() {
+        if (checkDatas.size() == 0) return false;
+        int size = checkDatas.size();
+        boolean isBool = false;
+        for (int i = 0; i < size; i++) {
+            SalOutStock sOut = checkDatas.get(i);
+            if (barcode != null && barcode.equals(sOut.getCurCarriageNo())) {
+                if (sOut.isSm()) {
+                    Comm.showWarnDialog(mContext, "该运单号已经扫过了！");
+                } else {
+                    sOut.setSm(true);
+                }
+                isBool = true;
+                break;
+            }
+        }
+        mAdapter.notifyDataSetChanged();
+
+        return isBool;
+    }
+
+    /**
      * 得到扫码的数据
      *
      * @param list
      */
     private void getSmData(List<SalOutStock> list) {
-        SalOutStock salOut = list.get(0);
-        boolean isShow = salOut.getIsMoreOrder() == 1;
+        int size = list.size();
+        for (int i = 0; i < size; i++) {
+            SalOutStock sOut = list.get(i);
+            String carriageNo = sOut.getfCarriageNO();
+            if (barcode != null && barcode.equals(sOut.getCurCarriageNo())) {
+                sOut.setSm(true);
+            }
+            sOut.setfCarriageNO(carriageNo.replace("/", "<br>"));
+        }
+        checkDatas.addAll(list);
+        mAdapter.notifyDataSetChanged();
+
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+    }
+
+    /**
+     * 审核之前的判断和处理
+     */
+    private void passBefer() {
         if (checkDatas.size() == 0) {
-            int size = list.size();
+            Comm.showWarnDialog(mContext, "请扫描运单号！");
+            return;
+        }
+        int size = checkDatas.size();
 
-            if (isShow) {
-                // 全部设成选中
-                for (int i = 0; i < size; i++) {
-                    SalOutStock s2 = list.get(i);
-                    s2.setCheck(true);
-                }
-                // 多个出库单
-                // 保存物料单列表
-                for (int i = 0; i < size; i++) {
-                    SalOutStock s = list.get(i);
-                    String fbillNo = s.getFbillno();
-                    String fCarriageNO = s.getfCarriageNO();
-
-                    // 循环这个临时list 是否有相同的单据号
-                    boolean isBool = false;
-                    for (int j = 0; j < recordList.size(); j++) {
-                        SalOutStockTmp sTmp = recordList.get(j);
-                        if (fbillNo.equals(sTmp.getFbillno())) {
-                            isBool = true;
-                            break;
-                        }
-                    }
-
-                    // 不同的单据号，就保存起来
-                    if (!isBool) {
-                        // 拆分多个物料单
-                        String[] arr = fCarriageNO.split("/");
-                        for (int k = 0; k < arr.length; k++) {
-                            SalOutStockTmp sTmp = new SalOutStockTmp();
-                            sTmp.setFbillno(fbillNo);
-                            sTmp.setfCarriageNO(arr[k]);
-                            sTmp.setSM(false);
-                            recordList.add(sTmp);
-                        }
-                    }
-                }
-
-            } else {
-                // 一个出库单
-                SalOutStock s = list.get(0);
-                String fbillNo = s.getFbillno();
-                String fCarriageNO = s.getfCarriageNO();
-
-                String[] arr = fCarriageNO.split("/");
-                for (int k = 0; k < arr.length; k++) {
-                    SalOutStockTmp sTmp = new SalOutStockTmp();
-                    sTmp.setFbillno(fbillNo);
-                    sTmp.setfCarriageNO(arr[k]);
-                    sTmp.setSM(false);
-                    if (barcode != null && barcode.equals(arr[k])) sTmp.setSM(true);
-                    else sTmp.setSM(false);
-                    recordList.add(sTmp);
-                }
+        for(int i=0; i<size; i++) {
+            SalOutStock sOut = checkDatas.get(i);
+            if(!sOut.isSm()) {
+                Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
+                return;
             }
-
-            tvCheck.setVisibility(isShow ? View.VISIBLE : View.GONE);
-            checkDatas.addAll(list);
-            mAdapter.notifyDataSetChanged();
-
-        } else {
-            // 是否匹配
-            boolean isBool = false;
-            for (int i = 0, size = recordList.size(); i < size; i++) {
-                SalOutStockTmp sTmp = recordList.get(i);
-                String carriageNO = sTmp.getfCarriageNO();
-                boolean isSm = sTmp.isSM();
-                if (barcode != null && barcode.equals(carriageNO)) {
-                    isBool = true;
-                    if (isSm) {
-                        Comm.showWarnDialog(mContext, "该条码已经扫过了！");
-                        return;
-                    }
-                    sTmp.setSM(true);
-                }
-            }
-
         }
 
-        // 显示运单号
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0, size2 = recordList.size(); i < size2; i++) {
-            SalOutStockTmp sTmp = recordList.get(i);
-            String fbillNo = sTmp.getFbillno();
-            String carriageNO = sTmp.getfCarriageNO();
-            boolean isSm = sTmp.isSM();
-            if (isShow) {
-                if ((i + 1) == size2)
-                    sb.append(fbillNo + "--" + carriageNO);
-                else
-                    sb.append(fbillNo + "--" + carriageNO + "<br>");
-            } else {
-                if ((i + 1) == size2)
-                    sb.append(fbillNo + "--" + carriageNO + "--" + (isSm ? "<font color='#009900'>已扫</font>" : "<font color='#666666'>未扫</font>"));
-                else
-                    sb.append(fbillNo + "--" + carriageNO + "--" + (isSm ? "<font color='#009900'>已扫</font>" : "<font color='#666666'>未扫</font><br>"));
+        StringBuilder strFbillNo = new StringBuilder();
+        // 得到当前要审核的行
+        for (int i = 0; i < size; i++) {
+            SalOutStock s = checkDatas.get(i);
+            String fbillNo = s.getFbillno();
+            if (strFbillNo.indexOf(fbillNo) == -1) {
+                strFbillNo.append("'" + fbillNo + "',");
             }
         }
-        tvList.setVisibility(View.VISIBLE);
-        tvList.setText(Html.fromHtml(sb.toString()));
+
+        // 减去前面'
+        strFbillNo.delete(0, 1);
+        // 减去最好一个'，
+        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
+
+        run_submitAndPass(strFbillNo.toString());
     }
 
     /**

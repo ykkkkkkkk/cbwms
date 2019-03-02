@@ -90,7 +90,7 @@ public class Prod_StartFragment1 extends BaseFragment {
     private Prod_StartFragment1 context = this;
     private static final int SEL_ORDER = 10, SEL_STOCK2 = 11, SEL_STOCKP2 = 12, SEL_DEPT = 13, SEL_ORG = 14, SEL_ORG2 = 15;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 203, UNSUCC4 = 503, SUCC5 = 204, UNSUCC5 = 504, PASS = 205, UNPASS = 505;
-    private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3;
+    private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3, SAOMA = 4;
 //    private Supplier supplier; // 供应商
     private Stock stock, stock2; // 仓库
     private StockPosition stockP, stockP2; // 库位
@@ -113,6 +113,7 @@ public class Prod_StartFragment1 extends BaseFragment {
     private int procedureId; // 工序id
     private int prodEntryStatus = 0; //生产订单分录状态--1、计划；2、计划确认；3、下达；4、开工；5、完工；6、结案；7、结算
 //    private boolean isStartWork; // 是否为开工
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -306,6 +307,26 @@ public class Prod_StartFragment1 extends BaseFragment {
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.etGetFocus);
                         m.setFocusable(m.etMtlCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.curViewFlag) {
+                            case '1': // 生产订单物料
+                                etName = m.getValues(m.etMtlCode);
+                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                                    if (m.mtlBarcode.equals(etName)) {
+                                        m.mtlBarcode = etName;
+                                    } else
+                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                                } else m.mtlBarcode = etName;
+                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas();
+
+                                break;
+                        }
 
                         break;
                 }
@@ -521,6 +542,19 @@ public class Prod_StartFragment1 extends BaseFragment {
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_mtlCode: // 物料
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etMtlCode.setOnClickListener(click);
+
         // 生产订单物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -531,9 +565,10 @@ public class Prod_StartFragment1 extends BaseFragment {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '1';
-                mtlBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas();
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
     }
@@ -1192,6 +1227,7 @@ public class Prod_StartFragment1 extends BaseFragment {
      * 扫码查询对应的方法
      */
     private void run_smGetDatas() {
+        isTextChange = false;
         showLoadDialog("加载中...");
         String mUrl = null;
         String barcode = null;

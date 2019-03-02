@@ -5,7 +5,7 @@
     <!-- 填充的颜色 -->
     <solid android:color="@color/purple_key" />
     <!-- 设置按钮的四个角为弧形 -->
-    <corners android:radius="6dip" />
+    <corners android:radius="0dip" />
     <!-- Padding:Button里面的文字与Button边界的间距 -->
     <padding
         android:bottom="0dp"

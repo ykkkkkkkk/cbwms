@@ -80,6 +80,8 @@ public class Prod_InFragment1 extends BaseFragment {
     Button btnClone;
     @BindView(R.id.btn_save)
     Button btnSave;
+    @BindView(R.id.btn_print)
+    Button btnPrint;
     @BindView(R.id.btn_pass)
     Button btnPass;
     @BindView(R.id.et_mtlCode)
@@ -92,13 +94,15 @@ public class Prod_InFragment1 extends BaseFragment {
     TextView tvProdOrg;
     @BindView(R.id.tv_prodDate)
     TextView tvProdDate;
+    @BindView(R.id.tv_countSum)
+    TextView tvCountSum;
     @BindView(R.id.lin_top)
     LinearLayout linTop;
 
     private Prod_InFragment1 context = this;
     private static final int SEL_ORDER = 10, SEL_STOCK2 = 11, SEL_STOCKP2 = 12, SEL_DEPT = 13, SEL_ORG = 14, SEL_ORG2 = 15;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
-    private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3;
+    private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3, SAOMA = 4;
 //    private Supplier supplier; // 供应商
     private Stock stock, stock2; // 仓库
     private StockPosition stockP, stockP2; // 库位
@@ -106,7 +110,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private ProdOrder prodOrder; // 生产订单
     private Prod_InFragment1Adapter mAdapter;
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
-    private String stockBarcode, stockPBarcode, deptBarcode, mtlBarcode; // 对应的条码号
+    private String mtlBarcode; // 对应的条码号
     private BarCodeTable barCodeTable; //
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
     private int curPos; // 当前行
@@ -119,6 +123,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private String k3Number; // 记录传递到k3返回的单号
     private int prodEntryStatus = 0; //生产订单分录状态--1、计划；2、计划确认；3、下达；4、开工；5、完工；6、结案；7、结算
 //    private boolean isStartWork; // 是否为开工
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -145,6 +150,7 @@ public class Prod_InFragment1 extends BaseFragment {
 //                        m.mAdapter.notifyDataSetChanged();
                         m.btnClone.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
+                        m.btnPrint.setVisibility(View.VISIBLE);
                         m.btnPass.setVisibility(View.VISIBLE);
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
 
@@ -157,6 +163,7 @@ public class Prod_InFragment1 extends BaseFragment {
                         m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
+                        m.btnPrint.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
 
@@ -260,6 +267,26 @@ public class Prod_InFragment1 extends BaseFragment {
                         m.setFocusable(m.etMtlCode);
 
                         break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.curViewFlag) {
+                            case '1': // 生产订单物料
+                                etName = m.getValues(m.etMtlCode);
+                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                                    if (m.mtlBarcode.equals(etName)) {
+                                        m.mtlBarcode = etName;
+                                    } else
+                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                                } else m.mtlBarcode = etName;
+                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas();
+
+                                break;
+                        }
+
+                        break;
                 }
             }
         }
@@ -279,6 +306,8 @@ public class Prod_InFragment1 extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Prod_InFragment1Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Prod_InFragment1Adapter.MyCallBack() {
             @Override
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
@@ -346,7 +375,7 @@ public class Prod_InFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.tv_orderTypeSel, R.id.tv_inOrg, R.id.tv_prodOrg, R.id.tv_prodDate, R.id.lin_rowTitle})
+    @OnClick({R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone, R.id.tv_orderTypeSel, R.id.tv_inOrg, R.id.tv_prodOrg, R.id.tv_prodDate, R.id.lin_rowTitle})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -379,6 +408,14 @@ public class Prod_InFragment1 extends BaseFragment {
 //                } else {
 //                    run_updateProdOrderStatus();
 //                }
+
+                break;
+            case R.id.btn_print:// 打印
+                if(k3Number == null) {
+                    Comm.showWarnDialog(mContext,"请先保存，然后审核！");
+                    return;
+                }
+                parent.setFragment1Print(1, checkDatas);
 
                 break;
             case R.id.btn_pass: // 审核
@@ -466,6 +503,19 @@ public class Prod_InFragment1 extends BaseFragment {
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_mtlCode: // 物料
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etMtlCode.setOnClickListener(click);
+
         // 生产订单物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -476,9 +526,10 @@ public class Prod_InFragment1 extends BaseFragment {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '1';
-                mtlBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas();
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
     }
@@ -495,6 +546,7 @@ public class Prod_InFragment1 extends BaseFragment {
 //        setEnables(tvInOrg, R.drawable.back_style_blue, true);
 //        setEnables(tvProdOrg, R.drawable.back_style_blue, true);
         prodEntryStatus = 0;
+        tvCountSum.setText("0.0");
     }
 
     private void resetSon() {
@@ -502,6 +554,7 @@ public class Prod_InFragment1 extends BaseFragment {
         btnClone.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
         btnPass.setVisibility(View.GONE);
+        btnPrint.setVisibility(View.GONE);
         getBarCodeTableBefore(true);
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
@@ -514,8 +567,6 @@ public class Prod_InFragment1 extends BaseFragment {
         inOrg = null;
         prodOrg = null;
         curViewFlag = '1';
-        stockBarcode = null;
-        stockPBarcode = null;
         mtlBarcode = null;
         tvProdDate.setText(Comm.getSysDate(7));
     }
@@ -583,6 +634,9 @@ public class Prod_InFragment1 extends BaseFragment {
                         checkDatas.get(curPos).setStockqty(num);
 //                        checkDatas.get(curPos).setFqty(num);
                         mAdapter.notifyDataSetChanged();
+
+                        // 合计总数
+                        tvCountSum.setText(String.valueOf(countSum()));
                     }
                 }
 
@@ -746,6 +800,7 @@ public class Prod_InFragment1 extends BaseFragment {
         sr2.setPoFbillno(prodOrder.getFbillno());
         sr2.setPoFmustqty(prodOrder.getProdFqty());
         sr2.setBarcode(bt.getBarcode());
+        sr2.setRelationObj(bt.getRelationObj());
 
         // 物料是否启用序列号
         if(mtl.getIsSnManager() == 1) {
@@ -758,7 +813,18 @@ public class Prod_InFragment1 extends BaseFragment {
         checkDatas.add(sr2);
         mAdapter.notifyDataSetChanged();
 
+
+        // 合计总数
+        tvCountSum.setText(String.valueOf(countSum()));
 //        if(prodEntryStatus == 0) run_itemList();
+    }
+
+    private double countSum() {
+        double sum = 0.0;
+        for(int i=0; i<checkDatas.size(); i++) {
+            sum += checkDatas.get(i).getStockqty();
+        }
+        return sum;
     }
 
     /**
@@ -853,6 +919,9 @@ public class Prod_InFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "该物料与订单不匹配！");
         }
         setFocusable(etMtlCode);
+
+        // 合计总数
+        tvCountSum.setText(String.valueOf(countSum()));
     }
 
     /**
@@ -871,7 +940,6 @@ public class Prod_InFragment1 extends BaseFragment {
         if (prodOrg != null) {
             tvProdOrg.setText(prodOrg.getName());
         }
-        mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
     }
 
     /**
@@ -970,6 +1038,7 @@ public class Prod_InFragment1 extends BaseFragment {
      * 扫码查询对应的方法
      */
     private void run_smGetDatas() {
+        isTextChange = false;
         showLoadDialog("加载中...");
         String mUrl = null;
         String barcode = null;

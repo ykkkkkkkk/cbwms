@@ -52,6 +52,8 @@ import ykk.cb.com.cbwms.util.LogUtil;
 
 public class Prod_ProcedureReportActivity extends BaseActivity {
 
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.tv_valuationType)
     TextView tvValuationType;
     @BindView(R.id.tv_staff)
@@ -73,7 +75,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
 
     private Prod_ProcedureReportActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 201, UNSUCC3 = 501;
-    private static final int SEL_ORDER = 10, CODE1 = 11;
+    private static final int SEL_ORDER = 10, CODE1 = 11, SETFOCUS = 12, SAOMA = 13;
     private Material mtl;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private String mtlBarcode; // 对应的条码号
@@ -81,6 +83,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
     private char dataFlag = '1'; // 1：计价类型列表，2：工序列表
     private DecimalFormat df = new DecimalFormat("#.######");
     private User user;
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -154,6 +157,25 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                         break;
                     case UNSUCC2: // 数据加载失败！
                         m.toasts("服务器繁忙，请稍后再试！");
+
+                        break;
+                    case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
+                        m.setFocusable(m.etGetFocus);
+                        m.setFocusable(m.etMtlCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = m.getValues(m.etMtlCode);
+                        if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                            if (m.mtlBarcode.equals(etName)) {
+                                m.mtlBarcode = etName;
+                            } else
+                                m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                        } else m.mtlBarcode = etName;
+                        m.setTexts(m.etMtlCode, m.mtlBarcode);
+                        // 执行查询方法
+                        m.run_itemList();
 
                         break;
                 }
@@ -278,6 +300,19 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_mtlCode: // 物料
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etMtlCode.setOnClickListener(click);
+
         // 物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -290,8 +325,10 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                 mtlBarcode = s.toString();
 
                 dataFlag = '2';
-                // 执行查询方法
-                run_itemList();
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
@@ -629,6 +666,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
      * 查询计件类型
      */
     private void run_itemList() {
+        isTextChange = false;
         showLoadDialog("加载中...");
         String mUrl = null;
         switch (dataFlag) {
@@ -745,6 +783,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                 break;
 
         }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
     /**

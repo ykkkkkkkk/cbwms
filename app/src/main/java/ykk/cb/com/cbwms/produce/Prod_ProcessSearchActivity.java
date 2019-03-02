@@ -53,7 +53,8 @@ import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 public class Prod_ProcessSearchActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
-
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.viewRadio1)
     View viewRadio1;
     @BindView(R.id.viewRadio2)
@@ -80,7 +81,7 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
 
     private Prod_ProcessSearchActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502;
-    private static final int SEL_ORDER = 10;
+    private static final int SEL_ORDER = 10, SAOMA = 11, SETFOCUS = 12;
     private Material mtl;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private Prod_ProcessSearchAdapter mAdapter;
@@ -88,6 +89,7 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
     private List<ProcessflowEntry> listDatas = new ArrayList<>();
     private int processflowEntryId;
     private char smFlag = '1'; // 1：生产订单扫描，2：生产订单物料扫码
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -162,6 +164,52 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
                     case UNSUCC3: // 数据加载失败！
                         m.toasts("抱歉，没有加载到数据！");
 
+                        break;
+                    case SETFOCUS: // 焦点重置
+                        m.setFocusable(m.etGetFocus);
+                        switch (m.smFlag) {
+                            case '1': // 生产订单物料   返回
+                                m.setFocusable(m.etMtlCode);
+                                break;
+                            case '2': // 生产订单   返回
+                                m.setFocusable(m.etSourceCode);
+                                break;
+                        }
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.smFlag) {
+                            case '1': // 生产订单物料   返回
+                                etName = m.getValues(m.etMtlCode);
+                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                                    if (m.mtlBarcode.equals(etName)) {
+                                        m.mtlBarcode = etName;
+                                    } else
+                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                                } else m.mtlBarcode = etName;
+                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.mtlBarcode);
+
+                                break;
+                            case '2': // 生产订单   返回
+                                etName = m.getValues(m.etSourceCode);
+                                if (m.sourceBarcode != null && m.sourceBarcode.length() > 0) {
+                                    if (m.sourceBarcode.equals(etName)) {
+                                        m.sourceBarcode = etName;
+                                    } else
+                                        m.sourceBarcode = etName.replaceFirst(m.sourceBarcode, "");
+
+                                } else m.sourceBarcode = etName;
+                                m.setTexts(m.etSourceCode, m.sourceBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.sourceBarcode);
+
+                                break;
+
+                        }
                         break;
                 }
             }
@@ -287,6 +335,23 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_sourceCode: // 生产订单
+                        setFocusable(etSourceCode);
+                        break;
+                    case R.id.et_mtlCode: // 生产订单物料
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etSourceCode.setOnClickListener(click);
+        etMtlCode.setOnClickListener(click);
+
         // 生产订单
         etSourceCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -296,13 +361,14 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-                sourceBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(sourceBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
-        // 生产订单
+        // 生产订单物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -311,25 +377,27 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
-                mtlBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(mtlBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
 
-        etSourceCode.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                setTexts(etSourceCode, "MO011934");
-                return true;
-            }
-        });
+//        etSourceCode.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                setTexts(etSourceCode, "MO011934");
+//                return true;
+//            }
+//        });
     }
 
     /**
      * 扫码查询对应的方法
      */
     private void run_smGetDatas(String val) {
+        isTextChange = false;
         if(val.length() == 0) {
             Comm.showWarnDialog(context,"请对准条码！");
             return;
@@ -700,6 +768,7 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
                 break;
 
         }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
     @Override

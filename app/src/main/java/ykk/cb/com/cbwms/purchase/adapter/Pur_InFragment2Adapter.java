@@ -10,6 +10,7 @@ import java.util.List;
 
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -41,7 +42,8 @@ public class Pur_InFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRec
         tv_row.setText(String.valueOf(pos + 1));
         tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
         // 是否启用序列号
-        if(entity.getMtl().getIsSnManager() == 1) {
+        Material mtl = entity.getMtl();
+        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             tv_nums.setEnabled(false);
             tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
         } else {

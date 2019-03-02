@@ -60,6 +60,8 @@ import ykk.cb.com.cbwms.util.LogUtil;
  */
 public class Allot_PickingListActivity extends BaseActivity {
 
+    @BindView(R.id.et_getFocus)
+    EditText etGetFocus;
     @BindView(R.id.et_sourceCode)
     EditText etSourceCode;
     @BindView(R.id.et_mtlCode)
@@ -72,7 +74,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private Allot_PickingListActivity context = this;
     private static final int SEL_DELI = 11, SEL_STOCK2 = 12, SEL_STOCKP2 = 13, SEL_STAFF = 14;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502;
-    private static final int CODE1 = 1, SETFOCUS = 2;
+    private static final int CODE1 = 1, SETFOCUS = 2, SAOMA = 3;
     private Stock stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Staff stockStaff; // 仓管员
@@ -84,6 +86,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
     private char defaultStockVal; // 默认仓库的值
+    private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
     private Allot_PickingListActivity.MyHandler mHandler = new Allot_PickingListActivity.MyHandler(this);
@@ -170,6 +173,41 @@ public class Allot_PickingListActivity extends BaseActivity {
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
                         m.setFocusable(m.etSourceCode);
                         m.setFocusable(m.etMtlCode);
+
+                        break;
+                    case SAOMA: // 扫码之后
+                        String etName = null;
+                        switch (m.curViewFlag) {
+                            case '1': // 调拨单
+                                etName = m.getValues(m.etSourceCode);
+                                if (m.sourceBarcode != null && m.sourceBarcode.length() > 0) {
+                                    if (m.sourceBarcode.equals(etName)) {
+                                        m.sourceBarcode = etName;
+                                    } else
+                                        m.sourceBarcode = etName.replaceFirst(m.sourceBarcode, "");
+
+                                } else m.sourceBarcode = etName;
+                                m.setTexts(m.etSourceCode, m.sourceBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.sourceBarcode);
+
+                                break;
+                            case '2': // 物料
+                                etName = m.getValues(m.etMtlCode);
+                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
+                                    if (m.mtlBarcode.equals(etName)) {
+                                        m.mtlBarcode = etName;
+                                    } else
+                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
+
+                                } else m.mtlBarcode = etName;
+                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                // 执行查询方法
+                                m.run_smGetDatas(m.mtlBarcode);
+
+                                break;
+                        }
+
                         break;
                 }
             }
@@ -343,6 +381,23 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     @Override
     public void setListener() {
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setFocusable(etGetFocus);
+                switch (v.getId()) {
+                    case R.id.et_sourceCode:
+                        setFocusable(etSourceCode);
+                        break;
+                    case R.id.et_mtlCode:
+                        setFocusable(etMtlCode);
+                        break;
+                }
+            }
+        };
+        etSourceCode.setOnClickListener(click);
+        etMtlCode.setOnClickListener(click);
+
         // 调拨单
         etSourceCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -353,9 +408,10 @@ public class Allot_PickingListActivity extends BaseActivity {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '1';
-                sourceBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(sourceBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
         // 物料
@@ -367,16 +423,17 @@ public class Allot_PickingListActivity extends BaseActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
+                curViewFlag = '2';
                 if (checkDatas.size() == 0) {
                     s.delete(0,s.length());
                     mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
                     Comm.showWarnDialog(context,"请扫描调拨单！");
                     return;
                 }
-                curViewFlag = '2';
-                mtlBarcode = s.toString();
-                // 执行查询方法
-                run_smGetDatas(mtlBarcode);
+                if(!isTextChange) {
+                    isTextChange = true;
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                }
             }
         });
     }
@@ -509,6 +566,7 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                 break;
         }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
     /**
@@ -677,6 +735,7 @@ public class Allot_PickingListActivity extends BaseActivity {
      * 扫码查询对应的方法
      */
     private void run_smGetDatas(String val) {
+        isTextChange = false;
         if(val.length() == 0) {
             Comm.showWarnDialog(context,"请对准条码！");
             return;

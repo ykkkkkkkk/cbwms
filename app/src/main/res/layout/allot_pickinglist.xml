@@ -291,6 +291,7 @@
             android:background="@drawable/btn_purple2_selector"
             android:gravity="center"
             android:text="审核"
+            android:visibility="gone"
             android:textColor="@color/white"
             android:textSize="16sp" />
 

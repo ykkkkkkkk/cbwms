@@ -239,17 +239,30 @@ public class Prod_InMainActivity extends BaseActivity {
         int beginXPos = 20; // 开始横向位置
         int beginYPos = 10; // 开始纵向位置
         int rowHigthSum = 0; // 纵向高度的叠加
-        int rowSpacing = 30; // 每行之间的距离
+        int rowSpacing = 32; // 每行之间的距离
 
         ScanningRecord2 sr2 = scanningRecord2List.get(pos);
         ProdOrder prodOrder = JsonUtil.stringToObject(sr2.getRelationObj(), ProdOrder.class);
 
         // 绘制箱子条码
         tsc.addText(260, beginYPos, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物料标签 \n");
-        rowHigthSum = rowHigthSum + rowSpacing;
+        rowHigthSum = rowHigthSum + rowSpacing+10;
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物料代码： "+prodOrder.getMtlFnumber()+"\n");
         rowHigthSum = rowHigthSum + rowSpacing;
-        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物流名称："+prodOrder.getMtlFname()+" \n");
+
+        String mtlFname = prodOrder.getMtlFname();
+        int tmpLen = mtlFname.length();
+        String mtlFname1 = null;
+        String mtlFname2 = null;
+        if(mtlFname.length() <= 22) {
+            tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物品名称："+mtlFname+" \n");
+        } else {
+            mtlFname1 = mtlFname.substring(0, 22);
+            mtlFname2 = mtlFname.substring(22, tmpLen);
+            tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"物品名称："+mtlFname1+" \n");
+            rowHigthSum = rowHigthSum + rowSpacing;
+            tsc.addText(80, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,""+mtlFname2+" \n");
+        }
         rowHigthSum = rowHigthSum + rowSpacing;
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"批次号："+isNULLS(sr2.getBatchno())+" \n");
         rowHigthSum = rowHigthSum + rowSpacing;
@@ -266,6 +279,8 @@ public class Prod_InMainActivity extends BaseActivity {
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"备注：\n");
         rowHigthSum = rowHigthSum + rowSpacing;
         tsc.addText(200, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"表单编号：JL-WK-016A\n");
+        rowHigthSum = rowHigthSum + rowSpacing;
+        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"条码区："+isNULLS(prodOrder.getProdSeqNumber())+"\n");
 
 
         // --------------- 打印区-------------End

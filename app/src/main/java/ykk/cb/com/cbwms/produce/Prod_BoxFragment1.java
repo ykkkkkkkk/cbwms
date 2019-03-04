@@ -252,7 +252,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     case DELETE: // 删除 成功
                         for(int i=m.checkDatas.size()-1; i >= 0; i--){
                             MaterialBinningRecord mbr = m.checkDatas.get(i);
-                            if(mbr.isCheck()) m.checkDatas.remove(i);
+                            if(mbr.getIsCheck() == 1) m.checkDatas.remove(i);
                         }
                         m.mAdapter.notifyDataSetChanged();
 
@@ -423,11 +423,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 MaterialBinningRecord m = checkDatas.get(pos);
-                boolean isCheck = m.isCheck();
-                if (isCheck) { // 选中行的单据所有行全部false
-                    m.setCheck(false);
+                int isCheck = m.getIsCheck();
+                if (isCheck == 1) { // 选中行的单据所有行全部false
+                    m.setIsCheck(0);
                 } else { // 选中行的单据所有行全部true
-                    m.setCheck(true);
+                    m.setIsCheck(1);
                 }
                 mAdapter.notifyDataSetChanged();
             }
@@ -1241,17 +1241,24 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 删除的方法
      */
     private void run_delete() {
-        showLoadDialog("加载中...");
-
         int boxBarCodeId = checkDatas.get(0).getBoxBarCodeId();
         StringBuffer strMbrId = new StringBuffer();
         for(int i=0; i<checkDatas.size(); i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
-            if(mbr.isCheck() && mbr.getId() > 0) strMbrId.append(mbr.getId()+",");
+            if(mbr.getIsCheck() == 1 && mbr.getId() > 0) strMbrId.append(mbr.getId()+",");
+        }
+        if(strMbrId.length() == 0) { // 当只有一行，且没有对象id的情况
+            for(int i=checkDatas.size()-1; i >= 0; i--){
+                MaterialBinningRecord mbr = checkDatas.get(i);
+                if(mbr.getIsCheck() == 1) checkDatas.remove(i);
+            }
+            mAdapter.notifyDataSetChanged();
+            return;
         }
         // 删除最好一个，
         strMbrId.delete(strMbrId.length()-1, strMbrId.length());
 
+        showLoadDialog("加载中...");
         String mUrl = getURL("materialBinningRecord/delete2");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
 

@@ -73,6 +73,10 @@ public class PurReceiveOrder implements Serializable {
 	private double fprice;
 	/*金额*/
 	private double famount;
+	/*k3采购订单的单据类型*/
+	private String billTypeNumber;
+	/*k3采购订单的业务类型*/
+	private String businessType;
 
 	public PurReceiveOrder() {
 		super();
@@ -377,5 +381,17 @@ public class PurReceiveOrder implements Serializable {
 	}
 	public void setFinstockjoinbaseqty(double finstockjoinbaseqty) {
 		this.finstockjoinbaseqty = finstockjoinbaseqty;
+	}
+	public String getBillTypeNumber() {
+		return billTypeNumber;
+	}
+	public void setBillTypeNumber(String billTypeNumber) {
+		this.billTypeNumber = billTypeNumber;
+	}
+	public String getBusinessType() {
+		return businessType;
+	}
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
 	}
 }

@@ -46,7 +46,8 @@ public class ScanningRecordTok3 implements Serializable {
 	private String fdeliveryMethodNumber;
 	/* 仓管员 */
 	private String stockStaffNumber;
-	/**/
+	/* 采购入库单据类型名称 */
+	private String fbillTypeId;
 	/**/
 	/**/
 	/**/
@@ -175,6 +176,13 @@ public class ScanningRecordTok3 implements Serializable {
 		this.stockStaffNumber = stockStaffNumber;
 	}
 
+	public String getFbillTypeId() {
+		return fbillTypeId;
+	}
+
+	public void setFbillTypeId(String fbillTypeId) {
+		this.fbillTypeId = fbillTypeId;
+	}
 
 
 }

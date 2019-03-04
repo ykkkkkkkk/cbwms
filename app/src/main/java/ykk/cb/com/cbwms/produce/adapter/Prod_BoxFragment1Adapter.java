@@ -55,7 +55,7 @@ public class Prod_BoxFragment1Adapter extends BaseArrayRecyclerAdapter<MaterialB
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
             tv_nums.setEnabled(true);
         }
-        if(entity.isCheck()) tv_check.setBackgroundResource(R.drawable.check_true);
+        if(entity.getIsCheck() == 1) tv_check.setBackgroundResource(R.drawable.check_true);
         else tv_check.setBackgroundResource(R.drawable.check_false);
 
         View.OnClickListener click = new View.OnClickListener() {

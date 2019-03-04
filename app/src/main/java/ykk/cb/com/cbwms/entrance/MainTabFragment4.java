@@ -31,16 +31,16 @@ public class MainTabFragment4 extends BaseFragment {
 
                 break;
             case R.id.relative2:
-                showLoadDialog("连接服务器...");
+//                showLoadDialog("连接服务器...");
                 break;
             case R.id.relative3:
-                showLoadDialog("连接服务器...");
+//                showLoadDialog("连接服务器...");
                 break;
             case R.id.relative4:
-                showLoadDialog("连接服务器...");
+//                showLoadDialog("连接服务器...");
                 break;
             case R.id.relative5:
-                showLoadDialog("连接服务器...");
+//                showLoadDialog("连接服务器...");
                 break;
             case R.id.relative6: // 调拨拣货
                 show(Allot_PickingListActivity.class, null);

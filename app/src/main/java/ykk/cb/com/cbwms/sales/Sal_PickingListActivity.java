@@ -55,6 +55,7 @@ import ykk.cb.com.cbwms.model.sal.DeliOrder;
 import ykk.cb.com.cbwms.model.sal.PickingList;
 import ykk.cb.com.cbwms.sales.adapter.Sal_PickingListAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.LogUtil;
 
 /**
  * 拣货单界面
@@ -238,14 +239,14 @@ public class Sal_PickingListActivity extends BaseActivity {
         mAdapter.setCallBack(new Sal_PickingListAdapter.MyCallBack() {
             @Override
             public void onClick_num(View v, PickingList entity, int position) {
-                Log.e("num", "行：" + position);
+                LogUtil.e("num", "行：" + position);
                 curPos = position;
                 showInputDialog("数量", String.valueOf(entity.getPickingListNum()), "0", CODE2);
             }
 
             @Override
             public void onClick_del(PickingList entity, int position) {
-                Log.e("del", "行：" + position);
+                LogUtil.e("del", "行：" + position);
                 checkDatas.remove(position);
                 if(checkDatas.size() == 0) {
                     getBarCodeTableAfter2(true);
@@ -593,7 +594,7 @@ public class Sal_PickingListActivity extends BaseActivity {
             case SEL_STOCK: //查询仓库	返回
                 if (resultCode == RESULT_OK) {
                     Stock stock = (Stock) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_STOCK", stock.getfName());
+                    LogUtil.e("onActivityResult --> SEL_STOCK", stock.getfName());
                     if (this.stock != null && stock != null && stock.getId() == this.stock.getId()) {
                         // 长按了，并且启用了库区管理
                         if (isStockLong && stock.isStorageLocation()) {
@@ -611,7 +612,7 @@ public class Sal_PickingListActivity extends BaseActivity {
             case SEL_STOCKP: //查询库位	返回
                 if (resultCode == RESULT_OK) {
                     stockP = (StockPosition) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_STOCKP", stockP.getFname());
+                    LogUtil.e("onActivityResult --> SEL_STOCKP", stockP.getFname());
                     getStockPAfter();
                 }
 
@@ -619,7 +620,7 @@ public class Sal_PickingListActivity extends BaseActivity {
             case SEL_DELI: //查询发货方式	返回
                 if (resultCode == RESULT_OK) {
                     assist = (AssistInfo) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_DELI", assist.getfName());
+                    LogUtil.e("onActivityResult --> SEL_DELI", assist.getfName());
                     if (assist != null) {
                         tvDeliverSel.setText(assist.getfName());
                         if(checkDatas.size() > 0) {
@@ -876,11 +877,11 @@ public class Sal_PickingListActivity extends BaseActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
+                LogUtil.e("run_addScanningRecord --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     mHandler.sendEmptyMessage(UNSUCC1);
                     return;
                 }
-                Log.e("run_addScanningRecord --> onResponse", result);
                 mHandler.sendEmptyMessage(SUCC1);
             }
         });
@@ -947,7 +948,7 @@ public class Sal_PickingListActivity extends BaseActivity {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC2, result);
-                Log.e("run_smGetDatas --> onResponse", result);
+                LogUtil.e("run_smGetDatas --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -994,7 +995,7 @@ public class Sal_PickingListActivity extends BaseActivity {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC3, result);
-                Log.e("run_findMatIsExistList --> onResponse", result);
+                LogUtil.e("run_findMatIsExistList --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

@@ -64,6 +64,8 @@ public class ScanningRecord2 implements Serializable {
     private double fprice; // 来源订单单价
     private String leafNumber; // 来源叶片
     private String leafNumber2; // 来源叶片1
+    private String fbillTypeNumber; // 采购入库单据类型编码
+    private String fbusinessTypeNumber; // 采购入库单据业务类型编码
     // 临时变量
     private int salOrderId; // 关联的销售订单id
     private String salOrderNo; // 关联的销售订单号
@@ -443,6 +445,18 @@ public class ScanningRecord2 implements Serializable {
     }
     public void setUsableFqty(double recFqty) {
         this.usableFqty = recFqty;
+    }
+    public String getFbillTypeNumber() {
+        return fbillTypeNumber;
+    }
+    public void setFbillTypeNumber(String fbillTypeNumber) {
+        this.fbillTypeNumber = fbillTypeNumber;
+    }
+    public String getFbusinessTypeNumber() {
+        return fbusinessTypeNumber;
+    }
+    public void setFbusinessTypeNumber(String fbusinessTypeNumber) {
+        this.fbusinessTypeNumber = fbusinessTypeNumber;
     }
 
     public ScanningRecord2() {

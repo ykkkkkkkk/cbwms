@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,17 +13,12 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -35,7 +29,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
-import butterknife.OnLongClick;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -46,27 +39,20 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Organization_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.model.Organization;
-import ykk.cb.com.cbwms.model.Procedure;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
-import ykk.cb.com.cbwms.model.SchedulTeamEntry;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.ValuationType;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -111,7 +97,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private Prod_InFragment1Adapter mAdapter;
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
     private String mtlBarcode; // 对应的条码号
-    private BarCodeTable barCodeTable; //
+    private BarCodeTable bt; //
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
     private int curPos; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
@@ -156,7 +142,11 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC1:
-                        Comm.showWarnDialog(m.mContext,"服务器繁忙，请稍候再试！");
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) {
+                            errMsg = "服务器忙，请重试！";
+                        }
+                        Comm.showWarnDialog(m.mContext,errMsg);
 
                         break;
                     case PASS: // 审核成功 返回
@@ -182,11 +172,11 @@ public class Prod_InFragment1 extends BaseFragment {
                         BarCodeTable bt = null;
                         switch (m.curViewFlag) {
                             case '1': // 生产订单物料
-                                m.barCodeTable = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
-                                m.prodOrder = JsonUtil.stringToObject(m.barCodeTable.getRelationObj(), ProdOrder.class);
+                                m.bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
+                                m.prodOrder = JsonUtil.stringToObject(m.bt.getRelationObj(), ProdOrder.class);
 //                                if(!m.getMtlAfter(bt)) return;
                                 m.getBarCodeTableBefore(false);
-//                                if(!m.getBarCodeTableBeforeSon(m.barCodeTable)) return;
+//                                if(!m.getBarCodeTableBeforeSon(m.bt)) return;
                                 // 行操作不大于50
                                 if(m.checkDatas.size() == 50) {
                                     Comm.showWarnDialog(m.mContext,"为了更快的数据传输，每次保存最多为50行!");
@@ -217,9 +207,9 @@ public class Prod_InFragment1 extends BaseFragment {
                                     }
                                 }
                                 if(addRow) {
-                                    m.getBarCodeTableAfter(m.barCodeTable);
+                                    m.getBarCodeTableAfter(m.bt);
                                 } else {
-                                    m.getMtlAfter(m.barCodeTable);
+                                    m.getMtlAfter(m.bt);
                                 }
 
                                 break;
@@ -836,67 +826,67 @@ public class Prod_InFragment1 extends BaseFragment {
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
-            ScanningRecord2 mbr = checkDatas.get(i);
+            ScanningRecord2 sr2 = checkDatas.get(i);
             // 如果扫码相同
-            if (bt.getEntryId() == mbr.getEntryId()) {
+            if (bt.getEntryId() == sr2.getEntryId()) {
                 isFlag = true;
 
                 double fqty = 0;
-//                int coveQty = mbr.getCoveQty();
+//                int coveQty = sr2.getCoveQty();
 //                if(coveQty == 0) {
 //                    Comm.showWarnDialog(mContext,"k3的生产订单中，未填写套数！");
 //                    return;
                 fqty = 1;
 //                } else {
-//                    fqty = BigdecimalUtil.div(mbr.getRelationBillFQTY(), coveQty);
+//                    fqty = BigdecimalUtil.div(sr2.getRelationBillFQTY(), coveQty);
 //                }
 
-//                double fqty = mbr.getRelationBillFQTY() / coveQty;
+//                double fqty = sr2.getRelationBillFQTY() / coveQty;
                 // 计量单位数量
                 if(tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
                 // 未启用序列号
                 if (tmpMtl.getIsSnManager() == 0) {
                     // 生产数大于装箱数
-                    if (mbr.getUsableFqty() > mbr.getStockqty()) {
+                    if (sr2.getUsableFqty() > sr2.getStockqty()) {
                         // 如果扫的是物料包装条码，就显示个数
 //                        double number = 0;
 //                        if(bt != null) number = bt.getMaterialCalculateNumber();
 //
 //                        if(number > 0) {
-//                            mbr.setStockqty(mbr.getStockqty() + (number*fqty));
+//                            sr2.setStockqty(sr2.getStockqty() + (number*fqty));
 //                        } else {
-//                            mbr.setStockqty(mbr.getStockqty() + fqty);
+//                            sr2.setStockqty(sr2.getStockqty() + fqty);
 //                        }
-                        mbr.setStockqty(mbr.getUsableFqty());
+                        sr2.setStockqty(sr2.getUsableFqty());
 
                         // 启用了最小包装
 //                    } else if(mtl.getMtlPack() != null && mtl.getMtlPack().getIsMinNumberPack() == 1) {
 //                        if(mtl.getMtlPack().getIsMinNumberPack() == 1) {
 //                            // 如果装箱数小于订单数，就加数量
-//                            if(mbr.getNumber() < mbr.getRelationBillFQTY()) {
-//                                mbr.setNumber(mbr.getNumber() + fqty);
+//                            if(sr2.getNumber() < sr2.getRelationBillFQTY()) {
+//                                sr2.setNumber(sr2.getNumber() + fqty);
 //                            } else {
 //                                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已经达到最小包装生产数量！");
 //                                return;
 //                            }
 //                        }
 
-//                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && mbr.getNumber() > mbr.getRelationBillFQTY()) {
-                    } else if (mbr.getStockqty() > mbr.getUsableFqty()) {
+//                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && sr2.getNumber() > sr2.getRelationBillFQTY()) {
+                    } else if (sr2.getStockqty() > sr2.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实收数）不能大于（应收数）！");
                         return;
-                    } else if(mbr.getStockqty() == mbr.getUsableFqty()) {
+                    } else if(sr2.getStockqty() == sr2.getUsableFqty()) {
                         // 数量已满
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
                         return;
                     }
                 } else {
-                    List<String> list = mbr.getListBarcode();
+                    List<String> list = sr2.getListBarcode();
                     if(list.contains(bt.getBarcode())) {
                         Comm.showWarnDialog(mContext,"条码已经使用！");
                         return;
                     }
-                    if (mbr.getStockqty() == mbr.getUsableFqty()) {
+                    if (sr2.getStockqty() == sr2.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
                         return;
                     }
@@ -907,9 +897,9 @@ public class Prod_InFragment1 extends BaseFragment {
                         if((k+1) == sizeK) sb.append(list.get(k));
                         else sb.append(list.get(k)+",");
                     }
-                    mbr.setListBarcode(list);
-                    mbr.setStrBarcodes(sb.toString());
-                    mbr.setStockqty(mbr.getStockqty() + fqty);
+                    sr2.setListBarcode(list);
+                    sr2.setStrBarcodes(sb.toString());
+                    sr2.setStockqty(sr2.getStockqty() + fqty);
                 }
                 mAdapter.notifyDataSetChanged();
                 break;
@@ -994,6 +984,8 @@ public class Prod_InFragment1 extends BaseFragment {
 //            record.setFsrcBillTypeId("PUR_PurchaseOrder");
 //            record.setfRuleId("PUR_PurchaseOrder-STK_InStock");
 //            record.setFsTableName("T_PUR_POOrderEntry");
+            record.setListBarcode(sr2.getListBarcode());
+            record.setStrBarcodes(sr2.getStrBarcodes());
             record.setKdAccount(user.getKdAccount());
             record.setKdAccountPassword(user.getKdAccountPassword());
 
@@ -1023,11 +1015,12 @@ public class Prod_InFragment1 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
+                LogUtil.e("run_addScanningRecord --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC1);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
-                LogUtil.e("run_addScanningRecord --> onResponse", result);
                 Message msg = mHandler.obtainMessage(SUCC1, result);
                 mHandler.sendMessage(msg);
             }

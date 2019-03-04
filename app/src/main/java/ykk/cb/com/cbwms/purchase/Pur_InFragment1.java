@@ -708,7 +708,11 @@ public class Pur_InFragment1 extends BaseFragment {
                     }
                     sr2.setListBarcode(list);
                     sr2.setStrBarcodes(sb.toString());
-                    sr2.setStockqty(sr2.getStockqty() + 1);
+                    if(tmpMtl.getIsBatchManager() == 1) {
+                        sr2.setStockqty(sr2.getStockqty() + tmpMtl.getCalculateFqty());
+                    } else {
+                        sr2.setStockqty(sr2.getStockqty() + 1);
+                    }
 
                 } else { // 未启用序列号，批次号
                     // 每包的数量
@@ -807,6 +811,17 @@ public class Pur_InFragment1 extends BaseFragment {
             sr2.setStockqty(fqty);
             sr2.setPoFmustqty(fqty);
         }
+        if(mtl.getIsSnManager() == 1) {
+            sr2.setFqty(fqty);
+            sr2.setStockqty(fqty);
+            sr2.setPoFmustqty(fqty);
+        }
+        if(mtl.getIsBatchManager() == 1) {
+            sr2.setFqty(number);
+            sr2.setStockqty(number);
+            sr2.setPoFmustqty(number);
+        }
+
         sr2.setPoFid(0);
         sr2.setEntryId(0);
         sr2.setPoFbillno("");

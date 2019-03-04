@@ -811,7 +811,14 @@ public class Pur_InFragment2 extends BaseFragment {
             sr2.setPoFid(purOrder.getfId());
             sr2.setEntryId(purOrder.getEntryId());
             sr2.setPoFbillno(purOrder.getFbillno());
-
+            String billTypeNumber = purOrder.getBillTypeNumber();
+            // 采购订单单据类型编码（转）采购入库单据类型编码
+            if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
+                sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
+            } else  {
+                sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
+            }
+            sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
 //            sr2.setBatchno(purOrder.getBct().getBatchCode());
 //            sr2.setSequenceNo(purOrder.getBct().getSnCode());
             sr2.setUsableFqty(purOrder.getUsableFqty());
@@ -885,12 +892,12 @@ public class Pur_InFragment2 extends BaseFragment {
             ScanningRecord2 sr2 = checkDatas.get(i);
             Material mtl = sr2.getMtl();
             // 如果扫码相同
-            if (bt.getMaterialId() == mtl.getfMaterialId()) {
+            if (bt.getRelationBillNumber().equals(sr2.getSourceFnumber()) && bt.getMaterialId() == mtl.getfMaterialId()) {
                 isFlag = true;
 
-                double fqty = 1;
-                // 计量单位数量
-                if(tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
+//                double fqty = 1;
+//                // 计量单位数量
+//                if(tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
 
                 // 启用序列号，批次号
                 if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
@@ -912,7 +919,11 @@ public class Pur_InFragment2 extends BaseFragment {
                     }
                     sr2.setListBarcode(list);
                     sr2.setStrBarcodes(sb.toString());
-                    sr2.setStockqty(sr2.getStockqty() + 1);
+                    if(tmpMtl.getIsBatchManager() == 1) {
+                        sr2.setStockqty(sr2.getStockqty() + bt.getMaterialCalculateNumber());
+                    } else {
+                        sr2.setStockqty(sr2.getStockqty() + 1);
+                    }
 
                 } else { // 未启用序列号，批次号
 //                    double fqty2 = sr2.getUsableFqty()*(1+mtl.getReceiveMaxScale()/100);
@@ -934,7 +945,7 @@ public class Pur_InFragment2 extends BaseFragment {
 //                    }
 
                     // 使用弹出框确认数量
-                    sr2.setStockqty(sr2.getUsableFqty());
+                    sr2.setStockqty(0);
                     curPos = i;
                     showInputDialog("数量", String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
                 }
@@ -943,7 +954,7 @@ public class Pur_InFragment2 extends BaseFragment {
             }
         }
         if(!isFlag) {
-            Comm.showWarnDialog(mContext, "扫的物料在订单不存在！");
+            Comm.showWarnDialog(mContext, "扫的物料与订单不匹配！");
         }
     }
 
@@ -982,6 +993,14 @@ public class Pur_InFragment2 extends BaseFragment {
         sr2.setSourceK3Id(bt.getRelationBillId());
         sr2.setSourceFnumber(bt.getRelationBillNumber());
         sr2.setFitemId(bt.getMaterialId());
+        String billTypeNumber = purOrder.getBillTypeNumber();
+        // 采购订单单据类型编码（转）采购入库单据类型编码
+        if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
+            sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
+        } else  {
+            sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
+        }
+        sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
 
         Material tmpMtl = purOrder.getMtl();
         // 得到物料的默认仓库仓位
@@ -1127,7 +1146,8 @@ public class Pur_InFragment2 extends BaseFragment {
             record.setEntryId(sr2.getEntryId());
             record.setPoFbillno(sr2.getPoFbillno());
             record.setPoFmustqty(sr2.getPoFmustqty());
-
+            record.setFbillTypeNumber(sr2.getFbillTypeNumber());
+            record.setFbusinessTypeNumber(sr2.getFbusinessTypeNumber());
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());
                 record.setDepartmentFnumber(department.getDepartmentNumber());

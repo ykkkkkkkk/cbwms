@@ -48,6 +48,14 @@ public class PurOrder implements Serializable {
     private double fprice;
     /*金额*/
     private double famount;
+    /*生码数量*/
+    private double createCodeQty;
+    /* 是否启用批号管理，0代表不启用，1代表启用 (用于在前端显示值，方便前端操作)*/
+    private Integer isBatchManager;
+    /*k3采购订单的单据类型*/
+    private String billTypeNumber;
+    /*k3采购订单的业务类型*/
+    private String businessType;
 
     public int getfId() {
         return fId;
@@ -323,6 +331,34 @@ public class PurOrder implements Serializable {
         this.famount = famount;
     }
 
+    public double getCreateCodeQty() {
+        return createCodeQty;
+    }
 
+    public void setCreateCodeQty(double createCodeQty) {
+        this.createCodeQty = createCodeQty;
+    }
+
+    public Integer getIsBatchManager() {
+        return isBatchManager;
+    }
+
+    public void setIsBatchManager(Integer isBatchManager) {
+        this.isBatchManager = isBatchManager;
+    }
+
+    public String getBillTypeNumber() {
+        return billTypeNumber;
+    }
+
+    public void setBillTypeNumber(String billTypeNumber) {
+        this.billTypeNumber = billTypeNumber;
+    }
+    public String getBusinessType() {
+        return businessType;
+    }
+    public void setBusinessType(String businessType) {
+        this.businessType = businessType;
+    }
 
 }

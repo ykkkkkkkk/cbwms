@@ -15,6 +15,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -70,10 +71,16 @@ public class Allot_PickingListActivity extends BaseActivity {
     TextView tvStaffSel;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.btn_clone)
+    Button btnClone;
+    @BindView(R.id.btn_save)
+    Button btnSave;
+    @BindView(R.id.btn_pass)
+    Button btnPass;
 
     private Allot_PickingListActivity context = this;
     private static final int SEL_DELI = 11, SEL_STOCK2 = 12, SEL_STOCKP2 = 13, SEL_STAFF = 14;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
     private static final int CODE1 = 1, SETFOCUS = 2, SAOMA = 3;
     private Stock stock2; // 仓库
     private StockPosition stockP2; // 库位
@@ -86,6 +93,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
     private char defaultStockVal; // 默认仓库的值
+    private String k3Number; // 记录传递到k3返回的单号
     private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
@@ -102,17 +110,43 @@ public class Allot_PickingListActivity extends BaseActivity {
             if (m != null) {
                 m.hideLoadDialog();
 
+                String errMsg = null;
                 switch (msg.what) {
                     case SUCC1:
+                        m.k3Number = JsonUtil.strToString((String) msg.obj);
+                        m.reset('0');
+
+//                        m.checkDatas.clear();
+//                        m.mAdapter.notifyDataSetChanged();
+                        m.btnClone.setVisibility(View.GONE);
+                        m.btnSave.setVisibility(View.GONE);
+                        m.btnPass.setVisibility(View.VISIBLE);
+                        Comm.showWarnDialog(m.context,"保存成功，请点击“审核按钮”！");
+
+                        break;
+                    case UNSUCC1:
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) {
+                            errMsg = "服务器忙，请重试！";
+                        }
+                        Comm.showWarnDialog(m.context,errMsg);
+
+                        break;
+                    case PASS: // 审核成功 返回
+                        m.k3Number = null;
+                        m.btnClone.setVisibility(View.VISIBLE);
+                        m.btnSave.setVisibility(View.VISIBLE);
+                        m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
 
                         m.checkDatas.clear();
                         m.mAdapter.notifyDataSetChanged();
-                        Comm.showWarnDialog(m.context,"保存成功");
+                        Comm.showWarnDialog(m.context,"审核成功✔");
 
                         break;
-                    case UNSUCC1:
-                        Comm.showWarnDialog(m.context,"服务器繁忙，请稍候再试！");
+                    case UNPASS: // 审核失败 返回
+                        errMsg = JsonUtil.strToString((String)msg.obj);
+                        Comm.showWarnDialog(m.context, errMsg);
 
                         break;
                     case SUCC2: // 调拨单
@@ -143,7 +177,7 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         break;
                     case UNSUCC2:
-                        String errMsg = m.isNULLS((String) msg.obj);
+                        errMsg = m.isNULLS((String) msg.obj);
                         if(errMsg.length() > 0) {
                             String message = JsonUtil.strToString(errMsg);
                             Comm.showWarnDialog(m.context, message);
@@ -288,7 +322,11 @@ public class Allot_PickingListActivity extends BaseActivity {
                 break;
             case R.id.btn_pass: // 审核
                 hideKeyboard(getCurrentFocus());
-
+                if(k3Number == null) {
+                    Comm.showWarnDialog(context,"请先保存，然后审核！");
+                    return;
+                }
+                run_submitAndPass();
 
                 break;
             case R.id.btn_clone: // 重置
@@ -307,7 +345,6 @@ public class Allot_PickingListActivity extends BaseActivity {
                     build.setNegativeButton("否", null);
                     build.setCancelable(false);
                     build.show();
-                    return;
                 } else {
                     resetSon();
                 }
@@ -453,6 +490,10 @@ public class Allot_PickingListActivity extends BaseActivity {
     }
 
     private void resetSon() {
+        k3Number = null;
+        btnClone.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.VISIBLE);
+        btnPass.setVisibility(View.GONE);
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
         reset('0');
@@ -723,10 +764,12 @@ public class Allot_PickingListActivity extends BaseActivity {
                 String result = body.string();
                 LogUtil.e("run_addScanningRecord --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC1);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
-                mHandler.sendEmptyMessage(SUCC1);
+                Message msg = mHandler.obtainMessage(SUCC1, result);
+                mHandler.sendMessage(msg);
             }
         });
     }
@@ -788,6 +831,49 @@ public class Allot_PickingListActivity extends BaseActivity {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC2, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 提交并审核
+     */
+    private void run_submitAndPass() {
+        showLoadDialog("正在审核...");
+        String mUrl = getURL("scanningRecord/submitAndPass");
+        getUserInfo();
+        FormBody formBody = new FormBody.Builder()
+                .add("fbillNo", k3Number)
+                .add("type", "9")
+                .add("kdAccount", user.getKdAccount())
+                .add("kdAccountPassword", user.getKdAccountPassword())
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNPASS);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_submitAndPass --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNPASS, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(PASS, result);
                 mHandler.sendMessage(msg);
             }
         });

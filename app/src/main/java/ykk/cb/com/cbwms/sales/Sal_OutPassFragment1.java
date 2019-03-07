@@ -20,7 +20,9 @@ import android.widget.EditText;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -59,6 +61,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SAOMA = 100, SETFOCUS = 101;
     private Sal_OutPassFragment1Adapter mAdapter;
     private List<SalOutStock> checkDatas = new ArrayList<>();
+    private Map<String, Boolean> mapFbillNos = null;
     private String barcode; // 对应的条码号
     private int curPos; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
@@ -85,8 +88,18 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                 switch (msg.what) {
                     case SUCC1:
-                        m.reset();
-                        Comm.showWarnDialog(m.mContext, "审核成功✔");
+                        int size = m.checkDatas.size();
+                        // 记录未扫完的出库单行
+                        List<SalOutStock> listOk = new ArrayList<>();
+                        for(int i=0; i<size; i++) {
+                            SalOutStock sOut = m.checkDatas.get(i);
+                            String fbillNo = sOut.getFbillno();
+                            if(m.mapFbillNos.containsKey(fbillNo)) { // 未扫完的出库单号
+                                listOk.add(sOut);
+                            }
+                        }
+                        m.reset(listOk);
+                        m.toasts("审核成功✔");
 
                         break;
                     case UNSUCC1:
@@ -218,7 +231,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                     build.setPositiveButton("是", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            reset();
+                            reset(null);
                         }
                     });
                     build.setNegativeButton("否", null);
@@ -226,7 +239,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                     build.show();
                     return;
                 } else {
-                    reset();
+                    reset(null);
                 }
 
                 break;
@@ -289,17 +302,37 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 if (s.length() == 0) return;
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
 
     }
 
-    private void reset() {
+    private void reset(List<SalOutStock> listTmp) {
         barcode = null;
         etCode.setText("");
         checkDatas.clear();
+        if(listTmp != null ) {
+            checkDatas.addAll(listTmp);
+            // 保存单号，不重复
+            List<String> listFbillNo = new ArrayList<>();
+            for(int i=0, size=listTmp.size(); i<size; i++) {
+                SalOutStock s = listTmp.get(i);
+                String fbillNo = s.getFbillno();
+                if(!listFbillNo.contains(fbillNo)) {
+                    listFbillNo.add(fbillNo);
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            for(int i=0, size=listFbillNo.size(); i<size; i++) {
+                String s = listFbillNo.get(i);
+                sb.append(s+",");
+            }
+            // 去掉,
+            sb.delete(sb.length()-1, sb.length());
+            Comm.showWarnDialog(mContext,"单据编号为："+sb.toString()+"，运单号未扫完！");
+        }
         mAdapter.notifyDataSetChanged();
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
@@ -379,6 +412,11 @@ public class Sal_OutPassFragment1 extends BaseFragment {
      * @param list
      */
     private void getSmData(List<SalOutStock> list) {
+        SalOutStock salOutStock = list.get(0);
+        if(salOutStock.getFdocumentStatus().equals("C")) { // 已审核的提示
+            Comm.showWarnDialog(mContext,"该条码已审核！");
+            return;
+        }
         int size = list.size();
         for (int i = 0; i < size; i++) {
             SalOutStock sOut = list.get(i);
@@ -404,18 +442,42 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         }
         int size = checkDatas.size();
 
+//        for(int i=0; i<size; i++) {
+//            SalOutStock sOut = checkDatas.get(i);
+//            if(!sOut.isSm()) {
+//                Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
+//                return;
+//            }
+//        }
+        if(mapFbillNos == null) mapFbillNos = new HashMap<>();
+        else mapFbillNos.clear();
+
+        // 记录未扫完的出库单号
         for(int i=0; i<size; i++) {
             SalOutStock sOut = checkDatas.get(i);
-            if(!sOut.isSm()) {
-                Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
-                return;
+            String fbillNo = sOut.getFbillno();
+            if(!sOut.isSm() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
+                mapFbillNos.put(fbillNo, true);
             }
+        }
+        // 记录已扫完的出库单行
+        List<SalOutStock> listOk = new ArrayList<>();
+        for(int i=0; i<size; i++) {
+            SalOutStock sOut = checkDatas.get(i);
+            String fbillNo = sOut.getFbillno();
+            if(sOut.isSm() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
+                listOk.add(sOut);
+            }
+        }
+        if(listOk.size() == 0) {
+            Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
+            return;
         }
 
         StringBuilder strFbillNo = new StringBuilder();
         // 得到当前要审核的行
-        for (int i = 0; i < size; i++) {
-            SalOutStock s = checkDatas.get(i);
+        for (int i = 0; i < listOk.size(); i++) {
+            SalOutStock s = listOk.get(i);
             String fbillNo = s.getFbillno();
             if (strFbillNo.indexOf(fbillNo) == -1) {
                 strFbillNo.append("'" + fbillNo + "',");

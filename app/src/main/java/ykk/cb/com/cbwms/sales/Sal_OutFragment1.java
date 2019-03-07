@@ -387,6 +387,8 @@ public class Sal_OutFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_deptName: // 选择部门
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;

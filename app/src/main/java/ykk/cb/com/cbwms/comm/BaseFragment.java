@@ -447,6 +447,15 @@ public abstract class BaseFragment extends Fragment {
 		bundle.putString("inputType", inputType);
 		showForResult(PublicInputDialog.class, codes, bundle);
 	}
+	public void showInputDialog(String hintName, String showInfo, String val, String inputType, int codes) {
+		Bundle bundle = new Bundle();
+		bundle.putString("hintName", hintName);
+		bundle.putString("showInfo", showInfo);
+		bundle.putString("value", val);
+		// 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘
+		bundle.putString("inputType", inputType);
+		showForResult(PublicInputDialog.class, codes, bundle);
+	}
 
 	/**
 	 *

@@ -182,8 +182,11 @@ public class Prod_BoxFragment2 extends BaseFragment {
 
     @OnClick({R.id.tv_deptSel, R.id.tv_sourceNo, R.id.tv_boxSel, R.id.tv_custSel, R.id.tv_deliverSel, R.id.btn_clone})
     public void onViewClicked(View view) {
+        Bundle bundle = null;
         switch (view.getId()) {
             case R.id.tv_deptSel: // 选择生产车间
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
@@ -192,7 +195,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"请选择生产车间！");
                     return;
                 }
-                Bundle bundle = new Bundle();
+                bundle = new Bundle();
                 bundle.putString("fbillno", getValues(tvSourceNo));
                 bundle.putSerializable("department", department);
                 showForResult(Prod_SelOrderActivity.class, SEL_ORDER, bundle);

@@ -239,6 +239,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 switch (m.caseId) {
                                     case 32: // 销售装箱
 //                                        m.getSourceAfter(m.mbrList);
+//                                        m.getSourceAfter2(listMbr);
                                         break;
                                     case 34: // 生产装箱
                                         m.getSourceAfter2(listMbr);
@@ -445,6 +446,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                 break;
             case R.id.btn_deptName: // 选择部门
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
@@ -611,7 +614,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 curViewFlag = '1';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -775,7 +778,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 break;
             }
         }
-        if(isBool) {
+//        if(isBool) {
             ScanningRecord2 sr2 = checkDatas.get(curPos);
             sr2.setStockId(stock2.getfStockid());
             sr2.setStockFnumber(stock2.getfNumber());
@@ -786,20 +789,20 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setStockPositionId(stockP2.getId());
                 sr2.setStockPName(stockP2.getFname());
             }
-        } else { // 全部都为空的时候，选择任意全部填充
-            for (int i = 0; i < size; i++) {
-                ScanningRecord2 sr2 = checkDatas.get(i);
-                sr2.setStockId(stock2.getfStockid());
-                sr2.setStockFnumber(stock2.getfNumber());
-                sr2.setStockName(stock2.getfName());
-                sr2.setStock(stock2);
-                if(inStockPosData) {
-                    sr2.setStockPos(stockP2);
-                    sr2.setStockPositionId(stockP2.getId());
-                    sr2.setStockPName(stockP2.getFname());
-                }
-            }
-        }
+//        } else { // 全部都为空的时候，选择任意全部填充
+//            for (int i = 0; i < size; i++) {
+//                ScanningRecord2 sr2 = checkDatas.get(i);
+//                sr2.setStockId(stock2.getfStockid());
+//                sr2.setStockFnumber(stock2.getfNumber());
+//                sr2.setStockName(stock2.getfName());
+//                sr2.setStock(stock2);
+//                if(inStockPosData) {
+//                    sr2.setStockPos(stockP2);
+//                    sr2.setStockPositionId(stockP2.getId());
+//                    sr2.setStockPName(stockP2.getFname());
+//                }
+//            }
+//        }
         mAdapter.notifyDataSetChanged();
     }
 

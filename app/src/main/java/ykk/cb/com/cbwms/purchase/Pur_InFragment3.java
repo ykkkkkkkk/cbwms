@@ -324,7 +324,8 @@ public class Pur_InFragment3 extends BaseFragment {
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0", NUM_RESULT);
+                String showInfo = "<font color='#666666'>物料编码：</font>"+entity.getMtlFnumber()+"<br><font color='#666666'>物料名称：</font>"+entity.getMtl().getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(entity.getBatchno());
+                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0", NUM_RESULT);
             }
 
             @Override
@@ -399,6 +400,8 @@ public class Pur_InFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_deptName: // 选择部门
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
@@ -488,7 +491,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 return false;
             }
             double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
-            if ((sr2.getFqty() - sr2.getUsableFqty()) > 0 && sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getReceiveMaxScale() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
@@ -532,7 +535,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 curViewFlag = '4';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -554,7 +557,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 }
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -711,7 +714,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 break;
             }
         }
-        if(isBool) {
+//        if(isBool) {
             ScanningRecord2 sr2 = checkDatas.get(curPos);
             sr2.setStockId(stock2.getfStockid());
             sr2.setStockFnumber(stock2.getfNumber());
@@ -722,20 +725,20 @@ public class Pur_InFragment3 extends BaseFragment {
                 sr2.setStockPositionId(stockP2.getId());
                 sr2.setStockPName(stockP2.getFname());
             }
-        } else { // 全部都为空的时候，选择任意全部填充
-            for (int i = 0; i < size; i++) {
-                ScanningRecord2 sr2 = checkDatas.get(i);
-                sr2.setStockId(stock2.getfStockid());
-                sr2.setStockFnumber(stock2.getfNumber());
-                sr2.setStockName(stock2.getfName());
-                sr2.setStock(stock2);
-                if(inStockPosData) {
-                    sr2.setStockPos(stockP2);
-                    sr2.setStockPositionId(stockP2.getId());
-                    sr2.setStockPName(stockP2.getFname());
-                }
-            }
-        }
+//        } else { // 全部都为空的时候，选择任意全部填充
+//            for (int i = 0; i < size; i++) {
+//                ScanningRecord2 sr2 = checkDatas.get(i);
+//                sr2.setStockId(stock2.getfStockid());
+//                sr2.setStockFnumber(stock2.getfNumber());
+//                sr2.setStockName(stock2.getfName());
+//                sr2.setStock(stock2);
+//                if(inStockPosData) {
+//                    sr2.setStockPos(stockP2);
+//                    sr2.setStockPositionId(stockP2.getId());
+//                    sr2.setStockPName(stockP2.getFname());
+//                }
+//            }
+//        }
         mAdapter.notifyDataSetChanged();
     }
 
@@ -843,6 +846,7 @@ public class Pur_InFragment3 extends BaseFragment {
             Material mtl = sr2.getMtl();
             // 如果扫码相同
             if (bt.getRelationBillNumber().equals(sr2.getSourceFnumber()) && bt.getMaterialId() == mtl.getfMaterialId()) {
+                sr2.setBatchno(bt.getBatchCode());
                 isFlag = true;
 
 //                double fqty = 1;
@@ -897,7 +901,8 @@ public class Pur_InFragment3 extends BaseFragment {
                     // 使用弹出框确认数量
                     sr2.setStockqty(0);
                     curPos = i;
-                    showInputDialog("数量", String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
+                    String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode());
+                    showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
                 }
                 mAdapter.notifyDataSetChanged();
                 break;
@@ -1102,8 +1107,8 @@ public class Pur_InFragment3 extends BaseFragment {
                 record.setDepartmentFnumber(department.getDepartmentNumber());
             }
             record.setPdaRowno((i+1));
-            record.setBatchNo(sr2.getBatchno());
-            record.setSequenceNo(sr2.getSequenceNo());
+//            record.setBatchNo(sr2.getBatchno());
+//            record.setSequenceNo(sr2.getSequenceNo());
             record.setBarcode(sr2.getBarcode());
             record.setFqty(sr2.getStockqty());
             record.setFdate("");

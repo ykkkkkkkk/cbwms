@@ -447,7 +447,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                 curViewFlag = '1';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -469,7 +469,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                 }
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -544,22 +544,22 @@ public class Allot_PickingListActivity extends BaseActivity {
                             StkTransferOutEntry entry = checkDatas.get(i);
                             if(entry.getOutStockId() > 0) isBool = true;
                         }
-                        if(isBool) { // 只设置一行
+//                        if(isBool) { // 只设置一行
                             StkTransferOutEntry pk = checkDatas.get(curPos);
                             pk.setOutStockId(stock2.getfStockid());
                             pk.setOutStockNumber(stock2.getfNumber());
                             pk.setOutStockName(stock2.getfName());
                             pk.setOutStock(stock2);
 
-                        } else { // 设置全部行
-                            for(int i=0; i<size; i++) {
-                                StkTransferOutEntry entry = checkDatas.get(i);
-                                entry.setOutStockId(stock2.getfStockid());
-                                entry.setOutStockNumber(stock2.getfNumber());
-                                entry.setOutStockName(stock2.getfName());
-                                entry.setOutStock(stock2);
-                            }
-                        }
+//                        } else { // 设置全部行
+//                            for(int i=0; i<size; i++) {
+//                                StkTransferOutEntry entry = checkDatas.get(i);
+//                                entry.setOutStockId(stock2.getfStockid());
+//                                entry.setOutStockNumber(stock2.getfNumber());
+//                                entry.setOutStockName(stock2.getfName());
+//                                entry.setOutStock(stock2);
+//                            }
+//                        }
                         mAdapter.notifyDataSetChanged();
                     }
                 }

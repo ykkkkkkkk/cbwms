@@ -419,6 +419,8 @@ public class Prod_StartFragment1 extends BaseFragment {
         Bundle bundle = null;
         switch (view.getId()) {
             case R.id.btn_deptName: // 选择部门
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
@@ -567,7 +569,7 @@ public class Prod_StartFragment1 extends BaseFragment {
                 curViewFlag = '1';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });

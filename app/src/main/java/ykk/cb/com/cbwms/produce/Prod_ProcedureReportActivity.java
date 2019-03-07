@@ -327,7 +327,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
                 dataFlag = '2';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });

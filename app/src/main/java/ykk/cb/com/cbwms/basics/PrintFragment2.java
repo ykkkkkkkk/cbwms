@@ -227,7 +227,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                 if(s.length() == 0) return;
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });

@@ -254,6 +254,16 @@ public class Prod_BoxFragment1 extends BaseFragment {
                             MaterialBinningRecord mbr = m.checkDatas.get(i);
                             if(mbr.getIsCheck() == 1) m.checkDatas.remove(i);
                         }
+                        // 除去主产品后，剩下的都是配件
+                        int count2 = 0;
+                        int size2 = m.checkDatas.size();
+                        for(int i=0; i<size2; i++){
+                            MaterialBinningRecord mbr = m.checkDatas.get(i);
+                            if(mbr.getCaseId() == 32) count2 +=1;
+                        }
+                        if(count2 == size2) {
+                            m.checkDatas.clear();
+                        }
                         m.mAdapter.notifyDataSetChanged();
 
                         break;
@@ -570,6 +580,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"请先扫描箱码！");
                     return;
                 }
+                if(status == '2') {
+                    Comm.showWarnDialog(mContext,"已经封箱，不能带出配件！");
+                    return;
+                }
                 if(checkDatas == null || checkDatas.size() == 0) {
                     Comm.showWarnDialog(mContext,"箱子里还没有物料，不能查询！");
                     return;
@@ -644,7 +658,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 curViewFlag = '1';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -679,7 +693,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 curViewFlag = '3';
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -1243,17 +1257,43 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private void run_delete() {
         int boxBarCodeId = checkDatas.get(0).getBoxBarCodeId();
         StringBuffer strMbrId = new StringBuffer();
+        int count = 0;
         for(int i=0; i<checkDatas.size(); i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
             if(mbr.getIsCheck() == 1 && mbr.getId() > 0) strMbrId.append(mbr.getId()+",");
+            if(mbr.getIsCheck() == 0) count += 1; // 得到没有选中的行
         }
-        if(strMbrId.length() == 0) { // 当只有一行，且没有对象id的情况
+        if(strMbrId.length() == 0) { // 且没有对象id的情况
             for(int i=checkDatas.size()-1; i >= 0; i--){
                 MaterialBinningRecord mbr = checkDatas.get(i);
                 if(mbr.getIsCheck() == 1) checkDatas.remove(i);
             }
+            // 除去主产品后，剩下的都是配件
+            int count2 = 0;
+            int size2 = checkDatas.size();
+            for(int i=0; i<size2; i++){
+                MaterialBinningRecord mbr = checkDatas.get(i);
+                if(mbr.getCaseId() == 32) count2 +=1;
+            }
+            if(count2 == size2) {
+                checkDatas.clear();
+            }
             mAdapter.notifyDataSetChanged();
+
             return;
+        } else {
+            List<MaterialBinningRecord> list = new ArrayList<>();
+            for(int i=0; i<checkDatas.size(); i++) {
+                MaterialBinningRecord mbr = checkDatas.get(i);
+                if(mbr.getCaseId() == 32) list.add(mbr);
+            }
+            if(count == list.size()) {
+                // 只是配件的，已经保存的
+                for(int i=0; i<list.size(); i++) {
+                    MaterialBinningRecord mbr = list.get(i);
+                    if(mbr.getId() > 0) strMbrId.append(mbr.getId()+",");
+                }
+            }
         }
         // 删除最好一个，
         strMbrId.delete(strMbrId.length()-1, strMbrId.length());

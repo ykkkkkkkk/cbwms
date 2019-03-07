@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.basics;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
@@ -59,6 +60,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
     private FormBody formBody = null;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int isAll; // 是否加载所以供应商
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -129,6 +131,11 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
 
     @Override
     public void initData() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            isAll = bundle.getInt("isAll");
+        }
+
         initLoadDatas();
     }
 
@@ -163,6 +170,9 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
         String mUrl = getURL("findDepartmentListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
+                .add("isAll", String.valueOf(isAll))
+                .add("columnName","Department_Number") // 排序的字段
+                .add("sortWay","ASC") // 升序降序
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

@@ -35,8 +35,10 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
     public void onBindHoder(RecyclerHolder holder, final StkTransferOutEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_prodSeqNumber = holder.obtainView(R.id.tv_prodSeqNumber);
         TextView tv_sourceNo = holder.obtainView(R.id.tv_sourceNo);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
 
@@ -44,8 +46,10 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         StkTransferOut stkOut = entity.getStkTransferOut();
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
+        tv_prodSeqNumber.setText(entity.getProductionSeq());
         tv_sourceNo.setText(stkOut.getBillNo());
-        tv_mats.setText(entity.getMtlFnumber()+"\n"+entity.getMtlFname());
+        tv_mtlNumber.setText(entity.getMtlFnumber());
+        tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
         if(mtl.getIsSnManager() == 1) {
             tv_nums.setEnabled(false);

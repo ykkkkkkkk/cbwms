@@ -150,11 +150,16 @@
         <activity
             android:name=".purchase.Pur_OrderSearchActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <!-- 生产模块 -->
         <activity
             android:name=".produce.Prod_BoxMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".produce.Prod_SelOrderActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_SelOrder2Activity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".purchase.Pur_SelFragment4Activity"

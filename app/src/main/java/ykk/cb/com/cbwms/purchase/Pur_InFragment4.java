@@ -306,6 +306,8 @@ public class Pur_InFragment4 extends BaseFragment {
 
                 break;
             case R.id.btn_deptName: // 选择部门
+                bundle = new Bundle();
+                bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
@@ -383,7 +385,7 @@ public class Pur_InFragment4 extends BaseFragment {
                 return false;
             }
             double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
-            if ((sr2.getFqty() - sr2.getUsableFqty()) > 0 && sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getReceiveMaxScale() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }

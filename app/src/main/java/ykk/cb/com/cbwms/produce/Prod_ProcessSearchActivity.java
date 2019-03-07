@@ -363,7 +363,7 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
                 if(s.length() == 0) return;
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });
@@ -379,7 +379,7 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
                 if(s.length() == 0) return;
                 if(!isTextChange) {
                     isTextChange = true;
-                    mHandler.sendEmptyMessageDelayed(SAOMA, 600);
+                    mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
             }
         });

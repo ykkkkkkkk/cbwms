@@ -80,6 +80,9 @@ public class StkTransferOutEntry implements Serializable {
 	private String snCode;
 	/*条码号*/
 	private String barcode;
+	private String productionSeq;//生产顺序号
+	private String moNote;//备注
+	private double needFqty;//调拨需求数量
 
 	// 临时字段
 	private double tmpPickFqty; // 保存当前的拣货数量
@@ -409,6 +412,30 @@ public class StkTransferOutEntry implements Serializable {
 
 	public void setStrBarcodes(String strBarcodes) {
 		this.strBarcodes = strBarcodes;
+	}
+
+	public String getProductionSeq() {
+		return productionSeq;
+	}
+
+	public void setProductionSeq(String productionSeq) {
+		this.productionSeq = productionSeq;
+	}
+
+	public String getMoNote() {
+		return moNote;
+	}
+
+	public void setMoNote(String moNote) {
+		this.moNote = moNote;
+	}
+
+	public double getNeedFqty() {
+		return needFqty;
+	}
+
+	public void setNeedFqty(double needFqty) {
+		this.needFqty = needFqty;
 	}
 
 }

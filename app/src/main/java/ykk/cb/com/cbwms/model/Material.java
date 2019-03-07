@@ -198,6 +198,8 @@ public class Material implements Serializable {
     private Integer createCodeStatus;
     /* 销售出库是否自动带出：默认0(不带出)，1带出 */
     private int isAotuBringOut;
+    private double finishReceiptOverRate;//生产入库超收比例
+    private double finishReceiptShortRate;//生产入库欠收比例
 
     /**
      * 构造方法
@@ -983,6 +985,22 @@ public class Material implements Serializable {
 
     public void setIsAotuBringOut(int isAotuBringOut) {
         this.isAotuBringOut = isAotuBringOut;
+    }
+
+    public double getFinishReceiptOverRate() {
+        return finishReceiptOverRate;
+    }
+
+    public void setFinishReceiptOverRate(double finishReceiptOverRate) {
+        this.finishReceiptOverRate = finishReceiptOverRate;
+    }
+
+    public double getFinishReceiptShortRate() {
+        return finishReceiptShortRate;
+    }
+
+    public void setFinishReceiptShortRate(double finishReceiptShortRate) {
+        this.finishReceiptShortRate = finishReceiptShortRate;
     }
 
 

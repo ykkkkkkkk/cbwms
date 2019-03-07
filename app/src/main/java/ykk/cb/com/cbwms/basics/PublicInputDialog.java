@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
@@ -30,6 +31,8 @@ public class PublicInputDialog extends BaseDialogActivity {
     Button btnClose;
     @BindView(R.id.tv_hintName)
     TextView tvHintName;
+    @BindView(R.id.tv_showInfo)
+    TextView tvShowInfo;
     @BindView(R.id.btn_confirm)
     Button btnConfirm;
     @BindView(R.id.et_input)
@@ -111,9 +114,12 @@ public class PublicInputDialog extends BaseDialogActivity {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
             String hintName = bundle.getString("hintName", "");
+            String showInfo = bundle.getString("showInfo", "");
             String value = bundle.getString("value", "");
 
             tvHintName.setText(hintName);
+            tvShowInfo.setVisibility(showInfo.length() > 0 ? View.VISIBLE : View.GONE);
+            tvShowInfo.setText(Html.fromHtml(showInfo));
             setTexts(etInput, value);
 
             // 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘

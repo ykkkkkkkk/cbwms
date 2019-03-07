@@ -18,6 +18,9 @@ public class SalOutStock implements Serializable {
     private String custNumber;//客户代码
     private String custName;//客户名称
     private double sumQty;//销售出库单总数量
+    private String orderEntryReezeStatus;//销售订单行业务冻结状态，A:正常 B:业务冻结
+    private String orderEntryTerminateStatus;//销售订单行业务终止状态，A:正常 B:业务终止
+    private String orderCloseStatus;//销售订单整单关闭状态，A:未关闭 B:已关闭
 
     // 临时字段，不存表
     private int isMoreOrder; // 本次查询是否有多个出库单
@@ -171,6 +174,30 @@ public class SalOutStock implements Serializable {
 
     public void setSm(boolean isSm) {
         this.isSm = isSm;
+    }
+
+    public String getOrderEntryReezeStatus() {
+        return orderEntryReezeStatus;
+    }
+
+    public void setOrderEntryReezeStatus(String orderEntryReezeStatus) {
+        this.orderEntryReezeStatus = orderEntryReezeStatus;
+    }
+
+    public String getOrderEntryTerminateStatus() {
+        return orderEntryTerminateStatus;
+    }
+
+    public void setOrderEntryTerminateStatus(String orderEntryTerminateStatus) {
+        this.orderEntryTerminateStatus = orderEntryTerminateStatus;
+    }
+
+    public String getOrderCloseStatus() {
+        return orderCloseStatus;
+    }
+
+    public void setOrderCloseStatus(String orderCloseStatus) {
+        this.orderCloseStatus = orderCloseStatus;
     }
 
 }

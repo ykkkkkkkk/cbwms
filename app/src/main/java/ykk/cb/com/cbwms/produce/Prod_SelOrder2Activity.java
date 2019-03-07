@@ -7,15 +7,20 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,26 +37,40 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
+import ykk.cb.com.cbwms.model.pur.PurOrder;
+import ykk.cb.com.cbwms.produce.adapter.Prod_SelOrder2Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_SelOrderAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerView.LoadingListener {
 
+    @BindView(R.id.tv_custInfo)
+    TextView tvCustInfo;
+    @BindView(R.id.tv_prodSeqNumber)
+    TextView tvProdSeqNumber;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
     @BindView(R.id.et_search)
     EditText etSearch;
+    @BindView(R.id.cbAll)
+    CheckBox cbAll;
 
     private Prod_SelOrder2Activity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
+    private Department department; // 生产车间
     private OkHttpClient okHttpClient = new OkHttpClient();
-    private Prod_SelOrderAdapter mAdapter;
+    private Prod_SelOrder2Adapter mAdapter;
     private List<ProdOrder> listDatas = new ArrayList<>();
+    private List<ProdOrder> sourceList; // 上个界面传来的数据列表
+    private String fbillno; // 单号
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private String prodSeqNumberStatus = "ASC"; // 1：升序，2：降序
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -79,12 +98,14 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
                         } else if (m.isLoadMore) {
                             m.xRecyclerView.loadMoreComplete(true);
                         }
-                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新开启
+//                        m.xRecyclerView.setPullRefreshEnabled(true); // 上啦刷新开启
                         m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        m.toasts("抱歉，没有加载到数据！");
+                        String errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "抱歉，没有找到数据！";
+                        Comm.showWarnDialog(m.context,errMsg);
 
                         break;
                 }
@@ -101,7 +122,7 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
     public void initView() {
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Prod_SelOrderAdapter(context, listDatas);
+        mAdapter = new Prod_SelOrder2Adapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
@@ -112,10 +133,13 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 ProdOrder m = listDatas.get(pos-1);
-                Intent intent = new Intent();
-                intent.putExtra("obj", m);
-                context.setResult(RESULT_OK, intent);
-                context.finish();
+                int isCheck = m.getIsCheck();
+                if (isCheck == 1) {
+                    m.setIsCheck(0);
+                } else {
+                    m.setIsCheck(1);
+                }
+                mAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -129,12 +153,35 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
     private void bundle() {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
-
+            fbillno = bundle.getString("fbillno","");
+            setTexts(etSearch, fbillno);
+            department = (Department) bundle.getSerializable("department");
+            sourceList = (List<ProdOrder>) bundle.getSerializable("sourceList");
+            tvCustInfo.setText(Html.fromHtml("生产车间：<font color='#000000'>" + department.getDepartmentName()+"</font>"));
         }
+
+        cbAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    for(int i=0, size=listDatas.size(); i<size; i++) {
+                        ProdOrder m = listDatas.get(i);
+                        m.setIsCheck(1);
+                    }
+
+                } else {
+                    for(int i=0, size=listDatas.size(); i<size; i++) {
+                        ProdOrder m = listDatas.get(i);
+                        m.setIsCheck(0);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
 
-    @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm})
+    @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm, R.id.tv_prodSeqNumber})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
@@ -146,50 +193,53 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
                 initLoadDatas();
 
                 break;
-            case R.id.btn_confirm: // 确认
+            case R.id.tv_prodSeqNumber: // 生产顺序号，升序或降序
+                if(getValues(tvProdSeqNumber).indexOf("↑") > -1) {
+                    tvProdSeqNumber.setText("生产顺序号↓");
+                    prodSeqNumberStatus = "DESC";
+                } else {
+                    prodSeqNumberStatus = "ASC";
+                    tvProdSeqNumber.setText("生产顺序号↑");
+                }
+                initLoadDatas();
+
                 break;
-        }
-    }
-
-    /**
-     * 输入批次号的dialog
-     */
-    private void inputBatchDialog(final ProdOrder m) {
-        View v = context.getLayoutInflater().inflate(R.layout.pur_sel_prod_order_item2, null);
-        final AlertDialog delDialog = new AlertDialog.Builder(context).setView(v).create();
-        // 初始化id
-        final EditText etBatch = (EditText) v.findViewById(R.id.et_batch);
-        Button btnClose = (Button) v.findViewById(R.id.btn_close);
-        Button btnConfirm = (Button) v.findViewById(R.id.btn_confirm);
-
-        // 关闭
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                delDialog.dismiss();
-            }
-        });
-        // 确认
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String batch = getValues(etBatch).trim();
-                if(batch.length() == 0) {
-                    Comm.showWarnDialog(context,"请输入批次号！");
+            case R.id.btn_confirm: // 确认
+                if(listDatas == null || listDatas.size() == 0) {
+                    toasts("请选择数据在确认！");
                     return;
                 }
-                Intent intent = new Intent();
-                intent.putExtra("obj", m);
-                intent.putExtra("batch", batch);
-                context.setResult(RESULT_OK, intent);
-                context.finish();
-            }
-        });
+                List<ProdOrder> list = new ArrayList<>();
+                for(int i = 0, size = listDatas.size(); i<size; i++) {
+                    ProdOrder p = listDatas.get(i);
 
-        Window window = delDialog.getWindow();
-        delDialog.setCancelable(false);
-        delDialog.show();
-        window.setGravity(Gravity.CENTER);
+                    // 选中了行
+                    if(p.getIsCheck() == 1) {
+                        if(sourceList != null) {
+                            for (int j = 0; j < sourceList.size(); j++) {
+                                ProdOrder p2 = sourceList.get(j);
+                                // 如果已经选择了相同的行，就提示
+                                if (p.getfId() == p2.getfId() && p.getMtlId() == p2.getMtlId() && p.getEntryId() == p2.getEntryId()) {
+                                    Comm.showWarnDialog(context, "第" + (i + 1) + "行已经在入库的列表中，不能重复选择！");
+                                    return;
+                                }
+                            }
+                        }
+
+                        list.add(p);
+                    }
+                }
+                if(list.size() == 0) {
+                    toasts("请勾选数据行！");
+                    return;
+                }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("checkDatas", (Serializable) list);
+                setResults(context, bundle);
+                context.finish();
+
+                break;
+        }
     }
 
     private void initLoadDatas() {
@@ -206,8 +256,11 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
         String mUrl = getURL("findProdOrderList");
         FormBody formBody = new FormBody.Builder()
                 .add("fbillno", getValues(etSearch).trim())
-//                .add("deptId", String.valueOf(department.getFitemID()))
-//                .add("isDefaultStock", "1") // 查询默认仓库和库位
+                .add("deptId", String.valueOf(department.getFitemID()))
+                .add("prodSeqNumberStatus", prodSeqNumberStatus)
+                .add("fbillStatus2", "1")
+                .add("isValidNum", "1")
+                .add("isDefaultStock", "1") // 查询默认仓库和库位
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();
@@ -229,14 +282,15 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
+                LogUtil.e("Prod_SelOrder2Activity --> onResponse", result);
                 if(!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC1);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
+                    mHandler.sendMessage(msg);
                     return;
                 }
                 isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
-                Log.e("Ware_Pur_OrderActivity --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -264,7 +318,7 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
 //            case SEL_CUST: //查询供应商	返回
 //                if (resultCode == RESULT_OK) {
 //                    supplier = data.getParcelableExtra("obj");
-//                    Log.e("onActivityResult --> SEL_CUST", supplier.getFname());
+//                    LogUtil.e("onActivityResult --> SEL_CUST", supplier.getFname());
 //                    if (supplier != null) {
 //                        setTexts(etCustSel, supplier.getFname());
 //                    }

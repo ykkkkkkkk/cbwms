@@ -172,6 +172,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 double combineSalOrderFqtys2 = bt.getCombineSalOrderFqtys();
                                 int singleshipment2 = prodOrder.getSingleshipment();
 
+                                if(prodOrder.getSalOrderId() == 0) {
+                                    Comm.showWarnDialog(m.mContext,"当前生产订单找不到销售订单，不能装箱！");
+                                    return;
+                                }
+
                                 if(m.combineSalOrderId > 0) { // 拼单发货
                                     if(m.combineSalOrderId != combineSalOrderId2) {
                                         Comm.showWarnDialog(m.mContext,"扫描的生产订单物料对应的销售订单，在系统中拼单单号不一致，请检查！");
@@ -288,7 +293,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 break;
                             case '2': // 封箱
                                 m.setEnables(m.etMtlCode,R.drawable.back_style_gray3,false);
-                                m.setEnables(m.tvDeliverSel,R.drawable.back_style_gray3,false);
                                 m.tvStatus.setText(Html.fromHtml("状态：<font color='#6A4BC5'>已封箱</font>"));
                                 if(m.parseInt(count) > 0) {
                                     Comm.showWarnDialog(m.mContext,"当前客户还有"+count+"个物料没有装箱，请注意！");
@@ -598,6 +602,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 重置
      */
     private void reset(boolean isClear) {
+        status = '0';
         combineSalOrderId = 0;
         singleshipment = 0;
         btnEnd.setVisibility(View.GONE);
@@ -607,6 +612,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             setFocusable(etBoxCode);
         }
 //        etProdOrderCode.setText("");
+        setEnables(etMtlCode,R.drawable.back_style_blue,true);
         etMtlCode.setText("");
         prodOrderBarcode = null;
         mtlBarcode = null;
@@ -806,16 +812,19 @@ public class Prod_BoxFragment1 extends BaseFragment {
             if(status == 0) {
                 tvStatus.setText(Html.fromHtml(""+"<font color='#000000'>状态：未开箱</font>"));
                 setFocusable(etMtlCode);
+                setEnables(etMtlCode, R.drawable.back_style_blue, true);
                 this.status = '0';
             } else if(status == 1) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                 setFocusable(etMtlCode);
+                setEnables(etMtlCode, R.drawable.back_style_blue, true);
                 btnEnd.setVisibility(View.VISIBLE);
                 this.status = '1';
             } else if(status == 2) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#6A4BC5'>已封箱</font>"));
                 btnEnd.setText("开箱");
                 btnEnd.setVisibility(View.VISIBLE);
+                setEnables(etMtlCode, R.drawable.back_style_gray3, false);
                 this.status = '2';
             }
 

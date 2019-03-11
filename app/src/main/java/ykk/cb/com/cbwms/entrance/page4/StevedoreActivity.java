@@ -54,6 +54,7 @@ import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
 import ykk.cb.com.cbwms.model.DisburdenPerson;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -102,7 +103,7 @@ public class StevedoreActivity extends BaseActivity {
     private List<DisburdenPerson>  disPersonList  = new ArrayList<>(); // 装卸工
     private String stockBarcode, stockPBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：收料订单， 5：物料
-    private int curPos; // 当前行
+    private int curPos = -1; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
@@ -229,7 +230,7 @@ public class StevedoreActivity extends BaseActivity {
         getUserInfo();
     }
 
-    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo,
+    @OnClick({R.id.btn_close, R.id.lin_tab1, R.id.lin_tab2, R.id.tv_supplierSel, R.id.tv_sourceNo, R.id.btn_batchAdd,
             R.id.btn_save, R.id.btn_clone, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_stevedoreMan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -321,6 +322,28 @@ public class StevedoreActivity extends BaseActivity {
                 }
 
                 break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(context, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(context, "请选择任意一行的仓库！");
+                    return;
+                }
+                DisburdenMissionEntry disEntryTemp = checkDatas.get(curPos);
+                Stock stock = disEntryTemp.getEntryStock();
+                StockPosition stockPos = disEntryTemp.getEntryStockPosition();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    DisburdenMissionEntry disEntry = checkDatas.get(i);
+                    if (disEntry.getEntryStock() == null) {
+                        if (stock != null) disEntry.setEntryStock(stock);
+                        if (stockPos != null) disEntry.setEntryStockPosition(stockPos);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+
+                break;
         }
     }
 
@@ -405,6 +428,7 @@ public class StevedoreActivity extends BaseActivity {
         disPersonList.clear();
         receiveOrg = null;
         purOrg = null;
+        curPos = -1;
     }
 
     private void resetSon() {

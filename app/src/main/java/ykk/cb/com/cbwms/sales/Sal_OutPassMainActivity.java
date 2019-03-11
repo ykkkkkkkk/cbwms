@@ -109,7 +109,7 @@ public class Sal_OutPassMainActivity extends BaseActivity {
 //                    build.setMessage("您有未保存的数据，继续关闭吗？");
 //                    build.setPositiveButton("是", new DialogInterface.OnClickListener() {
 //                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
+//                        public void delClick(DialogInterface dialog, int which) {
 //                            context.finish();
 //                        }
 //                    });

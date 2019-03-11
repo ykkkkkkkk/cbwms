@@ -114,6 +114,25 @@ public class ProdOrder implements Serializable {
     private String saleDeptNumber;
     /*销售部门名称*/
     private String saleDeptName;
+    /*销售订单单据类型*/
+    private String salBillType;
+    /*品名*/
+    private String mtlTrade;
+    /*品牌*/
+    private String mtlBrand;
+    /*系列*/
+    private String mtlSeries;
+    /*颜色*/
+    private String mtlColor;
+    /*车型*/
+    private String mtlCartype;
+    /*线路*/
+    private String custRoute;
+    /*生码数量*/
+    private double createCodeQty;
+    /* 是否启用批号管理，0代表不启用，1代表启用 (用于在前端显示值，方便前端操作)*/
+    private int isBatchManager;
+
 
     private int isCheck; // 新加的是否选中
 
@@ -599,6 +618,78 @@ public class ProdOrder implements Serializable {
 
     public void setFstockinquaselqty(double fstockinquaselqty) {
         this.fstockinquaselqty = fstockinquaselqty;
+    }
+
+    public String getSalBillType() {
+        return salBillType;
+    }
+
+    public void setSalBillType(String salBillType) {
+        this.salBillType = salBillType;
+    }
+
+    public String getMtlTrade() {
+        return mtlTrade;
+    }
+
+    public void setMtlTrade(String mtlTrade) {
+        this.mtlTrade = mtlTrade;
+    }
+
+    public String getMtlBrand() {
+        return mtlBrand;
+    }
+
+    public void setMtlBrand(String mtlBrand) {
+        this.mtlBrand = mtlBrand;
+    }
+
+    public String getMtlSeries() {
+        return mtlSeries;
+    }
+
+    public void setMtlSeries(String mtlSeries) {
+        this.mtlSeries = mtlSeries;
+    }
+
+    public String getMtlColor() {
+        return mtlColor;
+    }
+
+    public void setMtlColor(String mtlColor) {
+        this.mtlColor = mtlColor;
+    }
+
+    public String getMtlCartype() {
+        return mtlCartype;
+    }
+
+    public void setMtlCartype(String mtlCartype) {
+        this.mtlCartype = mtlCartype;
+    }
+
+    public String getCustRoute() {
+        return custRoute;
+    }
+
+    public void setCustRoute(String custRoute) {
+        this.custRoute = custRoute;
+    }
+
+    public double getCreateCodeQty() {
+        return createCodeQty;
+    }
+
+    public void setCreateCodeQty(double createCodeQty) {
+        this.createCodeQty = createCodeQty;
+    }
+
+    public int getIsBatchManager() {
+        return isBatchManager;
+    }
+
+    public void setIsBatchManager(int isBatchManager) {
+        this.isBatchManager = isBatchManager;
     }
 
 

@@ -437,6 +437,16 @@
             android:textSize="16sp" />
 
         <Button
+            android:id="@+id/btn_batchAdd"
+            android:layout_width="100dp"
+            android:layout_height="38dp"
+            android:background="@drawable/btn_gray2_selector"
+            android:gravity="center"
+            android:text="批量填充"
+            android:textColor="@color/c_515151"
+            android:textSize="16sp" />
+
+        <Button
             android:id="@+id/btn_save"
             android:layout_width="0dp"
             android:layout_height="38dp"

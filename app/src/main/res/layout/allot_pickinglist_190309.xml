@@ -42,6 +42,53 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/lin_box"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginBottom="@dimen/_6dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="2"
+            android:gravity="center"
+            android:text="包装箱"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_box"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala4"
+            android:gravity="center"
+            android:hint="请选择包装箱"
+            android:paddingLeft="2dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_14sp" />
+
+        <Button
+            android:id="@+id/btn_boxConfirm"
+            android:layout_width="@dimen/_62dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/_6dp"
+            android:background="@drawable/btn_blue_selector"
+            android:gravity="center"
+            android:text="确认"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_margin="@dimen/_6dp"
@@ -53,41 +100,50 @@
             android:layout_height="match_parent"
             android:ems="2"
             android:gravity="center"
-            android:text="领料部门"
+            android:text="调拨单"
             android:textColor="#000000"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tv_deptSel"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_sourceCode"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/back_style_blue"
+                android:hint="调拨单扫码"
+                android:inputType="none"
+                android:paddingLeft="2dp"
+                android:textSize="@dimen/_12sp" />
+
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
+            android:layout_marginLeft="@dimen/_2dp"
             android:ems="2"
             android:gravity="center"
-            android:text="调出仓库"
+            android:text="物料条码"
             android:textColor="#000000"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tv_stockSel"
+        <EditText
+            android:id="@+id/et_mtlCode"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
+            android:hint="请在此扫描物料条码"
+            android:inputType="none"
+            android:paddingLeft="2dp"
             android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
+            android:textSize="@dimen/_12sp" />
 
     </LinearLayout>
 
@@ -96,57 +152,6 @@
         android:layout_height="38dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:ems="2"
-            android:gravity="center"
-            android:text="日期"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_dateSel"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
-            android:ems="2"
-            android:gravity="center"
-            android:text="占位"
-            android:textColor="#000000"
-            android:textSize="12sp"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/btn_find"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/btn_blue_selector"
-            android:text="查询调拨单"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_16sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_margin="@dimen/_6dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -173,24 +178,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
+            android:layout_marginLeft="@dimen/_2dp"
             android:ems="2"
             android:gravity="center"
-            android:text="物料条码"
+            android:text="发货方式"
             android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="invisible" />
 
-        <EditText
-            android:id="@+id/et_mtlCode"
+        <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/back_style_blue"
-            android:hint="请在此扫描物料条码"
-            android:inputType="none"
-            android:paddingLeft="2dp"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
             android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
+            android:textSize="@dimen/_14sp"
+            android:visibility="invisible" />
 
     </LinearLayout>
 
@@ -208,6 +213,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_33dp"
+                android:layout_marginTop="@dimen/_6dp"
                 android:background="#D8D8D8">
 
                 <TextView

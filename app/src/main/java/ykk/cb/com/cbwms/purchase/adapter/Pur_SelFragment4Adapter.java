@@ -53,11 +53,11 @@ public class Pur_SelFragment4Adapter extends BaseArrayRecyclerAdapter<DisburdenM
             }
 //            View.OnClickListener click = new View.OnClickListener() {
 //                @Override
-//                public void onClick(View v) {
+//                public void delClick(View v) {
 //                    switch (v.getId()){
 //                        case R.id.tv_check: // 选中
 ////                            if(callBack != null) {
-////                                callBack.onClick(entity, pos);
+////                                callBack.delClick(entity, pos);
 ////                            }
 //                            int check = datas.get(pos).getIsCheck();
 //                            if (check == 1) {

@@ -284,7 +284,7 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
 
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.prod_in_fragment1, container, false);
+        return inflater.inflate(R.layout.prod_in_fragment1_temp190306, container, false);
     }
 
     @Override

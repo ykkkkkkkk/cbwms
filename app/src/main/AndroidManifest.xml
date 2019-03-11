@@ -116,8 +116,8 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".basics.Express_DialogActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:theme="@style/dialogStyle" />
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!--  消息模块 -->
         <activity android:name=".entrance.page0.QualityMissionActivity" />
@@ -176,6 +176,12 @@
         <activity
             android:name=".produce.Prod_StartMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_OrderSearchActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_CreateBarcodeDialog"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 销售模块 -->
         <activity
@@ -208,7 +214,6 @@
         <activity
             android:name=".sales.Sal_OutPassMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
 
 
         <activity android:name=".util.ImageLoadActivity" />

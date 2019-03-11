@@ -77,8 +77,12 @@ public class Pur_InFragment1 extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.btn_clone)
     Button btnClone;
+    @BindView(R.id.btn_batchAdd)
+    Button btnBatchAdd;
     @BindView(R.id.btn_save)
     Button btnSave;
+    @BindView(R.id.btn_pass)
+    Button btnPass;
     @BindView(R.id.tv_orderTypeSel)
     TextView tvOrderTypeSel;
     @BindView(R.id.tv_operationTypeSel)
@@ -108,7 +112,7 @@ public class Pur_InFragment1 extends BaseFragment {
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
     private String mtlBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：物料
-    private int curPos; // 当前行
+    private int curPos = -1; // 当前行
     private View curRadio; // 当前扫码的 View
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
@@ -138,9 +142,12 @@ public class Pur_InFragment1 extends BaseFragment {
 //                        m.reset('0');
 //
 //                        m.checkDatas.clear();
-//                        m.getBarCodeTableAfter(true);
+//                        m.getBarCodeTableEnable(true);
 //                        m.mAdapter.notifyDataSetChanged();
+                        m.btnClone.setVisibility(View.GONE);
+                        m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
+                        m.btnPass.setVisibility(View.VISIBLE);
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
 
                         break;
@@ -150,11 +157,14 @@ public class Pur_InFragment1 extends BaseFragment {
                         break;
                     case PASS: // 审核成功 返回
                         m.k3Number = null;
+                        m.btnClone.setVisibility(View.VISIBLE);
+                        m.btnBatchAdd.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
+                        m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
 
                         m.checkDatas.clear();
-                        m.getBarCodeTableAfter(true);
+                        m.getBarCodeTableEnable(true);
                         m.mAdapter.notifyDataSetChanged();
                         Comm.showWarnDialog(m.mContext,"审核成功✔");
 
@@ -173,7 +183,7 @@ public class Pur_InFragment1 extends BaseFragment {
                                 bt.setMtl(mtl);
 
                                 // 禁用部分控件
-                                m.getBarCodeTableAfter(false);
+                                m.getBarCodeTableEnable(false);
                                 // 填充数据
                                 int size = m.checkDatas.size();
                                 boolean addRow = true;
@@ -313,7 +323,7 @@ public class Pur_InFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.tv_supplierSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone,
+    @OnClick({R.id.tv_supplierSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
             R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_purDate, R.id.tv_purMan, R.id.btn_deptName, R.id.lin_rowTitle})
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -396,6 +406,37 @@ public class Pur_InFragment1 extends BaseFragment {
                 } else {
                     linTop.setVisibility(View.VISIBLE);
                 }
+
+                break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(mContext, "请选择任意一行的仓库！");
+                    return;
+                }
+                ScanningRecord2 sr2Temp = checkDatas.get(curPos);
+                Stock stock = sr2Temp.getStock();
+                StockPosition stockPos = sr2Temp.getStockPos();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    ScanningRecord2 sr2 = checkDatas.get(i);
+                    if (sr2.getStockId() == 0) {
+                        if (stock != null) {
+                            sr2.setStock(stock);
+                            sr2.setStockId(stock.getfStockid());
+                            sr2.setStockName(stock.getfName());
+                            sr2.setStockFnumber(stock.getfNumber());
+                        }
+                        if (stockPos != null) {
+                            sr2.setStockPos(stockPos);
+                            sr2.setStockPositionId(stockPos.getId());
+                            sr2.setStockPName(stockPos.getFname());
+                        }
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
 
                 break;
         }
@@ -513,12 +554,16 @@ public class Pur_InFragment1 extends BaseFragment {
         parent.isChange = false;
         stock2 = null;
         stockP2 = null;
+        curPos = -1;
     }
 
     private void resetSon() {
         k3Number = null;
+        btnClone.setVisibility(View.VISIBLE);
+        btnBatchAdd.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
-        getBarCodeTableAfter(true);
+        btnPass.setVisibility(View.GONE);
+        getBarCodeTableEnable(true);
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
         reset('0');
@@ -671,7 +716,7 @@ public class Pur_InFragment1 extends BaseFragment {
     /**
      * 得到条码表的数据，禁用部分控件
      */
-    private void getBarCodeTableAfter(boolean isEnable) {
+    private void getBarCodeTableEnable(boolean isEnable) {
         if(isEnable) {
             setEnables(tvSupplierSel, R.drawable.back_style_blue,true);
             setEnables(tvReceiveOrg, R.drawable.back_style_blue, true);

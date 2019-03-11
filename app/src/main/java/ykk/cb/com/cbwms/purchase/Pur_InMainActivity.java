@@ -87,7 +87,7 @@ public class Pur_InMainActivity extends BaseActivity {
 //            customer = (Customer) bundle.getSerializable("customer");
 //        }
 
-        curRadio = viewRadio4;
+        curRadio = viewRadio2;
         List<Fragment> listFragment = new ArrayList<Fragment>();
 //        Bundle bundle2 = new Bundle();
 //        bundle2.putSerializable("customer", customer);
@@ -104,7 +104,7 @@ public class Pur_InMainActivity extends BaseActivity {
         //设置ViewPage缓存界面数，默认为1
         viewPager.setOffscreenPageLimit(3);
         //ViewPager显示第一个Fragment
-        viewPager.setCurrentItem(3);
+        viewPager.setCurrentItem(1);
 
 
         //ViewPager页面切换监听

@@ -84,6 +84,8 @@ public class Prod_InFragment1 extends BaseFragment {
     TextView tvDeptSel;
     @BindView(R.id.btn_clone)
     Button btnClone;
+    @BindView(R.id.btn_batchAdd)
+    Button btnBatchAdd;
     @BindView(R.id.btn_save)
     Button btnSave;
     @BindView(R.id.btn_print)
@@ -117,7 +119,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private String mtlBarcode; // 对应的条码号
     private BarCodeTable bt; //
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
-    private int curPos; // 当前行
+    private int curPos = -1; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
@@ -157,6 +159,7 @@ public class Prod_InFragment1 extends BaseFragment {
 //                        m.getBarCodeTableBefore(true);
 //                        m.mAdapter.notifyDataSetChanged();
                         m.btnClone.setVisibility(View.GONE);
+                        m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPrint.setVisibility(View.VISIBLE);
                         m.btnPass.setVisibility(View.VISIBLE);
@@ -174,6 +177,7 @@ public class Prod_InFragment1 extends BaseFragment {
                     case PASS: // 审核成功 返回
                         m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
+                        m.btnBatchAdd.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
                         m.btnPrint.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.GONE);
@@ -392,7 +396,7 @@ public class Prod_InFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_deptSel, R.id.tv_sourceNo, R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone, R.id.tv_inOrg, R.id.tv_prodOrg})
+    @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_deptSel, R.id.tv_sourceNo, R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_inOrg, R.id.tv_prodOrg})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -495,6 +499,37 @@ public class Prod_InFragment1 extends BaseFragment {
                 } else {
                     resetSon();
                 }
+
+                break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(mContext, "请选择任意一行的仓库！");
+                    return;
+                }
+                ScanningRecord2 sr2Temp = checkDatas.get(curPos);
+                Stock stock = sr2Temp.getStock();
+                StockPosition stockPos = sr2Temp.getStockPos();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    ScanningRecord2 sr2 = checkDatas.get(i);
+                    if (sr2.getStockId() == 0) {
+                        if (stock != null) {
+                            sr2.setStock(stock);
+                            sr2.setStockId(stock.getfStockid());
+                            sr2.setStockName(stock.getfName());
+                            sr2.setStockFnumber(stock.getfNumber());
+                        }
+                        if (stockPos != null) {
+                            sr2.setStockPos(stockPos);
+                            sr2.setStockPositionId(stockPos.getId());
+                            sr2.setStockPName(stockPos.getFname());
+                        }
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
 
                 break;
         }
@@ -607,6 +642,7 @@ public class Prod_InFragment1 extends BaseFragment {
         sourceList.clear();
         tvCountSum.setText("0.0");
         parent.isChange = false;
+        curPos = -1;
     }
 
     private void resetSon() {
@@ -616,6 +652,7 @@ public class Prod_InFragment1 extends BaseFragment {
         linDiv2.setVisibility(View.GONE);
         k3Number = null;
         btnClone.setVisibility(View.VISIBLE);
+        btnBatchAdd.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
         btnPass.setVisibility(View.GONE);
         btnPrint.setVisibility(View.GONE);

@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.basics;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
@@ -59,6 +60,7 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int isAll; // 是否加载所有仓库
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -130,6 +132,11 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
 
     @Override
     public void initData() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            isAll = bundle.getInt("isAll");
+        }
+
         initLoadDatas();
     }
 
@@ -163,6 +170,7 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
         String mUrl = getURL("findStockListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
+                .add("isAll", String.valueOf(isAll))
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

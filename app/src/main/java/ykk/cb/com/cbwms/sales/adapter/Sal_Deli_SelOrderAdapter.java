@@ -56,7 +56,7 @@ public class Sal_Deli_SelOrderAdapter extends BaseArrayRecyclerAdapter<DeliOrder
                     switch (v.getId()){
                         case R.id.tv_check: // 选中
 //                            if(callBack != null) {
-//                                callBack.onClick(entity, pos);
+//                                callBack.delClick(entity, pos);
 //                            }
                             int check = datas.get(pos).getIsCheck();
                             if (check == 1) {

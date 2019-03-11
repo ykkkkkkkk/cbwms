@@ -73,6 +73,7 @@ public class ScanningRecord2 implements Serializable {
     private List<String> listBarcode; // 记录每行中扫的条码barcode
     private String strBarcodes; // 用逗号拼接的条码号
     private ScanningRecordTok3 srTok3; // 提交到k3的字段
+    private int salOrderSumRow; // 箱子对应的销售订单的总行数
 
 
     public int getID() {
@@ -457,6 +458,12 @@ public class ScanningRecord2 implements Serializable {
     }
     public void setFbusinessTypeNumber(String fbusinessTypeNumber) {
         this.fbusinessTypeNumber = fbusinessTypeNumber;
+    }
+    public int getSalOrderSumRow() {
+        return salOrderSumRow;
+    }
+    public void setSalOrderSumRow(int salOrderSumRow) {
+        this.salOrderSumRow = salOrderSumRow;
     }
 
     public ScanningRecord2() {

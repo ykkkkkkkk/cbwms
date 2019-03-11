@@ -110,6 +110,7 @@ public class MaterialBinningRecord implements Serializable {
     private String strBarcodes; // 用逗号拼接的条码号
     private int isMtlParts; // 是否为物料配件
     private int isCheck; // 是否选中
+    private int salOrderSumRow; // 箱子对应的销售订单的总行数
 
 
     public MaterialBinningRecord() {
@@ -434,6 +435,14 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setIsCheck(int isCheck) {
         this.isCheck = isCheck;
+    }
+
+    public int getSalOrderSumRow() {
+        return salOrderSumRow;
+    }
+
+    public void setSalOrderSumRow(int salOrderSumRow) {
+        this.salOrderSumRow = salOrderSumRow;
     }
 
 }

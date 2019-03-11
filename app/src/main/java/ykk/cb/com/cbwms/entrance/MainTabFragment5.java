@@ -185,7 +185,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
         // 如果用户点击取消就销毁掉这个系统
 //        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
 //            @Override
-//            public void onClick(DialogInterface dialog, int which) {
+//            public void delClick(DialogInterface dialog, int which) {
 ////                mContext.finish();
 //                dialog.dismiss();
 //            }
@@ -216,7 +216,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
                     }
                 })
 //                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int which) {
+//                    public void delClick(DialogInterface dialog, int which) {
 //                        dialog.dismiss();
 //                    }
 //                })

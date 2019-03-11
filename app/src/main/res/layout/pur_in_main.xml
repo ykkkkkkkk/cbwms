@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="装卸单入库"
+            android:text="采购订单入库"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
@@ -77,7 +77,7 @@
                 android:id="@+id/viewRadio2"
                 android:layout_width="@dimen/_30dp"
                 android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_off2" />
+                android:background="@drawable/check_on" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -127,7 +127,7 @@
                 android:id="@+id/viewRadio4"
                 android:layout_width="@dimen/_30dp"
                 android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_on" />
+                android:background="@drawable/check_off2" />
 
             <TextView
                 android:layout_width="wrap_content"

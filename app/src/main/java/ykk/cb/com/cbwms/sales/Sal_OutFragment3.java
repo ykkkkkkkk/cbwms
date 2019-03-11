@@ -268,7 +268,7 @@
 //                    build.setMessage("您有未保存的数据，继续重置吗？");
 //                    build.setPositiveButton("是", new DialogInterface.OnClickListener() {
 //                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
+//                        public void delClick(DialogInterface dialog, int which) {
 //                            reset();
 //                            k3Number = null;
 //                            btnSave.setVisibility(View.VISIBLE);

@@ -78,8 +78,12 @@ public class Pur_InFragment4 extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.btn_clone)
     Button btnClone;
+    @BindView(R.id.btn_batchAdd)
+    Button btnBatchAdd;
     @BindView(R.id.btn_save)
     Button btnSave;
+    @BindView(R.id.btn_pass)
+    Button btnPass;
     @BindView(R.id.tv_orderTypeSel)
     TextView tvOrderTypeSel;
     @BindView(R.id.tv_operationTypeSel)
@@ -98,7 +102,7 @@ public class Pur_InFragment4 extends BaseFragment {
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
     private String deptBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：收料订单， 5：物料
-    private int curPos; // 当前行
+    private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
     private Activity mContext;
@@ -128,7 +132,10 @@ public class Pur_InFragment4 extends BaseFragment {
 //
 //                        m.checkDatas.clear();
 //                        m.mAdapter.notifyDataSetChanged();
+                        m.btnClone.setVisibility(View.GONE);
+                        m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
+                        m.btnPass.setVisibility(View.VISIBLE);
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
 
                         break;
@@ -138,7 +145,10 @@ public class Pur_InFragment4 extends BaseFragment {
                         break;
                     case PASS: // 审核成功 返回
                         m.k3Number = null;
+                        m.btnClone.setVisibility(View.VISIBLE);
+                        m.btnBatchAdd.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
+                        m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
 
                         m.checkDatas.clear();
@@ -278,7 +288,8 @@ public class Pur_InFragment4 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.rb_type1, R.id.rb_type2, R.id.tv_sourceSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.tv_orderTypeSel, R.id.tv_purMan, R.id.btn_deptName})
+    @OnClick({R.id.rb_type1, R.id.rb_type2, R.id.tv_sourceSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
+            R.id.tv_orderTypeSel, R.id.tv_purMan, R.id.btn_deptName})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -350,6 +361,37 @@ public class Pur_InFragment4 extends BaseFragment {
                 } else {
                     resetSon();
                 }
+
+                break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(mContext, "请选择任意一行的仓库！");
+                    return;
+                }
+                ScanningRecord2 sr2Temp = checkDatas.get(curPos);
+                Stock stock = sr2Temp.getStock();
+                StockPosition stockPos = sr2Temp.getStockPos();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    ScanningRecord2 sr2 = checkDatas.get(i);
+                    if (sr2.getStockId() == 0) {
+                        if (stock != null) {
+                            sr2.setStock(stock);
+                            sr2.setStockId(stock.getfStockid());
+                            sr2.setStockName(stock.getfName());
+                            sr2.setStockFnumber(stock.getfNumber());
+                        }
+                        if (stockPos != null) {
+                            sr2.setStockPos(stockPos);
+                            sr2.setStockPositionId(stockPos.getId());
+                            sr2.setStockPName(stockPos.getFname());
+                        }
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
 
                 break;
         }
@@ -459,11 +501,15 @@ public class Pur_InFragment4 extends BaseFragment {
         parent.isChange = false;
         rbType1.setEnabled(true);
         rbType2.setEnabled(true);
+        curPos = -1;
     }
 
     private void resetSon() {
         k3Number = null;
+        btnClone.setVisibility(View.VISIBLE);
+        btnBatchAdd.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
+        btnPass.setVisibility(View.GONE);
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
         reset('0');

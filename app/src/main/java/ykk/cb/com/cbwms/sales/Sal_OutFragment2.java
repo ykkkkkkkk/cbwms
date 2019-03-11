@@ -82,6 +82,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     EditText etGetFocus;
     @BindView(R.id.btn_clone)
     Button btnClone;
+    @BindView(R.id.btn_batchAdd)
+    Button btnBatchAdd;
     @BindView(R.id.btn_save)
     Button btnSave;
     @BindView(R.id.btn_pass)
@@ -124,7 +126,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
     private String boxBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
-    private int curPos; // 当前行
+    private int curPos = -1; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
@@ -165,6 +167,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //                        m.mapBox.clear();
 //                        m.deliOrderList.clear();
                         m.btnClone.setVisibility(View.GONE);
+                        m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
@@ -177,6 +180,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     case PASS: // 审核成功 返回
                         m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
+                        m.btnBatchAdd.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
                         m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
@@ -213,7 +217,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                                 if(m.isAlikeCust(mbr)) return;
                                 if(m.caseId > 0 && m.caseId != mbr.getCaseId()) {
-                                    Comm.showWarnDialog(m.mContext,"扫码的箱码单据和当前行的单据不一致！例:(行数据是复核装箱单，你扫了生产装箱单！)");
+                                    Comm.showWarnDialog(m.mContext,"扫码的箱码单据和当前行的单据不一致！");
                                     return;
                                 }
                                 m.caseId = mbr.getCaseId();
@@ -436,7 +440,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone,
+    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
             R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_salOrg, R.id.tv_salDate, R.id.tv_stockStaff, R.id.lin_rowTitle, R.id.tv_expressCompany})
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -508,6 +512,37 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 }
 
                 break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(mContext, "请选择任意一行的仓库！");
+                    return;
+                }
+                ScanningRecord2 sr2Temp = checkDatas.get(curPos);
+                Stock stock = sr2Temp.getStock();
+                StockPosition stockPos = sr2Temp.getStockPos();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    ScanningRecord2 sr2 = checkDatas.get(i);
+                    if (sr2.getStockId() == 0) {
+                        if (stock != null) {
+                            sr2.setStock(stock);
+                            sr2.setStockId(stock.getfStockid());
+                            sr2.setStockName(stock.getfName());
+                            sr2.setStockFnumber(stock.getfNumber());
+                        }
+                        if (stockPos != null) {
+                            sr2.setStockPos(stockPos);
+                            sr2.setStockPositionId(stockPos.getId());
+                            sr2.setStockPName(stockPos.getFname());
+                        }
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+
+                break;
             case R.id.lin_rowTitle: // 点击行标题头
                 if(linTop.getVisibility() == View.VISIBLE) {
                     linTop.setVisibility(View.GONE);
@@ -549,7 +584,14 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            Comm.showWarnDialog(mContext,"请输入运单号！");
 //            return false;
 //        }
-
+        // 1、非整非拼，2、整单发货，3、拼单
+        if(orderDeliveryType == '2') {
+            int salOrderSumRow = checkDatas.get(0).getSalOrderSumRow();
+            if(salOrderSumRow > checkDatas.size()) {
+                Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
+                return false;
+            }
+        }
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
@@ -645,11 +687,13 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         expressCompany = null;
         linTop.setVisibility(View.VISIBLE);
         orderDeliveryType = '0';
+        curPos = -1;
     }
 
     private void resetSon() {
         k3Number = null;
         btnClone.setVisibility(View.VISIBLE);
+        btnBatchAdd.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
         btnPass.setVisibility(View.GONE);
         getBarCodeTableBefore(true);
@@ -1052,6 +1096,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //                expressCompany.setUniquenessId(deliveryCompanyId);
             expressCompany.setExpressNumber(deliveryCompanyNumber);
             expressCompany.setExpressName(deliveryCompanyName);
+            sr2.setSalOrderSumRow(mbr.getSalOrderSumRow());
 
 //                sr2.setLeafNumber(deliOrder.getLeaf());
 //                sr2.setLeafNumber2(deliOrder.getLeaf1());
@@ -1350,7 +1395,6 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         showLoadDialog("加载中...");
         StringBuilder salIds = new StringBuilder();
         StringBuilder salOrders = new StringBuilder();
-        List<Material> listMtl = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             Material mtl = sr2.getMtl();
@@ -1362,15 +1406,12 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 salIds.append(sr2.getSalOrderId() + ",");
                 salOrders.append(sr2.getSalOrderNo() + ",");
             }
-            listMtl.add(mtl);
         }
-        String strListMtl = JsonUtil.objectToString(listMtl);
         String mUrl = getURL("prodOrder/findJudgeSalOrderInProdOrderStatus");
         FormBody formBody = new FormBody.Builder()
                 .add("salIds", salIds.toString())
                 .add("salOrders", salOrders.toString())
                 .add("orderDeliveryType", String.valueOf(orderDeliveryType))
-                .add("strListMtl", strListMtl)
                 .build();
 
         Request request = new Request.Builder()

@@ -78,14 +78,14 @@ public class UpdateManager {
 //        builder.setMessage(Comm.tempUpRemark);
 //        builder.setPositiveButton("下载", new OnClickListener() {
 //            @Override
-//            public void onClick(DialogInterface dialog, int which) {
+//            public void delClick(DialogInterface dialog, int which) {
 //                dialog.dismiss();
 //                showDownloadDialog();
 //            }
 //        });
 //        builder.setNegativeButton("取消", new OnClickListener() {
 //            @Override
-//            public void onClick(DialogInterface dialog, int which) {
+//            public void delClick(DialogInterface dialog, int which) {
 //                dialog.dismiss();
 //            }
 //        });

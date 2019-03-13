@@ -49,6 +49,7 @@ import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.PickingList;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -273,6 +274,13 @@ public class Allot_PickingListActivity extends BaseActivity {
                 } else if(stock.isStorageLocation()){ // 是否启用了库位
                     showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, null);
                 }
+            }
+
+            @Override
+            public void onClick_del(StkTransferOutEntry entity, int position) {
+                LogUtil.e("del", "行：" + position);
+                checkDatas.remove(position);
+                mAdapter.notifyDataSetChanged();
             }
         });
 

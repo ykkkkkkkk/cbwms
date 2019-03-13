@@ -830,6 +830,9 @@ public class Prod_InFragment1 extends BaseFragment {
             sr2.setEntryId(prodOrder.getEntryId());
             sr2.setPoFbillno(prodOrder.getFbillno());
             sr2.setPoFmustqty(prodOrder.getProdFqty());
+            sr2.setSalOrderId(prodOrder.getSalOrderId());
+            sr2.setSalOrderNo(isNULLS(prodOrder.getSalOrderNo()));
+            sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
 //            sr2.setBarcode(bt.getBarcode());
             sr2.setRelationObj(JsonUtil.objectToString(prodOrder));
 
@@ -968,6 +971,9 @@ public class Prod_InFragment1 extends BaseFragment {
         sr2.setDepartmentFnumber(prodOrder.getDeptNumber());
         sr2.setFqty(prodOrder.getProdFqty());
         sr2.setUsableFqty(prodOrder.getUsableFqty());
+        sr2.setSalOrderId(prodOrder.getSalOrderId());
+        sr2.setSalOrderNo(isNULLS(prodOrder.getSalOrderNo()));
+        sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
 
         double fqty = 1;
         // 计量单位数量
@@ -1178,6 +1184,9 @@ public class Prod_InFragment1 extends BaseFragment {
             record.setFqty(sr2.getStockqty());
             record.setFdate(Comm.getSysDate(7));
             record.setPdaNo("");
+            record.setSalOrderId(sr2.getSalOrderId());
+            record.setSalOrderNo(sr2.getSalOrderNo());
+            record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
             // 得到用户对象
             record.setOperationId(user.getId());
             record.setCreateUserId(user.getId());

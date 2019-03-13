@@ -251,10 +251,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="56dp"
+                    android:layout_width="72dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="调拨数\n拣货数"
+                    android:text="调拨/拣货数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -262,9 +262,17 @@
                     android:layout_width="120dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="仓库\n库位"
+                    android:text="仓库/库位"
                     android:textColor="#000000"
                     android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="@dimen/_46dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="删除行"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/_12sp" />
 
             </LinearLayout>
 

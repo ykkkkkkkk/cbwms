@@ -29,7 +29,7 @@
         android:id="@+id/tv_mtlName"
         android:layout_width="120dp"
         android:layout_height="@dimen/_46dp"
-        android:gravity="center"
+        android:gravity="center|left"
         android:text="物料名称"
         android:textColor="#000000"
         android:textSize="@dimen/_12sp" />
@@ -37,7 +37,7 @@
 
     <TextView
         android:id="@+id/tv_nums"
-        android:layout_width="56dp"
+        android:layout_width="72dp"
         android:layout_height="@dimen/_46dp"
         android:background="@drawable/back_style_blue2"
         android:gravity="center"
@@ -47,7 +47,7 @@
 
     <TextView
         android:id="@+id/tv_stockAP"
-        android:layout_width="88dp"
+        android:layout_width="120dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:background="@drawable/back_style_blue5c"
@@ -66,10 +66,8 @@
 
     <TextView
         android:id="@+id/tv_delRow"
-        android:layout_width="@dimen/_38dp"
-        android:layout_height="@dimen/_38dp"
-        android:layout_marginLeft="@dimen/_2dp"
-        android:layout_marginRight="@dimen/_2dp"
+        android:layout_width="@dimen/_46dp"
+        android:layout_height="@dimen/_46dp"
         android:background="@drawable/ico_del"
         android:gravity="center" />
 

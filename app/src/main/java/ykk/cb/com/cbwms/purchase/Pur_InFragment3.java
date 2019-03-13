@@ -329,6 +329,8 @@ public class Pur_InFragment3 extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Pur_InFragment3Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Pur_InFragment3Adapter.MyCallBack() {
             @Override
             public void onClick_num(View v, ScanningRecord2 entity, int position) {

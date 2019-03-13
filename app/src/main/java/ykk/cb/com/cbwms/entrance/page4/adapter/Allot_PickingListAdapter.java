@@ -11,6 +11,7 @@ import java.util.List;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.Material;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.sal.PickingList;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
@@ -41,6 +42,7 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
+        TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
 
         // 赋值
         StkTransferOut stkOut = entity.getStkTransferOut();
@@ -81,11 +83,18 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
                         }
 
                         break;
+                    case R.id.tv_delRow: // 删除行
+                        if(callBack != null) {
+                            callBack.onClick_del(entity, pos);
+                        }
+
+                        break;
                 }
             }
         };
         tv_nums.setOnClickListener(click);
         tv_stockAP.setOnClickListener(click);
+        tv_delRow.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -95,6 +104,7 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
     public interface MyCallBack {
         void onClick_num(View v, StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
+        void onClick_del(StkTransferOutEntry entity, int position);
     }
 
     /*之下的方法都是为了方便操作，并不是必须的*/

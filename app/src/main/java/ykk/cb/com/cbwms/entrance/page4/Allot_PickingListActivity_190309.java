@@ -284,6 +284,11 @@ public class Allot_PickingListActivity_190309 extends BaseActivity {
                     showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, null);
                 }
             }
+
+            @Override
+            public void onClick_del(StkTransferOutEntry entity, int position) {
+
+            }
         });
 
     }

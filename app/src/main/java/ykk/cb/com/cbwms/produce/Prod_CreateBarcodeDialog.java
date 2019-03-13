@@ -242,9 +242,11 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                 recyclerView.setVisibility(View.VISIBLE);
 
                 prodOrder = checkDatas.get(0);
+                Material mtl = prodOrder.getMtl();
                 AdapterItem1 item1 = new AdapterItem1();
                 item1.setNum(1);
-                item1.setNum2(prodOrder.getProdFqty()-prodOrder.getCreateCodeQty());
+                double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+                item1.setNum2(fqty-prodOrder.getCreateCodeQty());
                 listDatas.add(item1);
                 mAdapter.notifyDataSetChanged();
             } else {
@@ -319,6 +321,10 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                     }
                     listDatas.clear();
                     listDatas.addAll(list);
+                    // 批次号赋值
+                    for(int i=0; i<checkDatas.size(); i++) {
+                        checkDatas.get(i).setBatchCode(getValues(etBatchNo).trim());
+                    }
                     mAdapter.notifyDataSetChanged();
 
                     recordList.addAll(listTmp);

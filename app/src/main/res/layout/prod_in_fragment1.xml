@@ -268,11 +268,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#BBBBBB" />
-
     <HorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -287,7 +282,7 @@
             <LinearLayout
                 android:id="@+id/lin_rowTitle"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_33dp"
+                android:layout_height="@dimen/_25dp"
                 android:background="#D8D8D8">
 
                 <TextView
@@ -315,18 +310,18 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="56dp"
+                    android:layout_width="72dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="应收数\n实收数"
+                    android:text="应收/实收数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="88dp"
+                    android:layout_width="120dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="仓库\n库位"
+                    android:text="仓库/库位"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -334,17 +329,17 @@
                     android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="批号\n序列号"
+                    android:text="批号/序列号"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="@dimen/_42dp"
+                    android:layout_width="@dimen/_46dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="删除行"
                     android:textColor="#000000"
-                    android:textSize="@dimen/_10sp" />
+                    android:textSize="@dimen/_12sp" />
 
             </LinearLayout>
 

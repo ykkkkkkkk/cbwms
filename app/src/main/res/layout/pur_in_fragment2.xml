@@ -367,7 +367,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="@dimen/_42dp"
+                    android:layout_width="@dimen/_46dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="删除行"

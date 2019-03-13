@@ -3,6 +3,7 @@ package ykk.cb.com.cbwms.produce;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -110,7 +111,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private Prod_BoxMainActivity parent;
     private Activity mContext;
     private static final int SEL_BOX = 13, SEL_NUM = 14;
-    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508, CHECK_AUTO = 209, CHECK_AUTO_NULL = 509;
     private static final int SETFOCUS = 1, SAOMA = 100;
     private Box box; // 箱子表
     private BoxBarCode boxBarCode; // 箱码表
@@ -354,13 +355,19 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         break;
                     case ISAUTO_NULL: // 自动带出配件 失败
-                        errMsg = m.isNULLS((String) msg.obj);
-                        if(errMsg.length() > 0) {
-                            String message = JsonUtil.strToString(errMsg);
-                            Comm.showWarnDialog(m.mContext, message);
-                        } else {
-                            Comm.showWarnDialog(m.mContext,"很抱歉，没能找到数据！！！");
-                        }
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到配件！！！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case CHECK_AUTO: // 检查是否有 自动带出配件
+                        List<SalOrder> listSal2 = JsonUtil.strToList((String) msg.obj, SalOrder.class);
+                        m.getSalOrderAfter2(listSal2);
+
+                        break;
+                    case CHECK_AUTO_NULL: // 检查是否有自动带出配件 失败
+                        // 没有找到配件
+                        m.run_modifyStatus();
 
                         break;
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -553,10 +560,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"请选择发货方式！");
                     return;
                 }
-                if(status == '1') status = '2';
-                else status = '1';
+//                if(status == '1') status = '2';
+//                else status = '1';
 
-                run_modifyStatus();
+                run_findSalOrderByAutoMtl(CHECK_AUTO, CHECK_AUTO_NULL);
+//                run_modifyStatus();
 
                 break;
             case R.id.btn_print: // 打印
@@ -592,7 +600,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"箱子里还没有物料，不能查询！");
                     return;
                 }
-                run_findSalOrderByAutoMtl();
+                run_findSalOrderByAutoMtl(ISAUTO, ISAUTO_NULL);
 
                 break;
         }
@@ -1041,6 +1049,55 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     /**
+     * 得到销售订单的物料配件2
+     */
+    private void getSalOrderAfter2(List<SalOrder> listSal) {
+        int size = listSal.size();
+        int countRow = size;
+        List<SalOrder> listRecord = new ArrayList<>();
+        for(int i=0; i<size; i++) {
+            SalOrder salOrder = listSal.get(i);
+            // 判断是否有重复的行
+            boolean isBool = false;
+            for(int j=0, sizeJ=checkDatas.size(); j<sizeJ; j++) {
+                MaterialBinningRecord mbre = checkDatas.get(j);
+                // 如果有相同的就减一
+                if(salOrder.getFbillno().equals(mbre.getSalOrderNo()) && salOrder.getEntryId() == mbre.getSalOrderNoEntryId()) {
+                    countRow -= 1;
+                    break;
+                }
+            }
+            if(countRow > 0) { // 如果有未装箱的配件，就提示
+                AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+                build.setIcon(R.drawable.caution);
+                build.setTitle("系统提示");
+                build.setMessage("还有配件未带出，是否继续封箱？");
+                build.setPositiveButton("封箱", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        run_modifyStatus();
+                    }
+                });
+                build.setNegativeButton("取消", null);
+                build.setCancelable(false);
+                build.show();
+            } else {
+                run_modifyStatus();
+            }
+        }
+
+        // 汇总数量
+        double sum = 0;
+        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
+            sum += checkDatas.get(j).getUsableFqty();
+        }
+        tvCount.setText("数量："+ df.format(sum));
+        tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
+        setFocusable(etMtlCode);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
      * 判断客户名称是否一样
      * @param str
      * @param str2
@@ -1349,6 +1406,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 开箱或者封箱（查询客户还有多少订单没有装箱）
      */
     private void run_modifyStatus() {
+        if(status == '1') status = '2';
+        else status = '1';
+
         showLoadDialog("加载中...");
         String mUrl = getURL("boxBarCode/modifyStatus");
         MaterialBinningRecord mtl = new MaterialBinningRecord();
@@ -1475,7 +1535,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     /**
      * 查询销售订单中属于配件的
      */
-    private void run_findSalOrderByAutoMtl() {
+    private void run_findSalOrderByAutoMtl(final int code, final int unCode) {
         showLoadDialog("加载中...");
         String mUrl = getURL("salOrder/findSalOrderByAutoMtl");
         StringBuffer strFbillNo = new StringBuffer();
@@ -1505,7 +1565,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(ISAUTO_NULL);
+                mHandler.sendEmptyMessage(unCode);
             }
 
             @Override
@@ -1514,11 +1574,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 String result = body.string();
                 LogUtil.e("run_findSalOrderByAutoMtl --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(ISAUTO_NULL, result);
+                    Message msg = mHandler.obtainMessage(unCode, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(ISAUTO, result);
+                Message msg = mHandler.obtainMessage(code, result);
                 mHandler.sendMessage(msg);
             }
         });

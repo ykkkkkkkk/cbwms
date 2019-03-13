@@ -68,6 +68,7 @@ import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.DeliOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
+import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.sales.adapter.Sal_OutFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -369,6 +370,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Sal_OutFragment2Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Sal_OutFragment2Adapter.MyCallBack() {
             @Override
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
@@ -584,13 +587,21 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            Comm.showWarnDialog(mContext,"请输入运单号！");
 //            return false;
 //        }
+        int salOrderSumRow = checkDatas.get(0).getSalOrderSumRow();
         // 1、非整非拼，2、整单发货，3、拼单
-        if(orderDeliveryType == '2') {
-            int salOrderSumRow = checkDatas.get(0).getSalOrderSumRow();
-            if(salOrderSumRow > checkDatas.size()) {
-                Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
-                return false;
-            }
+        switch (orderDeliveryType) {
+            case '2':
+                if(salOrderSumRow > checkDatas.size()) {
+                    Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
+                    return false;
+                }
+                break;
+            case '3':
+                if(salOrderSumRow > checkDatas.size()) {
+                    Comm.showWarnDialog(mContext,"当前订单发货类型为“拼单”，请扫完箱码再出库！");
+                    return false;
+                }
+                break;
         }
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
@@ -687,6 +698,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         expressCompany = null;
         linTop.setVisibility(View.VISIBLE);
         orderDeliveryType = '0';
+        mapBox.clear();
         curPos = -1;
     }
 
@@ -857,28 +869,45 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         switch (mbr.getCaseId()) {
             case 32: // 销售装箱
                 SalOrder s = JsonUtil.stringToObject(mbr.getRelationObj(), SalOrder.class);
-                if(cust != null && !cust.getCustomerCode().equals(s.getCustNumber())){
-                    Comm.showWarnDialog(mContext, "客户不同，不能操作，请检查！");
+//                if(cust != null && !cust.getCustomerCode().equals(s.getCustNumber())){
+                if(cust != null && !custNameIsEquals(cust.getCustomerName(), s.getCustName())) {
+                    Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
                 break;
             case 34: // 生产装箱
                 ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(), ProdOrder.class);
-                if(cust != null && !cust.getCustomerCode().equals(prodOrder.getCustNumber())){
-                    Comm.showWarnDialog(mContext, "客户不同，不能操作，请检查！");
+                if(cust != null && !custNameIsEquals(cust.getCustomerName(), prodOrder.getCustName())) {
+//                if(cust != null && !cust.getCustomerCode().equals(prodOrder.getCustNumber())){
+                    Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
                 break;
             case 37: // 发货通知单，复核单装箱
                 DeliOrder deli = JsonUtil.stringToObject(mbr.getRelationObj(), DeliOrder.class);
-                if(cust != null && !cust.getCustomerCode().equals(deli.getCustNumber())){
-                    Comm.showWarnDialog(mContext, "客户不同，不能操作，请检查！");
+//                if(cust != null && !cust.getCustomerName().equals(deli.getCustNumber())){
+                if(cust != null && !custNameIsEquals(cust.getCustomerName(), deli.getCustName())) {
+                    Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
                 break;
 
         }
         return false;
+    }
+
+    /**
+     * 判断客户名称是否一样
+     * @param str
+     * @param str2
+     * @return
+     */
+    private boolean custNameIsEquals(String str, String str2) {
+        int len = str.length();
+        int len2 = str2.length();
+        String temp = str.substring(0,len-1);
+        String temp2 = str2.substring(0, len2-1);
+        return temp.equals(temp2);
     }
 
     /**
@@ -1253,7 +1282,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = getURL("addScanningRecord");
+        String mUrl = null;
+        // 拼单就用循环传多个单的
+        if(orderDeliveryType == '3') mUrl = getURL("addScanningRecord2");
+        else mUrl = getURL("addScanningRecord");
+
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -1450,8 +1483,27 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         showLoadDialog("正在审核...");
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
+
+        String k3NumberTmp = null;
+        if(k3Number != null && k3Number.indexOf(",") > -1) {
+            String[] arr = k3Number.split(",");
+            StringBuilder strFbillNo = new StringBuilder();
+            // 得到当前要审核的行
+            for (int i = 0; i < arr.length; i++) {
+                String fbillNo = arr[i];
+                strFbillNo.append("'" + fbillNo + "',");
+            }
+
+            // 减去前面'
+            strFbillNo.delete(0, 1);
+            // 减去最好一个'，
+            strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
+            k3NumberTmp = strFbillNo.toString();
+        } else {
+            k3NumberTmp = k3Number;
+        }
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+                .add("fbillNo", k3NumberTmp)
                 .add("type", "2")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

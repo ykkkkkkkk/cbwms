@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.produce.adapter;
 
 import android.app.Activity;
+import android.view.View;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -41,8 +42,15 @@ public class Prod_SelOrder2Adapter extends BaseArrayRecyclerAdapter<ProdOrder> {
         TextView tv_prodDate = holder.obtainView(R.id.tv_prodDate);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        if(entity.getIsCheck() == 1) tv_check.setBackgroundResource(R.drawable.check_true);
-        else tv_check.setBackgroundResource(R.drawable.check_false);
+
+        View view = (View) tv_check.getParent();
+        if(entity.getIsCheck() == 1) {
+            tv_check.setBackgroundResource(R.drawable.check_true);
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            tv_check.setBackgroundResource(R.drawable.check_false);
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
         tv_prodSeqNumber.setText(entity.getProdSeqNumber());
         tv_prodNo.setText(entity.getFbillno());
         tv_mtlNumber.setText(entity.getMtlFnumber());

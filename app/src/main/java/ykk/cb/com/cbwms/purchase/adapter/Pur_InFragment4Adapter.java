@@ -36,12 +36,14 @@ public class Pur_InFragment4Adapter extends BaseArrayRecyclerAdapter<ScanningRec
     public void onBindHoder(RecyclerHolder holder, final ScanningRecord2 entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNo = holder.obtainView(R.id.tv_mtlNo);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName()+"\n"+entity.getMtl().getMaterialSize());
+        tv_mtlNo.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
         double stockqty = entity.getStockqty();
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
 

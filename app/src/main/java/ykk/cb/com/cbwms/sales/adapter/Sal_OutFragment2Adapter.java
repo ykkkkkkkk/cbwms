@@ -32,13 +32,15 @@ public class Sal_OutFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRe
     public void onBindHoder(RecyclerHolder holder, final ScanningRecord2 entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
+        tv_mtlNumber.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
         // 是否启用序列号
         if(entity.getMtl().getIsSnManager() == 1) {
             tv_nums.setEnabled(false);
@@ -53,7 +55,6 @@ public class Sal_OutFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         seqNo = seqNo.length() == 0 ? "无" : seqNo;
         tv_batch_seqNo.setText(batchNo+"\n"+seqNo);
         double stockqty = entity.getStockqty();
-//        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"/<font color='#FF4400'>"+entity.getCoveQty()+"</font><br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         if(entity.getStockPos() != null) {
             tv_stockAP.setText(entity.getStockName()+"\n"+entity.getStockPos().getFnumber());

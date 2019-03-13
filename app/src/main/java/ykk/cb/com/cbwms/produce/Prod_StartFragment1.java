@@ -348,6 +348,8 @@ public class Prod_StartFragment1 extends BaseFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         mAdapter = new Prod_StartFragment1Adapter(mContext, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Prod_StartFragment1Adapter.MyCallBack() {
             @Override
             public void onClick_num(View v, ScanningRecord2 entity, int position) {

@@ -251,6 +251,8 @@ public class Allot_PickingListActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Allot_PickingListAdapter(context, checkDatas);
         recyclerView.setAdapter(mAdapter);
+        //这个是让listview空间失去焦点
+        recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Allot_PickingListAdapter.MyCallBack() {
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {

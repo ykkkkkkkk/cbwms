@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.produce;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +28,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_OrderSearchAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -51,12 +54,13 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
     EditText etFbillno;
     @BindView(R.id.et_prodSeqNumber)
     EditText etProdSeqNumber;
-    @BindView(R.id.et_deptName)
-    EditText etDeptName;
+    @BindView(R.id.tv_deptSel)
+    TextView tvDeptSel;
 
     private Prod_OrderSearchActivity context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, REFRESH = 10;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, REFRESH = 10, SEL_DEPT = 11;
     private OkHttpClient okHttpClient = new OkHttpClient();
+    private Department department; // 部门
     private Prod_OrderSearchAdapter mAdapter;
     private List<ProdOrder> listDatas = new ArrayList<>();
     private int limit = 1;
@@ -138,7 +142,7 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
     @Override
     public void initData() {
         bundle();
-        initLoadDatas();
+//        initLoadDatas();
     }
 
     private void bundle() {
@@ -147,7 +151,7 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
         }
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_search, R.id.tv_beg, R.id.tv_end, R.id.btn_confirm})
+    @OnClick({R.id.btn_close, R.id.btn_search, R.id.tv_deptSel, R.id.tv_beg, R.id.tv_end, R.id.btn_confirm})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -160,6 +164,12 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
                 hideKeyboard(getCurrentFocus());
                 listDatas.clear();
                 run_okhttpDatas();
+
+                break;
+            case R.id.tv_deptSel: // 查询生产车间
+                bundle = new Bundle();
+                bundle.putInt("isAll", 0);
+                showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
             case R.id.tv_beg: // 选择开始日期
@@ -239,9 +249,8 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
         FormBody formBody = new FormBody.Builder()
                 .add("fbillno", getValues(etFbillno).trim())
                 .add("prodSeqNumber", getValues(etProdSeqNumber).trim())
-                .add("deptName", getValues(etDeptName).trim())
+                .add("deptId", department != null ? String.valueOf(department.getFitemID()) : "")
                 .add("fbillStatus2", "1")
-                .add("createCodeStatus", "0")
                 .add("isDefaultStock", "1") // 查询默认仓库和库位
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
@@ -299,9 +308,17 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REFRESH: //查询供应商	返回
+            case REFRESH: //生码	返回
                 if (resultCode == RESULT_OK) {
                     initLoadDatas();
+                }
+
+                break;
+            case SEL_DEPT: //查询部门	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    department = (Department) data.getSerializableExtra("obj");
+                    LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
+                    tvDeptSel.setText(department.getDepartmentName());
                 }
 
                 break;

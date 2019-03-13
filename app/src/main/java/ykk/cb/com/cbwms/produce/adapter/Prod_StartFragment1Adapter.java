@@ -32,14 +32,15 @@ public class Prod_StartFragment1Adapter extends BaseArrayRecyclerAdapter<Scannin
     public void onBindHoder(RecyclerHolder holder, final ScanningRecord2 entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNo = holder.obtainView(R.id.tv_mtlNo);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
-        TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
+        tv_mtlNo.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
         // 是否启用序列号
         if(entity.getMtl().getIsSnManager() == 1) {
             tv_nums.setEnabled(false);
@@ -54,15 +55,14 @@ public class Prod_StartFragment1Adapter extends BaseArrayRecyclerAdapter<Scannin
         seqNo = seqNo.length() == 0 ? "无" : seqNo;
         tv_batch_seqNo.setText(batchNo+"\n"+seqNo);
         double stockqty = entity.getStockqty();
-//        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"/<font color='#FF4400'>"+entity.getCoveQty()+"</font><br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
-        if(entity.getStockPos() != null) {
-            tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
-        } else if(entity.getStock() != null) {
-            tv_stockAP.setText(entity.getStock().getfName());
-        } else {
-            tv_stockAP.setText("");
-        }
+//        if(entity.getStockPos() != null) {
+//            tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
+//        } else if(entity.getStock() != null) {
+//            tv_stockAP.setText(entity.getStock().getfName());
+//        } else {
+//            tv_stockAP.setText("");
+//        }
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -90,7 +90,7 @@ public class Prod_StartFragment1Adapter extends BaseArrayRecyclerAdapter<Scannin
             }
         };
         tv_nums.setOnClickListener(click);
-        tv_stockAP.setOnClickListener(click);
+//        tv_stockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
     }
 

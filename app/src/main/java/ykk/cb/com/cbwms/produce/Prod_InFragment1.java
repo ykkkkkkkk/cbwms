@@ -428,7 +428,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
 
                 break;
-            case R.id.tv_sourceNo: // 选中源单
+            case R.id.tv_sourceNo: // 选择源单
                 if (getValues(tvDeptSel).length() == 0) {
                     Comm.showWarnDialog(mContext, "请选择生产车间！");
                     return;
@@ -1006,6 +1006,7 @@ public class Prod_InFragment1 extends BaseFragment {
         } else sr2.setStrBarcodes("");
 
         checkDatas.add(sr2);
+        sourceList.add(prodOrder);
         mAdapter.notifyDataSetChanged();
 
 

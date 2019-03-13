@@ -98,6 +98,7 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
 
                         break;
                     case UNSUCC1: // 数据加载失败！
+                        if(m.xRecyclerView == null) return;
                         m.xRecyclerView.loadMoreComplete(false);
                         String errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.listDatas != null && m.listDatas.size() > 0) {

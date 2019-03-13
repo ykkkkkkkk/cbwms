@@ -33,14 +33,16 @@ public class Pur_InFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRec
     public void onBindHoder(RecyclerHolder holder, final ScanningRecord2 entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_mats = holder.obtainView(R.id.tv_mats);
+        TextView tv_mtlNo = holder.obtainView(R.id.tv_mtlNo);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mats.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
+        tv_mtlNo.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
         // 是否启用序列号
         Material mtl = entity.getMtl();
         if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {

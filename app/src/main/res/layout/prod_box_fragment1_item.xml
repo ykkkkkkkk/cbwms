@@ -32,7 +32,7 @@
         android:gravity="center"
         android:text="生产订单"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_mtlNo"

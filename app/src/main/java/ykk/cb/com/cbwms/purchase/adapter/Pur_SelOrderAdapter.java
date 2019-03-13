@@ -30,27 +30,32 @@ public class Pur_SelOrderAdapter extends BaseArrayRecyclerAdapter<PurOrder> {
 
     @Override
     public void onBindHoder(RecyclerHolder holder, PurOrder entity, final int pos) {
-            // 初始化id
-            TextView tv_row = holder.obtainView(R.id.tv_row);
-            TextView tv_date = holder.obtainView(R.id.tv_date);
-            TextView tv_stNo = holder.obtainView(R.id.tv_stNo);
-            TextView tv_mts = holder.obtainView(R.id.tv_mts);
-            TextView tv_numUnit = holder.obtainView(R.id.tv_numUnit);
-            TextView tv_check = holder.obtainView(R.id.tv_check);
-            // 赋值
-            tv_row.setText(String.valueOf(pos + 1));
-            tv_date.setText(entity.getPoFdate());
-            tv_stNo.setText(entity.getFbillno());
-//            tv_mts.setText(entity.getMtlFnumber()+"\n"+entity.getMtlFname());
-            tv_mts.setText(entity.getMtl().getfNumber()+"\n"+entity.getMtl().getfName());
-            String unitName = entity.getUnitFname();
-            String num1 = df.format(entity.getUsableFqty());
-            tv_numUnit.setText(num1+""+unitName);
-            if(entity.getIsCheck() == 1) {
-                tv_check.setBackgroundResource(R.drawable.check_true);
-            } else {
-                tv_check.setBackgroundResource(R.drawable.check_false);
-            }
+        // 初始化id
+        TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_date = holder.obtainView(R.id.tv_date);
+        TextView tv_check = holder.obtainView(R.id.tv_check);
+        TextView tv_fbillNo = holder.obtainView(R.id.tv_fbillNo);
+        TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
+        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
+        TextView tv_numUnit = holder.obtainView(R.id.tv_numUnit);
+        // 赋值
+        tv_row.setText(String.valueOf(pos + 1));
+        tv_date.setText(entity.getPoFdate());
+        tv_fbillNo.setText(entity.getFbillno());
+        tv_mtlNumber.setText(entity.getMtl().getfNumber());
+        tv_mtlName.setText(entity.getMtl().getfName());
+        String unitName = entity.getUnitFname();
+        String num1 = df.format(entity.getUsableFqty());
+        tv_numUnit.setText(num1+""+unitName);
+
+        View view = (View) tv_check.getParent();
+        if(entity.getIsCheck() == 1) {
+            tv_check.setBackgroundResource(R.drawable.check_true);
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            tv_check.setBackgroundResource(R.drawable.check_false);
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
 //            View.OnClickListener click = new View.OnClickListener() {
 //                @Override
 //                public void delClick(View v) {

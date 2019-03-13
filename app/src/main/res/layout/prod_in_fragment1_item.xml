@@ -20,10 +20,10 @@
         android:id="@+id/tv_mtlNo"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
-        android:gravity="center"
+        android:gravity="center|left"
         android:text="物料代码"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_mtlName"
@@ -32,7 +32,7 @@
         android:gravity="center"
         android:text="物料名称"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
 
     <TextView
@@ -50,10 +50,10 @@
         android:layout_width="88dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:background="@drawable/back_style_blue5b"
+        android:background="@drawable/back_style_blue5c"
         android:hint="请选择仓库"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_batch_seqNo"

@@ -526,14 +526,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"请至少扫描一个物料条码！");
                     return;
                 }
-                if(combineSalOrderRow > 0 && list.size() < combineSalOrderRow) {
-                    Comm.showWarnDialog(mContext,"当前行和拼单的行数不一致，请检查！");
-                    return;
-                }
-                if(combineSalOrderFqtys > 0 && combineSalOrderFqtys != sumFqty) {
-                    Comm.showWarnDialog(mContext,"当前行和拼单的总数不一致，请检查！");
-                    return;
-                }
+//                if(combineSalOrderRow > 0 && list.size() < combineSalOrderRow) {
+//                    Comm.showWarnDialog(mContext,"当前行和拼单的行数不一致，请检查！");
+//                    return;
+//                }
+//                if(combineSalOrderFqtys > 0 && combineSalOrderFqtys != sumFqty) {
+//                    Comm.showWarnDialog(mContext,"当前行和拼单的总数不一致，请检查！");
+//                    return;
+//                }
                 // 把对象转成json字符串
                 String strJson = JsonUtil.objectToString(list);
                 run_save(strJson);

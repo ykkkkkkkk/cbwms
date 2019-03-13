@@ -50,7 +50,14 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
         tv_curCarriageNo.setText(isSm ? entity.getCurCarriageNo() : "");
 
         boolean isCheck = entity.isCheck();
-        tv_check.setBackgroundResource(isCheck ? R.drawable.check_true : R.drawable.check_false);
+        View view = (View) tv_check.getParent();
+        if(isCheck) {
+            tv_check.setBackgroundResource(R.drawable.check_true);
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            tv_check.setBackgroundResource(R.drawable.check_false);
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
     }
 
 }

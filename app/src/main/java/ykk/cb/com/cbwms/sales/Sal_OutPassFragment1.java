@@ -330,8 +330,10 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 sb.append(s+",");
             }
             // 去掉,
-            sb.delete(sb.length()-1, sb.length());
-            Comm.showWarnDialog(mContext,"单据编号为："+sb.toString()+"，运单号未扫完！");
+            if(sb.length() > 0) {
+                sb.delete(sb.length()-1, sb.length());
+                Comm.showWarnDialog(mContext,"单据编号为："+sb.toString()+"，运单号未扫完！");
+            }
         }
         mAdapter.notifyDataSetChanged();
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
@@ -442,13 +444,6 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         }
         int size = checkDatas.size();
 
-//        for(int i=0; i<size; i++) {
-//            SalOutStock sOut = checkDatas.get(i);
-//            if(!sOut.isSm()) {
-//                Comm.showWarnDialog(mContext,"运单号未扫完，不能审核！");
-//                return;
-//            }
-//        }
         if(mapFbillNos == null) mapFbillNos = new HashMap<>();
         else mapFbillNos.clear();
 

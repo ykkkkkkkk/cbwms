@@ -630,6 +630,7 @@ public class Pur_InFragment4 extends BaseFragment {
             sr2.setPoFid(purOrder.getfId());
             sr2.setEntryId(purOrder.getEntryId());
             sr2.setPoFbillno(purOrder.getFbillno());
+            sr2.setFprice(purOrder.getFprice());
 
 //            sr2.setBatchno(p.getBct().getBatchCode());
 //            sr2.setSequenceNo(p.getBct().getSnCode());
@@ -700,6 +701,7 @@ public class Pur_InFragment4 extends BaseFragment {
             sr2.setPoFid(purReceiveOrder.getfId());
             sr2.setEntryId(purReceiveOrder.getEntryId());
             sr2.setPoFbillno(purReceiveOrder.getFbillno());
+            sr2.setFprice(purReceiveOrder.getFprice());
 
 //            sr2.setBatchno(p.getBct().getBatchCode());
 //            sr2.setSequenceNo(p.getBct().getSnCode());
@@ -797,6 +799,7 @@ public class Pur_InFragment4 extends BaseFragment {
             record.setSequenceNo(sr2.getSequenceNo());
             record.setBarcode(sr2.getBarcode());
             record.setFqty(sr2.getStockqty());
+            record.setFprice(sr2.getFprice());
             record.setFdate("");
             record.setPdaNo("");
             // 得到用户对象

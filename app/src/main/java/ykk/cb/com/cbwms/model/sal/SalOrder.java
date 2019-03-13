@@ -17,7 +17,7 @@ public class SalOrder implements Serializable{
     private String salDate; // 销售日期
     private int custId; // 客户Id,
     private String custNumber; // 客户代码,
-    private String custName; // 客户,
+    private String custName; // 客户名称
     private int salOrgId; // 销售组织id
     private String salOrgNumber; // 销售组织代码
     private String salOrgName; // 销售组织
@@ -30,15 +30,60 @@ public class SalOrder implements Serializable{
     private Material mtl; // 物料对象
     private String mtlFnumber; // 物料编码
     private String mtlFname; // 物料名称
-    private String mtlUnitName; // 单位
+    private String mtlUnitName; // 单位名称
     private double salFqty; // 销售数量
     private double salFstockoutqty; // 累计出库数量
     private double salFcanoutqty; // 可出数量
-    private String deliveryWay; // 发货方式
     private int isCheck; // 新加的，用于前台临时用判断是否选中
-
     /*对应k3单据分录号字段*/
-    private int entryId;
+    private Integer entryId;
+    /*收货地址*/
+    private String receiveAddress;
+    /*销售部门id*/
+    private Integer salDeptId;
+    /*销售部门代码*/
+    private String salDeptNumber;
+    /*销售部门名称*/
+    private String salDeptName;
+    /*销售订单关闭状态*/
+    //销售订单关闭状态--A、正常；B、已关闭
+    private String salCloseStatus;
+    /*销售订单分录业务关闭状态*/
+    //销售订单行关闭状态--A、未关闭；B、业务关闭
+    private String salEntryMrpCloseStatus;
+    /*销售订单客户电话*/
+    private String custTel;
+    /*销售订单发货类别代码
+     * 1、普通快递
+     * 2、加价快递
+     * 3、物流
+     * 4、送货上门
+     * */
+    private String deliveryWayNumber;
+    /*销售订单发货类别名称*/
+    private String deliveryWayName;
+    /*销售订单发货方式代码*/
+    private String deliveryMethodNumber;
+    /*销售订单发货方式名称*/
+    private String deliveryMethodName;
+    /*销售订单是否整单发货，0代表非整单发货，1代表整单发货*/
+    private int singleshipment;
+    /*k3物流公司代码*/
+    private String deliveryCompanyNumber;
+    /*k3物流公司名称*/
+    private String deliveryCompanyName;
+    /*k3收货联系人*/
+    private String receivePerson;
+    /*k3收货人电话*/
+    private String receiveTel;
+    /*销售订单销售员代码*/
+    private String salPersonNumber;
+    /*销售订单销售员名称*/
+    private String salPersonName;
+    /*单位名称*/
+    private String mtlUnitNumber;
+    /*销售订单单价*/
+    private double fprice;
 
     public SalOrder() {
         super();
@@ -48,176 +93,152 @@ public class SalOrder implements Serializable{
         return fId;
     }
 
-    public String getFbillno() {
-        return fbillno;
-    }
-
-    public String getFbillType() {
-        return fbillType;
-    }
-
-    public String getSalDate() {
-        return salDate;
-    }
-
-    public int getCustId() {
-        return custId;
-    }
-
-    public String getCustNumber() {
-        return custNumber;
-    }
-
-    public String getCustName() {
-        return custName;
-    }
-
-    public int getSalOrgId() {
-        return salOrgId;
-    }
-
-    public String getSalOrgName() {
-        return salOrgName;
-    }
-
-    public Organization getSalOrg() {
-        return salOrg;
-    }
-
-    public int getInventoryOrgId() {
-        return inventoryOrgId;
-    }
-
-    public String getInventoryOrgName() {
-        return inventoryOrgName;
-    }
-
-    public Organization getInventoryOrg() {
-        return inventoryOrg;
-    }
-
-    public int getMtlId() {
-        return mtlId;
-    }
-
-    public Material getMtl() {
-        return mtl;
-    }
-
-    public String getMtlFnumber() {
-        return mtlFnumber;
-    }
-
-    public String getMtlFname() {
-        return mtlFname;
-    }
-
-    public String getMtlUnitName() {
-        return mtlUnitName;
-    }
-
-    public double getSalFqty() {
-        return salFqty;
-    }
-
-    public double getSalFstockoutqty() {
-        return salFstockoutqty;
-    }
-
-    public double getSalFcanoutqty() {
-        return salFcanoutqty;
-    }
-
-    public String getDeliveryWay() {
-        return deliveryWay;
-    }
-
     public void setfId(int fId) {
         this.fId = fId;
+    }
+
+    public String getFbillno() {
+        return fbillno;
     }
 
     public void setFbillno(String fbillno) {
         this.fbillno = fbillno;
     }
 
+    public String getFbillType() {
+        return fbillType;
+    }
+
     public void setFbillType(String fbillType) {
         this.fbillType = fbillType;
+    }
+
+    public String getSalDate() {
+        return salDate;
     }
 
     public void setSalDate(String salDate) {
         this.salDate = salDate;
     }
 
+    public int getCustId() {
+        return custId;
+    }
+
     public void setCustId(int custId) {
         this.custId = custId;
+    }
+
+    public String getCustNumber() {
+        return custNumber;
     }
 
     public void setCustNumber(String custNumber) {
         this.custNumber = custNumber;
     }
 
+    public String getCustName() {
+        return custName;
+    }
+
     public void setCustName(String custName) {
         this.custName = custName;
+    }
+
+    public int getSalOrgId() {
+        return salOrgId;
     }
 
     public void setSalOrgId(int salOrgId) {
         this.salOrgId = salOrgId;
     }
 
+    public String getSalOrgNumber() {
+        return salOrgNumber;
+    }
+
+    public void setSalOrgNumber(String salOrgNumber) {
+        this.salOrgNumber = salOrgNumber;
+    }
+
+    public String getSalOrgName() {
+        return salOrgName;
+    }
+
     public void setSalOrgName(String salOrgName) {
         this.salOrgName = salOrgName;
+    }
+
+    public Organization getSalOrg() {
+        return salOrg;
     }
 
     public void setSalOrg(Organization salOrg) {
         this.salOrg = salOrg;
     }
 
-    public void setInventoryOrgId(int inventoryOrgId) {
-        this.inventoryOrgId = inventoryOrgId;
-    }
-
-    public void setInventoryOrgName(String inventoryOrgName) {
-        this.inventoryOrgName = inventoryOrgName;
-    }
-
-    public void setInventoryOrg(Organization inventoryOrg) {
-        this.inventoryOrg = inventoryOrg;
+    public int getMtlId() {
+        return mtlId;
     }
 
     public void setMtlId(int mtlId) {
         this.mtlId = mtlId;
     }
 
+    public Material getMtl() {
+        return mtl;
+    }
+
     public void setMtl(Material mtl) {
         this.mtl = mtl;
+    }
+
+    public String getMtlFnumber() {
+        return mtlFnumber;
     }
 
     public void setMtlFnumber(String mtlFnumber) {
         this.mtlFnumber = mtlFnumber;
     }
 
+    public String getMtlFname() {
+        return mtlFname;
+    }
+
     public void setMtlFname(String mtlFname) {
         this.mtlFname = mtlFname;
+    }
+
+    public String getMtlUnitName() {
+        return mtlUnitName;
     }
 
     public void setMtlUnitName(String mtlUnitName) {
         this.mtlUnitName = mtlUnitName;
     }
 
+    public double getSalFqty() {
+        return salFqty;
+    }
+
     public void setSalFqty(double salFqty) {
         this.salFqty = salFqty;
+    }
+
+    public double getSalFstockoutqty() {
+        return salFstockoutqty;
     }
 
     public void setSalFstockoutqty(double salFstockoutqty) {
         this.salFstockoutqty = salFstockoutqty;
     }
 
-    public void setSalFcanoutqty(double salFcanoutqty) {
-        this.salFcanoutqty = salFcanoutqty;
+    public double getSalFcanoutqty() {
+        return salFcanoutqty;
     }
 
-    public void setDeliveryWay(String deliveryWay) {
-        this.deliveryWay = deliveryWay;
+    public void setSalFcanoutqty(double salFcanoutqty) {
+        this.salFcanoutqty = salFcanoutqty;
     }
 
     public int getIsCheck() {
@@ -228,41 +249,204 @@ public class SalOrder implements Serializable{
         this.isCheck = isCheck;
     }
 
-    public int getEntryId() {
+    public Integer getEntryId() {
         return entryId;
     }
 
-    public void setEntryId(int entryId) {
+    public void setEntryId(Integer entryId) {
         this.entryId = entryId;
     }
 
-    public String getSalOrgNumber() {
-        return salOrgNumber;
+    public String getReceiveAddress() {
+        return receiveAddress;
+    }
+
+    public void setReceiveAddress(String receiveAddress) {
+        this.receiveAddress = receiveAddress;
+    }
+
+    public Integer getSalDeptId() {
+        return salDeptId;
+    }
+
+    public void setSalDeptId(Integer salDeptId) {
+        this.salDeptId = salDeptId;
+    }
+
+    public String getSalDeptNumber() {
+        return salDeptNumber;
+    }
+
+    public void setSalDeptNumber(String salDeptNumber) {
+        this.salDeptNumber = salDeptNumber;
+    }
+
+    public String getSalDeptName() {
+        return salDeptName;
+    }
+
+    public void setSalDeptName(String salDeptName) {
+        this.salDeptName = salDeptName;
+    }
+
+    public String getSalCloseStatus() {
+        return salCloseStatus;
+    }
+
+    public void setSalCloseStatus(String salCloseStatus) {
+        this.salCloseStatus = salCloseStatus;
+    }
+
+    public String getSalEntryMrpCloseStatus() {
+        return salEntryMrpCloseStatus;
+    }
+
+    public void setSalEntryMrpCloseStatus(String salEntryMrpCloseStatus) {
+        this.salEntryMrpCloseStatus = salEntryMrpCloseStatus;
+    }
+
+    public String getCustTel() {
+        return custTel;
+    }
+
+    public void setCustTel(String custTel) {
+        this.custTel = custTel;
+    }
+
+    public String getDeliveryWayNumber() {
+        return deliveryWayNumber;
+    }
+
+    public void setDeliveryWayNumber(String deliveryWayNumber) {
+        this.deliveryWayNumber = deliveryWayNumber;
+    }
+
+    public String getDeliveryWayName() {
+        return deliveryWayName;
+    }
+
+    public void setDeliveryWayName(String deliveryWayName) {
+        this.deliveryWayName = deliveryWayName;
+    }
+
+    public String getDeliveryMethodNumber() {
+        return deliveryMethodNumber;
+    }
+
+    public void setDeliveryMethodNumber(String deliveryMethodNumber) {
+        this.deliveryMethodNumber = deliveryMethodNumber;
+    }
+
+    public String getDeliveryMethodName() {
+        return deliveryMethodName;
+    }
+
+    public void setDeliveryMethodName(String deliveryMethodName) {
+        this.deliveryMethodName = deliveryMethodName;
+    }
+
+    public int getSingleshipment() {
+        return singleshipment;
+    }
+
+    public void setSingleshipment(int singleshipment) {
+        this.singleshipment = singleshipment;
+    }
+
+    public String getDeliveryCompanyNumber() {
+        return deliveryCompanyNumber;
+    }
+
+    public void setDeliveryCompanyNumber(String deliveryCompanyNumber) {
+        this.deliveryCompanyNumber = deliveryCompanyNumber;
+    }
+
+    public String getDeliveryCompanyName() {
+        return deliveryCompanyName;
+    }
+
+    public void setDeliveryCompanyName(String deliveryCompanyName) {
+        this.deliveryCompanyName = deliveryCompanyName;
+    }
+
+    public String getReceivePerson() {
+        return receivePerson;
+    }
+
+    public void setReceivePerson(String receivePerson) {
+        this.receivePerson = receivePerson;
+    }
+
+    public String getReceiveTel() {
+        return receiveTel;
+    }
+
+    public void setReceiveTel(String receiveTel) {
+        this.receiveTel = receiveTel;
+    }
+
+    public String getSalPersonNumber() {
+        return salPersonNumber;
+    }
+
+    public void setSalPersonNumber(String salPersonNumber) {
+        this.salPersonNumber = salPersonNumber;
+    }
+
+    public String getSalPersonName() {
+        return salPersonName;
+    }
+
+    public void setSalPersonName(String salPersonName) {
+        this.salPersonName = salPersonName;
+    }
+
+    public int getInventoryOrgId() {
+        return inventoryOrgId;
+    }
+
+    public void setInventoryOrgId(int inventoryOrgId) {
+        this.inventoryOrgId = inventoryOrgId;
     }
 
     public String getInventoryOrgNumber() {
         return inventoryOrgNumber;
     }
 
-    public void setSalOrgNumber(String salOrgNumber) {
-        this.salOrgNumber = salOrgNumber;
-    }
-
     public void setInventoryOrgNumber(String inventoryOrgNumber) {
         this.inventoryOrgNumber = inventoryOrgNumber;
     }
 
-    @Override
-    public String toString() {
-        return "SalOrder [fId=" + fId + ", fbillno=" + fbillno + ", fbillType=" + fbillType + ", salDate=" + salDate
-                + ", custId=" + custId + ", custNumber=" + custNumber + ", custName=" + custName + ", salOrgId="
-                + salOrgId + ", salOrgNumber=" + salOrgNumber + ", salOrgName=" + salOrgName + ", salOrg=" + salOrg
-                + ", inventoryOrgId=" + inventoryOrgId + ", inventoryOrgNumber=" + inventoryOrgNumber
-                + ", inventoryOrgName=" + inventoryOrgName + ", inventoryOrg=" + inventoryOrg + ", mtlId=" + mtlId
-                + ", mtl=" + mtl + ", mtlFnumber=" + mtlFnumber + ", mtlFname=" + mtlFname + ", mtlUnitName="
-                + mtlUnitName + ", salFqty=" + salFqty + ", salFstockoutqty=" + salFstockoutqty + ", salFcanoutqty="
-                + salFcanoutqty + ", deliveryWay=" + deliveryWay + ", isCheck=" + isCheck + ", entryId=" + entryId
-                + "]";
+    public String getInventoryOrgName() {
+        return inventoryOrgName;
+    }
+
+    public void setInventoryOrgName(String inventoryOrgName) {
+        this.inventoryOrgName = inventoryOrgName;
+    }
+
+    public Organization getInventoryOrg() {
+        return inventoryOrg;
+    }
+
+    public void setInventoryOrg(Organization inventoryOrg) {
+        this.inventoryOrg = inventoryOrg;
+    }
+
+    public String getMtlUnitNumber() {
+        return mtlUnitNumber;
+    }
+
+    public void setMtlUnitNumber(String mtlUnitNumber) {
+        this.mtlUnitNumber = mtlUnitNumber;
+    }
+
+    public double getFprice() {
+        return fprice;
+    }
+
+    public void setFprice(double fprice) {
+        this.fprice = fprice;
     }
 
 }

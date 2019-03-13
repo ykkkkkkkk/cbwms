@@ -562,9 +562,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
 //                if(status == '1') status = '2';
 //                else status = '1';
-
-                run_findSalOrderByAutoMtl(CHECK_AUTO, CHECK_AUTO_NULL);
-//                run_modifyStatus();
+                if(status == '1')
+                    run_findSalOrderByAutoMtl(CHECK_AUTO, CHECK_AUTO_NULL);
+                else run_modifyStatus();
 
                 break;
             case R.id.btn_print: // 打印
@@ -993,7 +993,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setCustomerId(salOrder.getCustId());
             mbr.setCustomerNumber(salOrder.getCustNumber());
             mbr.setCustomerName(salOrder.getCustName());
-            mbr.setDeliveryWay(salOrder.getDeliveryWay());
+            mbr.setDeliveryWay(salOrder.getDeliveryMethodName());
             mbr.setPackageWorkType(2);
             mbr.setBinningType(binningType);
             mbr.setCaseId(32);

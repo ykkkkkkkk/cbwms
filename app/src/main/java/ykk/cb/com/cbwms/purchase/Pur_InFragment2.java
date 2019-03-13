@@ -876,6 +876,7 @@ public class Pur_InFragment2 extends BaseFragment {
             sr2.setFqty(purOrder.getPoFqty());
             sr2.setPoFmustqty(purOrder.getPoFqty());
             sr2.setStockqty(0);
+            sr2.setFprice(purOrder.getFprice());
 
             // 是否启用物料的序列号,如果启用了，则数量为1
 //            if (purOrder.getMtl().getIsSnManager() == 1) {
@@ -1104,6 +1105,7 @@ public class Pur_InFragment2 extends BaseFragment {
         sr2.setMtl(bt.getMtl());
         sr2.setMtlFnumber(bt.getMtl().getfNumber());
         sr2.setUnitFnumber(bt.getMtl().getUnit().getUnitNumber());
+        sr2.setFprice(purOrder.getFprice());
         Material mtl = bt.getMtl();
         if(mtl.getIsBatchManager() > 0) {
             sr2.setBatchno(bt.getBatchCode());
@@ -1214,6 +1216,7 @@ public class Pur_InFragment2 extends BaseFragment {
 //            record.setSequenceNo(sr2.getSequenceNo());
             record.setBarcode(sr2.getBarcode());
             record.setFqty(sr2.getStockqty());
+            record.setFprice(sr2.getFprice());
             record.setFdate("");
             record.setPdaNo("");
             // 得到用户对象

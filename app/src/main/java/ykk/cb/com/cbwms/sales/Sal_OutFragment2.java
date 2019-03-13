@@ -1026,19 +1026,20 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             //
             sr2.setMtlFnumber(mtl.getfNumber());
             sr2.setUnitFnumber(mtl.getUnit().getUnitNumber());
-            if(mbr.getCaseId() == 32) {
+            if(mbr.getCaseId() == 32) { // 销售订单
                 sr2.setPoFid(salOrder.getfId());
                 sr2.setPoFbillno(salOrder.getFbillno());
                 sr2.setEntryId(salOrder.getEntryId());
-            } else {
+                sr2.setFprice(salOrder.getFprice());
+            } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
                 sr2.setPoFbillno(prodOrder.getSalOrderNo());
                 sr2.setEntryId(prodOrder.getSalOrderEntryId());
+                sr2.setFprice(prodOrder.getFprice());
             }
             sr2.setSalOrderId(prodOrder.getSalOrderId());
             sr2.setSalOrderNo(prodOrder.getSalOrderNo());
             sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
-            sr2.setFprice(prodOrder.getFprice());
 
             Stock stock = mtl.getStock();
             StockPosition stockPos = mtl.getStockPos();

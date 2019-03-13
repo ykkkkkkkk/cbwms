@@ -941,7 +941,7 @@ public class Sal_BoxActivity extends BaseActivity {
             if(getValues(tvDeliverSel).length() == 0) {
                 // 显示交货方式
                 if(assist == null) assist = new AssistInfo();
-                assist.setfName(salOrderNotnull ? salOrder.getDeliveryWay() : deliOrder.getDeliveryWay());
+                assist.setfName(salOrderNotnull ? salOrder.getDeliveryMethodName() : deliOrder.getDeliveryWay());
                 tvDeliverSel.setText(assist.getfName());
 //                setEnables(tvDeliverSel, R.drawable.back_style_blue, true);
             }

@@ -5,14 +5,32 @@
     android:background="@drawable/back_style_gray"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_38dp"
-        android:background="#6691D7"
+        android:layout_height="38dp"
         android:gravity="center"
-        android:text="生产订单生码"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_close"
+            style="@style/btnClose" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_38dp"
+            android:layout_weight="1"
+            android:background="#6691D7"
+            android:gravity="center"
+            android:text="生产订单生码"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <Button
+            android:layout_width="@dimen/_50dp"
+            android:layout_height="match_parent"
+            android:background="@color/public_blue" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_connState"
@@ -79,13 +97,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/back_style_blue"
-            android:inputType="none"
-            android:singleLine="true"
+            android:inputType="number"
             android:paddingLeft="@dimen/_3dp"
+            android:singleLine="true"
             android:textColor="#000000"
             android:textSize="14sp" />
 
     </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/lin_div2"
@@ -132,7 +151,7 @@
         android:layout_marginLeft="@dimen/_20dp"
         android:layout_marginRight="@dimen/_20dp"
         android:layout_weight="1"
-        android:background="@color/white"
+        android:background="@drawable/back_style_gray1c"
         android:scrollbars="none" />
 
 
@@ -142,24 +161,13 @@
         android:layout_margin="@dimen/_20dp">
 
         <Button
-            android:id="@+id/btn_cancel"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:background="@drawable/btn_gray2_selector"
-            android:text="取消"
-            android:textColor="#666666"
-            android:textSize="@dimen/_16sp" />
-
-        <Button
             android:id="@+id/btn_confirm"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="2"
+            android:layout_weight="1.5"
             android:background="@drawable/btn_blue2_selector"
-            android:text="确定"
+            android:text="确定生码"
             android:textColor="#ffffff"
             android:textSize="@dimen/_16sp" />
 
@@ -168,20 +176,12 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:background="@drawable/btn_purple2_selector"
             android:text="打印"
             android:textColor="#ffffff"
-            android:textSize="@dimen/_16sp"
-            android:visibility="gone" />
+            android:textSize="@dimen/_16sp" />
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_tmp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="占位占位占位占位占位占位占位占位占位占位占位占位占位占位占位"
-        android:visibility="invisible" />
 
 </LinearLayout>

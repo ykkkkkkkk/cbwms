@@ -978,8 +978,9 @@ public class Prod_InFragment1 extends BaseFragment {
         double fqty = 1;
         // 计量单位数量
         if (mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
-        // 未启用序列号
-        if (mtl.getIsSnManager() == 0) {
+        // 启用序列号
+//        if (mtl.getIsSnManager() == 0) {
+        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             // 如果扫的是物料包装条码，就显示个数
 //            double number = 0;
 //            if (bt != null) number = bt.getMaterialCalculateNumber();
@@ -990,9 +991,9 @@ public class Prod_InFragment1 extends BaseFragment {
 //                sr2.setStockqty(sr2.getStockqty() + fqty);
 //            }
             // 默认等于可用数
-            sr2.setStockqty(prodOrder.getUsableFqty());
+            sr2.setStockqty(bt.getMaterialCalculateNumber());
         } else {
-            sr2.setStockqty(fqty);
+            sr2.setStockqty(prodOrder.getUsableFqty());
         }
 
 //        sr2.setStockqty(fqty);
@@ -1004,7 +1005,7 @@ public class Prod_InFragment1 extends BaseFragment {
         sr2.setRelationObj(bt.getRelationObj());
 
         // 物料是否启用序列号
-        if (mtl.getIsSnManager() == 1) {
+        if (mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             List<String> list = new ArrayList<String>();
             list.add(bt.getBarcode());
             sr2.setListBarcode(list);
@@ -1042,23 +1043,47 @@ public class Prod_InFragment1 extends BaseFragment {
             if (bt.getEntryId() == sr2.getEntryId()) {
                 isFlag = true;
 
-                double fqty = 0;
+//                double fqty = 1;
 //                int coveQty = sr2.getCoveQty();
 //                if(coveQty == 0) {
 //                    Comm.showWarnDialog(mContext,"k3的生产订单中，未填写套数！");
 //                    return;
-                fqty = 1;
 //                } else {
 //                    fqty = BigdecimalUtil.div(sr2.getRelationBillFQTY(), coveQty);
 //                }
 
 //                double fqty = sr2.getRelationBillFQTY() / coveQty;
                 // 计量单位数量
-                if (tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
-                // 未启用序列号
-                if (tmpMtl.getIsSnManager() == 0) {
+//                if (tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
+
+                // 启用序列号，批次号
+                if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
+                    List<String> list = sr2.getListBarcode();
+                    if (list.contains(bt.getBarcode())) {
+                        Comm.showWarnDialog(mContext, "条码已经使用！");
+                        return;
+                    }
+                    if (sr2.getStockqty() == sr2.getUsableFqty()) {
+                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
+                        return;
+                    }
+                    list.add(bt.getBarcode());
+                    // 拼接条码号，用逗号隔开
+                    StringBuilder sb = new StringBuilder();
+                    for (int k = 0, sizeK = list.size(); k < sizeK; k++) {
+                        if ((k + 1) == sizeK) sb.append(list.get(k));
+                        else sb.append(list.get(k) + ",");
+                    }
+                    sr2.setListBarcode(list);
+                    sr2.setStrBarcodes(sb.toString());
+                    if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
+                        sr2.setStockqty(sr2.getStockqty() + bt.getMaterialCalculateNumber());
+                    } else {
+                        sr2.setStockqty(sr2.getStockqty() + 1);
+                    }
+                } else { // 未启用序列号， 批次号
                     // 生产数大于装箱数
-                    if (sr2.getUsableFqty() > sr2.getStockqty()) {
+//                    if (sr2.getUsableFqty() > sr2.getStockqty()) {
                         // 如果扫的是物料包装条码，就显示个数
 //                        double number = 0;
 //                        if(bt != null) number = bt.getMaterialCalculateNumber();
@@ -1083,34 +1108,14 @@ public class Prod_InFragment1 extends BaseFragment {
 //                        }
 
 //                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && sr2.getNumber() > sr2.getRelationBillFQTY()) {
-                    } else if (sr2.getStockqty() > sr2.getUsableFqty()) {
-                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实收数）不能大于（应收数）！");
-                        return;
-                    } else if (sr2.getStockqty() == sr2.getUsableFqty()) {
-                        // 数量已满
-                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
-                        return;
-                    }
-                } else {
-                    List<String> list = sr2.getListBarcode();
-                    if (list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(mContext, "条码已经使用！");
-                        return;
-                    }
-                    if (sr2.getStockqty() == sr2.getUsableFqty()) {
-                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
-                        return;
-                    }
-                    list.add(bt.getBarcode());
-                    // 拼接条码号，用逗号隔开
-                    StringBuilder sb = new StringBuilder();
-                    for (int k = 0, sizeK = list.size(); k < sizeK; k++) {
-                        if ((k + 1) == sizeK) sb.append(list.get(k));
-                        else sb.append(list.get(k) + ",");
-                    }
-                    sr2.setListBarcode(list);
-                    sr2.setStrBarcodes(sb.toString());
-                    sr2.setStockqty(sr2.getStockqty() + fqty);
+//                    } else if (sr2.getStockqty() > sr2.getUsableFqty()) {
+//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实收数）不能大于（应收数）！");
+//                        return;
+//                    } else if (sr2.getStockqty() == sr2.getUsableFqty()) {
+//                        // 数量已满
+//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已扫完！");
+//                        return;
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
                 break;

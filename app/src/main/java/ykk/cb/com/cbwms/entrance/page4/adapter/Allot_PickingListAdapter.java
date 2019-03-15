@@ -41,7 +41,8 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
-        TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
+        TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
+        TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
 
         // 赋值
@@ -60,12 +61,19 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
             tv_nums.setEnabled(true);
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
         }
+        View view = (View) tv_row.getParent();
+        if(entity.getIsCheck() == 1) {
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(entity.getTmpPickFqty())+"</font>"));
-        String stockName = Comm.isNULLS(entity.getInStockName());
+        String stockName = Comm.isNULLS(entity.getOutStockName());
         stockName = stockName.length() == 0 ? "无" : stockName;
-        String stockPNumber = Comm.isNULLS(entity.getInStockPositionNumber());
+        String stockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
         stockPNumber = stockPNumber.length() == 0 ? "无" : stockPNumber;
-        tv_stockAP.setText(Html.fromHtml(stockName+"<br><font color='#6a5acd'>"+stockPNumber+"</font>"));
+        tv_outStockAP.setText(Html.fromHtml(stockName+"<br><font color='#6a5acd'>"+stockPNumber+"</font>"));
+        tv_inStockAP.setText(Comm.isNULLS(entity.getInStockName()));
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -93,7 +101,7 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
             }
         };
         tv_nums.setOnClickListener(click);
-        tv_stockAP.setOnClickListener(click);
+        tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
     }
 

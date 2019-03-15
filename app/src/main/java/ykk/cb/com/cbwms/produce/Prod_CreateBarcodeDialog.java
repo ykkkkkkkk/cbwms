@@ -77,10 +77,6 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
     LinearLayout lin_1;
     @BindView(R.id.lin_div2)
     LinearLayout lin_2;
-    @BindView(R.id.btn_confirm)
-    Button btnConfirm;
-    @BindView(R.id.btn_print)
-    Button btnPrint;
     @BindView(R.id.tv_connState)
     TextView tvConnState;
 
@@ -126,8 +122,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                         m.listBt.clear();
                         List<BarCodeTable> list = JsonUtil.strToList((String) msg.obj, BarCodeTable.class);
                         m.listBt.addAll(list);
-                        m.btnConfirm.setVisibility(View.GONE);
-                        m.btnPrint.setVisibility(View.VISIBLE);
+                        m.toasts("生码成功✔");
 
                         break;
                     case UNSUCC1: // 数据加载失败！
@@ -213,6 +208,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
             @Override
             public void addClick(AdapterItem1 entity, int position) {
                 AdapterItem1 item = new AdapterItem1();
+                item.setNum(1);
                 listDatas.add(item);
                 mAdapter.notifyDataSetChanged();
             }
@@ -245,8 +241,8 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                 Material mtl = prodOrder.getMtl();
                 AdapterItem1 item1 = new AdapterItem1();
                 item1.setNum(1);
-                double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
-                item1.setNum2(fqty-prodOrder.getCreateCodeQty());
+//                double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+//                item1.setNum2(fqty-prodOrder.getCreateCodeQty());
                 listDatas.add(item1);
                 mAdapter.notifyDataSetChanged();
             } else {
@@ -258,21 +254,21 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
         tvProdDate.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_cancel, R.id.btn_confirm, R.id.btn_print, R.id.tv_prodDate})
+    @OnClick({R.id.btn_close, R.id.btn_confirm, R.id.btn_print, R.id.tv_prodDate})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
-            case R.id.tv_prodDate: // 生产日期
-                hideKeyboard(getCurrentFocus());
-                Comm.showDateDialog(context, view, 0);
-
-                break;
-            case R.id.btn_cancel: // 取消
+            case R.id.btn_close: // 关闭
+                closeHandler(mHandler);
                 if(isSucc) {
                     setResults(context);
                 }
-                closeHandler(mHandler);
                 context.finish();
+
+                break;
+            case R.id.tv_prodDate: // 生产日期
+                hideKeyboard(getCurrentFocus());
+                Comm.showDateDialog(context, view, 0);
 
                 break;
             case R.id.btn_confirm: // 生成条码
@@ -284,50 +280,53 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                     List<AdapterItem1> list = new ArrayList<>();
                     for (int i = 0; i < listDatas.size(); i++) {
                         AdapterItem1 item = listDatas.get(i);
-                        if (item.getNum() > 0 && item.getNum2() > 0) {
+                        if (item.getNum2() > 0) {
                             list.add(item);
                         }
                     }
                     if (list.size() == 0) {
-                        Comm.showWarnDialog(context, "请把数字框填完！");
+                        Comm.showWarnDialog(context, "请填写物料数量！");
                         return;
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    double sumNumber = 0;
+//                    double sumNumber = 0;
                     for (int i = 0; i < list.size(); i++) {
                         AdapterItem1 item = list.get(i);
-                        sumNumber += item.getNum() * item.getNum2();
+//                        sumNumber += item.getNum() * item.getNum2();
                         sb.append(item.getNum()+":"+item.getNum2()+";");
                     }
-                    Material mtl = prodOrder.getMtl();
-                    double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
-                    if(sumNumber > (fqty-prodOrder.getCreateCodeQty())) {
-                        Comm.showWarnDialog(context, "当前生码数量总和大于可用数量，可用数："+(fqty-prodOrder.getCreateCodeQty()));
-                        return;
-                    }
+//                    Material mtl = prodOrder.getMtl();
+//                    double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+//                    if(sumNumber > (fqty-prodOrder.getCreateCodeQty())) {
+//                        Comm.showWarnDialog(context, "当前生码数量总和大于可用数量，可用数："+(fqty-prodOrder.getCreateCodeQty()));
+//                        return;
+//                    }
                     // 去掉最后;
                     sb.delete(sb.length()-1, sb.length());
                     // 有多少个条码数，就拆成几行存到list中
                     List<AdapterItem1> listTmp = new ArrayList<>();
                     for(int i=0; i<list.size(); i++) {
                         AdapterItem1 item1 = list.get(i);
+                        double num2 = item1.getNum2();
+
                         for(int j=0; j<item1.getNum(); j++) {
                             AdapterItem1 item2 = new AdapterItem1();
                             item2.setNum(1);
-                            item2.setNum2(item1.getNum2());
+                            item2.setNum2(num2);
                             listTmp.add(item2);
                         }
                     }
                     listDatas.clear();
                     listDatas.addAll(list);
+                    recordList.clear();
+                    recordList.addAll(listTmp); // 记录拆分成几行
                     // 批次号赋值
                     for(int i=0; i<checkDatas.size(); i++) {
                         checkDatas.get(i).setBatchCode(getValues(etBatchNo).trim());
                     }
                     mAdapter.notifyDataSetChanged();
 
-                    recordList.addAll(listTmp);
 
                     run_prodOrderSemiBarCodeCreate(sb.toString());
 
@@ -337,6 +336,10 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
 
                 break;
             case R.id.btn_print: // 打印
+                if(!isSucc) {
+                    Comm.showWarnDialog(context,"请先保存，然后打印！");
+                    return;
+                }
                 if(isConnected) {
                     if(isBatch) {
                         for(int i=0; i<listBt.size(); i++) {
@@ -651,6 +654,10 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         int num = parseInt(value);
+                        if(num <= 0) {
+                            toasts("条码个数必须大于0！");
+                            return;
+                        }
                         listDatas.get(curPos).setNum(num);
                         mAdapter.notifyDataSetChanged();
                     }
@@ -663,6 +670,16 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
+                        if(num <= 0) {
+                            toasts("物料数量必须大于0！");
+                            return;
+                        }
+                        Material mtl = prodOrder.getMtl();
+                        double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+                        if(num > fqty) {
+                            Comm.showWarnDialog(context, "当前物料数量大于可用数量，可用数："+(fqty-prodOrder.getCreateCodeQty()));
+                            return;
+                        }
                         listDatas.get(curPos).setNum2(num);
                         mAdapter.notifyDataSetChanged();
                     }

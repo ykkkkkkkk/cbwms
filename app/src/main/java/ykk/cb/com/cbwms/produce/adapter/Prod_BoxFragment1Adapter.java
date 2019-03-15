@@ -10,6 +10,7 @@ import java.util.List;
 
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -48,7 +49,8 @@ public class Prod_BoxFragment1Adapter extends BaseArrayRecyclerAdapter<MaterialB
         // 是否启用批次管理和序列号管理
 //        tv_nums.setText(Html.fromHtml(df.format(entity.getRelationBillFQTY())+"/<font color='#FF4400'>"+entity.getCoveQty()+"</font><br><font color='#009900'>"+df.format(entity.getNumber())+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(entity.getNumber())+"</font>"));
-        if(entity.getMtl().getIsSnManager() == 1) {
+        Material mtl = entity.getMtl();
+        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             tv_nums.setBackgroundResource(R.drawable.back_style_gray2a);
             tv_nums.setEnabled(false);
         } else {

@@ -22,7 +22,7 @@
         android:gravity="center"
         android:text="生产顺序号"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_sourceNo"
@@ -31,7 +31,7 @@
         android:gravity="center"
         android:text="来源单号"
         android:textColor="#000000"
-        android:textSize="@dimen/_11sp" />
+        android:textSize="@dimen/_12sp" />
 
     <TextView
         android:id="@+id/tv_mtlNumber"
@@ -62,12 +62,21 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_stockAP"
+        android:id="@+id/tv_outStockAP"
         android:layout_width="120dp"
         android:layout_height="@dimen/_46dp"
         android:background="@drawable/back_style_blue5c"
         android:gravity="center"
-        android:text="仓库\n库位"
+        android:text="调出仓库\n库位"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_inStockAP"
+        android:layout_width="120dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="调入仓库"
         android:textColor="#000000"
         android:textSize="12sp" />
 
@@ -75,7 +84,7 @@
         android:id="@+id/tv_delRow"
         android:layout_width="@dimen/_46dp"
         android:layout_height="@dimen/_46dp"
-        android:background="@drawable/ico_del"
+        android:background="@drawable/ico_del2"
         android:gravity="center" />
 
 

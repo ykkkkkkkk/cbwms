@@ -36,6 +36,7 @@ public class Prod_OrderSearchAdapter extends BaseArrayRecyclerAdapter<ProdOrder>
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_check = holder.obtainView(R.id.tv_check);
         TextView tv_prodNo = holder.obtainView(R.id.tv_prodNo);
+        TextView tv_prodSeqNumber = holder.obtainView(R.id.tv_prodSeqNumber);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_num = holder.obtainView(R.id.tv_num);
@@ -55,6 +56,7 @@ public class Prod_OrderSearchAdapter extends BaseArrayRecyclerAdapter<ProdOrder>
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
         tv_prodNo.setText(entity.getFbillno());
+        tv_prodSeqNumber.setText(entity.getProdSeqNumber());
         String mtlNumber = entity.getMtlFnumber();
         tv_mtlNumber.setText(Html.fromHtml(entity.getMtl().getIsBatchManager() == 1 ? "<font color='#FF2200'>"+mtlNumber+"</font>" : mtlNumber));
         tv_mtlName.setText(entity.getMtlFname());

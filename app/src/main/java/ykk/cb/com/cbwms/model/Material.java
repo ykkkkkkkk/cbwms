@@ -201,6 +201,9 @@ public class Material implements Serializable {
     private double finishReceiptOverRate;//生产入库超收比例
     private double finishReceiptShortRate;//生产入库欠收比例
 
+    // 临时字段，不存表
+    private int isCheck; // 是否选中
+
     /**
      * 构造方法
      */
@@ -1003,5 +1006,12 @@ public class Material implements Serializable {
         this.finishReceiptShortRate = finishReceiptShortRate;
     }
 
+    public int getIsCheck() {
+        return isCheck;
+    }
+
+    public void setIsCheck(int isCheck) {
+        this.isCheck = isCheck;
+    }
 
 }

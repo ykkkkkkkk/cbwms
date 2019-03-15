@@ -212,6 +212,14 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:layout_width="72dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="生产顺序号"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:layout_width="76dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -268,7 +276,6 @@
                     android:textSize="12sp" />
 
             </LinearLayout>
-
 
             <ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
                 android:id="@+id/xRecyclerView"

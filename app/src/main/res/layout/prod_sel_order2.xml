@@ -138,7 +138,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="生产顺序号↑"
-                    android:textColor="@color/c_FF6600"
+                    android:textColor="@color/c_FF4400"
                     android:textSize="12sp" />
 
                 <TextView

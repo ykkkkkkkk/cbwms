@@ -924,7 +924,7 @@ public class Pur_InFragment3 extends BaseFragment {
                     }
                     sr2.setListBarcode(list);
                     sr2.setStrBarcodes(sb.toString());
-                    if(tmpMtl.getIsBatchManager() == 1) {
+                    if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
                         sr2.setStockqty(sr2.getStockqty() + bt.getMaterialCalculateNumber());
                     } else {
                         sr2.setStockqty(sr2.getStockqty() + 1);

@@ -866,7 +866,11 @@ public class Pur_InFragment2 extends BaseFragment {
             // 采购订单单据类型编码（转）采购入库单据类型编码
             if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
                 sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
-            } else  {
+
+            } else if(billTypeNumber.equals("CGDD02_SYS")) { // 委外采购订单入库
+                sr2.setFbillTypeNumber("RKD03_SYS"); // 采购入库单据类型（标准采购入库）
+
+            } else{
                 sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
             }
             sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
@@ -976,7 +980,7 @@ public class Pur_InFragment2 extends BaseFragment {
                     }
                     sr2.setListBarcode(list);
                     sr2.setStrBarcodes(sb.toString());
-                    if(tmpMtl.getIsBatchManager() == 1) {
+                    if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
                         sr2.setStockqty(sr2.getStockqty() + bt.getMaterialCalculateNumber());
                     } else {
                         sr2.setStockqty(sr2.getStockqty() + 1);
@@ -1180,12 +1184,16 @@ public class Pur_InFragment2 extends BaseFragment {
         showLoadDialog("保存中...");
         getUserInfo();
 
+        ScanningRecord2 sr2Tmp = checkDatas.get(0);
+        int type = 1;
+        if(sr2Tmp.getFbillTypeNumber().equals("RKD03_SYS")) type = 6; // 委外采购入库
+
         List<ScanningRecord> list = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             ScanningRecord record = new ScanningRecord();
-            // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库
-            record.setType(1);
+            // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库 6、委外采购入库
+            record.setType(type);
             record.setSourceId(sr2.getSourceId());
             record.setSourceK3Id(sr2.getSourceK3Id());
             record.setSourceFnumber(sr2.getSourceFnumber());

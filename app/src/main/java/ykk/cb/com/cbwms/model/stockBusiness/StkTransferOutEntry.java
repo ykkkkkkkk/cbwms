@@ -83,12 +83,31 @@ public class StkTransferOutEntry implements Serializable {
 	private String productionSeq;//生产顺序号
 	private String moNote;//备注
 	private double needFqty;//调拨需求数量
+	/* 单据行状态，1代表正常，2代表正常关闭（拣货数量和调拨数量相等时设置为正常关闭），3代表手动关闭 */
+	private int entryStatus;
+	/* 行关闭时间 */
+	private String entryCloseDateTime;
+	/* 订单号 */
+	private String orderNo;
+	/* 订单号内码 */
+	private Integer orderId;
+	/* 订单行分录Id */
+	private Integer orderEntryId;
+	/* 行关闭人 */
+	private String entryCloserName;
+	/*  被替换物料id */
+	private Integer oldMtlId;
+	/* 被替换物料代码 */
+	private String oldMtlNumber;
+	/** 被替换物料名称  */
+	private String oldMtlName;
 
 	// 临时字段
 	private double tmpPickFqty; // 保存当前的拣货数量
 	private double usableFqty; // 可使用的数量（调拨数-拣货数量）
 	private List<String> listBarcode; // 记录每行中扫的条码barcode
 	private String strBarcodes; // 用逗号拼接的条码号
+	private int isCheck; // 是否选中
 
 	public StkTransferOutEntry() {
 		super();
@@ -436,6 +455,86 @@ public class StkTransferOutEntry implements Serializable {
 
 	public void setNeedFqty(double needFqty) {
 		this.needFqty = needFqty;
+	}
+
+	public int getEntryStatus() {
+		return entryStatus;
+	}
+
+	public void setEntryStatus(int entryStatus) {
+		this.entryStatus = entryStatus;
+	}
+
+	public String getEntryCloseDateTime() {
+		return entryCloseDateTime;
+	}
+
+	public void setEntryCloseDateTime(String entryCloseDateTime) {
+		this.entryCloseDateTime = entryCloseDateTime;
+	}
+
+	public String getOrderNo() {
+		return orderNo;
+	}
+
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
+	}
+
+	public Integer getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Integer orderId) {
+		this.orderId = orderId;
+	}
+
+	public Integer getOrderEntryId() {
+		return orderEntryId;
+	}
+
+	public void setOrderEntryId(Integer orderEntryId) {
+		this.orderEntryId = orderEntryId;
+	}
+
+	public String getEntryCloserName() {
+		return entryCloserName;
+	}
+
+	public void setEntryCloserName(String entryCloserName) {
+		this.entryCloserName = entryCloserName;
+	}
+
+	public Integer getOldMtlId() {
+		return oldMtlId;
+	}
+
+	public void setOldMtlId(Integer oldMtlId) {
+		this.oldMtlId = oldMtlId;
+	}
+
+	public String getOldMtlNumber() {
+		return oldMtlNumber;
+	}
+
+	public void setOldMtlNumber(String oldMtlNumber) {
+		this.oldMtlNumber = oldMtlNumber;
+	}
+
+	public String getOldMtlName() {
+		return oldMtlName;
+	}
+
+	public void setOldMtlName(String oldMtlName) {
+		this.oldMtlName = oldMtlName;
+	}
+
+	public int getIsCheck() {
+		return isCheck;
+	}
+
+	public void setIsCheck(int isCheck) {
+		this.isCheck = isCheck;
 	}
 
 }

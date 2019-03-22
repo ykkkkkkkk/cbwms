@@ -52,6 +52,8 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
     TextView tvEnd;
     @BindView(R.id.et_fbillno)
     EditText etFbillno;
+    @BindView(R.id.et_mtls)
+    EditText etMtls;
     @BindView(R.id.et_prodSeqNumber)
     EditText etProdSeqNumber;
     @BindView(R.id.tv_deptSel)
@@ -248,6 +250,7 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
         }
         FormBody formBody = new FormBody.Builder()
                 .add("fbillno", getValues(etFbillno).trim())
+                .add("mtlFnumberAndName", getValues(etMtls).trim())
                 .add("prodSeqNumber", getValues(etProdSeqNumber).trim())
                 .add("deptId", department != null ? String.valueOf(department.getFitemID()) : "")
                 .add("fbillStatus2", "1")

@@ -122,15 +122,17 @@ public class PublicInputDialog extends BaseDialogActivity {
             tvShowInfo.setText(Html.fromHtml(showInfo));
             setTexts(etInput, value);
 
-            // 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘
+            // 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
             inputType = bundle.getString("inputType", "0");
-            if (inputType.equals("0") || inputType.equals("0.0")) {
+            if (inputType.equals("0") || inputType.equals("0.0") || inputType.equals("+0")) {
                 // 如果传过来的值为0.0这种格式，就把.0去掉
                 if(value.indexOf(".") > -1) {
                     double d = parseDouble(value);
                     setTexts(etInput, d > 0 ? df.format(d) : "");
                 }
                 nums[10] = inputType.equals("0") ? "" : "."; // 如果为数字就把小数点去掉
+                nums[10] = inputType.equals("+0") ? "" : "."; // 如果为数字就把小数点去掉
+                nums[11] = inputType.equals("+0") ? "" : "-"; // 如果为数字就把小数点去掉
 
                 etInput.setEnabled(false);
                 tv_tmp.setVisibility(View.GONE);

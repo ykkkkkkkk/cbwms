@@ -100,8 +100,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
     TextView tvCount;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-//    @BindView(R.id.btn_save)
-//    Button btnSave;
+    @BindView(R.id.btn_save)
+    Button btnSave;
     @BindView(R.id.btn_end)
     Button btnEnd;
 
@@ -130,6 +130,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private double combineSalOrderFqtys; // 拼单子表总数量
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
     private boolean isTextChange; // 是否进入TextChange事件
+    private boolean isNeedSave, isPass; // 点击封箱的时候需要保存
 
     // 消息处理
     private Prod_BoxFragment1.MyHandler mHandler = new Prod_BoxFragment1.MyHandler(this);
@@ -158,8 +159,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 break;
                             case '2': // 生产订单扫码   返回
                                 List<ProdOrder> list = JsonUtil.strToList((String) msg.obj, ProdOrder.class);
-                                if(list.size() == 0) {
-                                    Comm.showWarnDialog(m.mContext,"没有找到生产订单，或已经装完货！！！！");
+                                if (list.size() == 0) {
+                                    Comm.showWarnDialog(m.mContext, "没有找到生产订单，或已经装完货！！！！");
                                     return;
                                 }
 //                                m.getProdOrderAfter(list);
@@ -173,24 +174,31 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 double combineSalOrderFqtys2 = bt.getCombineSalOrderFqtys();
                                 int singleshipment2 = prodOrder.getSingleshipment();
 
-                                if(prodOrder.getSalOrderId() == 0) {
-                                    Comm.showWarnDialog(m.mContext,"当前生产订单找不到销售订单，不能装箱！");
+                                if (prodOrder.getSalOrderId() == 0) {
+                                    Comm.showWarnDialog(m.mContext, "当前生产订单找不到销售订单，不能装箱！");
                                     return;
                                 }
 
-                                if(m.combineSalOrderId > 0) { // 拼单发货
-                                    if(m.combineSalOrderId != combineSalOrderId2) {
-                                        Comm.showWarnDialog(m.mContext,"扫描的生产订单物料对应的销售订单，在系统中拼单单号不一致，请检查！");
+                                if (m.combineSalOrderId > 0) { // 拼单发货
+                                    if (m.combineSalOrderId != combineSalOrderId2) {
+                                        Comm.showWarnDialog(m.mContext, "扫描的生产订单物料对应的销售订单，在系统中拼单单号不一致，请检查！");
                                         return;
                                     }
-                                } else if(m.singleshipment == 1) { // 整单发货
-                                    if(m.singleshipment != singleshipment2) {
-                                        Comm.showWarnDialog(m.mContext,"扫描的数据为整单发货，不能扫描非整单的数据，请检查！");
+                                } else if (m.singleshipment == 1) { // 整单发货
+                                    if (m.singleshipment != singleshipment2) {
+                                        Comm.showWarnDialog(m.mContext, "扫描的数据为整单发货，不能扫描非整单的数据，请检查！");
                                         return;
                                     }
-                                } else if(m.checkDatas.size() > 0 && m.singleshipment == 0) { // 非整单发货
-                                    if(m.singleshipment != singleshipment2) {
-                                        Comm.showWarnDialog(m.mContext,"扫描的数据为非整单发货，不能扫描整单的数据，请检查！");
+                                    if (m.checkDatas.size() > 0) {
+                                        MaterialBinningRecord mbr = m.checkDatas.get(0);
+                                        if (!mbr.getSalOrderNo().equals(prodOrder.getSalOrderNo())) {
+                                            Comm.showWarnDialog(m.mContext, "扫描的数据为整单发货，只能装相同的销售订单！");
+                                            return;
+                                        }
+                                    }
+                                } else if (m.checkDatas.size() > 0 && m.singleshipment == 0) { // 非整单发货
+                                    if (m.singleshipment != singleshipment2) {
+                                        Comm.showWarnDialog(m.mContext, "扫描的数据为非整单发货，不能扫描整单的数据，请检查！");
                                         return;
                                     }
                                 }
@@ -199,22 +207,22 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 m.combineSalOrderFqtys = combineSalOrderFqtys2; // 拼单子表总数量
                                 m.singleshipment = singleshipment2;
 
-                                if(!prodOrder.getDeliveryWayName().equals("物流")) {
-                                    Comm.showWarnDialog(m.mContext,"扫描的数据列“发货类别”不等于（物流），不能装箱，请检查");
+                                if (!prodOrder.getDeliveryWayName().equals("物流")) {
+                                    Comm.showWarnDialog(m.mContext, "扫描的数据列“发货类别”不等于（物流），不能装箱，请检查");
                                     return;
                                 }
 
                                 int size = m.checkDatas.size();
                                 boolean addRow = true;
-                                for(int i=0; i<size; i++) {
+                                for (int i = 0; i < size; i++) {
                                     MaterialBinningRecord mbr = m.checkDatas.get(i);
                                     // 有相同的，就不新增了
-                                    if(mbr.getEntryId() == prodOrder.getEntryId()) {
+                                    if (mbr.getEntryId() == prodOrder.getEntryId()) {
                                         addRow = false;
                                         break;
                                     }
                                 }
-                                if(addRow) {
+                                if (addRow) {
                                     m.getProdOrderAfter(prodOrder, bt);
                                 } else {
                                     m.getMtlAfter(prodOrder, bt);
@@ -225,13 +233,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC1:
-                        errMsg = m.isNULLS((String) msg.obj);
-                        if(errMsg.length() > 0) {
-                            String message = JsonUtil.strToString(errMsg);
-                            Comm.showWarnDialog(m.mContext, message);
-                        } else {
-                            Comm.showWarnDialog(m.mContext,"很抱歉，没能找到数据！");
-                        }
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
                     case SAVE: // 扫描后的保存 成功
@@ -247,7 +251,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                        m.tvCount.setText("数量："+m.df.format(sum));
                         m.mAdapter.notifyDataSetChanged();
 //                        m.btnSave.setVisibility(View.GONE);
-                        Comm.showWarnDialog(m.mContext,"保存成功✔");
+                        if (m.isNeedSave && m.isPass) {
+                            m.isNeedSave = false;
+                            m.isPass = false;
+                            m.run_findSalOrderByAutoMtl(CHECK_AUTO, CHECK_AUTO_NULL);
+                        } else {
+                            m.isNeedSave = false;
+                            Comm.showWarnDialog(m.mContext, "保存成功✔");
+                        }
 
                         break;
                     case UNSAVE: // 扫描后的保存 失败
@@ -291,6 +302,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 m.setFocusable(m.etMtlCode);
                                 m.tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                                 m.btnEnd.setText("封箱");
+                                m.btnSave.setVisibility(View.VISIBLE);
                                 break;
                             case '2': // 封箱
                                 m.setEnables(m.etMtlCode,R.drawable.back_style_gray3,false);
@@ -299,6 +311,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                     Comm.showWarnDialog(m.mContext,"当前客户还有"+count+"个物料没有装箱，请注意！");
                                 }
                                 m.btnEnd.setText("开箱");
+                                m.btnSave.setVisibility(View.GONE);
                                 break;
                         }
                         if(m.status == '2') {
@@ -514,36 +527,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                if(boxBarCode == null) {
-                    Comm.showWarnDialog(mContext,"请先扫描箱码！");
-                    return;
-                }
-                status = '1';
-
-                double sumFqty = 0;
-                List<MaterialBinningRecord> list = new ArrayList<>();
-                for(int i=0; i<checkDatas.size(); i++) {
-                    MaterialBinningRecord mbr = checkDatas.get(i);
-                    if(mbr.getNumber() > 0) {
-                        sumFqty += mbr.getNumber();
-                        list.add(mbr);
-                    }
-                }
-                if(sumFqty == 0) {
-                    Comm.showWarnDialog(mContext,"请至少扫描一个物料条码！");
-                    return;
-                }
-//                if(combineSalOrderRow > 0 && list.size() < combineSalOrderRow) {
-//                    Comm.showWarnDialog(mContext,"当前行和拼单的行数不一致，请检查！");
-//                    return;
-//                }
-//                if(combineSalOrderFqtys > 0 && combineSalOrderFqtys != sumFqty) {
-//                    Comm.showWarnDialog(mContext,"当前行和拼单的总数不一致，请检查！");
-//                    return;
-//                }
-                // 把对象转成json字符串
-                String strJson = JsonUtil.objectToString(list);
-                run_save(strJson);
+                isPass = false;
+                saveBefore();
 
                 break;
             case R.id.btn_end: // 封箱保存
@@ -558,6 +543,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 String deliverWay2 = getValues(tvDeliverSel);
                 if(deliverWay2.length() == 0) {
                     Comm.showWarnDialog(mContext,"请选择发货方式！");
+                    return;
+                }
+                if(isNeedSave) {
+                    isPass = true;
+                    saveBefore();
                     return;
                 }
 //                if(status == '1') status = '2';
@@ -605,11 +595,45 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 break;
         }
     }
+    private void saveBefore() {
+        if(boxBarCode == null) {
+            Comm.showWarnDialog(mContext,"请先扫描箱码！");
+            return;
+        }
+        status = '1';
+
+        double sumFqty = 0;
+        List<MaterialBinningRecord> list = new ArrayList<>();
+        for(int i=0; i<checkDatas.size(); i++) {
+            MaterialBinningRecord mbr = checkDatas.get(i);
+            if(mbr.getNumber() > 0) {
+                sumFqty += mbr.getNumber();
+                list.add(mbr);
+            }
+        }
+        if(sumFqty == 0) {
+            Comm.showWarnDialog(mContext,"请至少扫描一个物料条码！");
+            return;
+        }
+//                if(combineSalOrderRow > 0 && list.size() < combineSalOrderRow) {
+//                    Comm.showWarnDialog(mContext,"当前行和拼单的行数不一致，请检查！");
+//                    return;
+//                }
+//                if(combineSalOrderFqtys > 0 && combineSalOrderFqtys != sumFqty) {
+//                    Comm.showWarnDialog(mContext,"当前行和拼单的总数不一致，请检查！");
+//                    return;
+//                }
+        // 把对象转成json字符串
+        String strJson = JsonUtil.objectToString(list);
+        run_save(strJson);
+    }
 
     /**
      * 重置
      */
     private void reset(boolean isClear) {
+        isNeedSave = false;
+        isPass = false;
         status = '0';
         combineSalOrderId = 0;
         singleshipment = 0;
@@ -760,6 +784,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                        int id = mbr.getId();
                         mbr.setNumber(number);
                         mAdapter.notifyDataSetChanged();
+                        isNeedSave = true; // 点击封箱时是否需要保存
 //                        run_modifyNumber2(id, number);
                     }
                 }
@@ -799,8 +824,15 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 List<MaterialBinningRecord> listMbr = boxBarCode.getMtlBinningRecord();
                 for(int i=0, size = listMbr.size(); i<size; i++) {
                     MaterialBinningRecord mbr2 = listMbr.get(i);
+                    Material mtl = mbr2.getMtl();
                     mbr2.setModifyUserId(user.getId());
                     mbr2.setModifyUserName(user.getUsername());
+
+                    // 物料是否启用序列号
+                    if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
+                        mbr2.setListBarcode(new ArrayList<String>());
+                        mbr2.setUsableFqty(mbr2.getRelationBillFQTY());
+                    }
                 }
                 checkDatas.addAll(listMbr);
                 double sum = 0;
@@ -810,6 +842,12 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 tvCount.setText("数量："+df.format(sum));
                 tvCustSel.setText("客户："+mbr.getCustomer().getCustomerName());
                 tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
+                // 得到是否拼单发货还是整单货非整单
+                ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(),ProdOrder.class);
+                combineSalOrderId = boxBarCode.getCombineSalOrderId(); // 拼单主表id
+                combineSalOrderRow = boxBarCode.getCombineSalOrderRow(); // 拼单子表行数
+                combineSalOrderFqtys = boxBarCode.getCombineSalOrderFqtys();; // 拼单子表总数量
+                singleshipment = prodOrder.getSingleshipment();
 
             } else {
                 tvCount.setText("数量：0");
@@ -822,16 +860,20 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 setFocusable(etMtlCode);
                 setEnables(etMtlCode, R.drawable.back_style_blue, true);
                 this.status = '0';
+                btnEnd.setVisibility(View.GONE);
+                btnSave.setVisibility(View.VISIBLE);
             } else if(status == 1) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                 setFocusable(etMtlCode);
                 setEnables(etMtlCode, R.drawable.back_style_blue, true);
                 btnEnd.setVisibility(View.VISIBLE);
+                btnSave.setVisibility(View.VISIBLE);
                 this.status = '1';
             } else if(status == 2) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#6A4BC5'>已封箱</font>"));
                 btnEnd.setText("开箱");
                 btnEnd.setVisibility(View.VISIBLE);
+                btnSave.setVisibility(View.GONE);
                 setEnables(etMtlCode, R.drawable.back_style_gray3, false);
                 this.status = '2';
             }
@@ -879,6 +921,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         Material mtl = prodOrder.getMtl();
         mbr.setMtl(mtl);
         mbr.setMaterialId(prodOrder.getMtlId());
+        mbr.setMtlNumber(prodOrder.getMtlFnumber());
         mbr.setRelationBillId(prodOrder.getfId());
         mbr.setRelationBillNumber(prodOrder.getFbillno());
         mbr.setCustomerId(prodOrder.getCustId());
@@ -945,6 +988,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setSnCode(bt.getSnCode());
             mbr.setListBarcode(list);
             mbr.setStrBarcodes(bt.getBarcode());
+            // 如果是启用批次和序列号的，就把单据数显示
+            mbr.setUsableFqty(prodOrder.getProdFqty());
         } else mbr.setStrBarcodes("");
         mbr.setRelationObj(JsonUtil.objectToString(prodOrder));
         mbr.setIsMtlParts(0);
@@ -962,6 +1007,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
+        isNeedSave = true; // 点击封箱时是否需要保存
     }
 
     /**
@@ -988,6 +1034,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             Material mtl = salOrder.getMtl();
             mbr.setMtl(mtl);
             mbr.setMaterialId(salOrder.getMtlId());
+            mbr.setMtlNumber(salOrder.getMtlFnumber());
             mbr.setRelationBillId(salOrder.getfId());
             mbr.setRelationBillNumber(salOrder.getFbillno());
             mbr.setCustomerId(salOrder.getCustId());
@@ -1046,6 +1093,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
+        isNeedSave = true; // 点击封箱时是否需要保存
     }
 
     /**
@@ -1211,6 +1259,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         if(!isFlag) {
             Comm.showWarnDialog(mContext, "该物料与订单不匹配！");
         }
+        isNeedSave = true; // 点击封箱时是否需要保存
         setFocusable(etMtlCode);
     }
 
@@ -1541,6 +1590,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 查询销售订单中属于配件的
      */
     private void run_findSalOrderByAutoMtl(final int code, final int unCode) {
+        int boxBarCodeId = checkDatas.get(0).getBoxBarCodeId();
+
         showLoadDialog("加载中...");
         String mUrl = getURL("salOrder/findSalOrderByAutoMtl");
         StringBuffer strFbillNo = new StringBuffer();
@@ -1557,6 +1608,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         }
 
         FormBody formBody = new FormBody.Builder()
+                .add("boxBarCodeId", String.valueOf(boxBarCodeId))
                 .add("strFbillNo", strFbillNo.toString())
                 .build();
 

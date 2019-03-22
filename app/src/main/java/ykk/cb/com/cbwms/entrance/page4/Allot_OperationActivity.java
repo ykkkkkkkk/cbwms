@@ -248,7 +248,7 @@ public class Allot_OperationActivity extends BaseActivity {
                 break;
             case R.id.tv_stockSel: // 调出仓库
                 bundle = new Bundle();
-                bundle.putInt("isAll", 10);
+                bundle.putInt("isAll", 11);
                 showForResult(Stock_DialogActivity.class, SEL_STOCK, bundle);
 
                 break;

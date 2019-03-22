@@ -133,8 +133,9 @@ public class ProdOrder implements Serializable {
     /* 是否启用批号管理，0代表不启用，1代表启用 (用于在前端显示值，方便前端操作)*/
     private int isBatchManager;
 
-
+    // 临时字段，不加表
     private int isCheck; // 新加的是否选中
+    private double writeNum; // 实收数
 
     public ProdOrder() {
         super();
@@ -690,6 +691,14 @@ public class ProdOrder implements Serializable {
 
     public void setIsBatchManager(int isBatchManager) {
         this.isBatchManager = isBatchManager;
+    }
+
+    public double getWriteNum() {
+        return writeNum;
+    }
+
+    public void setWriteNum(double writeNum) {
+        this.writeNum = writeNum;
     }
 
 

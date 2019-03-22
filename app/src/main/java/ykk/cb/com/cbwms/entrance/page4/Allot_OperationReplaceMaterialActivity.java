@@ -207,6 +207,7 @@ public class Allot_OperationReplaceMaterialActivity extends BaseActivity impleme
         String mUrl = getURL("findMaterialListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
+                .add("fNumberIsOneAndTwo", "1") // 只显示半成品和原材料
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

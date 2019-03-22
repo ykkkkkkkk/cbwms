@@ -514,6 +514,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
 
         // --------------- 打印区-------------End
         setTscEnd(tsc);
+        isSucc = false;
     }
 
     /**

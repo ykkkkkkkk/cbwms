@@ -500,14 +500,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 	 * 打开通用的输入dialog
 	 * @param hintName
 	 * @param val
-	 * @param inputType 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘
+	 * @param inputType 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 	 * @param codes
 	 */
 	public void showInputDialog(String hintName, String val, String inputType, int codes) {
 		Bundle bundle = new Bundle();
 		bundle.putString("hintName", hintName);
 		bundle.putString("value", val);
-		// 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘
+		// 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 		bundle.putString("inputType", inputType);
 		showForResult(PublicInputDialog.class, codes, bundle);
 	}
@@ -516,7 +516,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 		bundle.putString("hintName", hintName);
 		bundle.putString("showInfo", showInfo);
 		bundle.putString("value", val);
-		// 0:表示数字, 0.0表示有小数点， none:调用系统输入键盘
+		// 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 		bundle.putString("inputType", inputType);
 		showForResult(PublicInputDialog.class, codes, bundle);
 	}

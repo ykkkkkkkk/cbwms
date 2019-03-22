@@ -53,6 +53,7 @@ import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.BoxBarCode;
 import ykk.cb.com.cbwms.model.Customer;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.ExpressCompany;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
@@ -117,9 +118,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, SUCC4 = 204, UNSUCC4 = 504;
     private static final int SETFOCUS = 1, CODE2 = 2, SAOMA = 3;
     private Customer cust; // 客户
-    private Stock stock, stock2; // 仓库
+    private Stock defaltStock, stock, stock2; // 仓库
     private Staff stockStaff; // 仓管员
-    private StockPosition stockP, stockP2; // 库位
+    private StockPosition defaltStockPos, stockP, stockP2; // 库位
     private Department department; // 部门
     private Organization receiveOrg, salOrg; // 组织
     private ExpressCompany expressCompany; // 物料公司
@@ -404,21 +405,13 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         getUserInfo();
 
         // 得到默认仓库的值
-//        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
-//        if(defaultStockVal == '2') {
-//
-//            if(user.getStock() != null) {
-//                stock = user.getStock();
-//                setTexts(etStock, stock.getfName());
-//                stockBarcode = stock.getfName();
-//            }
-//
-//            if(user.getStockPos() != null) {
-//                stockP = user.getStockPos();
-//                setTexts(etStockPos, stockP.getFnumber());
-//                stockPBarcode = stockP.getFnumber();
-//            }
-//        }
+        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
+        if(defaultStockVal == '2') {
+
+            if(user.getStock() != null) defaltStock = user.getStock();
+
+            if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
+        }
 
         if(user.getStaff() != null) {
             stockStaff = user.getStaff();
@@ -468,6 +461,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 break;
             case R.id.tv_salDate: // 出库日期
                 Comm.showDateDialog(mContext, view, 0);
+
                 break;
             case R.id.tv_stockStaff: // 选择仓管员
                 bundle = new Bundle();
@@ -587,21 +581,32 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            Comm.showWarnDialog(mContext,"请输入运单号！");
 //            return false;
 //        }
+        // 判断是否带出配件
+        int autoMtlSum = checkDatas.get(0).getSalOrderAutoMtlSum();
+        int autoMtlSumTemp = 0;
+        for(int i=0; i<checkDatas.size(); i++) {
+            if(checkDatas.get(i).getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
+        }
+        if(autoMtlSum > autoMtlSumTemp) {
+            Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
+            return false;
+        }
         int salOrderSumRow = checkDatas.get(0).getSalOrderSumRow();
-        // 1、非整非拼，2、整单发货，3、拼单
-        switch (orderDeliveryType) {
-            case '2':
-                if(salOrderSumRow > checkDatas.size()) {
+        if(salOrderSumRow > checkDatas.size()) {
+            // 1、非整非拼，2、整单发货，3、拼单
+            switch (orderDeliveryType) {
+                case '1':
+                    Comm.showWarnDialog(mContext,"当前订单发货类型为“非整单发货”，请扫完箱码再出库！");
+                    break;
+                case '2':
                     Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
-                    return false;
-                }
-                break;
-            case '3':
-                if(salOrderSumRow > checkDatas.size()) {
-                    Comm.showWarnDialog(mContext,"当前订单发货类型为“拼单”，请扫完箱码再出库！");
-                    return false;
-                }
-                break;
+                    break;
+                case '3':
+//                    Comm.showWarnDialog(mContext,"当前订单发货类型为“拼单”，请扫完箱码再出库！");
+                    Comm.showWarnDialog(mContext,"拼单缺少物料或配件,或者未扫完箱码!");
+                    break;
+            }
+            return false;
         }
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
@@ -1036,25 +1041,37 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setPoFbillno(prodOrder.getSalOrderNo());
                 sr2.setEntryId(prodOrder.getSalOrderEntryId());
                 sr2.setFprice(prodOrder.getFprice());
+                sr2.setPoFbillno2(prodOrder.getFbillno());
+                sr2.setEntryId2(prodOrder.getEntryId());
             }
+            sr2.setCaseId(mbr.getCaseId());
             sr2.setSalOrderId(prodOrder.getSalOrderId());
             sr2.setSalOrderNo(prodOrder.getSalOrderNo());
             sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
-
+            // 物料默认的仓库库位
             Stock stock = mtl.getStock();
             StockPosition stockPos = mtl.getStockPos();
-            if (stock != null) {
+            // 操作员默认的仓库库位
+            if (defaltStock != null) {
+                sr2.setStock(defaltStock);
+                sr2.setStockId(defaltStock.getfStockid());
+                sr2.setStockName(defaltStock.getfName());
+                sr2.setStockFnumber(defaltStock.getfNumber());
+            } else if (stock != null && mbr.getCaseId() != 32) { // 配件的箱子不需要带出仓库库位
                 sr2.setStock(stock);
                 sr2.setStockId(stock.getfStockid());
                 sr2.setStockName(stock.getfName());
                 sr2.setStockFnumber(stock.getfNumber());
             }
-            if (stockPos != null) {
+            if (defaltStockPos != null) {
+                sr2.setStockPos(defaltStockPos);
+                sr2.setStockPositionId(defaltStockPos.getId());
+                sr2.setStockPName(defaltStockPos.getFname());
+            } else if (stockPos != null && mbr.getCaseId() != 32) { // 配件的箱子不需要带出仓库库位
                 sr2.setStockPos(stockPos);
                 sr2.setStockPositionId(stockPos.getId());
                 sr2.setStockPName(stockPos.getFname());
             }
-
 //            sr2.setBatchno(deliOrder.getBatchCode());
 //            sr2.setSequenceNo(deliOrder.getSnCode());
 //            sr2.setBarcode(deliOrder.getBarcode());
@@ -1127,7 +1144,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             expressCompany.setExpressNumber(deliveryCompanyNumber);
             expressCompany.setExpressName(deliveryCompanyName);
             sr2.setSalOrderSumRow(mbr.getSalOrderSumRow());
-
+            sr2.setSalOrderAutoMtlSum(mbr.getSalOrderAutoMtlSum());
 //                sr2.setLeafNumber(deliOrder.getLeaf());
 //                sr2.setLeafNumber2(deliOrder.getLeaf1());
 //                sr2.setCoveQty(deliOrder.getCoveQty());
@@ -1284,8 +1301,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 .build();
 
         String mUrl = null;
-        // 拼单就用循环传多个单的
-        if(orderDeliveryType == '3') mUrl = getURL("addScanningRecord2");
+        // 非整单，拼单就用循环传多个单的
+        if(orderDeliveryType == '1' || orderDeliveryType == '3')
+            mUrl = getURL("addScanningRecord2");
         else mUrl = getURL("addScanningRecord");
 
         Request request = new Request.Builder()
@@ -1429,23 +1447,39 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         showLoadDialog("加载中...");
         StringBuilder salIds = new StringBuilder();
         StringBuilder salOrders = new StringBuilder();
+        StringBuilder strSalOrderEntryId = new StringBuilder();
+        StringBuilder strProdNumber = new StringBuilder();
+        StringBuilder strProdEntryId = new StringBuilder();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
-            Material mtl = sr2.getMtl();
-
             if((i+1) == size) {
                 salIds.append(sr2.getSalOrderId());
                 salOrders.append(sr2.getSalOrderNo());
+                strSalOrderEntryId.append(sr2.getSalOrderNoEntryId());
             } else {
                 salIds.append(sr2.getSalOrderId() + ",");
                 salOrders.append(sr2.getSalOrderNo() + ",");
+                strSalOrderEntryId.append(sr2.getSalOrderNoEntryId() + ",");
             }
+
+            if(sr2.getCaseId() == 34) {
+                strProdNumber.append(sr2.getPoFbillno2() + ",");
+                strProdEntryId.append(sr2.getEntryId2() + ",");
+            }
+        }
+        // 去掉最后，
+        if(strProdNumber.length() > 0) {
+            strProdNumber.delete(strProdNumber.length()-1, strProdNumber.length());
+            strProdEntryId.delete(strProdEntryId.length()-1, strProdEntryId.length());
         }
         String mUrl = getURL("prodOrder/findJudgeSalOrderInProdOrderStatus");
         FormBody formBody = new FormBody.Builder()
                 .add("salIds", salIds.toString())
                 .add("salOrders", salOrders.toString())
+                .add("strSalOrderEntryId", strSalOrderEntryId.toString())
                 .add("orderDeliveryType", String.valueOf(orderDeliveryType))
+                .add("strProdNumber", strProdNumber.toString())
+                .add("strProdEntryId", strProdEntryId.toString())
                 .build();
 
         Request request = new Request.Builder()

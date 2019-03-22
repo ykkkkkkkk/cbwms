@@ -110,7 +110,7 @@ public class Pur_InFragment2 extends BaseFragment {
     private Pur_InFragment2 context = this;
     private static final int SEL_ORDER = 10, SEL_SUPPLIER = 11, SEL_DEPT = 12, SEL_ORG = 13, SEL_ORG2 = 14, SEL_MTL = 15, SEL_STOCK2 = 16, SEL_STOCKP2 = 17;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
-    private static final int CLEAR1 = 1, SETFOCUS = 2, SAOMA = 3, NUM_RESULT = 50, RESET = 60;
+    private static final int CLEAR1 = 1, SETFOCUS = 2, SAOMA = 3, WRITE_BARCODE = 4, NUM_RESULT = 50, RESET = 60;
     private Supplier supplier; // 供应商
     //    private Material mtl;
     private Stock stock, stock2; // 仓库
@@ -655,6 +655,14 @@ public class Pur_InFragment2 extends BaseFragment {
                 }
             }
         });
+        // 长按输入
+        etMtlNo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                showInputDialog("条码号","", "+0", WRITE_BARCODE);
+                return true;
+            }
+        });
     }
 
     /**
@@ -793,6 +801,16 @@ public class Pur_InFragment2 extends BaseFragment {
 //                        checkDatas.get(curPos).setPoFmustqty(num);
 //                        checkDatas.get(curPos).setFqty(num);
                         mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case WRITE_BARCODE: // 数量
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        etMtlNo.setText(value);
                     }
                 }
 

@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.produce;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,11 +36,14 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
+import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_SelOrder2Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_SelOrderAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -61,7 +65,7 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
     CheckBox cbAll;
 
     private Prod_SelOrder2Activity context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, RESULT_NUM = 1;
     private Department department; // 生产车间
     private OkHttpClient okHttpClient = new OkHttpClient();
     private Prod_SelOrder2Adapter mAdapter;
@@ -71,6 +75,7 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String prodSeqNumberStatus = "ASC"; // 1：升序，2：降序
+    private int curPos = -1; // 当前行
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -128,6 +133,14 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
 
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
         xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+        mAdapter.setCallBack(new Prod_SelOrder2Adapter.MyCallBack() {
+            @Override
+            public void onClick_num(View v, ProdOrder entity, int position) {
+                LogUtil.e("num", "行：" + position);
+                curPos = position;
+                showInputDialog("数量", String.valueOf(entity.getWriteNum()), "0.0", RESULT_NUM);
+            }
+        });
 
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -314,18 +327,21 @@ public class Prod_SelOrder2Activity extends BaseActivity implements XRecyclerVie
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case SEL_CUST: //查询供应商	返回
-//                if (resultCode == RESULT_OK) {
-//                    supplier = data.getParcelableExtra("obj");
-//                    LogUtil.e("onActivityResult --> SEL_CUST", supplier.getFname());
-//                    if (supplier != null) {
-//                        setTexts(etCustSel, supplier.getFname());
-//                    }
-//                }
-//
-//                break;
-//        }
+        switch (requestCode) {
+            case RESULT_NUM: // 数量
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        listDatas.get(curPos).setWriteNum(num);
+                        listDatas.get(curPos).setIsCheck(1); // 修改了数量，就选中这行
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+        }
     }
 
     @Override

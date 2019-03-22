@@ -84,9 +84,9 @@
             android:background="@drawable/back_style_blue"
             android:hint="请在此扫描箱子条码"
             android:inputType="none"
-            android:paddingLeft="2dp"
+            android:paddingLeft="3dp"
             android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
+            android:textSize="@dimen/_14sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -181,7 +181,7 @@
             android:background="@drawable/back_style_blue"
             android:hint="请扫描物料条码"
             android:inputType="none"
-            android:paddingLeft="@dimen/_2dp"
+            android:paddingLeft="@dimen/_3dp"
             android:textColor="@color/black"
             android:textSize="@dimen/_14sp" />
 

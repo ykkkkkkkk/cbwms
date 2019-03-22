@@ -48,6 +48,7 @@ import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -55,12 +56,9 @@ import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
-import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
-import ykk.cb.com.cbwms.purchase.Pur_SelOrderActivity;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 
@@ -108,8 +106,8 @@ public class Prod_InFragment1 extends BaseFragment {
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
     private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3, SAOMA = 4;
     //    private Supplier supplier; // 供应商
-    private Stock stock, stock2; // 仓库
-    private StockPosition stockP, stockP2; // 库位
+    private Stock defaltStock, stock2; // 仓库
+    private StockPosition defaltStockPos, stockP2; // 库位
     private Organization inOrg, prodOrg; // 组织
     private ProdOrder prodOrder; // 生产订单
     private Department department; // 部门
@@ -365,22 +363,14 @@ public class Prod_InFragment1 extends BaseFragment {
 //            }
 //        },800);
 
-//        // 得到默认仓库的值
-//        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
-//        if(defaultStockVal == '2') {
-//
-//            if(user.getStock() != null) {
-//                stock = user.getStock();
-//                setTexts(etStock, stock.getfName());
-//                stockBarcode = stock.getfName();
-//            }
-//
-//            if(user.getStockPos() != null) {
-//                stockP = user.getStockPos();
-//                setTexts(etStockPos, stockP.getFnumber());
-//                stockPBarcode = stockP.getFnumber();
-//            }
-//        }
+        // 得到默认仓库的值
+        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
+        if(defaultStockVal == '2') {
+
+            if(user.getStock() != null) defaltStock = user.getStock();
+
+            if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
+        }
     }
 
     @Override
@@ -585,6 +575,11 @@ public class Prod_InFragment1 extends BaseFragment {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getFinishReceiptOverRate() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
+            // 如果实收数大于应收数，那么传到k3,把实收数复制到应收数的字段
+//            if(sr2.getStockqty() > sr2.getFqty()) {
+//                sr2.setFqty(sr2.getStockqty());
+//                sr2.setPoFmustqty(sr2.getStockqty());
+//            }
         }
         return true;
     }
@@ -663,8 +658,6 @@ public class Prod_InFragment1 extends BaseFragment {
 //        tvInOrg.setText("");
 //        tvProdOrg.setText("");
 //        supplier = null;
-        stock = null;
-        stockP = null;
         inOrg = null;
         prodOrg = null;
         curViewFlag = '1';
@@ -824,7 +817,11 @@ public class Prod_InFragment1 extends BaseFragment {
             sr2.setFqty(prodOrder.getProdFqty());
             sr2.setUsableFqty(prodOrder.getUsableFqty());
             // 默认等于可用数
-            sr2.setStockqty(prodOrder.getUsableFqty());
+            if(prodOrder.getWriteNum() > 0) {
+                sr2.setStockqty(prodOrder.getWriteNum());
+            } else {
+                sr2.setStockqty(prodOrder.getUsableFqty());
+            }
 
             sr2.setPoFid(prodOrder.getfId());
             sr2.setEntryId(prodOrder.getEntryId());
@@ -928,14 +925,25 @@ public class Prod_InFragment1 extends BaseFragment {
 //        sr2.setSupplierName(supplier.getfName());
 //        sr2.setSupplierFnumber(supplier.getfNumber());
         Material mtl = bt.getMtl();
+        // 物料默认的仓库仓位
         Stock stock = mtl.getStock();
         StockPosition stockPos = mtl.getStockPos();
-        if (stock != null) {
+
+        // 操作员默认的仓库库位
+        if (defaltStock != null) {
+            sr2.setStock(defaltStock);
+            sr2.setStockId(defaltStock.getfStockid());
+            sr2.setStockFnumber(defaltStock.getfNumber());
+        } else if (stock != null) { // 物料默认的仓库库位
             sr2.setStock(stock);
             sr2.setStockId(stock.getfStockid());
             sr2.setStockFnumber(stock.getfNumber());
         }
-        if (stockPos != null) {
+        if (defaltStockPos != null) {
+            sr2.setStockPos(defaltStockPos);
+            sr2.setStockPositionId(defaltStockPos.getId());
+            sr2.setStockPName(defaltStockPos.getFname());
+        } else if (stockPos != null) { // 物料默认的仓库库位
             sr2.setStockPos(stockPos);
             sr2.setStockPositionId(stockPos.getId());
             sr2.setStockPName(stockPos.getFname());
@@ -990,8 +998,13 @@ public class Prod_InFragment1 extends BaseFragment {
 //            } else {
 //                sr2.setStockqty(sr2.getStockqty() + fqty);
 //            }
-            // 默认等于可用数
-            sr2.setStockqty(bt.getMaterialCalculateNumber());
+            if(mtl.getIsBatchManager() == 1 && mtl.getIsSnManager() == 0) {
+                // 默认等于可用数
+                sr2.setStockqty(bt.getMaterialCalculateNumber());
+            } else {
+                // 默认等于可用数
+                sr2.setStockqty(1);
+            }
         } else {
             sr2.setStockqty(prodOrder.getUsableFqty());
         }

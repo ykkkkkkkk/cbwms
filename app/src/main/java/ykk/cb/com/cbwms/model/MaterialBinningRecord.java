@@ -20,6 +20,8 @@ public class MaterialBinningRecord implements Serializable {
     private BoxBarCode boxBarCode;
     /*物料id*/
     private int materialId;
+    /* 物料代码 */
+    private String mtlNumber;
     /* 对应t_barCodeTable或者t_SecurityCode    表中的barcode字段  */
     private String barcode;
     /* 条码数据来源   1：t_barCodeTable表过来的barcode，2：t_SecurityCode表过来的barcode */
@@ -111,6 +113,7 @@ public class MaterialBinningRecord implements Serializable {
     private int isMtlParts; // 是否为物料配件
     private int isCheck; // 是否选中
     private int salOrderSumRow; // 箱子对应的销售订单的总行数
+    private int salOrderAutoMtlSum; // 箱子对应的销售订单配件的总行数
 
 
     public MaterialBinningRecord() {
@@ -443,6 +446,22 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setSalOrderSumRow(int salOrderSumRow) {
         this.salOrderSumRow = salOrderSumRow;
+    }
+
+    public int getSalOrderAutoMtlSum() {
+        return salOrderAutoMtlSum;
+    }
+
+    public void setSalOrderAutoMtlSum(int salOrderAutoMtlSum) {
+        this.salOrderAutoMtlSum = salOrderAutoMtlSum;
+    }
+
+    public String getMtlNumber() {
+        return mtlNumber;
+    }
+
+    public void setMtlNumber(String mtlNumber) {
+        this.mtlNumber = mtlNumber;
     }
 
 }

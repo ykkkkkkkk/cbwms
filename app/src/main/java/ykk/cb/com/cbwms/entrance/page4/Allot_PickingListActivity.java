@@ -178,6 +178,23 @@ public class Allot_PickingListActivity extends BaseActivity {
                                     StkTransferOutEntry stkEntry = list.get(i);
                                     StkTransferOut stk = stkEntry.getStkTransferOut();
                                     Staff staff = stk.getStockStaff();
+                                    Material mtl = stkEntry.getMaterial();
+                                    // 物料的默认仓库库位
+                                    Stock stock = mtl.getStock();
+                                    StockPosition stockPos = mtl.getStockPos();
+                                    String stockName = Comm.isNULLS(stkEntry.getOutStockName());
+                                    if (stockName.length() == 0 && stock != null) { // 如果调出仓库为空
+                                        stkEntry.setOutStockId(stock.getfStockid());
+                                        stkEntry.setOutStockNumber(stock.getfNumber());
+                                        stkEntry.setOutStockName(stock.getfName());
+                                        stkEntry.setOutStock(stock);
+                                    }
+                                    if (stock != null && stock.isStorageLocation() && stockPos != null) {
+                                        stkEntry.setOutStockPositionId(stockPos.getfStockPositionId());
+                                        stkEntry.setOutStockPositionNumber(stockPos.getFnumber());
+                                        stkEntry.setOutStockPositionName(stockPos.getFname());
+                                        stkEntry.setOutStockPos(stockPos);
+                                    }
                                     if(staff != null && staff.getStaffId() > 0) {
                                         m.tvStaffSel.setText(staff.getName());
                                         m.stockStaff = staff;
@@ -832,9 +849,8 @@ public class Allot_PickingListActivity extends BaseActivity {
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
-            Material mtl = stkEntry.getMaterial();
             // 如果扫码相同
-            if (bt.getMaterialId() == mtl.getfMaterialId()) {
+            if (bt.getMaterialId() == stkEntry.getMtlId()) {
                 isFlag = true;
 
                 double fqty = 1;
@@ -1027,6 +1043,10 @@ public class Allot_PickingListActivity extends BaseActivity {
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
                 strCaseId = "11,21,34";
+                outDeptNumber = "";
+                inStockNumber = "";
+                outStockNumber = "";
+                outDate = "";
                 billStatus = "";
                 entryStatus = "";
                 break;

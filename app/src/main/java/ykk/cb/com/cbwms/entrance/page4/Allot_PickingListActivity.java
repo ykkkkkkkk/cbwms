@@ -112,7 +112,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
 
     // 消息处理
-    private Allot_PickingListActivity.MyHandler mHandler = new Allot_PickingListActivity.MyHandler(this);
+    private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
         private final WeakReference<Allot_PickingListActivity> mActivity;
 

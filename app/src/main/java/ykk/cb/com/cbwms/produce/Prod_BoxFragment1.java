@@ -1047,7 +1047,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             mbr.setBarcodeSource('1');
 
             mbr.setNumber(salOrder.getSalFcanoutqty());
-            mbr.setRelationBillFQTY(salOrder.getSalFcanoutqty());
+            mbr.setRelationBillFQTY(salOrder.getSalFqty());
             mbr.setUsableFqty(salOrder.getSalFcanoutqty());
             mbr.setEntryId(salOrder.getEntryId());
             mbr.setReceiveAddress("");

@@ -84,6 +84,16 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     EditText etGetFocus;
     @BindView(R.id.btn_clone)
     Button btnClone;
+    @BindView(R.id.tv_fold)
+    TextView tvFold;
+    @BindView(R.id.lin_1)
+    LinearLayout lin1;
+    @BindView(R.id.lin_2)
+    LinearLayout lin2;
+    @BindView(R.id.lin_3)
+    LinearLayout lin3;
+    @BindView(R.id.lin_4)
+    LinearLayout lin4;
     @BindView(R.id.btn_batchAdd)
     Button btnBatchAdd;
     @BindView(R.id.btn_save)
@@ -141,6 +151,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private String k3Number; // 记录传递到k3返回的单号
     private char orderDeliveryType = '0'; // 单据发货类型 （1、非整非拼，2、整单发货，3、拼单）
     private boolean isTextChange; // 是否进入TextChange事件
+    private boolean isFold; // 是否折叠
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -152,7 +163,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
 
         public void handleMessage(Message msg) {
-            Sal_OutFragment2 m = mActivity.get();
+            final Sal_OutFragment2 m = mActivity.get();
             String errMsg = null;
             if (m != null) {
                 m.hideLoadDialog();
@@ -312,7 +323,23 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                         if(m.isNULLS(strError2).length() == 0) {
                             strError2 = "服务器繁忙哦！";
                         }
-                        Comm.showWarnDialog(m.mContext,strError2);
+                        // 如果是这个，就提示是否要保存
+                        if(strError2.equals("此订单有入库未装箱或者有装箱未扫描，是否继续出库？")) {
+                            AlertDialog.Builder build = new AlertDialog.Builder(m.mContext);
+                            build.setIcon(R.drawable.caution);
+                            build.setTitle("系统提示");
+                            build.setMessage(strError2);
+                            build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    m.run_findInStockSum();
+                                }
+                            });
+                            build.setNegativeButton("否", null);
+                            build.setCancelable(false);
+                            build.show();
+
+                        } else Comm.showWarnDialog(m.mContext,strError2);
 
                         break;
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -436,7 +463,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
+    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_fold,
             R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_salOrg, R.id.tv_salDate, R.id.tv_stockStaff, R.id.lin_rowTitle, R.id.tv_expressCompany})
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -449,6 +476,24 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 bundle = new Bundle();
                 bundle.putInt("isAll", 1);
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
+
+                break;
+            case R.id.tv_fold: // 展开与显示
+                if(isFold) {
+                    isFold = false;
+                    tvFold.setBackgroundResource(R.drawable.ico_spread_normal);
+//                    lin1.setVisibility(View.GONE);
+                    lin2.setVisibility(View.GONE);
+                    lin3.setVisibility(View.GONE);
+                    lin4.setVisibility(View.GONE);
+                } else {
+                    isFold = true;
+                    tvFold.setBackgroundResource(R.drawable.ico_spread_keydown);
+//                    lin1.setVisibility(View.VISIBLE);
+                    lin2.setVisibility(View.VISIBLE);
+                    lin3.setVisibility(View.VISIBLE);
+                    lin4.setVisibility(View.VISIBLE);
+                }
 
                 break;
             case R.id.tv_receiveOrg: // 发货组织
@@ -581,18 +626,22 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            Comm.showWarnDialog(mContext,"请输入运单号！");
 //            return false;
 //        }
+        ScanningRecord2 sRecord2 = checkDatas.get(0);
         // 判断是否带出配件
-        int autoMtlSum = checkDatas.get(0).getSalOrderAutoMtlSum();
+        int autoMtlSum = sRecord2.getSalOrderAutoMtlSum();
         int autoMtlSumTemp = 0;
+        double writeSumQty = 0; //
         for(int i=0; i<checkDatas.size(); i++) {
-            if(checkDatas.get(i).getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
+            ScanningRecord2 sr2 = checkDatas.get(i);
+            writeSumQty += sr2.getStockqty();
+            if(sr2.getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
         }
         if(autoMtlSum > autoMtlSumTemp) {
             Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
             return false;
         }
-        int salOrderSumRow = checkDatas.get(0).getSalOrderSumRow();
-        if(salOrderSumRow > checkDatas.size()) {
+        double salOrderSumQty = sRecord2.getSalOrderSumQty();
+        if(salOrderSumQty > writeSumQty) {
             // 1、非整非拼，2、整单发货，3、拼单
             switch (orderDeliveryType) {
                 case '1':
@@ -1036,6 +1085,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setPoFbillno(salOrder.getFbillno());
                 sr2.setEntryId(salOrder.getEntryId());
                 sr2.setFprice(salOrder.getFprice());
+                sr2.setSalOrderId(salOrder.getfId());
+                sr2.setSalOrderNo(salOrder.getFbillno());
+                sr2.setSalOrderNoEntryId(salOrder.getEntryId());
             } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
                 sr2.setPoFbillno(prodOrder.getSalOrderNo());
@@ -1043,11 +1095,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setFprice(prodOrder.getFprice());
                 sr2.setPoFbillno2(prodOrder.getFbillno());
                 sr2.setEntryId2(prodOrder.getEntryId());
+                sr2.setSalOrderId(prodOrder.getSalOrderId());
+                sr2.setSalOrderNo(prodOrder.getSalOrderNo());
+                sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
             }
             sr2.setCaseId(mbr.getCaseId());
-            sr2.setSalOrderId(prodOrder.getSalOrderId());
-            sr2.setSalOrderNo(prodOrder.getSalOrderNo());
-            sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
             // 物料默认的仓库库位
             Stock stock = mtl.getStock();
             StockPosition stockPos = mtl.getStockPos();
@@ -1103,16 +1155,20 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
             if (salOrg == null) {
                 salOrg = new Organization();
+            }
 
-                if(prodOrder.getSaleOrgId() > 0) {
-                    salOrg.setFpkId(prodOrder.getSaleOrgId());
-                    salOrg.setNumber(prodOrder.getSaleOrgNumber());
-                    salOrg.setName(prodOrder.getSaleOrgName());
-                } else {
-                    salOrg.setFpkId(prodOrder.getProdOrgId());
-                    salOrg.setNumber(prodOrder.getProdOrgNumber());
-                    salOrg.setName(prodOrder.getProdOrgName());
-                }
+            if(prodOrder.getSaleOrgId() > 0) { // 用生产订单的查询的销售组织
+                salOrg.setFpkId(prodOrder.getSaleOrgId());
+                salOrg.setNumber(prodOrder.getSaleOrgNumber());
+                salOrg.setName(prodOrder.getSaleOrgName());
+            } else if(prodOrder.getProdOrgId() > 0) { // 用生产订单的查询的生产组织
+                salOrg.setFpkId(prodOrder.getProdOrgId());
+                salOrg.setNumber(prodOrder.getProdOrgNumber());
+                salOrg.setName(prodOrder.getProdOrgName());
+            } else { // 用销售订单的查询的销售组织
+                salOrg.setFpkId(salOrder.getSalOrgId());
+                salOrg.setNumber(salOrder.getSalOrgNumber());
+                salOrg.setName(salOrder.getSalOrgName());
             }
 
             setEnables(tvSalOrg, R.drawable.back_style_gray3, false);
@@ -1144,6 +1200,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             expressCompany.setExpressNumber(deliveryCompanyNumber);
             expressCompany.setExpressName(deliveryCompanyName);
             sr2.setSalOrderSumRow(mbr.getSalOrderSumRow());
+            sr2.setSalOrderSumQty(mbr.getSalOrderSumQty());
             sr2.setSalOrderAutoMtlSum(mbr.getSalOrderAutoMtlSum());
 //                sr2.setLeafNumber(deliOrder.getLeaf());
 //                sr2.setLeafNumber2(deliOrder.getLeaf1());
@@ -1256,6 +1313,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             record.setPoFbillno(sr2.getPoFbillno());
             record.setPoFmustqty(sr2.getPoFmustqty());
             record.setFprice(sr2.getFprice());
+            record.setSalOrderId(sr2.getSalOrderId());
+            record.setSalOrderNo(sr2.getSalOrderNo());
+            record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
 
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());

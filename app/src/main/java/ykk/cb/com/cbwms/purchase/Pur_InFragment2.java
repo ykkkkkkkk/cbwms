@@ -458,6 +458,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 break;
             case R.id.tv_purMan: // 选择业务员
 
+
                 break;
             case R.id.btn_save: // 保存
                 hideKeyboard(mContext.getCurrentFocus());

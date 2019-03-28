@@ -1025,6 +1025,7 @@ public class Allot_PickingListActivity extends BaseActivity {
         String outDate = null; // 调出日期
         String billStatus = "2"; // 单据是否审核
         String entryStatus = "1"; // 未关闭的行
+        String businessType = ""; // 业务类型:1、材料按次 2、材料按批 3、成品
         switch (curViewFlag) {
             case '1': // 调拨单
                 mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
@@ -1038,6 +1039,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                 outDate = getValues(tvDateSel);
                 billStatus = "2";
                 entryStatus = "1";
+                businessType = "1";
                 break;
             case '2': // 物料
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
@@ -1049,12 +1051,14 @@ public class Allot_PickingListActivity extends BaseActivity {
                 outDate = "";
                 billStatus = "";
                 entryStatus = "";
+                businessType = "";
                 break;
         }
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", strCaseId)
                 .add("isList", String.valueOf(isList))
                 .add("barcode", barcode)
+                .add("businessType", businessType)
                 .add("sourceType","6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）

@@ -163,7 +163,6 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:clickable="true"
             android:gravity="center">
 
             <TextView
@@ -178,6 +177,99 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tvImg6"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_3dp"
+                android:text="半成品打印"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_18sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lin_tab3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/relative7"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvImg7"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/aa_ico2a_7" />
+
+            <TextView
+                android:id="@+id/tab7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvImg7"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_3dp"
+                android:text="用料申请"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_18sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/tvImg8"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/aa_ico2a_5" />
+
+            <TextView
+                android:id="@+id/tab8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvImg8"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_3dp"
+                android:text="生产开工"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_18sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative9"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:visibility="invisible">
+
+            <TextView
+                android:id="@+id/tvImg9"
+                android:layout_width="@dimen/_60dp"
+                android:layout_height="@dimen/_60dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/aa_ico2a_6" />
+
+            <TextView
+                android:id="@+id/tab9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvImg9"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
                 android:text="半成品打印"

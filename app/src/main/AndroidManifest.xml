@@ -188,6 +188,12 @@
         <activity
             android:name=".produce.Prod_CreateBarcodeDialog"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_MtlApplyMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_MtlApplyOperationActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <!-- 销售模块 -->
         <activity

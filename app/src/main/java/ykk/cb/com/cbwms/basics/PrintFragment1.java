@@ -136,7 +136,7 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
     public void onViewClicked(View v) {
         switch (v.getId()) {
             case R.id.btn_search: // 查询数据
-                initLoadDatas();
+//                initLoadDatas();
 
                 break;
             case R.id.tv_print_type: // 打印类型（小标和大标）
@@ -164,7 +164,7 @@ public class PrintFragment1 extends BaseFragment implements XRecyclerView.Loadin
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("material/findMaterialListByParam3");
+        String mUrl = getURL("findMaterialListByParam");
         String searchName = getValues(etSearch).trim();
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())

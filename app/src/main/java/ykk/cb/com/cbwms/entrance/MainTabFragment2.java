@@ -10,6 +10,7 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.produce.Prod_BoxMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_InMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_MtlApplyMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_OrderSearchActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcedureReportActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcessSearchActivity;
@@ -25,7 +26,7 @@ public class MainTabFragment2 extends BaseFragment {
         return inflater.inflate(R.layout.aa_main_item2, container, false);
     }
 
-    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6})
+    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 生产装箱
@@ -50,6 +51,10 @@ public class MainTabFragment2 extends BaseFragment {
                 break;
             case R.id.relative6: // 半成品打印
                 show(Prod_OrderSearchActivity.class,null);
+
+                break;
+            case R.id.relative7: // 用料申请
+                show(Prod_MtlApplyMainActivity.class,null);
 
                 break;
         }

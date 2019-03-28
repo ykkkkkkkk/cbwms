@@ -15,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.gprinter.command.EscCommand;
@@ -57,12 +58,15 @@ public class PrintMainActivity extends BaseActivity {
     MyViewPager viewPager;
     @BindView(R.id.tv_connState)
     TextView tvConnState;
+    @BindView(R.id.btn_close)
+    Button btnClose;
     @BindView(R.id.tv_1)
     TextView tv1;
     @BindView(R.id.tv_2)
     TextView tv2;
     @BindView(R.id.tv_3)
     TextView tv3;
+
     private PrintMainActivity context = this;
     private static final String TAG = "PrintMainActivity";
     private TextView curText;
@@ -90,6 +94,7 @@ public class PrintMainActivity extends BaseActivity {
 
     @Override
     public void initData() {
+        bundle();
 
         curText = tv1;
         List<Fragment> listFragment = new ArrayList<Fragment>();
@@ -150,6 +155,7 @@ public class PrintMainActivity extends BaseActivity {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
         }
+
     }
 
     @OnClick({R.id.btn_close, R.id.tv_1, R.id.tv_2, R.id.tv_3})
@@ -382,7 +388,7 @@ public class PrintMainActivity extends BaseActivity {
     }
 
     /**
-     * 发送标签
+     * 发送标签（佳博打印机）
      *
      */
     void sendLabel(int count) {
@@ -853,6 +859,7 @@ public class PrintMainActivity extends BaseActivity {
                             tvConnState.setText(getString(R.string.str_conn_state_connected));
                             tvConnState.setTextColor(Color.parseColor("#008800")); // 已连接-绿色
 
+//                            sendLabel2(0);
                             switch (tabFlag) {
                                 case 0: // 物料条码
 
@@ -861,6 +868,7 @@ public class PrintMainActivity extends BaseActivity {
                                 case 1: // 生产订单--大标签
                                     if (prodOrderList.size() > 0) {
                                         for (int i = 0; i < prodOrderList.size(); i++) {
+
                                             sendLabel(i);
                                         }
                                     } else sendLabel(0);

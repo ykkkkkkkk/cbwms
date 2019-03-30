@@ -38,6 +38,9 @@ import ykk.cb.com.cbwms.util.LoadingDialog;
  *
  */
 public abstract class BaseDialogActivity extends AppCompatActivity {
+	public static final String DECODED_CONTENT_KEY = "codedContent"; // 扫一扫：内容（键）
+	public static final String DECODED_BITMAP_KEY = "codedBitmap"; // 扫一扫：图片（键）
+	public static final int CAMERA_SCAN = 0x0000; // 扫一扫：请求值
 	private BaseDialogActivity mContext = this;
 	private long temptime;
 	private LoadingDialog parentLoadDialog;

@@ -6,11 +6,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,6 +42,7 @@ import ykk.cb.com.cbwms.entrance.page5.ServiceSetActivity;
 import ykk.cb.com.cbwms.model.SystemSet;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 public class LoginActivity extends BaseActivity {
 
@@ -164,6 +168,34 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void setListener() {
+//        btnLogin.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                Intent intent = new Intent(context, CaptureActivity.class);
+//                startActivityForResult(intent, 123);
+//
+//                return true;
+//            }
+//        });
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // 扫描二维码/条码回传
+        if (requestCode == 123 && resultCode == RESULT_OK) {
+            if (data != null) {
+
+                String content = data.getStringExtra("codedContent");
+//                Bitmap bitmap = data.getParcelableExtra(DECODED_BITMAP_KEY);
+                Comm.showWarnDialog(context,content);
+            }
+        }
+    }
+
     /**
      * 登录的方法
      */
@@ -219,13 +251,36 @@ public class LoginActivity extends BaseActivity {
     private void requestPermission() {
         // 判断sdk是是否大于等于6.0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int checkSelfPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (checkSelfPermission != PackageManager.PERMISSION_DENIED) {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUESTCODE);
+            String[] permissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
-            } else {
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUESTCODE);
+            // 逐个判断哪些权限未授权，将未授权的权限存储到mPermissionList中
+            List<String>  mPermissionList = new ArrayList<>();
+
+            mPermissionList.clear();//清空已经允许的没有通过的权限
+
+            //逐个判断是否还有未通过的权限
+            for (int i = 0;i<permissions.length;i++){
+                if (checkSelfPermission(permissions[i]) != PackageManager.PERMISSION_GRANTED){
+                    mPermissionList.add(permissions[i]);//添加还未授予的权限到mPermissionList中
+                }
             }
+
+            //申请权限
+            if (mPermissionList.size() > 0){//有权限没有通过，需要申请
+                requestPermissions(permissions, REQUESTCODE);
+            }else {
+                //权限已经都通过了，可以将程序继续打开了
+                createFile();
+            }
+
+            // 之前的写法：    读写文件
+//            int checkSelfPermission = checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//            if (checkSelfPermission != PackageManager.PERMISSION_DENIED) {
+//                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUESTCODE);
+//
+//            } else {
+//                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUESTCODE);
+//            }
         } else { // 6.0以下，直接执行
             createFile();
         }
@@ -234,38 +289,84 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUESTCODE) {
-            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //用户同意
-                createFile();
-            } else {
-                //用户不同意
-                AlertDialog alertDialog = new AlertDialog.Builder(context)
-                        .setTitle("授权提示").setMessage("您已禁用了SD卡的读写权限,会导致部分功能不能用，去打开吧！")
-                        .setPositiveButton("好的", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent mIntent = new Intent();
-                                mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                if (Build.VERSION.SDK_INT >= 9) {
-                                    mIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
-                                    mIntent.setData(Uri.fromParts("package", context.getPackageName(), null));
-                                } else if (Build.VERSION.SDK_INT <= 8) {
-                                    mIntent.setAction(Intent.ACTION_VIEW);
-                                    mIntent.setClassName("com.android.settings", "com.android.setting.InstalledAppDetails");
-                                    mIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
-                                }
+        switch (requestCode) {
+            case REQUESTCODE: // 读写权限
+                boolean hasPermissionDismiss = false;//有权限没有通过
+                for (int i=0;i<grantResults.length;i++){
+                    if (grantResults[i] == -1){
+                        hasPermissionDismiss = true;
+                        break;
+                    }
+                }
+                if (hasPermissionDismiss){//如果有没有被允许的权限
+                    showPermissionDialog();
+                }else {
+                    //权限已经都通过了
+                    createFile();
+                }
 
-                                context.startActivity(mIntent);
-                                isEntryPermission = true;
-                            }
-                        })
-//                        .setNegativeButton("不了", null)
-                        .create();// 创建
-                alertDialog.setCancelable(false);
-                alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.show();// 显示
-            }
+                // 之前的写法
+//                if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    //用户同意
+//                    createFile();
+//                } else {
+//                    //用户不同意
+//                    AlertDialog alertDialog = new AlertDialog.Builder(context)
+//                            .setTitle("授权提示").setMessage("您已禁用了SD卡的读写权限,会导致部分功能不能用，去打开吧！")
+//                            .setPositiveButton("好的", new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    Intent mIntent = new Intent();
+//                                    mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                    if (Build.VERSION.SDK_INT >= 9) {
+//                                        mIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+//                                        mIntent.setData(Uri.fromParts("package", context.getPackageName(), null));
+//                                    } else if (Build.VERSION.SDK_INT <= 8) {
+//                                        mIntent.setAction(Intent.ACTION_VIEW);
+//                                        mIntent.setClassName("com.android.settings", "com.android.setting.InstalledAppDetails");
+//                                        mIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
+//                                    }
+//
+//                                    context.startActivity(mIntent);
+//                                    isEntryPermission = true;
+//                                }
+//                            })
+////                        .setNegativeButton("不了", null)
+//                            .create();// 创建
+//                    alertDialog.setCancelable(false);
+//                    alertDialog.setCanceledOnTouchOutside(false);
+//                    alertDialog.show();// 显示
+//                }
+
+                break;
         }
+    }
+
+    private void showPermissionDialog() {
+        //用户不同意
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setTitle("授权提示").setMessage("您已禁用了部分权限，请手动授予！")
+                .setPositiveButton("好的", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent mIntent = new Intent();
+                        mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        if (Build.VERSION.SDK_INT >= 9) {
+                            mIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+                            mIntent.setData(Uri.fromParts("package", context.getPackageName(), null));
+                        } else if (Build.VERSION.SDK_INT <= 8) {
+                            mIntent.setAction(Intent.ACTION_VIEW);
+                            mIntent.setClassName("com.android.settings", "com.android.setting.InstalledAppDetails");
+                            mIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
+                        }
+
+                        context.startActivity(mIntent);
+                        isEntryPermission = true;
+                    }
+                })
+//                        .setNegativeButton("不了", null)
+                .create();// 创建
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();// 显示
     }
 
     private void createFile() {

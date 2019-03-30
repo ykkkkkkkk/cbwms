@@ -158,6 +158,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="@drawable/back_style_blue"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <EditText
@@ -165,20 +167,18 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/back_style_blue4"
+                    android:background="@color/transparent"
                     android:hint="物料扫码区"
                     android:inputType="none"
                     android:paddingLeft="@dimen/_2dp"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/_12sp" />
+                    android:textSize="@dimen/_14sp" />
 
                 <Button
-                    android:id="@+id/btn_selMtl"
-                    android:layout_width="@dimen/_38dp"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/btn_blue3_selector"
-                    android:text="▼"
-                    android:textColor="@color/white" />
+                    android:id="@+id/btn_scan"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/ico_scan" />
             </LinearLayout>
 
         </LinearLayout>

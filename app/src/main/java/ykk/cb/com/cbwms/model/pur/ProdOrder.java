@@ -79,6 +79,8 @@ public class ProdOrder implements Serializable {
     /*对应销售订单分录业务关闭状态*/
     //销售订单行关闭状态--A、未关闭；B、业务关闭
     private String salEntryMrpCloseStatus;
+    //销售订单行业务终止状态--A、未关闭；B、业务关闭
+    private String fmrpTerminateStatus;
     /*对应销售订单客户电话*/
     private String custTel;
     /*对应销售订单发货类别代码
@@ -701,5 +703,12 @@ public class ProdOrder implements Serializable {
         this.writeNum = writeNum;
     }
 
+    public String getFmrpTerminateStatus() {
+        return fmrpTerminateStatus;
+    }
+
+    public void setFmrpTerminateStatus(String fmrpTerminateStatus) {
+        this.fmrpTerminateStatus = fmrpTerminateStatus;
+    }
 
 }

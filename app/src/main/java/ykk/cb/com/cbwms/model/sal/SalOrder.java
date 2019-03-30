@@ -51,6 +51,8 @@ public class SalOrder implements Serializable{
     /*销售订单分录业务关闭状态*/
     //销售订单行关闭状态--A、未关闭；B、业务关闭
     private String salEntryMrpCloseStatus;
+    //销售订单行业务终止状态--A、未关闭；B、业务关闭
+    private String fmrpTerminateStatus;
     /*销售订单客户电话*/
     private String custTel;
     /*销售订单发货类别代码
@@ -84,6 +86,19 @@ public class SalOrder implements Serializable{
     private String mtlUnitNumber;
     /*销售订单单价*/
     private double fprice;
+
+    /*品名*/
+    private String mtlTrade;
+    /*品牌*/
+    private String mtlBrand;
+    /*系列*/
+    private String mtlSeries;
+    /*颜色*/
+    private String mtlColor;
+    /*车型*/
+    private String mtlCartype;
+    /*线路*/
+    private String custRoute;
 
     public SalOrder() {
         super();
@@ -447,6 +462,62 @@ public class SalOrder implements Serializable{
 
     public void setFprice(double fprice) {
         this.fprice = fprice;
+    }
+
+    public String getMtlTrade() {
+        return mtlTrade;
+    }
+
+    public void setMtlTrade(String mtlTrade) {
+        this.mtlTrade = mtlTrade;
+    }
+
+    public String getMtlBrand() {
+        return mtlBrand;
+    }
+
+    public void setMtlBrand(String mtlBrand) {
+        this.mtlBrand = mtlBrand;
+    }
+
+    public String getMtlSeries() {
+        return mtlSeries;
+    }
+
+    public void setMtlSeries(String mtlSeries) {
+        this.mtlSeries = mtlSeries;
+    }
+
+    public String getMtlColor() {
+        return mtlColor;
+    }
+
+    public void setMtlColor(String mtlColor) {
+        this.mtlColor = mtlColor;
+    }
+
+    public String getMtlCartype() {
+        return mtlCartype;
+    }
+
+    public void setMtlCartype(String mtlCartype) {
+        this.mtlCartype = mtlCartype;
+    }
+
+    public String getCustRoute() {
+        return custRoute;
+    }
+
+    public void setCustRoute(String custRoute) {
+        this.custRoute = custRoute;
+    }
+
+    public String getFmrpTerminateStatus() {
+        return fmrpTerminateStatus;
+    }
+
+    public void setFmrpTerminateStatus(String fmrpTerminateStatus) {
+        this.fmrpTerminateStatus = fmrpTerminateStatus;
     }
 
 }

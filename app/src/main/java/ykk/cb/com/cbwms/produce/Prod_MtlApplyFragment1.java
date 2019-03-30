@@ -247,7 +247,7 @@ public class Prod_MtlApplyFragment1 extends BaseFragment {
         businessType = "2";
 
         FormBody formBody = new FormBody.Builder()
-                .add("isValid", "1") // 数据是否有效
+                .add("isValidStatus2", "1") // 数据是否有效
                 .add("businessType", businessType)
                 .add("sourceType","6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）

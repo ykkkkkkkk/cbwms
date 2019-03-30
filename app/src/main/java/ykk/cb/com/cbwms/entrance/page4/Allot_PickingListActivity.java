@@ -60,6 +60,7 @@ import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
  * 拣货单界面
@@ -68,6 +69,10 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     @BindView(R.id.et_getFocus)
     EditText etGetFocus;
+    @BindView(R.id.viewRadio1)
+    View viewRadio1;
+    @BindView(R.id.viewRadio2)
+    View viewRadio2;
     @BindView(R.id.et_mtlCode)
     EditText etMtlCode;
     @BindView(R.id.tv_staffSel)
@@ -110,6 +115,8 @@ public class Allot_PickingListActivity extends BaseActivity {
     private String k3Number; // 记录传递到k3返回的单号
     private boolean isTextChange; // 是否进入TextChange事件
     private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
+    private View curRadio;
+    private String businessType = "1"; // 业务类型:1、材料按次 2、材料按批 3、成品
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -262,6 +269,11 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         break;
                     case SAOMA: // 扫码之后
+                        m.isTextChange = false;
+                        if (m.checkDatas.size() == 0) {
+                            Comm.showWarnDialog(m.context,"请查询调拨单！");
+                            return;
+                        }
                         String etName = null;
                         etName = m.getValues(m.etMtlCode);
                         if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
@@ -355,6 +367,7 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     @Override
     public void initData() {
+        curRadio = viewRadio1;
         hideSoftInputMode(etMtlCode);
         getUserInfo();
         setFocusable(etMtlCode); // 物料代码获取焦点
@@ -362,7 +375,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_close, R.id.btn_menu, R.id.tv_staffSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
-            R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find    })
+            R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -488,7 +501,38 @@ public class Allot_PickingListActivity extends BaseActivity {
                 mAdapter.notifyDataSetChanged();
 
                 break;
+            case R.id.lin_tab1:
+                if(checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context,"请先保存本次数据！");
+                    return;
+                }
+                businessType = "1";
+                tabSelected(viewRadio1);
+
+                break;
+            case R.id.lin_tab2:
+                if(checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context,"请先保存本次数据！");
+                    return;
+                }
+                businessType = "2";
+                tabSelected(viewRadio2);
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
+
+                break;
         }
+    }
+
+    /**
+     * 选中之后改变样式
+     */
+    private void tabSelected(View v) {
+        curRadio.setBackgroundResource(R.drawable.check_off2);
+        v.setBackgroundResource(R.drawable.check_on);
+        curRadio = v;
     }
 
     /**
@@ -660,10 +704,6 @@ public class Allot_PickingListActivity extends BaseActivity {
                 if(s.length() == 0) return;
                 curViewFlag = '2';
                 if(!isTextChange) {
-                    if (checkDatas.size() == 0) {
-                        Comm.showWarnDialog(context,"请查询调拨单！");
-                        return;
-                    }
                     isTextChange = true;
                     mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
@@ -832,6 +872,17 @@ public class Allot_PickingListActivity extends BaseActivity {
 //                        }
 //                    }
                     mAdapter.notifyDataSetChanged();
+                }
+
+                break;
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        mtlBarcode = code;
+                        setTexts(etMtlCode, code);
+                    }
                 }
 
                 break;
@@ -1025,7 +1076,7 @@ public class Allot_PickingListActivity extends BaseActivity {
         String outDate = null; // 调出日期
         String billStatus = "2"; // 单据是否审核
         String entryStatus = "1"; // 未关闭的行
-        String businessType = ""; // 业务类型:1、材料按次 2、材料按批 3、成品
+        String isValidStatus = null, isValidStatus2 = null;
         switch (curViewFlag) {
             case '1': // 调拨单
                 mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
@@ -1039,7 +1090,12 @@ public class Allot_PickingListActivity extends BaseActivity {
                 outDate = getValues(tvDateSel);
                 billStatus = "2";
                 entryStatus = "1";
-                businessType = "1";
+                isValidStatus = "1";
+                if(businessType.equals("1")) {
+                    isValidStatus2 = "";
+                } else {
+                    isValidStatus2 = "1";
+                }
                 break;
             case '2': // 物料
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
@@ -1052,13 +1108,17 @@ public class Allot_PickingListActivity extends BaseActivity {
                 billStatus = "";
                 entryStatus = "";
                 businessType = "";
+                isValidStatus = "";
+                isValidStatus2 = "";
                 break;
         }
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", strCaseId)
                 .add("isList", String.valueOf(isList))
                 .add("barcode", barcode)
-                .add("businessType", businessType)
+                .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
+                .add("isValidStatus", isValidStatus)
+//                .add("isValidStatus2", isValidStatus2)
                 .add("sourceType","6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）

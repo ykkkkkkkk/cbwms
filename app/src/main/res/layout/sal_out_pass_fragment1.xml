@@ -111,17 +111,32 @@
             android:textColor="#000000"
             android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/et_code"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/back_style_blue"
-            android:hint="扫描运单号"
-            android:inputType="none"
-            android:paddingLeft="@dimen/_2dp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_16sp" />
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/et_code"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:hint="扫描运单号"
+                android:inputType="none"
+                android:paddingLeft="@dimen/_2dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_16sp" />
+
+            <Button
+                android:id="@+id/btn_scan"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/ico_scan" />
+        </LinearLayout>
 
     </LinearLayout>
 

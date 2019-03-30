@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +37,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.model.sal.SalOutStockTmp;
@@ -44,6 +51,7 @@ import ykk.cb.com.cbwms.sales.adapter.Sal_OutPassFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
  * 扫箱码 出库
@@ -214,7 +222,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.btn_pass, R.id.btn_clone, R.id.btn_del})
+    @OnClick({R.id.btn_pass, R.id.btn_clone, R.id.btn_del, R.id.btn_scan })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -262,6 +270,10 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 }
                 mAdapter.notifyDataSetChanged();
                 mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
 
                 break;
         }
@@ -528,6 +540,25 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 mHandler.sendMessage(msg);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        barcode = code;
+                        setTexts(etCode, code);
+                    }
+                }
+
+                break;
+        }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS,300);
     }
 
     /**

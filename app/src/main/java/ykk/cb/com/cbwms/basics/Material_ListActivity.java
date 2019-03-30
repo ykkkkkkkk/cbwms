@@ -55,6 +55,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
     private List<Material> listDatas = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private String fNumberIsOneAndTwo; // 只显示半成品和原材料
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -105,6 +106,11 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
 
     @Override
     public void initView() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            fNumberIsOneAndTwo = bundle.getString("fNumberIsOneAndTwo", "");
+        }
+
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Material_ListAdapter(context, listDatas);
@@ -161,6 +167,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
         String mUrl = getURL("findMaterialListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
+                .add("fNumberIsOneAndTwo", fNumberIsOneAndTwo)
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

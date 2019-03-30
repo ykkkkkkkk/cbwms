@@ -67,6 +67,7 @@ import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
 import ykk.cb.com.cbwms.purchase.adapter.Pur_InFragment3Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 public class Pur_InFragment3 extends BaseFragment {
 
@@ -80,8 +81,6 @@ public class Pur_InFragment3 extends BaseFragment {
     Button btnDeptName;
     @BindView(R.id.et_mtlNo)
     EditText etMtlNo;
-    @BindView(R.id.btn_selMtl)
-    Button btnSelMtl;
     @BindView(R.id.et_sourceNo)
     EditText etSourceNo;
     @BindView(R.id.btn_sourceNo)
@@ -277,6 +276,7 @@ public class Pur_InFragment3 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
+                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '4': // 收料订单
@@ -294,6 +294,12 @@ public class Pur_InFragment3 extends BaseFragment {
 
                                 break;
                             case '5': // 物料
+                                if (m.checkDatas.size() == 0) { // 扫码之前的判断
+                                    m.etMtlNo.setText("");
+                                    Comm.showWarnDialog(m.mContext, "请选择或扫描来源单！");
+                                    m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
+                                    return;
+                                }
                                 etName = m.getValues(m.etMtlNo);
                                 if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
                                     if (m.mtlBarcode.equals(etName)) {
@@ -378,8 +384,8 @@ public class Pur_InFragment3 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.tv_supplierSel, R.id.btn_sourceNo, R.id.btn_selMtl, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
-            R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_purMan, R.id.btn_deptName, R.id.lin_rowTitle})
+    @OnClick({R.id.tv_supplierSel, R.id.btn_sourceNo, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
+            R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_purOrg, R.id.tv_purMan, R.id.btn_deptName, R.id.lin_rowTitle, R.id.btn_scan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -403,14 +409,14 @@ public class Pur_InFragment3 extends BaseFragment {
                 showForResult(Pur_SelReceiveOrderActivity.class, SEL_ORDER, bundle);
 
                 break;
-            case R.id.btn_selMtl: // 选择物料
-                if (checkDatas.size() == 0) {
-                    Comm.showWarnDialog(mContext, "请选择或扫描来源单！");
-                    return;
-                }
-                showForResult(Material_ListActivity.class, SEL_MTL, null);
-
-                break;
+//            case R.id.btn_selMtl: // 选择物料
+//                if (checkDatas.size() == 0) {
+//                    Comm.showWarnDialog(mContext, "请选择或扫描来源单！");
+//                    return;
+//                }
+//                showForResult(Material_ListActivity.class, SEL_MTL, null);
+//
+//                break;
             case R.id.btn_deptName: // 选择部门
                 bundle = new Bundle();
                 bundle.putInt("isAll", 1);
@@ -509,6 +515,10 @@ public class Pur_InFragment3 extends BaseFragment {
                 mAdapter.notifyDataSetChanged();
 
                 break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
+
+                break;
         }
     }
 
@@ -592,12 +602,6 @@ public class Pur_InFragment3 extends BaseFragment {
             public void afterTextChanged(Editable s) {
                 if(s.length() == 0) return;
                 curViewFlag = '5';
-                if (checkDatas.size() == 0) { // 扫码之前的判断
-                    s.delete(0,s.length());
-                    Comm.showWarnDialog(mContext, "请选择或扫描来源单！");
-                    mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
-                    return;
-                }
                 if(!isTextChange) {
                     isTextChange = true;
                     mHandler.sendEmptyMessageDelayed(SAOMA, 300);
@@ -757,7 +761,19 @@ public class Pur_InFragment3 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
+                        mtlBarcode = value;
                         etMtlNo.setText(value);
+                    }
+                }
+
+                break;
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        mtlBarcode = code;
+                        setTexts(etMtlNo, code);
                     }
                 }
 

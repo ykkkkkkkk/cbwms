@@ -26,6 +26,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.Material_ListActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
@@ -45,7 +46,7 @@ public class Prod_MtlApplyOperationActivity extends BaseActivity {
     RecyclerView recyclerView;
 
     private Prod_MtlApplyOperationActivity context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, RESULT_NUM = 1;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, RESULT_NUM = 1, REFRESH = 2;
     private Prod_MtlApplyOperationAdapter mAdapter;
     private List<StkTransferOutEntry> checkDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
@@ -129,13 +130,19 @@ public class Prod_MtlApplyOperationActivity extends BaseActivity {
     public void initData() {
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_save   })
+    @OnClick({R.id.btn_close, R.id.btn_addRow, R.id.btn_save   })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
                 closeHandler(mHandler);
                 context.finish();
+
+                break;
+            case R.id.btn_addRow: // 新增行
+                bundle = new Bundle();
+                bundle.putSerializable("obj", checkDatas.get(checkDatas.size()-1));
+                showForResult(Prod_MtlApplyOperationAddActivity.class, REFRESH, bundle);
 
                 break;
             case R.id.btn_save: // 保存
@@ -168,6 +175,17 @@ public class Prod_MtlApplyOperationActivity extends BaseActivity {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
                         checkDatas.get(curPos).setApplicationQty(num);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case REFRESH: // 刷新列表
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        StkTransferOutEntry stkEntry = (StkTransferOutEntry) bundle.getSerializable("obj");
+                        checkDatas.add(stkEntry);
                         mAdapter.notifyDataSetChanged();
                     }
                 }

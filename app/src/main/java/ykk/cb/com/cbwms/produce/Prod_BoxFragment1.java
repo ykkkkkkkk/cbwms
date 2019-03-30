@@ -68,6 +68,7 @@ import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
  * 生产装箱--无批次
@@ -396,6 +397,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
+                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 箱码扫码   返回
@@ -416,6 +418,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                                 break;
                             case '3': // 物料扫码     返回
+                                if(m.boxBarCode == null) {
+                                    m.etMtlCode.setText("");
+                                    Comm.showWarnDialog(m.mContext,"请扫码箱码！");
+                                    return;
+                                }
                                 etName = m.getValues(m.etMtlCode);
                                 if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
                                     if (m.mtlBarcode.equals(etName)) {
@@ -494,7 +501,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
             },200);
     }
 
-    @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print, R.id.tv_box, R.id.btn_autoMtl})
+    @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print,
+            R.id.tv_box, R.id.btn_autoMtl, R.id.btn_scan, R.id.btn_scan2})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -591,6 +599,16 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 run_findSalOrderByAutoMtl(ISAUTO, ISAUTO_NULL);
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描（箱码）
+                curViewFlag = '1';
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
+
+                break;
+            case R.id.btn_scan2: // 调用摄像头扫描（物料）
+                curViewFlag = '3';
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
 
                 break;
         }
@@ -786,6 +804,25 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         mAdapter.notifyDataSetChanged();
                         isNeedSave = true; // 点击封箱时是否需要保存
 //                        run_modifyNumber2(id, number);
+                    }
+                }
+
+                break;
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        switch (curViewFlag) {
+                            case '1': // 箱码
+                                strBoxBarcode = code;
+                                setTexts(etBoxCode, code);
+                                break;
+                            case '3': // 物料
+                                mtlBarcode = code;
+                                setTexts(etMtlCode, code);
+                                break;
+                        }
                     }
                 }
 

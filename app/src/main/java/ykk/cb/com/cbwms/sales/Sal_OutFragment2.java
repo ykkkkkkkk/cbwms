@@ -74,6 +74,7 @@ import ykk.cb.com.cbwms.sales.adapter.Sal_OutFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.interfaces.IFragmentExec;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
  * 扫箱码 出库
@@ -463,8 +464,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_fold,
-            R.id.tv_orderTypeSel, R.id.tv_receiveOrg, R.id.tv_salOrg, R.id.tv_salDate, R.id.tv_stockStaff, R.id.lin_rowTitle, R.id.tv_expressCompany})
+    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_fold, R.id.tv_orderTypeSel, R.id.tv_receiveOrg,
+            R.id.tv_salOrg, R.id.tv_salDate, R.id.tv_stockStaff, R.id.lin_rowTitle, R.id.tv_expressCompany, R.id.btn_scan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -595,6 +596,10 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 break;
             case R.id.tv_expressCompany: // 选择物料公司
                 showForResult(Express_DialogActivity.class, SEL_EXPRESS, null);
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
 
                 break;
         }
@@ -870,6 +875,18 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     tvStockStaff.setText(stockStaff.getName());
 //                    saveObjectToXml(stockStaff, "strStockStaff", getResStr(R.string.saveUser));
                 }
+
+                break;
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        boxBarcode = code;
+                        setTexts(etBoxCode, code);
+                    }
+                }
+
                 break;
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS,300);

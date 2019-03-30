@@ -61,6 +61,7 @@ import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 public class Prod_InFragment1 extends BaseFragment {
 
@@ -386,7 +387,8 @@ public class Prod_InFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_deptSel, R.id.tv_sourceNo, R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_inOrg, R.id.tv_prodOrg})
+    @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_deptSel, R.id.tv_sourceNo, R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone,
+            R.id.btn_batchAdd, R.id.tv_inOrg, R.id.tv_prodOrg, R.id.btn_scan})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -520,6 +522,10 @@ public class Prod_InFragment1 extends BaseFragment {
                     }
                 }
                 mAdapter.notifyDataSetChanged();
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
 
                 break;
         }
@@ -751,6 +757,17 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         // 合计总数
                         tvCountSum.setText(String.valueOf(countSum()));
+                    }
+                }
+
+                break;
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        mtlBarcode = code;
+                        setTexts(etMtlCode, code);
                     }
                 }
 

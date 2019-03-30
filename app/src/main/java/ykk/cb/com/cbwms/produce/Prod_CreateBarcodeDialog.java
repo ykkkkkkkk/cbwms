@@ -14,6 +14,7 @@ import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -79,6 +80,13 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
     LinearLayout lin_2;
     @BindView(R.id.tv_connState)
     TextView tvConnState;
+    @BindView(R.id.tv_mtls)
+    TextView tvMtls;
+    @BindView(R.id.tv_prodNum)
+    TextView tvProdNum;
+    @BindView(R.id.tv_okCreateNum)
+    TextView tvOkCreateNum;
+
 
     private static final String TAG = "Prod_CreateBarcodeDialog";
     private Prod_CreateBarcodeDialog context = this;
@@ -243,6 +251,13 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                 item1.setNum(1);
 //                double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
 //                item1.setNum2(fqty-prodOrder.getCreateCodeQty());
+                tvMtls.setVisibility(View.VISIBLE);
+                tvProdNum.setVisibility(View.VISIBLE);
+                tvOkCreateNum.setVisibility(View.VISIBLE);
+                tvMtls.setText(Html.fromHtml("物料名称：<font color='#000000'>"+mtl.getfName()+"</font>"));
+                tvProdNum.setText(Html.fromHtml("订单数量：<font color='#000000'>"+df.format(prodOrder.getProdFqty())+prodOrder.getUnitFname()+"</font>"));
+                tvOkCreateNum.setText(Html.fromHtml("已生码数：<font color='#000000'>"+df.format(prodOrder.getCreateCodeQty())+"</font>"));
+                setTexts(etBatchNo, Comm.getSysDate(3));
                 listDatas.add(item1);
                 mAdapter.notifyDataSetChanged();
             } else {

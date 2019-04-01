@@ -397,7 +397,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 箱码扫码   返回
@@ -419,6 +418,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                 break;
                             case '3': // 物料扫码     返回
                                 if(m.boxBarCode == null) {
+                                    m.isTextChange = false;
                                     m.etMtlCode.setText("");
                                     Comm.showWarnDialog(m.mContext,"请扫码箱码！");
                                     return;
@@ -1227,7 +1227,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
                     List<String> list = mbr.getListBarcode();
                     if(list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(mContext,"该物料条码已在装箱行中，请扫描未使用过的条码！");
+                        Comm.showWarnDialog(mContext,"该条码已经扫描，不能重复扫描该条码！");
                         return;
                     }
                     if (mbr.getNumber() == mbr.getUsableFqty()) {

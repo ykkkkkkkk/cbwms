@@ -41,7 +41,7 @@ public class Prod_BoxFragment1Adapter extends BaseArrayRecyclerAdapter<MaterialB
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_prodOrderNo.setText(entity.getRelationBillNumber());
+        tv_prodOrderNo.setText(entity.getSalOrderNo());
         tv_mtlNo.setText(entity.getMtl().getfNumber());
         tv_mtlName.setText(entity.getMtl().getfName());
         String deliWay = Comm.isNULLS(entity.getDeliveryWay());

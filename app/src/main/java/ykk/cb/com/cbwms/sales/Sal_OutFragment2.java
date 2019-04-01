@@ -882,7 +882,6 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        boxBarcode = code;
                         setTexts(etBoxCode, code);
                     }
                 }

@@ -94,17 +94,17 @@ public class Pur_InMainActivity extends BaseActivity {
 //        fragment1.setArguments(bundle2); // 传参数
 //        fragment2.setArguments(bundle2); // 传参数
 
-        listFragment.add(new Pur_InFragment1());
+//        listFragment.add(new Pur_InFragment1());
         listFragment.add(new Pur_InFragment2());
-        listFragment.add(new Pur_InFragment3());
-        listFragment.add(new Pur_InFragment4());
+//        listFragment.add(new Pur_InFragment3());
+//        listFragment.add(new Pur_InFragment4());
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //设置ViewPage缓存界面数，默认为1
-        viewPager.setOffscreenPageLimit(3);
+//        viewPager.setOffscreenPageLimit(3);
         //ViewPager显示第一个Fragment
-        viewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(0);
 
 
         //ViewPager页面切换监听

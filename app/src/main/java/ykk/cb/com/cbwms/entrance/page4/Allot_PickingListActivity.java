@@ -269,8 +269,8 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         break;
                     case SAOMA: // 扫码之后
-                        m.isTextChange = false;
                         if (m.checkDatas.size() == 0) {
+                            m.isTextChange = false;
                             Comm.showWarnDialog(m.context,"请查询调拨单！");
                             return;
                         }
@@ -880,7 +880,6 @@ public class Allot_PickingListActivity extends BaseActivity {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        mtlBarcode = code;
                         setTexts(etMtlCode, code);
                     }
                 }

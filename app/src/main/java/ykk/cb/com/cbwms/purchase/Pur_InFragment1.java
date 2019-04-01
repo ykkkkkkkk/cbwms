@@ -240,11 +240,11 @@ public class Pur_InFragment1 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 生产订单物料
                                 if (!m.smBefore('0')) { // 扫码之前的判断
+                                    m.isTextChange = false;
                                     m.etMtlNo.setText("");
                                     m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
                                     return;
@@ -689,7 +689,6 @@ public class Pur_InFragment1 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
-                        mtlBarcode = value;
                         etMtlNo.setText(value);
                     }
                 }
@@ -700,7 +699,6 @@ public class Pur_InFragment1 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        mtlBarcode = code;
                         setTexts(etMtlNo, code);
                     }
                 }

@@ -166,7 +166,7 @@
                     android:id="@+id/btn_scan"
                     android:layout_width="38dp"
                     android:layout_height="38dp"
-                    android:background="@drawable/ico_scan" />
+                    android:background="@drawable/btn_scan_selector" />
             </LinearLayout>
 
         </LinearLayout>

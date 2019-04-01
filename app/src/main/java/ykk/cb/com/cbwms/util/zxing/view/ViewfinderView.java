@@ -25,7 +25,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
 import com.google.zxing.ResultPoint;
@@ -45,8 +47,8 @@ import ykk.cb.com.cbwms.util.zxing.camera.CameraManager;
  */
 public final class ViewfinderView extends View {
 
-	private static final int[] SCANNER_ALPHA = { 0, 64, 128, 192, 255, 192,
-			128, 64 };
+//	private static final int[] SCANNER_ALPHA = { 0, 64, 128, 192, 255, 192,
+//			128, 64 };
 	private static final long ANIMATION_DELAY = 80L;
 	private static final int CURRENT_POINT_OPACITY = 0xA0;
 	private static final int MAX_RESULT_POINTS = 20;
@@ -54,19 +56,21 @@ public final class ViewfinderView extends View {
 
 	private CameraManager cameraManager;
 	private final Paint paint;
+	private Paint scanLinePaint;
 	private Bitmap resultBitmap;
 	private final int maskColor; // 取景框外的背景颜色
 	private final int resultColor;// result Bitmap的颜色
 	private final int laserColor; // 红色扫描线的颜色
 	private final int resultPointColor; // 特征点的颜色
 	private final int statusColor; // 提示文字颜色
+//	private int scanLineColor;//扫描线的颜色
 	private int scannerAlpha;
 	private List<ResultPoint> possibleResultPoints;
 	private List<ResultPoint> lastPossibleResultPoints;
 	// 扫描线移动的y
 	private int scanLineTop;
 	// 扫描线移动速度
-	private final int SCAN_VELOCITY = 5;
+	private final int SCAN_VELOCITY = 9;
 	// 扫描线
 	Bitmap scanLight;
 
@@ -87,6 +91,14 @@ public final class ViewfinderView extends View {
 		lastPossibleResultPoints = null;
 		scanLight = BitmapFactory.decodeResource(resources,
 				R.drawable.scan_light);
+
+//		scanLineColor = ContextCompat.getColor(getContext(), R.color.white);
+		/*扫描线画笔*/
+//		scanLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//		scanLinePaint.setStrokeWidth(dp2px(2));
+//		scanLinePaint.setStyle(Paint.Style.FILL);
+//		scanLinePaint.setDither(true);
+//		scanLinePaint.setColor(scanLineColor);
 	}
 
 	public void setCameraManager(CameraManager cameraManager) {
@@ -114,8 +126,7 @@ public final class ViewfinderView extends View {
 		paint.setColor(resultBitmap != null ? resultColor : maskColor);
 		canvas.drawRect(0, 0, width, frame.top, paint);// Rect_1
 		canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint); // Rect_2
-		canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1,
-				paint); // Rect_3
+		canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint); // Rect_3
 		canvas.drawRect(0, frame.bottom + 1, width, height, paint); // Rect_4
 
 		if (resultBitmap != null) {
@@ -130,63 +141,77 @@ public final class ViewfinderView extends View {
 			drawStatusText(canvas, frame, width);
 
 			// 绘制扫描线
-			// paint.setColor(laserColor);
-			// paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
-			// scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
-			// int middle = frame.height() / 2 + frame.top;
-			// canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1,
-			// middle + 2, paint);
+//			 paint.setColor(laserColor);
+////			 paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
+////			 scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
+////			 int middle = frame.height() / 2 + frame.top;
 
+//			 canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1,
+//			 middle + 2, paint);
+//			canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1,
+//					middle + 0, paint);
+
+			/*绘制移动扫描线*/
 			drawScanLight(canvas, frame);
-
-			float scaleX = frame.width() / (float) previewFrame.width();
-			float scaleY = frame.height() / (float) previewFrame.height();
-
-			// 绘制扫描线周围的特征点
-			List<ResultPoint> currentPossible = possibleResultPoints;
-			List<ResultPoint> currentLast = lastPossibleResultPoints;
-			int frameLeft = frame.left;
-			int frameTop = frame.top;
-			if (currentPossible.isEmpty()) {
-				lastPossibleResultPoints = null;
-			} else {
-				possibleResultPoints = new ArrayList<ResultPoint>(5);
-				lastPossibleResultPoints = currentPossible;
-				paint.setAlpha(CURRENT_POINT_OPACITY);
-				paint.setColor(resultPointColor);
-				synchronized (currentPossible) {
-					for (ResultPoint point : currentPossible) {
-						canvas.drawCircle(frameLeft
-								+ (int) (point.getX() * scaleX), frameTop
-								+ (int) (point.getY() * scaleY), POINT_SIZE,
-								paint);
-					}
-				}
-			}
-			if (currentLast != null) {
-				paint.setAlpha(CURRENT_POINT_OPACITY / 2);
-				paint.setColor(resultPointColor);
-				synchronized (currentLast) {
-					float radius = POINT_SIZE / 2.0f;
-					for (ResultPoint point : currentLast) {
-						canvas.drawCircle(frameLeft
-								+ (int) (point.getX() * scaleX), frameTop
-								+ (int) (point.getY() * scaleY), radius, paint);
-					}
-				}
-			}
-
-			// Request another update at the animation interval, but only
-			// repaint the laser line,
-			// not the entire viewfinder mask.
-			postInvalidateDelayed(ANIMATION_DELAY, frame.left - POINT_SIZE,
-					frame.top - POINT_SIZE, frame.right + POINT_SIZE,
-					frame.bottom + POINT_SIZE);
+			/*绘制闪动的点*/
+			 drawPoint(canvas, frame, previewFrame);
 		}
 	}
 
 	/**
-	 * 绘制取景框边框
+	 * 绘制扫描线周围的特征点
+	 * @param canvas
+	 * @param frame
+	 * @param previewFrame
+	 */
+	private void drawPoint(Canvas canvas, Rect frame, Rect previewFrame) {
+		float scaleX = frame.width() / (float) previewFrame.width();
+		float scaleY = frame.height() / (float) previewFrame.height();
+
+		// 绘制扫描线周围的特征点
+		List<ResultPoint> currentPossible = possibleResultPoints;
+		List<ResultPoint> currentLast = lastPossibleResultPoints;
+		int frameLeft = frame.left;
+		int frameTop = frame.top;
+		if (currentPossible.isEmpty()) {
+			lastPossibleResultPoints = null;
+		} else {
+			possibleResultPoints = new ArrayList<ResultPoint>(5);
+			lastPossibleResultPoints = currentPossible;
+			paint.setAlpha(CURRENT_POINT_OPACITY);
+			paint.setColor(resultPointColor);
+			synchronized (currentPossible) {
+				for (ResultPoint point : currentPossible) {
+					canvas.drawCircle(frameLeft
+									+ (int) (point.getX() * scaleX), frameTop
+									+ (int) (point.getY() * scaleY), POINT_SIZE,
+							paint);
+				}
+			}
+		}
+		if (currentLast != null) {
+			paint.setAlpha(CURRENT_POINT_OPACITY / 2);
+			paint.setColor(resultPointColor);
+			synchronized (currentLast) {
+				float radius = POINT_SIZE / 2.0f;
+				for (ResultPoint point : currentLast) {
+					canvas.drawCircle(frameLeft
+							+ (int) (point.getX() * scaleX), frameTop
+							+ (int) (point.getY() * scaleY), radius, paint);
+				}
+			}
+		}
+
+		// Request another update at the animation interval, but only
+		// repaint the laser line,
+		// not the entire viewfinder mask.
+		postInvalidateDelayed(ANIMATION_DELAY, frame.left - POINT_SIZE,
+				frame.top - POINT_SIZE, frame.right + POINT_SIZE,
+				frame.bottom + POINT_SIZE);
+	}
+
+	/**
+	 * 绘制取景框边框（四个角）
 	 * 
 	 * @param canvas
 	 * @param frame
@@ -199,11 +224,11 @@ public final class ViewfinderView extends View {
 
 		canvas.drawRect(frame, paint);
 
-		paint.setColor(Color.BLUE);
+		paint.setColor(Color.GREEN);
 		paint.setStyle(Paint.Style.FILL);
 
-		int corWidth = 15;
-		int corLength = 45;
+		int corWidth = 8;
+		int corLength = 38;
 
 		// 左上角
 		canvas.drawRect(frame.left - corWidth, frame.top, frame.left, frame.top
@@ -225,6 +250,7 @@ public final class ViewfinderView extends View {
 				+ corWidth, frame.bottom, paint);
 		canvas.drawRect(frame.right - corLength, frame.bottom, frame.right
 				+ corWidth, frame.bottom + corWidth, paint);
+
 	}
 
 	/**
@@ -272,8 +298,13 @@ public final class ViewfinderView extends View {
 		} else {
 			scanLineTop += SCAN_VELOCITY;
 		}
+//		Rect scanRect = new Rect(frame.left, scanLineTop, frame.right,
+//				scanLineTop + 30);
 		Rect scanRect = new Rect(frame.left, scanLineTop, frame.right,
-				scanLineTop + 30);
+				scanLineTop + 6);
+		// 直接绘制一根移动的线
+//		canvas.drawLine(frame.left, scanLineTop, frame.right, scanLineTop, scanLinePaint);
+		// 利用图片来代替扫码移动的线
 		canvas.drawBitmap(scanLight, null, scanRect, paint);
 	}
 
@@ -308,6 +339,11 @@ public final class ViewfinderView extends View {
 				points.subList(0, size - MAX_RESULT_POINTS / 2).clear();
 			}
 		}
+	}
+
+	private int dp2px(int dp) {
+		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+
 	}
 
 }

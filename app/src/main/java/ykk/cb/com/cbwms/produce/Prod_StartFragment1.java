@@ -1091,7 +1091,7 @@ public class Prod_StartFragment1 extends BaseFragment {
                 } else {
                     List<String> list = mbr.getListBarcode();
                     if(list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(mContext,"该物料条码已在装箱行中，请扫描未使用过的条码！");
+                        Comm.showWarnDialog(mContext,"该条码已经扫描，不能重复扫描该条码！");
                         return;
                     }
                     if (mbr.getStockqty() == mbr.getUsableFqty()) {

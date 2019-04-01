@@ -766,7 +766,6 @@ public class Prod_InFragment1 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        mtlBarcode = code;
                         setTexts(etMtlCode, code);
                     }
                 }

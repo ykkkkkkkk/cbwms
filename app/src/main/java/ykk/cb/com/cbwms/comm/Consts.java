@@ -22,7 +22,6 @@ public class Consts {
 
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-
 	/**
 	 * 构造(get,set)
 	 * ip：192.168.3.214

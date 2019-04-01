@@ -103,6 +103,8 @@ public class Pur_InFragment2 extends BaseFragment {
     TextView tvPurOrg;
     @BindView(R.id.tv_purMan)
     TextView tvPurMan;
+    @BindView(R.id.tv_countSum)
+    TextView tvCountSum;
     @BindView(R.id.lin_top)
     LinearLayout linTop;
 
@@ -299,7 +301,6 @@ public class Pur_InFragment2 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '4': // 采购订单
@@ -318,6 +319,7 @@ public class Pur_InFragment2 extends BaseFragment {
                                 break;
                             case '5': // 物料
                                 if (m.checkDatas.size() == 0) { // 扫码之前的判断
+                                    m.isTextChange = false;
                                     m.etMtlNo.setText("");
                                     Comm.showWarnDialog(m.mContext, "请选择或扫描来源单！");
                                     m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
@@ -383,6 +385,8 @@ public class Pur_InFragment2 extends BaseFragment {
                 checkDatas.remove(position);
                 sourceList.remove(position);
                 mAdapter.notifyDataSetChanged();
+                // 合计总数
+                tvCountSum.setText(String.valueOf(countSum()));
             }
         });
     }
@@ -805,6 +809,8 @@ public class Pur_InFragment2 extends BaseFragment {
 //                        checkDatas.get(curPos).setPoFmustqty(num);
 //                        checkDatas.get(curPos).setFqty(num);
                         mAdapter.notifyDataSetChanged();
+                        // 合计总数
+                        tvCountSum.setText(String.valueOf(countSum()));
                     }
                 }
 
@@ -814,7 +820,6 @@ public class Pur_InFragment2 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
-                        mtlBarcode = value;
                         etMtlNo.setText(value);
                     }
                 }
@@ -825,8 +830,7 @@ public class Pur_InFragment2 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        mtlBarcode = code;
-                        setTexts(etMtlNo, code);
+                        etMtlNo.setText(code);
                     }
                 }
 
@@ -969,6 +973,17 @@ public class Pur_InFragment2 extends BaseFragment {
         mAdapter.notifyDataSetChanged();
         tvSupplierSel.setText(supplier.getfName());
         getBarCodeTableAfterEnable(false);
+
+        // 合计总数
+        tvCountSum.setText(String.valueOf(countSum()));
+    }
+
+    private double countSum() {
+        double sum = 0.0;
+        for (int i = 0; i < checkDatas.size(); i++) {
+            sum += checkDatas.get(i).getStockqty();
+        }
+        return sum;
     }
 
     /**
@@ -1002,7 +1017,7 @@ public class Pur_InFragment2 extends BaseFragment {
                     }
                     List<String> list = sr2.getListBarcode();
                     if(list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(mContext,"该物料条码已在列表中，请扫描未使用过的条码！");
+                        Comm.showWarnDialog(mContext,"该条码已经扫描，不能重复扫描该条码！");
                         return;
                     }
                     list.add(bt.getBarcode());
@@ -1052,6 +1067,8 @@ public class Pur_InFragment2 extends BaseFragment {
         if(!isFlag) {
             Comm.showWarnDialog(mContext, "扫的物料与订单不匹配！");
         }
+        // 合计总数
+        tvCountSum.setText(String.valueOf(countSum()));
     }
 
     /**
@@ -1173,6 +1190,8 @@ public class Pur_InFragment2 extends BaseFragment {
         sourceList.add(purOrder);
         mAdapter.notifyDataSetChanged();
         tvSupplierSel.setText(supplier.getfName());
+        // 合计总数
+        tvCountSum.setText(String.valueOf(countSum()));
     }
 
     /**

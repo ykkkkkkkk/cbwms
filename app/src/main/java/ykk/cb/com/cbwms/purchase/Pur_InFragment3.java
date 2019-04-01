@@ -276,7 +276,6 @@ public class Pur_InFragment3 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        m.isTextChange = false;
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '4': // 收料订单
@@ -295,6 +294,7 @@ public class Pur_InFragment3 extends BaseFragment {
                                 break;
                             case '5': // 物料
                                 if (m.checkDatas.size() == 0) { // 扫码之前的判断
+                                    m.isTextChange = false;
                                     m.etMtlNo.setText("");
                                     Comm.showWarnDialog(m.mContext, "请选择或扫描来源单！");
                                     m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
@@ -761,7 +761,6 @@ public class Pur_InFragment3 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
-                        mtlBarcode = value;
                         etMtlNo.setText(value);
                     }
                 }
@@ -772,7 +771,6 @@ public class Pur_InFragment3 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String code = bundle.getString(DECODED_CONTENT_KEY, "");
-                        mtlBarcode = code;
                         setTexts(etMtlNo, code);
                     }
                 }

@@ -17,7 +17,7 @@
 
     <TextView
         android:id="@+id/tv_purNo"
-        android:layout_width="76dp"
+        android:layout_width="65dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center|left"
         android:text="物料代码"

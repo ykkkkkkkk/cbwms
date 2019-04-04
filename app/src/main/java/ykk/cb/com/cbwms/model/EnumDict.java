@@ -34,6 +34,13 @@ public enum EnumDict {
 	 * 1：启用
 	 * 2：不启用
 	 */
-	LOADINGORUNLOADING;
+	LOADINGORUNLOADING,
+
+	/**
+	 * 系统设置：采购订单是否控制生码数量
+	 * 1：是
+	 * 2：否
+	 */
+	ISCONTROLBARCODECREATENUMBER;
 
 }

@@ -70,7 +70,7 @@ public final class ViewfinderView extends View {
 	// 扫描线移动的y
 	private int scanLineTop;
 	// 扫描线移动速度
-	private final int SCAN_VELOCITY = 9;
+	private final int SCAN_VELOCITY = 6;
 	// 扫描线
 	Bitmap scanLight;
 

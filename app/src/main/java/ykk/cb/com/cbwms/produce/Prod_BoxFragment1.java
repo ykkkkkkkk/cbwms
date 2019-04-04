@@ -299,14 +299,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                        m.btnSave.setVisibility(View.VISIBLE);
                         switch (m.status) {
                             case '1': // 开箱
-                                m.setEnables(m.etMtlCode,R.drawable.back_style_blue,true);
+                                m.setEnables(m.etMtlCode, R.color.transparent,true);
                                 m.setFocusable(m.etMtlCode);
                                 m.tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                                 m.btnEnd.setText("封箱");
                                 m.btnSave.setVisibility(View.VISIBLE);
                                 break;
                             case '2': // 封箱
-                                m.setEnables(m.etMtlCode,R.drawable.back_style_gray3,false);
+                                m.setEnables(m.etMtlCode, R.color.c_eaeaea,false);
                                 m.tvStatus.setText(Html.fromHtml("状态：<font color='#6A4BC5'>已封箱</font>"));
                                 if(m.parseInt(count) > 0) {
                                     Comm.showWarnDialog(m.mContext,"当前客户还有"+count+"个物料没有装箱，请注意！");
@@ -662,7 +662,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             setFocusable(etBoxCode);
         }
 //        etProdOrderCode.setText("");
-        setEnables(etMtlCode,R.drawable.back_style_blue,true);
+        setEnables(etMtlCode, R.color.transparent,true);
         etMtlCode.setText("");
         prodOrderBarcode = null;
         mtlBarcode = null;
@@ -895,14 +895,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
             if(status == 0) {
                 tvStatus.setText(Html.fromHtml(""+"<font color='#000000'>状态：未开箱</font>"));
                 setFocusable(etMtlCode);
-                setEnables(etMtlCode, R.drawable.back_style_blue, true);
+                setEnables(etMtlCode, R.color.transparent, true);
                 this.status = '0';
                 btnEnd.setVisibility(View.GONE);
                 btnSave.setVisibility(View.VISIBLE);
             } else if(status == 1) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                 setFocusable(etMtlCode);
-                setEnables(etMtlCode, R.drawable.back_style_blue, true);
+                setEnables(etMtlCode, R.color.transparent, true);
                 btnEnd.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.VISIBLE);
                 this.status = '1';
@@ -911,7 +911,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 btnEnd.setText("开箱");
                 btnEnd.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.GONE);
-                setEnables(etMtlCode, R.drawable.back_style_gray3, false);
+                setEnables(etMtlCode, R.color.c_eaeaea, false);
                 this.status = '2';
             }
 

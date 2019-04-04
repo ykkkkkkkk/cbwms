@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -49,6 +50,7 @@ import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingListAdapter;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.InventorySyncRecord;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.PickingList;
 import ykk.cb.com.cbwms.model.Staff;
@@ -98,7 +100,7 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     private Allot_PickingListActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, SUCC4 = 205, UNSUCC4 = 505;
     private static final int CODE1 = 1, SETFOCUS = 2, SAOMA = 3, REFRESH = 4;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
@@ -109,7 +111,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private String mtlBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：调拨单，2：物料
     private int curPos = -1; // 当前行
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private char defaultStockVal; // 默认仓库的值
     private String k3Number; // 记录传递到k3返回的单号
@@ -288,6 +290,18 @@ public class Allot_PickingListActivity extends BaseActivity {
                         m.run_smGetDatas(m.mtlBarcode);
 
                         break;
+                    case SUCC4: // 判断是否存在返回
+                        List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
+                        for (int i = 0, len = listInventory.size(); i < len; i++) {
+                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
+                        }
+                        m.mAdapter.notifyDataSetChanged();
+
+                        break;
+                    case UNSUCC4: // 判断是否存在返回
+                        Comm.showWarnDialog(m.context,"查询即时库存失败！");
+
+                        break;
                 }
             }
         }
@@ -300,6 +314,14 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Allot_PickingListAdapter(context, checkDatas);
@@ -374,8 +396,8 @@ public class Allot_PickingListActivity extends BaseActivity {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.tv_staffSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd,
-            R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan    })
+    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.tv_staffSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_deptSel, R.id.tv_inStockSel,
+              R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan, R.id.tv_canStockNum    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -521,6 +543,28 @@ public class Allot_PickingListActivity extends BaseActivity {
                 break;
             case R.id.btn_scan: // 调用摄像头扫描
                 showForResult(CaptureActivity.class, CAMERA_SCAN, null);
+
+                break;
+            case R.id.tv_canStockNum: // 查询即时库存
+                int size = checkDatas.size();
+                if(size == 0) {
+                    Comm.showWarnDialog(context,"当前行还没有数据！");
+                    return;
+                }
+                List<InventorySyncRecord> listInventory = new ArrayList<>();
+                for(int i=0; i<size; i++) {
+                    StkTransferOutEntry stkEntry = checkDatas.get(i);
+                    if(stkEntry.getOutStockId() == 0) {
+                        Comm.showWarnDialog(context,"第（"+(i+1)+"）行，请选择调出仓库！");
+                        return;
+                    }
+                    InventorySyncRecord inventory = new InventorySyncRecord();
+                    inventory.setStockId(stkEntry.getOutStockId());
+                    inventory.setMaterialId(stkEntry.getMtlId());
+                    listInventory.add(inventory);
+                }
+                String strJson = JsonUtil.objectToString(listInventory);
+                run_findInventoryByParams(strJson);
 
                 break;
         }
@@ -1254,6 +1298,46 @@ public class Allot_PickingListActivity extends BaseActivity {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(CLOSE, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 查询即时库存
+     */
+    private void run_findInventoryByParams(String strJson) {
+        showLoadDialog("正在查询...");
+        String mUrl = getURL("inventoryNow/findInventoryByParams");
+        getUserInfo();
+        FormBody formBody = new FormBody.Builder()
+                .add("strJson", strJson)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC4);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC4, result);
+                LogUtil.e("run_findInventoryByParams --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

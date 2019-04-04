@@ -46,11 +46,20 @@
         android:textSize="12sp" />
 
     <TextView
+        android:id="@+id/tv_canStockNum"
+        android:layout_width="72dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="即时库存"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/tv_stockAP"
         android:layout_width="120dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:background="@drawable/back_style_blue5c"
+        android:background="@drawable/back_style_blue2"
         android:hint="请选择仓库"
         android:textColor="#000000"
         android:textSize="@dimen/_12sp" />

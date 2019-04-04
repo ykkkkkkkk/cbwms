@@ -96,6 +96,7 @@ public class Pur_InMainActivity extends BaseActivity {
 
 //        listFragment.add(new Pur_InFragment1());
         listFragment.add(new Pur_InFragment2());
+//        listFragment.add(new Pur_InFragment2_190403());
 //        listFragment.add(new Pur_InFragment3());
 //        listFragment.add(new Pur_InFragment4());
 //        viewPager.setScanScroll(false); // 禁止左右滑动

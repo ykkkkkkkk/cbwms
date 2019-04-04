@@ -41,6 +41,7 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
+        TextView tv_canStockNum = holder.obtainView(R.id.tv_canStockNum);
         TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
         TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
@@ -68,6 +69,8 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(entity.getTmpPickFqty())+"</font>"));
+        double inventoryFqty = entity.getInventoryFqty();
+        tv_canStockNum.setText(inventoryFqty > 0 ? df.format(inventoryFqty) : "");
         String stockName = Comm.isNULLS(entity.getOutStockName());
         stockName = stockName.length() == 0 ? "无" : stockName;
         String stockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());

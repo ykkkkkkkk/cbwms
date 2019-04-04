@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -49,6 +50,7 @@ import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.EnumDict;
+import ykk.cb.com.cbwms.model.InventorySyncRecord;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -58,6 +60,7 @@ import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -104,7 +107,7 @@ public class Prod_InFragment1 extends BaseFragment {
 
     private Prod_InFragment1 context = this;
     private static final int SEL_ORDER = 10, SEL_STOCK2 = 11, SEL_STOCKP2 = 12, SEL_DEPT = 13, SEL_ORG = 14, SEL_ORG2 = 15;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, SUCC4 = 204, UNSUCC4 = 504;
     private static final int CODE1 = 1, CODE2 = 2, SETFOCUS = 3, SAOMA = 4;
     //    private Supplier supplier; // 供应商
     private Stock defaltStock, stock2; // 仓库
@@ -120,7 +123,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
     private int curPos = -1; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private char defaultStockVal; // 默认仓库的值
     private Activity mContext;
@@ -303,6 +306,18 @@ public class Prod_InFragment1 extends BaseFragment {
                         }
 
                         break;
+                    case SUCC4: // 判断是否存在返回
+                        List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
+                        for (int i = 0, len = listInventory.size(); i < len; i++) {
+                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
+                        }
+                        m.mAdapter.notifyDataSetChanged();
+
+                        break;
+                    case UNSUCC4: // 判断是否存在返回
+                        Comm.showWarnDialog(m.mContext,"查询即时库存失败！");
+
+                        break;
                 }
             }
         }
@@ -315,6 +330,14 @@ public class Prod_InFragment1 extends BaseFragment {
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         mContext = getActivity();
         parent = (Prod_InMainActivity) mContext;
 
@@ -388,7 +411,7 @@ public class Prod_InFragment1 extends BaseFragment {
     }
 
     @OnClick({R.id.lin_tab1, R.id.lin_tab2, R.id.tv_deptSel, R.id.tv_sourceNo, R.id.btn_save, R.id.btn_print, R.id.btn_pass, R.id.btn_clone,
-            R.id.btn_batchAdd, R.id.tv_inOrg, R.id.tv_prodOrg, R.id.btn_scan})
+            R.id.btn_batchAdd, R.id.tv_inOrg, R.id.tv_prodOrg, R.id.btn_scan, R.id.tv_canStockNum})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -526,6 +549,28 @@ public class Prod_InFragment1 extends BaseFragment {
                 break;
             case R.id.btn_scan: // 调用摄像头扫描
                 showForResult(CaptureActivity.class, CAMERA_SCAN, null);
+
+                break;
+            case R.id.tv_canStockNum: // 查询即时库存
+                int size = checkDatas.size();
+                if(size == 0) {
+                    Comm.showWarnDialog(mContext,"当前行还没有数据！");
+                    return;
+                }
+                List<InventorySyncRecord> listInventory = new ArrayList<>();
+                for(int i=0; i<size; i++) {
+                    ScanningRecord2 sr2 = checkDatas.get(i);
+                    if(sr2.getStockId() == 0) {
+                        Comm.showWarnDialog(mContext,"第（"+(i+1)+"）行，请选择仓库！");
+                        return;
+                    }
+                    InventorySyncRecord inventory = new InventorySyncRecord();
+                    inventory.setStockId(sr2.getStockId());
+                    inventory.setMaterialId(sr2.getFitemId());
+                    listInventory.add(inventory);
+                }
+                String strJson = JsonUtil.objectToString(listInventory);
+                run_findInventoryByParams(strJson);
 
                 break;
         }
@@ -1253,6 +1298,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 .post(formBody)
 //                .post(body)
                 .build();
+
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -1415,6 +1461,46 @@ public class Prod_InFragment1 extends BaseFragment {
                 }
                 Message msg = mHandler.obtainMessage(PASS, result);
                 LogUtil.e("run_submitAndPass --> onResponse", result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 查询即时库存
+     */
+    private void run_findInventoryByParams(String strJson) {
+        showLoadDialog("正在查询...");
+        String mUrl = getURL("inventoryNow/findInventoryByParams");
+        getUserInfo();
+        FormBody formBody = new FormBody.Builder()
+                .add("strJson", strJson)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC4);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC4, result);
+                LogUtil.e("run_findInventoryByParams --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

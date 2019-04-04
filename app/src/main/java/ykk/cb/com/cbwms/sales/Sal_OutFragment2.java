@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -69,7 +70,6 @@ import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.DeliOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
-import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.sales.adapter.Sal_OutFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -128,7 +128,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private static final int SEL_ORDER = 10, SEL_DEPT = 11, SEL_ORG = 12, SEL_ORG2 = 13, SEL_EXPRESS = 14, SEL_STOCK2 = 15, SEL_STOCKP2 = 16, SEL_STAFF = 17;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, SUCC4 = 204, UNSUCC4 = 504;
     private static final int SETFOCUS = 1, CODE2 = 2, SAOMA = 3;
-    private Customer cust; // 客户
+    private Customer customer; // 客户
     private Stock defaltStock, stock, stock2; // 仓库
     private Staff stockStaff; // 仓管员
     private StockPosition defaltStockPos, stockP, stockP2; // 库位
@@ -141,7 +141,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
     private int curPos = -1; // 当前行
     private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private char defaultStockVal; // 默认仓库的值
     private Activity mContext;
@@ -392,6 +392,14 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
     @Override
     public void initView() {
+        if (okHttpClient == null){
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         mContext = getActivity();
 //        parent = (Sal_OutMainActivity) mContext;
 
@@ -749,7 +757,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         // 清空物料信息
         etBoxCode.setText(""); // 物料代码
         tvCustSel.setText("客户：");
-        cust = null;
+        customer = null;
         setEnables(tvReceiveOrg, R.drawable.back_style_blue, true);
         setEnables(tvSalOrg, R.drawable.back_style_blue, true);
         tvExpressCompany.setText("");
@@ -939,24 +947,24 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         switch (mbr.getCaseId()) {
             case 32: // 销售装箱
                 SalOrder s = JsonUtil.stringToObject(mbr.getRelationObj(), SalOrder.class);
-//                if(cust != null && !cust.getCustomerCode().equals(s.getCustNumber())){
-                if(cust != null && !custNameIsEquals(cust.getCustomerName(), s.getCustName())) {
+//                if(customer != null && !customer.getCustomerCode().equals(s.getCustNumber())){
+                if(customer != null && !custNameIsEquals(customer.getCustomerName(), s.getCustName())) {
                     Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
                 break;
             case 34: // 生产装箱
                 ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(), ProdOrder.class);
-                if(cust != null && !custNameIsEquals(cust.getCustomerName(), prodOrder.getCustName())) {
-//                if(cust != null && !cust.getCustomerCode().equals(prodOrder.getCustNumber())){
+                if(customer != null && !custNameIsEquals(customer.getCustomerName(), prodOrder.getCustName())) {
+//                if(customer != null && !customer.getCustomerCode().equals(prodOrder.getCustNumber())){
                     Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
                 break;
             case 37: // 发货通知单，复核单装箱
                 DeliOrder deli = JsonUtil.stringToObject(mbr.getRelationObj(), DeliOrder.class);
-//                if(cust != null && !cust.getCustomerName().equals(deli.getCustNumber())){
-                if(cust != null && !custNameIsEquals(cust.getCustomerName(), deli.getCustName())) {
+//                if(customer != null && !customer.getCustomerName().equals(deli.getCustNumber())){
+                if(customer != null && !custNameIsEquals(customer.getCustomerName(), deli.getCustName())) {
                     Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
                     return true;
                 }
@@ -1059,11 +1067,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             sr2.setCustomerId(salOrder.getCustId());
             sr2.setCustomerName(salOrder.getCustName());
             sr2.setCustFnumber(salOrder.getCustNumber());
-            if(cust == null) {
-                cust = new Customer();
-                cust.setFcustId(salOrder.getCustId());
-                cust.setCustomerCode(salOrder.getCustNumber());
-                cust.setCustomerName(salOrder.getCustName());
+            if(customer == null) {
+                customer = new Customer();
+                customer.setFcustId(salOrder.getCustId());
+                customer.setCustomerCode(salOrder.getCustNumber());
+                customer.setCustomerName(salOrder.getCustName());
 
                 tvCustSel.setText("客户："+salOrder.getCustName());
             }
@@ -1194,11 +1202,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             sr2.setCustomerId(prodOrder.getCustId());
             sr2.setCustomerName(prodOrder.getCustName());
             sr2.setCustFnumber(prodOrder.getCustNumber());
-            if (cust == null) {
-                cust = new Customer();
-                cust.setFcustId(prodOrder.getCustId());
-                cust.setCustomerCode(prodOrder.getCustNumber());
-                cust.setCustomerName(prodOrder.getCustName());
+            if (customer == null) {
+                customer = new Customer();
+                customer.setFcustId(prodOrder.getCustId());
+                customer.setCustomerCode(prodOrder.getCustNumber());
+                customer.setCustomerName(prodOrder.getCustName());
 
                 tvCustSel.setText("客户：" + prodOrder.getCustName());
             }
@@ -1526,22 +1534,36 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         StringBuilder strSalOrderEntryId = new StringBuilder();
         StringBuilder strProdNumber = new StringBuilder();
         StringBuilder strProdEntryId = new StringBuilder();
+        StringBuilder strCustNumber = new StringBuilder();
+        String custName = customer.getCustomerName();
+        custName = custName.substring(0, custName.length()-1);
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             if((i+1) == size) {
                 salIds.append(sr2.getSalOrderId());
                 salOrders.append(sr2.getSalOrderNo());
                 strSalOrderEntryId.append(sr2.getSalOrderNoEntryId());
+                strCustNumber.append(sr2.getCustFnumber());
             } else {
                 salIds.append(sr2.getSalOrderId() + ",");
                 salOrders.append(sr2.getSalOrderNo() + ",");
                 strSalOrderEntryId.append(sr2.getSalOrderNoEntryId() + ",");
+                strCustNumber.append(sr2.getCustFnumber()+",");
             }
 
             if(sr2.getCaseId() == 34) {
                 strProdNumber.append(sr2.getPoFbillno2() + ",");
                 strProdEntryId.append(sr2.getEntryId2() + ",");
             }
+        }
+        StringBuilder strBoxBarcode = new StringBuilder();
+        //遍历箱码map中的键
+        for (String key : mapBox.keySet()) {
+            strBoxBarcode.append(key+",");
+        }
+        // 删除最好一个，
+        if(strBoxBarcode.length() > 0) {
+            strBoxBarcode.delete(strBoxBarcode.length()-1, strBoxBarcode.length());
         }
         // 去掉最后，
         if(strProdNumber.length() > 0) {
@@ -1556,6 +1578,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 .add("orderDeliveryType", String.valueOf(orderDeliveryType))
                 .add("strProdNumber", strProdNumber.toString())
                 .add("strProdEntryId", strProdEntryId.toString())
+                .add("strCustNumber", strCustNumber.toString())
+                .add("strBoxBarcode", strBoxBarcode.toString())
+                .add("custName", custName)
                 .build();
 
         Request request = new Request.Builder()

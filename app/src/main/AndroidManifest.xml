@@ -153,6 +153,9 @@
             android:name=".purchase.Pur_SelOrderActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".purchase.Pur_SelOrder2Activity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".purchase.Pur_SelReceiveOrderActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity

@@ -37,6 +37,7 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
+        TextView tv_canStockNum = holder.obtainView(R.id.tv_canStockNum);
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
         // 赋值
@@ -60,6 +61,8 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         double stockqty = entity.getStockqty();
 //        tv_nums.setText(Html.fromHtml(df.format(entity.getFqty())+"/<font color='#FF4400'>"+entity.getCoveQty()+"</font><br><font color='#009900'>"+df.format(stockqty)+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(stockqty)+"</font>"));
+        double inventoryFqty = entity.getInventoryFqty();
+        tv_canStockNum.setText(inventoryFqty > 0 ? df.format(inventoryFqty) : "");
         if(entity.getStockPos() != null) {
             tv_stockAP.setText(entity.getStock().getfName()+"\n"+entity.getStockPos().getFnumber());
         } else if(entity.getStock() != null) {

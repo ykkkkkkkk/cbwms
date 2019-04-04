@@ -77,6 +77,7 @@ public class ScanningRecord2 implements Serializable {
     private int caseId; // 箱子对应的单据类型
     private int salOrderAutoMtlSum; // 箱子对应的销售订单配件的总行数
     private double salOrderSumQty; // 箱子对应的销售订单的总数量
+    private double inventoryFqty; // 即时库存数
 
 
     public int getID() {
@@ -637,6 +638,14 @@ public class ScanningRecord2 implements Serializable {
 
     public void setSalOrderSumQty(double salOrderSumQty) {
         this.salOrderSumQty = salOrderSumQty;
+    }
+
+    public double getInventoryFqty() {
+        return inventoryFqty;
+    }
+
+    public void setInventoryFqty(double inventoryFqty) {
+        this.inventoryFqty = inventoryFqty;
     }
 
     public ScanningRecord2() {

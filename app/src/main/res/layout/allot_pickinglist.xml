@@ -353,6 +353,15 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:id="@+id/tv_canStockNum"
+                    android:layout_width="72dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="当前库存"
+                    android:textColor="#0206ff"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:layout_width="120dp"
                     android:layout_height="match_parent"
                     android:gravity="center"

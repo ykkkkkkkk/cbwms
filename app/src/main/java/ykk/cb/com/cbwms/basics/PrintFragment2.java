@@ -2,8 +2,10 @@ package ykk.cb.com.cbwms.basics;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
@@ -33,8 +35,15 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.Staff;
+import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.StockPosition;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
+import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.interfaces.IFragmentKeyeventListener;
+import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventListener {
 
@@ -155,7 +164,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
         hideSoftInputMode(mContext, etCode);
     }
 
-    @OnClick({R.id.tv_selectType, R.id.btn_big, R.id.btn_small})
+    @OnClick({R.id.tv_selectType, R.id.btn_big, R.id.btn_small, R.id.btn_scan})
     public void onViewClicked(View v) {
         switch (v.getId()) {
             case R.id.tv_selectType: // 选择打印的表
@@ -171,6 +180,10 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
             case R.id.btn_small: // 小标签
                 tabFormat = 2;
                 tagSelected(btnSmall);
+
+                break;
+            case R.id.btn_scan: // 调用摄像头扫描
+                showForResult(CaptureActivity.class, CAMERA_SCAN, null);
 
                 break;
         }
@@ -368,6 +381,24 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
                 mHandler.sendMessage(msg);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case CAMERA_SCAN: // 扫一扫成功  返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String code = bundle.getString(DECODED_CONTENT_KEY, "");
+                        setTexts(etCode, code);
+                    }
+                }
+
+                break;
+        }
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
     }
 
     @Override

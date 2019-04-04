@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -72,7 +73,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     private Map<String, Boolean> mapFbillNos = null;
     private String barcode; // 对应的条码号
     private int curPos; // 当前行
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private Activity mContext;
     private Sal_OutPassMainActivity parent;
@@ -172,6 +173,14 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         mContext = getActivity();
         parent = (Sal_OutPassMainActivity) mContext;
 
@@ -373,8 +382,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 .post(formBody)
                 .build();
 
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
+        okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 mHandler.sendEmptyMessage(UNSUCC2);

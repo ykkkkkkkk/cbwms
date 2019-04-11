@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -116,6 +117,15 @@ public class LoginActivity extends BaseActivity {
     @Override
     public int setLayoutResID() {
         return R.layout.login;
+    }
+
+    @Override
+    public void initView() {
+        // 点击home后，再次点击软件就重启的问题.
+        if((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
     }
 
     @Override

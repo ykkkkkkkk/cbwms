@@ -18,6 +18,9 @@ import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.util.MyViewPager;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
 
+/**
+ * 运单审核
+ */
 public class Sal_OutPassMainActivity extends BaseActivity {
 
     @BindView(R.id.btn_close)

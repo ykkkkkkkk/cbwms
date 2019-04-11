@@ -73,8 +73,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:clickable="true"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <ImageView
                 android:id="@+id/imgView3"
@@ -82,7 +81,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico5a_1" />
+                android:src="@drawable/aa_ico1a_2" />
 
             <TextView
                 android:id="@+id/tvMenu3"
@@ -91,7 +90,7 @@
                 android:layout_below="@+id/imgView3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="生产入库"
+                android:text="选单入库"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -114,14 +113,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:visibility="invisible">
+            >
 
             <TextView
                 android:id="@+id/tvImg4"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico5a_2" />
+                android:background="@drawable/aa_ico3a_7" />
 
             <TextView
                 android:id="@+id/tab4"
@@ -130,7 +129,7 @@
                 android:layout_below="@+id/tvImg4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="生产装箱"
+                android:text="采购审核"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

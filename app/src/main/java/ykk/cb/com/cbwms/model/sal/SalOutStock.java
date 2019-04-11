@@ -6,6 +6,7 @@ public class SalOutStock implements Serializable {
 
     private int fId; // 单据id,
     private String fbillno; // 单据编号,
+    private String billDate; //单据日期,
     private String fCarriageNO;//物流单号,
     private String salOrderNo;//销售订单号,
     private String address;//发货地址,
@@ -13,6 +14,7 @@ public class SalOutStock implements Serializable {
     private Integer mtlId;//物料id
     private String mtlNumber;//物料代码
     private String mtlName;//物料名称
+    private String unitName; // 单位
     private double salOutStockQty;//销售出库单出库数量
     private String fdocumentStatus; // 单据状态
     private String custNumber;//客户代码
@@ -198,6 +200,22 @@ public class SalOutStock implements Serializable {
 
     public void setOrderCloseStatus(String orderCloseStatus) {
         this.orderCloseStatus = orderCloseStatus;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getBillDate() {
+        return billDate;
+    }
+
+    public void setBillDate(String billDate) {
+        this.billDate = billDate;
     }
 
 }

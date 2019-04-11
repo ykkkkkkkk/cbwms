@@ -12,8 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +25,9 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -42,9 +42,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Material_ListActivity;
-import ykk.cb.com.cbwms.basics.Organization_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.basics.Supplier_DialogActivity;
@@ -52,7 +49,6 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -63,7 +59,6 @@ import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
-import ykk.cb.com.cbwms.model.pur.PurReceiveOrder;
 import ykk.cb.com.cbwms.purchase.adapter.Pur_InFragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -104,6 +99,7 @@ public class Pur_InFragment2 extends BaseFragment {
     private Pur_InFragment2Adapter mAdapter;
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
     private List<PurOrder> sourceList = new ArrayList<>(); // 当前选择单据行数据
+    private List<PurOrder> curPurOrderList; // 当前扫码对象列表
     private PurOrder purOrder;
     private String mtlBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：采购订单， 5：物料
@@ -118,6 +114,7 @@ public class Pur_InFragment2 extends BaseFragment {
     private String k3Number; // 记录传递到k3返回的单号
     private boolean isTextChange; // 是否进入TextChange事件
     private BarCodeTable bt;
+    private boolean isOpenSupplier; // 是否打开供应商界面
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -206,14 +203,37 @@ public class Pur_InFragment2 extends BaseFragment {
                                 break;
                             case '5': // 物料
                                 m.bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
-                                List<PurOrder> list = JsonUtil.stringToList(m.bt.getRelationObj(), PurOrder.class);
-                                if(list.size() > 1) {
+                                m.curPurOrderList = JsonUtil.stringToList(m.bt.getRelationObj(), PurOrder.class);
+                                if(m.curPurOrderList.size() > 1) {
+
+                                    List<Supplier> supplierList = new ArrayList();
+                                    Map<Integer, Boolean> mapSupp = new HashMap<>(); // 用Map记录来判断重复
+                                    for(int i=0; i<m.curPurOrderList.size(); i++) {
+                                        PurOrder purOrder = m.curPurOrderList.get(i);
+                                        int supplierId = purOrder.getSupplierId();
+
+                                        if(!mapSupp.containsKey(supplierId)) {
+                                            Supplier supplier = new Supplier();
+                                            supplier.setFsupplierid(purOrder.getSupplierId());
+                                            supplier.setfNumber(purOrder.getSupplierNumber());
+                                            supplier.setfName(purOrder.getSupplierName());
+                                            supplierList.add(supplier);
+                                        }
+                                        mapSupp.put(supplierId, true);
+                                    }
+                                    m.isOpenSupplier = true;
+                                    // 先打开供应商界面
                                     Bundle bundle = new Bundle();
-                                    bundle.putSerializable("checkDatas", (Serializable) list);
-                                    m.showForResult(Pur_SelOrder2Activity.class, SEL_ORDER, bundle);
+                                    bundle.putSerializable("checkDatas", (Serializable) supplierList);
+                                    m.showForResult(Supplier_DialogActivity.class, SEL_SUPPLIER, bundle);
+
+                                    // 直接打开采购列表选择的界面
+//                                    Bundle bundle = new Bundle();
+//                                    bundle.putSerializable("checkDatas", (Serializable) list);
+//                                    m.showForResult(Pur_SelOrder2Activity.class, SEL_ORDER, bundle);
                                     return;
                                 }
-                                m.purOrder = list.get(0);
+                                m.purOrder = m.curPurOrderList.get(0);
                                 m.getBarCodeTableAfterEnable(false);
 
                                 // 填充数据
@@ -639,6 +659,20 @@ public class Pur_InFragment2 extends BaseFragment {
                     LogUtil.e("onActivityResult --> SEL_SUPPLIER", supplier.getfName());
                     if (supplier != null) {
                         tvSupplierSel.setText(supplier.getfName());
+                        if(isOpenSupplier) {
+
+                            // 筛选出属于这个供应商的采购订单
+                            List<PurOrder> purOrderList = new ArrayList<>();
+                            for(int i=0, size=curPurOrderList.size(); i<size; i++) {
+                                PurOrder purOrder = curPurOrderList.get(i);
+                                if(supplier.getFsupplierid() == purOrder.getSupplierId()) {
+                                    purOrderList.add(purOrder);
+                                }
+                            }
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("checkDatas", (Serializable) purOrderList);
+                            showForResult(Pur_SelOrder2Activity.class, SEL_ORDER, bundle);
+                        }
                     }
                 }
 
@@ -739,6 +773,7 @@ public class Pur_InFragment2 extends BaseFragment {
 
                 break;
         }
+        isOpenSupplier = false;
         mHandler.sendEmptyMessageDelayed(SETFOCUS,300);
     }
 

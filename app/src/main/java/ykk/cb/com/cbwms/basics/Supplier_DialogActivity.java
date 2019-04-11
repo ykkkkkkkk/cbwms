@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -31,6 +32,7 @@ import ykk.cb.com.cbwms.basics.adapter.Supplier_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseDialogActivity;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.Supplier;
+import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
@@ -48,6 +50,8 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
     EditText etSearch;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.lin_search)
+    LinearLayout lin_search;
 
     private Supplier_DialogActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
@@ -58,6 +62,7 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isAll; // 是否加载所以供应商
     private int caseId; // 判断是采购订单，还是收料通知单
+    private List<Supplier> checkDatas; // 上个界面传过来的供应商列表
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -133,9 +138,24 @@ public class Supplier_DialogActivity extends BaseDialogActivity implements XRecy
         if(bundle != null) {
             isAll = bundle.getInt("isAll");
             caseId = bundle.getInt("caseId");
-        }
+            checkDatas = (List<Supplier>) bundle.getSerializable("checkDatas");
+            // 如果有供应商数据，就直接显示
+            if(checkDatas != null && checkDatas.size() > 0) {
+                xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+                xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+                lin_search.setVisibility(View.GONE);
+                listDatas.addAll(checkDatas);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                    }
+                },300);
 
-        initLoadDatas();
+            } else {
+                initLoadDatas();
+            }
+        }
     }
 
     // 监听事件

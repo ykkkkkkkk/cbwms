@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
+import ykk.cb.com.cbwms.purchase.Pur_InMain190403Activity;
 import ykk.cb.com.cbwms.purchase.Pur_InMainActivity;
 import ykk.cb.com.cbwms.purchase.Pur_OrderSearchActivity;
+import ykk.cb.com.cbwms.purchase.Pur_InStockPassActivity;
 
 public class MainTabFragment1 extends BaseFragment {
 
@@ -32,12 +34,12 @@ public class MainTabFragment1 extends BaseFragment {
                 show(Pur_InMainActivity.class, null);
 
                 break;
-            case R.id.relative3: // 生产入库
-//                show(Prod_InActivity.class,null);
+            case R.id.relative3: // 选单入库
+                show(Pur_InMain190403Activity.class,null);
 
                 break;
-            case R.id.relative4: // 生产装箱
-//                show(Pur_ProdBoxMainActivity.class, null);
+            case R.id.relative4: // 采购审核
+                show(Pur_InStockPassActivity.class, null);
 
                 break;
         }

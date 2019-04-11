@@ -21,60 +21,44 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="选择供应商"
+            android:text="分录列表"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
         <Button
+            android:id="@+id/btn_refresh"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:background="@drawable/btn_blue2_selector"
             android:ems="2"
-            android:text="打印\n条码"
+            android:text="刷新"
             android:textColor="#ffffff"
-            android:textSize="14sp"
-            android:visibility="invisible" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/lin_search"
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_margin="6dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/et_search"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="6dp"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:hint="请输入查询的关键字"
-            android:inputType="none"
-            android:maxLength="30"
-            android:paddingLeft="3dp"
-            android:textColor="#000000"
-            android:textSize="14sp" />
-
-        <Button
-            android:id="@+id/btn_search"
-            android:layout_width="108dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/btn_blue_selector"
-            android:text="查询"
-            android:textColor="#ffffff"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textSize="@dimen/_16sp" />
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_fbillNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_10dp"
+        android:text="入库单："
+        android:textColor="#666666"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tv_suppName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_10dp"
+        android:text="供应商："
+        android:textColor="#666666"
+        android:textSize="14sp" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="26dp"
+        android:layout_height="25dp"
         android:background="#D8D8D8">
 
         <TextView
@@ -86,11 +70,10 @@
             android:textSize="12sp" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="78dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:gravity="center"
-            android:text="代码"
+            android:text="物料代码"
             android:textColor="#000000"
             android:textSize="12sp" />
 
@@ -99,16 +82,27 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="名称"
+            android:text="物料名称"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="数量/单位"
             android:textColor="#000000"
             android:textSize="12sp" />
 
     </LinearLayout>
 
-    <ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
-        android:id="@+id/xRecyclerView"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:overScrollMode="never" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:scrollbars="none" />
 
 </LinearLayout>

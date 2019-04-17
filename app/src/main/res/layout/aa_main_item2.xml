@@ -227,15 +227,14 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            android:visibility="invisible">
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/tvImg8"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico2a_5" />
+                android:background="@drawable/aa_ico2a_8" />
 
             <TextView
                 android:id="@+id/tab8"
@@ -244,7 +243,7 @@
                 android:layout_below="@+id/tvImg8"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="生产开工"
+                android:text="锁库补码"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 
@@ -256,14 +255,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:visibility="invisible">
+            >
 
             <TextView
                 android:id="@+id/tvImg9"
                 android:layout_width="@dimen/_60dp"
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/aa_ico2a_6" />
+                android:background="@drawable/aa_ico1a_3" />
 
             <TextView
                 android:id="@+id/tab9"
@@ -272,7 +271,7 @@
                 android:layout_below="@+id/tvImg9"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="半成品打印"
+                android:text="入库查询"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

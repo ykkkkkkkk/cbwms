@@ -45,20 +45,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="38dp"
-        android:layout_marginLeft="@dimen/_20dp"
-        android:layout_marginRight="@dimen/_20dp"
-        android:layout_marginTop="@dimen/_10dp"
+        android:layout_margin="@dimen/_6dp"
         android:gravity="center"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:ems="4"
+            android:ems="2"
             android:gravity="center"
             android:text="生产日期"
             android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_prodDate"
@@ -71,25 +69,16 @@
             android:textColor="#000000"
             android:textSize="14sp" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/lin_div1"
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_marginLeft="@dimen/_20dp"
-        android:layout_marginRight="@dimen/_20dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
         <TextView
+            android:id="@+id/tv_batchTitle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:ems="4"
+            android:layout_marginLeft="@dimen/_3dp"
+            android:ems="2"
             android:gravity="center"
             android:text="批次号"
             android:textColor="@color/black"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <EditText
             android:id="@+id/et_batchNo"
@@ -139,12 +128,12 @@
         android:visibility="gone" />
 
     <LinearLayout
-        android:id="@+id/lin_div2"
+        android:id="@+id/lin_div1"
         android:layout_width="match_parent"
         android:layout_height="25dp"
-        android:layout_marginLeft="@dimen/_20dp"
-        android:layout_marginRight="@dimen/_20dp"
-        android:layout_marginTop="@dimen/_20dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:layout_marginTop="@dimen/_6dp"
         android:background="#D8D8D8"
         android:orientation="horizontal">
 
@@ -153,21 +142,39 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="条码个数"
+            android:text="个数"
             android:textColor="#000000"
             android:textSize="12sp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:gravity="center"
-            android:text="物料数量"
+            android:text="应收数"
             android:textColor="#000000"
             android:textSize="12sp" />
 
         <TextView
-            android:layout_width="96dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="不良数"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="实收数"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="46dp"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="操作"
@@ -180,17 +187,33 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginLeft="@dimen/_20dp"
-        android:layout_marginRight="@dimen/_20dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
         android:layout_weight="1"
         android:background="@drawable/back_style_gray1c"
         android:scrollbars="none" />
+
+    <LinearLayout
+        android:id="@+id/lin_addRow"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_38dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:background="@drawable/back_style_gray1c"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="@dimen/_32dp"
+            android:layout_height="@dimen/_32dp"
+            android:layout_gravity="center"
+            android:background="@drawable/add_ico" />
+    </LinearLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
-        android:layout_margin="@dimen/_20dp">
+        android:layout_margin="@dimen/_6dp">
 
         <Button
             android:id="@+id/btn_confirm"

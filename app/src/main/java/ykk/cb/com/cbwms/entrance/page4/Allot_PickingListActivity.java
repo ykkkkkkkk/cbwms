@@ -79,6 +79,8 @@ public class Allot_PickingListActivity extends BaseActivity {
     EditText etMtlCode;
     @BindView(R.id.tv_staffSel)
     TextView tvStaffSel;
+    @BindView(R.id.tv_deliveryWay)
+    TextView tvDeliveryWay;
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
     @BindView(R.id.tv_inStockSel)
@@ -87,6 +89,10 @@ public class Allot_PickingListActivity extends BaseActivity {
     TextView tvOutStockSel;
     @BindView(R.id.tv_dateSel)
     TextView tvDateSel;
+    @BindView(R.id.tv_prodSeqNumber)
+    TextView tvProdSeqNumber;
+    @BindView(R.id.tv_stockPosSeq)
+    TextView tvStockPosSeq;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.btn_clone)
@@ -101,7 +107,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private Allot_PickingListActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, SUCC4 = 205, UNSUCC4 = 505;
-    private static final int CODE1 = 1, SETFOCUS = 2, SAOMA = 3, REFRESH = 4;
+    private static final int RESULT_NUM = 1, SETFOCUS = 2, SAOMA = 3, REFRESH = 4;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Staff stockStaff; // 仓管员
@@ -119,9 +125,12 @@ public class Allot_PickingListActivity extends BaseActivity {
     private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
     private View curRadio;
     private String businessType = "1"; // 业务类型:1、材料按次 2、材料按批 3、成品
+    private String prodSeqNumberStatus = ""; // 1：升序，2：降序
+    private String stockPosSeqStatus = "";
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
+
     private static class MyHandler extends Handler {
         private final WeakReference<Allot_PickingListActivity> mActivity;
 
@@ -146,15 +155,15 @@ public class Allot_PickingListActivity extends BaseActivity {
                         m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
-                        Comm.showWarnDialog(m.context,"保存成功，请点击“审核按钮”！");
+                        Comm.showWarnDialog(m.context, "保存成功，请点击“审核按钮”！");
 
                         break;
                     case UNSUCC1:
                         errMsg = JsonUtil.strToString((String) msg.obj);
-                        if(m.isNULLS(errMsg).length() == 0) {
+                        if (m.isNULLS(errMsg).length() == 0) {
                             errMsg = "服务器忙，请重试！";
                         }
-                        Comm.showWarnDialog(m.context,errMsg);
+                        Comm.showWarnDialog(m.context, errMsg);
 
                         break;
                     case PASS: // 审核成功 返回
@@ -167,11 +176,11 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         m.checkDatas.clear();
                         m.mAdapter.notifyDataSetChanged();
-                        Comm.showWarnDialog(m.context,"审核成功✔");
+                        Comm.showWarnDialog(m.context, "审核成功✔");
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String)msg.obj);
+                        errMsg = JsonUtil.strToString((String) msg.obj);
                         Comm.showWarnDialog(m.context, errMsg);
 
                         break;
@@ -183,7 +192,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                                 List<StkTransferOutEntry> list = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
                                 m.checkDatas.addAll(list);
 
-                                for(int i=0; i<list.size(); i++) {
+                                for (int i = 0; i < list.size(); i++) {
                                     StkTransferOutEntry stkEntry = list.get(i);
                                     StkTransferOut stk = stkEntry.getStkTransferOut();
                                     Staff staff = stk.getStockStaff();
@@ -204,7 +213,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                                         stkEntry.setOutStockPositionName(stockPos.getFname());
                                         stkEntry.setOutStockPos(stockPos);
                                     }
-                                    if(staff != null && staff.getStaffId() > 0) {
+                                    if (staff != null && staff.getStaffId() > 0) {
                                         m.tvStaffSel.setText(staff.getName());
                                         m.stockStaff = staff;
                                     }
@@ -222,11 +231,11 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         break;
                     case UNSUCC2:
-                        if(m.curViewFlag == '1') {
+                        if (m.curViewFlag == '1') {
                             m.checkDatas.clear();
                             m.mAdapter.notifyDataSetChanged();
                             errMsg = JsonUtil.strToString((String) msg.obj);
-                            if(m.isNULLS(errMsg).length() == 0) errMsg = "当前时间段没有调拨单！！！";
+                            if (m.isNULLS(errMsg).length() == 0) errMsg = "当前时间段没有调拨单！！！";
                             Comm.showWarnDialog(m.context, errMsg);
                         } else {
                             errMsg = JsonUtil.strToString((String) msg.obj);
@@ -242,7 +251,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                             for (int j = 0, size = m.checkDatas.size(); j < size; j++) {
                                 // 判断扫码表和当前扫的码对比是否一样
                                 if (barcodeArr[i].equals(m.checkDatas.get(j).getBarcode())) {
-                                    Comm.showWarnDialog(m.context,"第" + (i + 1) + "行已拣货，不能重复操作！");
+                                    Comm.showWarnDialog(m.context, "第" + (i + 1) + "行已拣货，不能重复操作！");
                                     return;
                                 }
                             }
@@ -261,7 +270,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                         break;
                     case UNCLOSE: // 关闭  失败 返回
                         errMsg = JsonUtil.strToString((String) msg.obj);
-                        if(m.isNULLS(errMsg).length() == 0) errMsg = "当前操作出错，请检查！！！";
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "当前操作出错，请检查！！！";
                         Comm.showWarnDialog(m.context, errMsg);
 
                         break;
@@ -273,7 +282,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                     case SAOMA: // 扫码之后
                         if (m.checkDatas.size() == 0) {
                             m.isTextChange = false;
-                            Comm.showWarnDialog(m.context,"请查询调拨单！");
+                            Comm.showWarnDialog(m.context, "请查询调拨单！");
                             return;
                         }
                         String etName = null;
@@ -299,7 +308,7 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                         break;
                     case UNSUCC4: // 判断是否存在返回
-                        Comm.showWarnDialog(m.context,"查询即时库存失败！");
+                        Comm.showWarnDialog(m.context, "查询即时库存失败！");
 
                         break;
                 }
@@ -333,7 +342,8 @@ public class Allot_PickingListActivity extends BaseActivity {
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getTmpPickFqty()), "0.0", CODE1);
+                String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
+                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0", RESULT_NUM);
             }
 
             @Override
@@ -343,10 +353,12 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                 int stockId = entity.getOutStockId();
                 Stock stock = entity.getOutStock();
-                if(stockId == 0) {
+                if (stockId == 0) {
                     showForResult(Stock_DialogActivity.class, SEL_STOCK2, null);
-                } else if(stock.isStorageLocation()){ // 是否启用了库位
-                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, null);
+                } else if (stock.isStorageLocation()) { // 是否启用了库位
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("stockId", stockId);
+                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
                 }
             }
 
@@ -397,7 +409,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_close, R.id.btn_menu, R.id.tv_staffSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_deptSel, R.id.tv_inStockSel,
-              R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan, R.id.tv_canStockNum    })
+            R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan, R.id.tv_canStockNum, R.id.tv_deliveryWay, R.id.tv_prodSeqNumber, R.id.tv_stockPosSeq})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -434,12 +446,12 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                 break;
             case R.id.lin_find: // 查询调拨单
-                if(department == null) {
-                    Comm.showWarnDialog(context,"请选择领料部门！");
-                    return;
-                }
-                if(checkDatas.size() > 0) {
-                    Comm.showWarnDialog(context,"请先保存本次数据！");
+//                if(department == null) {
+//                    Comm.showWarnDialog(context,"请选择领料部门！");
+//                    return;
+//                }
+                if (checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context, "请先保存本次数据！");
                     return;
                 }
                 curViewFlag = '1';
@@ -452,9 +464,14 @@ public class Allot_PickingListActivity extends BaseActivity {
                 showForResult(Staff_DialogActivity.class, SEL_STAFF, bundle);
 
                 break;
+            case R.id.tv_deliveryWay: // 发货类别
+                popupWindow_B();
+                popWindowB.showAsDropDown(tvDeliveryWay);
+
+                break;
             case R.id.btn_save: // 保存
                 hideKeyboard(getCurrentFocus());
-                if(!saveBefore()) {
+                if (!saveBefore()) {
                     return;
                 }
 //                run_findMatIsExistList();
@@ -463,8 +480,8 @@ public class Allot_PickingListActivity extends BaseActivity {
                 break;
             case R.id.btn_pass: // 审核
                 hideKeyboard(getCurrentFocus());
-                if(k3Number == null) {
-                    Comm.showWarnDialog(context,"请先保存，然后审核！");
+                if (k3Number == null) {
+                    Comm.showWarnDialog(context, "请先保存，然后审核！");
                     return;
                 }
                 run_submitAndPass();
@@ -496,14 +513,14 @@ public class Allot_PickingListActivity extends BaseActivity {
                     Comm.showWarnDialog(context, "请先插入行！");
                     return;
                 }
-                if(curPos == -1) {
+                if (curPos == -1) {
                     Comm.showWarnDialog(context, "请选择任意一行的仓库！");
                     return;
                 }
                 StkTransferOutEntry disEntryTemp = checkDatas.get(curPos);
                 Stock stock = disEntryTemp.getOutStock();
                 StockPosition stockPos = disEntryTemp.getOutStockPos();
-                for(int i=curPos; i<checkDatas.size(); i++) {
+                for (int i = curPos; i < checkDatas.size(); i++) {
                     StkTransferOutEntry stkOutEntry = checkDatas.get(i);
                     if (stkOutEntry.getOutStockId() == 0) {
                         if (stock != null) {
@@ -524,8 +541,8 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab1:
-                if(checkDatas.size() > 0) {
-                    Comm.showWarnDialog(context,"请先保存本次数据！");
+                if (checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context, "请先保存本次数据！");
                     return;
                 }
                 businessType = "1";
@@ -533,8 +550,8 @@ public class Allot_PickingListActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab2:
-                if(checkDatas.size() > 0) {
-                    Comm.showWarnDialog(context,"请先保存本次数据！");
+                if (checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context, "请先保存本次数据！");
                     return;
                 }
                 businessType = "2";
@@ -547,15 +564,15 @@ public class Allot_PickingListActivity extends BaseActivity {
                 break;
             case R.id.tv_canStockNum: // 查询即时库存
                 int size = checkDatas.size();
-                if(size == 0) {
-                    Comm.showWarnDialog(context,"当前行还没有数据！");
+                if (size == 0) {
+                    Comm.showWarnDialog(context, "当前行还没有数据！");
                     return;
                 }
                 List<InventorySyncRecord> listInventory = new ArrayList<>();
-                for(int i=0; i<size; i++) {
+                for (int i = 0; i < size; i++) {
                     StkTransferOutEntry stkEntry = checkDatas.get(i);
-                    if(stkEntry.getOutStockId() == 0) {
-                        Comm.showWarnDialog(context,"第（"+(i+1)+"）行，请选择调出仓库！");
+                    if (stkEntry.getOutStockId() == 0) {
+                        Comm.showWarnDialog(context, "第（" + (i + 1) + "）行，请选择调出仓库！");
                         return;
                     }
                     InventorySyncRecord inventory = new InventorySyncRecord();
@@ -565,6 +582,46 @@ public class Allot_PickingListActivity extends BaseActivity {
                 }
                 String strJson = JsonUtil.objectToString(listInventory);
                 run_findInventoryByParams(strJson);
+
+                break;
+            case R.id.tv_prodSeqNumber: // 生产顺序号，升序或降序
+                if (checkDatas.size() == 0) {
+                    Comm.showWarnDialog(context, "当前行还没有数据！");
+                    return;
+                }
+                // 生产顺序号默认为升序，所以在此点击就是降序，否则升序
+                if (getValues(tvProdSeqNumber).indexOf("↑") > -1) {
+                    tvProdSeqNumber.setText("生产顺序号↓");
+                    prodSeqNumberStatus = "DESC";
+                } else {
+                    prodSeqNumberStatus = "ASC";
+                    tvProdSeqNumber.setText("生产顺序号↑");
+                }
+                stockPosSeqStatus = "";
+                curViewFlag = '1';
+                run_smGetDatas("0");
+
+                break;
+            case R.id.tv_stockPosSeq: // 库位顺序好
+                if (checkDatas.size() == 0) {
+                    Comm.showWarnDialog(context, "当前行还没有数据！");
+                    return;
+                }
+//                if(checkDatas.size() > 0) {
+//                    Comm.showWarnDialog(context,"请先保存本次数据！");
+//                    return;
+//                }
+                // 库位序默认不排序，所以在此点击就是升序，否则降序
+                if (getValues(tvStockPosSeq).indexOf("↑") > -1) {
+                    tvStockPosSeq.setText("库位序号↓");
+                    stockPosSeqStatus = "ASC";
+                } else {
+                    stockPosSeqStatus = "DESC";
+                    tvStockPosSeq.setText("库位序号↑");
+                }
+                prodSeqNumberStatus = "";
+                curViewFlag = '1';
+                run_smGetDatas("0");
 
                 break;
         }
@@ -583,6 +640,7 @@ public class Allot_PickingListActivity extends BaseActivity {
      * 创建PopupWindow 【查询菜单】
      */
     private PopupWindow popWindowA;
+
     private void popupWindow_A() {
         if (null != popWindowA) {// 不为空就隐藏
             popWindowA.dismiss();
@@ -639,22 +697,22 @@ public class Allot_PickingListActivity extends BaseActivity {
 
     private void closeBefer() {
         StringBuilder sbIds = new StringBuilder();
-        for(int i=0; i<checkDatas.size(); i++) {
+        for (int i = 0; i < checkDatas.size(); i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
-            if(stkEntry.getIsCheck() == 1) {
-                if(menuStatus == 1 || menuStatus == 2) { // 整单关闭的
-                    sbIds.append(stkEntry.getStkBillId()+":");
+            if (stkEntry.getIsCheck() == 1) {
+                if (menuStatus == 1 || menuStatus == 2) { // 整单关闭的
+                    sbIds.append(stkEntry.getStkBillId() + ":");
                 } else {
-                    sbIds.append(stkEntry.getId()+":");
+                    sbIds.append(stkEntry.getId() + ":");
                 }
             }
         }
-        if(sbIds.length() == 0) {
-            Comm.showWarnDialog(context,"请选中要关闭或反关闭的行！");
+        if (sbIds.length() == 0) {
+            Comm.showWarnDialog(context, "请选中要关闭或反关闭的行！");
             return;
         }
         // 去掉最好：
-        sbIds.delete(sbIds.length()-1, sbIds.length());
+        sbIds.delete(sbIds.length() - 1, sbIds.length());
 
         run_close(sbIds.toString());
     }
@@ -663,13 +721,13 @@ public class Allot_PickingListActivity extends BaseActivity {
      * 选择保存之前的判断
      */
     private boolean saveBefore() {
-        String stockStaff = getValues(tvStaffSel);
-        if (stockStaff.length() == 0) {
-            Comm.showWarnDialog(context,"请选择仓库员！");
-            return false;
-        }
+//        String stockStaff = getValues(tvStaffSel);
+//        if (stockStaff.length() == 0) {
+//            Comm.showWarnDialog(context,"请选择仓库员！");
+//            return false;
+//        }
         if (checkDatas == null || checkDatas.size() == 0) {
-            Comm.showWarnDialog(context,"请先插入行！");
+            Comm.showWarnDialog(context, "请先插入行！");
             return false;
         }
 
@@ -678,7 +736,7 @@ public class Allot_PickingListActivity extends BaseActivity {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
             Material mtl = stkEntry.getMaterial();
             if (stkEntry.getTmpPickFqty() == 0) {
-                Comm.showWarnDialog(context,"第" + (i + 1) + "行（拣货数）必须大于0！");
+                Comm.showWarnDialog(context, "第" + (i + 1) + "行（拣货数）必须大于0！");
                 return false;
             }
 //            if ((mtl.getMtlPack() == null || stkEntry.getMtl().getMtlPack().getIsMinNumberPack() == 0) && stkEntry.getPickingListNum() > stkEntry.getDeliFremainoutqty()) {
@@ -691,15 +749,15 @@ public class Allot_PickingListActivity extends BaseActivity {
 //                writeBatchDialog();
 //                return false;
 //            }
-            if(stkEntry.getTmpPickFqty() > stkEntry.getUsableFqty()) {
-                Comm.showWarnDialog(context,"第" + (i + 1) + "行（拣货数）不能大于（调拨数）！");
+            if (stkEntry.getTmpPickFqty() > stkEntry.getUsableFqty()) {
+                Comm.showWarnDialog(context, "第" + (i + 1) + "行（拣货数）不能大于（调拨数）！");
                 return false;
             }
-            if(stkEntry.getOutStockId() == 0) {
-                Comm.showWarnDialog(context,"第"+(i+1)+"行请选择仓库！");
+            if (stkEntry.getOutStockId() == 0) {
+                Comm.showWarnDialog(context, "第" + (i + 1) + "行请选择仓库！");
                 return false;
-            } else if(stkEntry.getOutStock().isStorageLocation() && stkEntry.getOutStockPositionId() == 0) {
-                Comm.showWarnDialog(context,"第"+(i+1)+"行请选择库位！");
+            } else if (stkEntry.getOutStock().isStorageLocation() && stkEntry.getOutStockPositionId() == 0) {
+                Comm.showWarnDialog(context, "第" + (i + 1) + "行请选择库位！");
                 return false;
             }
         }
@@ -716,7 +774,7 @@ public class Allot_PickingListActivity extends BaseActivity {
         // 按了删除键，回退键
 //        if(event.getKeyCode() == KeyEvent.KEYCODE_FORWARD_DEL || event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
         // 240 为PDA两侧面扫码键，241 为PDA中间扫码键
-        if(!(event.getKeyCode() == 240 || event.getKeyCode() == 241)) {
+        if (!(event.getKeyCode() == 240 || event.getKeyCode() == 241)) {
             return false;
         }
         return super.dispatchKeyEvent(event);
@@ -740,14 +798,18 @@ public class Allot_PickingListActivity extends BaseActivity {
         // 物料
         etMtlCode.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length() == 0) return;
+                if (s.length() == 0) return;
                 curViewFlag = '2';
-                if(!isTextChange) {
+                if (!isTextChange) {
                     isTextChange = true;
                     mHandler.sendEmptyMessageDelayed(SAOMA, 300);
                 }
@@ -786,6 +848,47 @@ public class Allot_PickingListActivity extends BaseActivity {
         outStock = null;
     }
 
+    /**
+     * 创建PopupWindow 【查询发货类别】
+     */
+    private PopupWindow popWindowB;
+    private void popupWindow_B() {
+        if (null != popWindowB) {// 不为空就隐藏
+            popWindowB.dismiss();
+            return;
+        }
+        // 获取自定义布局文件popupwindow_left.xml的视图
+        View popView = getLayoutInflater().inflate(R.layout.popwindow_deliverytype, null);
+        Button btn1 = (Button) popView.findViewById(R.id.btn1);
+        Button btn2 = (Button) popView.findViewById(R.id.btn2);
+
+        View.OnClickListener click = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btn1: // 快递
+                        tvDeliveryWay.setText("快递");
+                        break;
+                    case R.id.btn2: // 物流
+                        tvDeliveryWay.setText("物流");
+                        break;
+                }
+                popWindowB.dismiss();
+            }
+        };
+        btn1.setOnClickListener(click);
+        btn2.setOnClickListener(click);
+
+        // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
+        popWindowB = new PopupWindow(popView, tvDeliveryWay.getWidth(),
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        // 设置动画效果
+        // popWindow4.setAnimationStyle(R.style.AnimationFade);
+        popWindowB.setBackgroundDrawable(new BitmapDrawable());
+        popWindowB.setOutsideTouchable(true);
+        popWindowB.setFocusable(true);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -819,6 +922,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                     stockStaff = (Staff) data.getSerializableExtra("staff");
                     tvStaffSel.setText(stockStaff.getName());
                 }
+
                 break;
             case REFRESH: // 刷新列表
                 if (resultCode == RESULT_OK) {
@@ -827,7 +931,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                 }
 
                 break;
-            case CODE1: // 数量
+            case RESULT_NUM: // 数量
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
@@ -853,16 +957,16 @@ public class Allot_PickingListActivity extends BaseActivity {
                         // 是否全部仓库都为空
                         boolean isBool = false;
                         int size = checkDatas.size();
-                        for(int i=0; i<size; i++) {
+                        for (int i = 0; i < size; i++) {
                             StkTransferOutEntry entry = checkDatas.get(i);
-                            if(entry.getOutStockId() > 0) isBool = true;
+                            if (entry.getOutStockId() > 0) isBool = true;
                         }
 //                        if(isBool) { // 只设置一行
-                            StkTransferOutEntry pk = checkDatas.get(curPos);
-                            pk.setOutStockId(stock2.getfStockid());
-                            pk.setOutStockNumber(stock2.getfNumber());
-                            pk.setOutStockName(stock2.getfName());
-                            pk.setOutStock(stock2);
+                        StkTransferOutEntry pk = checkDatas.get(curPos);
+                        pk.setOutStockId(stock2.getfStockid());
+                        pk.setOutStockNumber(stock2.getfNumber());
+                        pk.setOutStockName(stock2.getfName());
+                        pk.setOutStock(stock2);
 
 //                        } else { // 设置全部行
 //                            for(int i=0; i<size; i++) {
@@ -885,21 +989,21 @@ public class Allot_PickingListActivity extends BaseActivity {
                     // 是否全部仓库都为空
                     boolean isBool = false;
                     int size = checkDatas.size();
-                    for(int i=0; i<size; i++) {
+                    for (int i = 0; i < size; i++) {
                         StkTransferOutEntry entry = checkDatas.get(i);
-                        if(entry.getOutStockId() > 0) isBool = true;
+                        if (entry.getOutStockId() > 0) isBool = true;
                     }
 //                    if(isBool) { // 只设置一行
-                        StkTransferOutEntry entry = checkDatas.get(curPos);
-                        entry.setOutStockId(stock2.getfStockid());
-                        entry.setOutStockNumber(stock2.getfNumber());
-                        entry.setOutStockName(stock2.getfName());
-                        entry.setOutStock(stock2);
+                    StkTransferOutEntry entry = checkDatas.get(curPos);
+//                        entry.setOutStockId(stock2.getfStockid());
+//                        entry.setOutStockNumber(stock2.getfNumber());
+//                        entry.setOutStockName(stock2.getfName());
+//                        entry.setOutStock(stock2);
 
-                        entry.setOutStockPositionId(stockP2.getId());
-                        entry.setOutStockPositionNumber(stockP2.getFnumber());
-                        entry.setOutStockPositionName(stockP2.getFname());
-                        entry.setOutStockPos(stockP2);
+                    entry.setOutStockPositionId(stockP2.getId());
+                    entry.setOutStockPositionNumber(stockP2.getFnumber());
+                    entry.setOutStockPositionName(stockP2.getFname());
+                    entry.setOutStockPos(stockP2);
 
 //                    } else { // 设置全部行
 //                        for(int i=0; i<size; i++) {
@@ -939,6 +1043,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     private void getMtlAfter(BarCodeTable bt) {
         Material tmpMtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
         bt.setMtl(tmpMtl);
+        int position = -1;
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
@@ -946,27 +1051,28 @@ public class Allot_PickingListActivity extends BaseActivity {
             // 如果扫码相同
             if (bt.getMaterialId() == stkEntry.getMtlId()) {
                 isFlag = true;
+                position = i;
 
                 double fqty = 1;
                 // 计量单位数量
-                if(tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
+                if (tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
                 // 未启用序列号
                 if (tmpMtl.getIsSnManager() == 0) {
                     // 调拨数大于拣货数
                     if (stkEntry.getUsableFqty() > stkEntry.getTmpPickFqty()) {
                         // 如果扫的是物料包装条码，就显示个数
                         double number = 0;
-                        if(bt != null) number = bt.getMaterialCalculateNumber();
+                        if (bt != null) number = bt.getMaterialCalculateNumber();
 
-                        if(number > 0) {
-                            stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + (number*fqty));
+                        if (number > 0) {
+                            stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + (number * fqty));
                         } else {
                             stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + fqty);
                         }
                         stkEntry.setBatchCode(bt.getBatchCode());
                         stkEntry.setSnCode(bt.getSnCode());
 
-                    // 启用了最小包装
+                        // 启用了最小包装
 //                    } else if(mtl.getMtlPack() != null && mtl.getMtlPack().getIsMinNumberPack() == 1) {
 //                        if(mtl.getMtlPack().getIsMinNumberPack() == 1) {
 //                            // 如果拣货数小于调拨数，就加数量
@@ -990,16 +1096,16 @@ public class Allot_PickingListActivity extends BaseActivity {
                         return;
                     }
                     List<String> list = stkEntry.getListBarcode();
-                    if(list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(context,"该物料条码已在拣货行中，请扫描未使用过的条码！");
+                    if (list.contains(bt.getBarcode())) {
+                        Comm.showWarnDialog(context, "该物料条码已在拣货行中，请扫描未使用过的条码！");
                         return;
                     }
                     list.add(bt.getBarcode());
                     // 拼接条码号，用逗号隔开
                     StringBuilder sb = new StringBuilder();
-                    for(int k=0,sizeK=list.size(); k<sizeK; k++) {
-                        if((k+1) == sizeK) sb.append(list.get(k));
-                        else sb.append(list.get(k)+",");
+                    for (int k = 0, sizeK = list.size(); k < sizeK; k++) {
+                        if ((k + 1) == sizeK) sb.append(list.get(k));
+                        else sb.append(list.get(k) + ",");
                     }
                     stkEntry.setBatchCode(bt.getBatchCode());
                     stkEntry.setSnCode(bt.getSnCode());
@@ -1007,13 +1113,22 @@ public class Allot_PickingListActivity extends BaseActivity {
                     stkEntry.setStrBarcodes(sb.toString());
                     stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
                 }
-                mAdapter.notifyDataSetChanged();
                 isPickingEnd();
                 break;
             }
         }
-        if(!isFlag) {
+        if (!isFlag) {
             Comm.showWarnDialog(context, "该物料与订单不匹配！");
+            return;
+        }
+//        setCheckFalse();
+//        checkDatas.get(position).setIsCheck(1);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void setCheckFalse() {
+        for (int i = 0, size = checkDatas.size(); i < size; i++) {
+            checkDatas.get(i).setIsCheck(0);
         }
     }
 
@@ -1023,13 +1138,13 @@ public class Allot_PickingListActivity extends BaseActivity {
     private void isPickingEnd() {
         int size = checkDatas.size();
         int count = 0; // 计数器
-        for(int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             StkTransferOutEntry p = checkDatas.get(i);
-            if(p.getTmpPickFqty() >= p.getFqty()) {
+            if (p.getTmpPickFqty() >= p.getFqty()) {
                 count += 1;
             }
         }
-        if(count == size) {
+        if (count == size) {
             toasts("已经捡完货了，请保存！");
         }
     }
@@ -1042,7 +1157,7 @@ public class Allot_PickingListActivity extends BaseActivity {
         getUserInfo();
 
         List<PickingList> pickLists = new ArrayList<>();
-        for(int i=0; i<checkDatas.size(); i++) {
+        for (int i = 0; i < checkDatas.size(); i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
             PickingList pick = new PickingList();
             pick.setPickNo("");
@@ -1052,7 +1167,7 @@ public class Allot_PickingListActivity extends BaseActivity {
             pick.setPickFqty(stkEntry.getTmpPickFqty());
             pick.setStockId(stkEntry.getOutStockId());
             pick.setStockPosId(stkEntry.getOutStockPositionId());
-            pick.setStockStaffId(stockStaff.getStaffId());
+            pick.setStockStaffId(stockStaff != null ? stockStaff.getStaffId() : 0);
             pick.setCreateUserId(user.getId());
             pick.setCreateUserName(user.getUsername());
             pick.setRelationObj(JsonUtil.objectToString(stkEntry));
@@ -1104,8 +1219,8 @@ public class Allot_PickingListActivity extends BaseActivity {
      */
     private void run_smGetDatas(String val) {
         isTextChange = false;
-        if(val.length() == 0) {
-            Comm.showWarnDialog(context,"请对准条码！");
+        if (val.length() == 0) {
+            Comm.showWarnDialog(context, "请对准条码！");
             return;
         }
         showLoadDialog("加载中...");
@@ -1120,25 +1235,29 @@ public class Allot_PickingListActivity extends BaseActivity {
         String billStatus = "2"; // 单据是否审核
         String entryStatus = "1"; // 未关闭的行
         String isValidStatus = null, isValidStatus2 = null;
+        String deliveryWayName = null; // 发货类别
         switch (curViewFlag) {
             case '1': // 调拨单
                 mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
                 barcode = "";
                 strCaseId = "";
-                outDeptNumber = department.getDepartmentNumber();
-                if(inStock != null) inStockNumber = inStock.getfNumber();
+                if (department != null) outDeptNumber = department.getDepartmentNumber();
+                else outDeptNumber = "";
+                if (inStock != null) inStockNumber = inStock.getfNumber();
                 else inStockNumber = "";
-                if(outStock != null) outStockNumber = outStock.getfNumber();
+                if (outStock != null) outStockNumber = outStock.getfNumber();
                 else outStockNumber = "";
                 outDate = getValues(tvDateSel);
                 billStatus = "2";
                 entryStatus = "1";
                 isValidStatus = "1";
-                if(businessType.equals("1")) {
+                if (businessType.equals("1")) {
                     isValidStatus2 = "";
                 } else {
                     isValidStatus2 = "1";
                 }
+                deliveryWayName = getValues(tvDeliveryWay);
+
                 break;
             case '2': // 物料
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
@@ -1153,6 +1272,9 @@ public class Allot_PickingListActivity extends BaseActivity {
                 businessType = "";
                 isValidStatus = "";
                 isValidStatus2 = "";
+                prodSeqNumberStatus = "";
+                stockPosSeqStatus = "";
+                deliveryWayName = "";
                 break;
         }
         FormBody formBody = new FormBody.Builder()
@@ -1162,13 +1284,16 @@ public class Allot_PickingListActivity extends BaseActivity {
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
                 .add("isValidStatus", isValidStatus)
 //                .add("isValidStatus2", isValidStatus2)
-                .add("sourceType","6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
+                .add("sourceType", "6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", billStatus) // 已审核的单据（查询调拨单）
                 .add("entryStatus", entryStatus) // 未关闭的行（查询调拨单）
+                .add("deliveryWayName", deliveryWayName) // 发货类别
+                .add("prodSeqNumberStatus", prodSeqNumberStatus) // 按照生产顺序号来排序
+                .add("stockPosSeqStatus", stockPosSeqStatus) // 按照库位序号来排序
                 .build();
 
         Request request = new Request.Builder()
@@ -1344,10 +1469,10 @@ public class Allot_PickingListActivity extends BaseActivity {
     }
 
     /**
-     *  得到用户对象
+     * 得到用户对象
      */
     private void getUserInfo() {
-        if(user == null) {
+        if (user == null) {
             user = showUserByXml();
         }
     }

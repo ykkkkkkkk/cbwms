@@ -49,7 +49,7 @@ public abstract class BaseFragment extends Fragment {
 	public static final String DECODED_BITMAP_KEY = "codedBitmap"; // 扫一扫：图片（键）
 	public static final int CAMERA_SCAN = 0x0000; // 扫一扫：请求值
 	public Activity parentActivity;
-	private LoadingDialog parentLoadDialog;
+	public LoadingDialog parentLoadDialog;
 	protected Unbinder mBinder;
 
 	public abstract View setLayoutResID(LayoutInflater inflater, ViewGroup container);

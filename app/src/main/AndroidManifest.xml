@@ -213,6 +213,13 @@
             android:name=".produce.Prod_MtlApplyOperationAddActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_MendBarcodeActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_InStockSearchActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
 
         <!-- 销售模块 -->
         <activity

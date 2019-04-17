@@ -33,12 +33,16 @@ public class Prod_CreateBarcodeAdapter extends BaseArrayRecyclerAdapter<AdapterI
 
         // 初始化id
         TextView tv_barcodeQty = holder.obtainView(R.id.tv_barcodeQty);
+        TextView tv_receivableQty = holder.obtainView(R.id.tv_receivableQty);
+        TextView tv_rejectsQty = holder.obtainView(R.id.tv_rejectsQty);
         TextView tv_mtlQty = holder.obtainView(R.id.tv_mtlQty);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
-        TextView tv_addRow = holder.obtainView(R.id.tv_addRow);
+//        TextView tv_addRow = holder.obtainView(R.id.tv_addRow);
         // 赋值
         tv_barcodeQty.setText(entity.getNum() > 0 ? String.valueOf(entity.getNum()) : "");
-        tv_mtlQty.setText(entity.getNum2() > 0 ? df.format(entity.getNum2()) : "");
+        tv_receivableQty.setText(entity.getNum2() > 0 ? df.format(entity.getNum2()) : "");
+        tv_rejectsQty.setText(entity.getNum3() > 0 ? df.format(entity.getNum3()) : "");
+        tv_mtlQty.setText(entity.getNum4() > 0 ? df.format(entity.getNum4()) : "");
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -49,9 +53,14 @@ public class Prod_CreateBarcodeAdapter extends BaseArrayRecyclerAdapter<AdapterI
                             callBack.clickNum(entity, pos);
                         }
                         break;
-                    case R.id.tv_mtlQty: //
+                    case R.id.tv_receivableQty: // 应收数
                         if(callBack != null) {
-                            callBack.clickNum2(entity, pos);
+                            callBack.clickNum2(entity, pos,1);
+                        }
+                        break;
+                    case R.id.tv_rejectsQty: // 不良数
+                        if(callBack != null) {
+                            callBack.clickNum2(entity, pos,2);
                         }
                         break;
                     case R.id.tv_delRow: // 删除行
@@ -60,19 +69,20 @@ public class Prod_CreateBarcodeAdapter extends BaseArrayRecyclerAdapter<AdapterI
                         }
 
                         break;
-                    case R.id.tv_addRow: // 新增行
-                        if(callBack != null) {
-                            callBack.addClick(entity, pos);
-                        }
-
-                        break;
+//                    case R.id.tv_addRow: // 新增行
+//                        if(callBack != null) {
+//                            callBack.addClick(entity, pos);
+//                        }
+//
+//                        break;
                 }
             }
         };
         tv_barcodeQty.setOnClickListener(click);
-        tv_mtlQty.setOnClickListener(click);
+        tv_receivableQty.setOnClickListener(click);
+        tv_rejectsQty.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
-        tv_addRow.setOnClickListener(click);
+//        tv_addRow.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -81,9 +91,9 @@ public class Prod_CreateBarcodeAdapter extends BaseArrayRecyclerAdapter<AdapterI
 
     public interface MyCallBack {
         void clickNum(AdapterItem1 entity, int position);
-        void clickNum2(AdapterItem1 entity, int position);
+        void clickNum2(AdapterItem1 entity, int position, int index);
         void delClick(AdapterItem1 entity, int position);
-        void addClick(AdapterItem1 entity, int position);
+//        void addClick(AdapterItem1 entity, int position);
     }
 
 }

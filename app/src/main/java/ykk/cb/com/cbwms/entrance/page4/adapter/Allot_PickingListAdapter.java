@@ -51,7 +51,8 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
         tv_prodSeqNumber.setText(entity.getProductionSeq());
-        tv_sourceNo.setText(stkOut.getBillNo());
+//        tv_sourceNo.setText(stkOut.getBillNo());
+        tv_sourceNo.setText(String.valueOf(entity.getStockPosSeq()));
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
@@ -88,7 +89,7 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
                         }
 
                         break;
-                    case R.id.tv_stockAP: // 选择库位
+                    case R.id.tv_outStockAP: // 选择调出仓库，库位
                         if(callBack != null) {
                             callBack.onClick_selStock(v, entity, pos);
                         }

@@ -653,12 +653,45 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
             return false;
         }
+
+        // 检查数据
+        for (int i = 0, size = checkDatas.size(); i < size; i++) {
+            ScanningRecord2 sr2 = checkDatas.get(i);
+            ScanningRecordTok3 srToK3 = sr2.getSrTok3();
+
+            // 仓管员
+            if (stockStaff != null) srToK3.setStockStaffNumber(stockStaff.getNumber());
+
+            if (sr2.getStockId() == 0) {
+                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，请选择（仓库）！");
+                return false;
+            }
+            if (sr2.getStockqty() == 0) {
+                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实发数）必须大于0！");
+                return false;
+            }
+        }
+
         double salOrderSumQty = sRecord2.getSalOrderSumQty();
         if(salOrderSumQty > writeSumQty) {
             // 1、非整非拼，2、整单发货，3、拼单
             switch (orderDeliveryType) {
                 case '1':
-                    Comm.showWarnDialog(mContext,"当前订单发货类型为“非整单发货”，请扫完箱码再出库！");
+//                    Comm.showWarnDialog(mContext,"当前订单发货类型为“非整单发货”，请扫完箱码再出库！");
+                    AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+                    build.setIcon(R.drawable.caution);
+                    build.setTitle("系统提示");
+                    build.setMessage("当前客户还有非整单发货的箱号未扫描，是否继续出库？");
+                    build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            run_findStatus();
+                        }
+                    });
+                    build.setNegativeButton("否", null);
+                    build.setCancelable(false);
+                    build.show();
+
                     break;
                 case '2':
                     Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
@@ -670,35 +703,35 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             }
             return false;
         }
-        // 检查数据
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            ScanningRecordTok3 srToK3 = sr2.getSrTok3();
-
-            // 仓管员
-            if(stockStaff != null) srToK3.setStockStaffNumber(stockStaff.getNumber());
-
-            if (sr2.getStockId() == 0) {
-                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，请选择（仓库）！");
-                return false;
-            }
-            if (sr2.getStockqty() == 0) {
-                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）必须大于0！");
-                return false;
-            }
-
-//            if ((sr2.getMtl().getMtlPack() == null || sr2.getMtl().getMtlPack().getIsMinNumberPack() == 0) && sr2.getStockqty() > sr2.getFqty()) {
-//            if (sr2.getStockqty() > sr2.getFqty()) {
-//                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）不能大于（应发数）！");
+//        // 检查数据
+//        for (int i = 0, size = checkDatas.size(); i < size; i++) {
+//            ScanningRecord2 sr2 = checkDatas.get(i);
+//            ScanningRecordTok3 srToK3 = sr2.getSrTok3();
+//
+//            // 仓管员
+//            if(stockStaff != null) srToK3.setStockStaffNumber(stockStaff.getNumber());
+//
+//            if (sr2.getStockId() == 0) {
+//                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，请选择（仓库）！");
 //                return false;
 //            }
-//            if ((sr2.getMtl().getMtlPack() == null || sr2.getMtl().getMtlPack().getIsMinNumberPack() == 0) && sr2.getStockqty() < sr2.getFqty()) {
-//            if (sr2.getStockqty() < sr2.getFqty()) {
-//                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）必须等于（应发数）！");
+//            if (sr2.getStockqty() == 0) {
+//                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）必须大于0！");
 //                return false;
 //            }
+//
+////            if ((sr2.getMtl().getMtlPack() == null || sr2.getMtl().getMtlPack().getIsMinNumberPack() == 0) && sr2.getStockqty() > sr2.getFqty()) {
+////            if (sr2.getStockqty() > sr2.getFqty()) {
+////                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）不能大于（应发数）！");
+////                return false;
+////            }
+////            if ((sr2.getMtl().getMtlPack() == null || sr2.getMtl().getMtlPack().getIsMinNumberPack() == 0) && sr2.getStockqty() < sr2.getFqty()) {
+////            if (sr2.getStockqty() < sr2.getFqty()) {
+////                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行，（实发数）必须等于（应发数）！");
+////                return false;
+////            }
 
-        }
+//        }
         return true;
     }
 

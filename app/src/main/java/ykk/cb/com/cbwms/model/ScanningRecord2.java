@@ -78,6 +78,7 @@ public class ScanningRecord2 implements Serializable {
     private int salOrderAutoMtlSum; // 箱子对应的销售订单配件的总行数
     private double salOrderSumQty; // 箱子对应的销售订单的总数量
     private double inventoryFqty; // 即时库存数
+    private boolean isCheck; // 是否选中
 
 
     public int getID() {
@@ -646,6 +647,14 @@ public class ScanningRecord2 implements Serializable {
 
     public void setInventoryFqty(double inventoryFqty) {
         this.inventoryFqty = inventoryFqty;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
     }
 
     public ScanningRecord2() {

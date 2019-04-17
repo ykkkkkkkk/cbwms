@@ -180,13 +180,17 @@ public class Pur_SelOrderActivity extends BaseActivity implements XRecyclerView.
         }
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_confirm})
+    @OnClick({R.id.btn_close, R.id.btn_confirm, R.id.btn_refresh})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
                 closeHandler(mHandler);
                 context.finish();
 
+                break;
+            case R.id.btn_refresh: // 刷新
+                initLoadDatas();
+                
                 break;
             case R.id.btn_confirm: // 确认
                 if(listDatas == null || listDatas.size() == 0) {

@@ -88,6 +88,7 @@ public class Pur_InStockPassActivity extends BaseActivity implements XRecyclerVi
                         break;
                     case UNSUCC1: // 数据加载失败！
                         if(m.xRecyclerView == null) return;
+                        m.mAdapter.notifyDataSetChanged();
                         m.xRecyclerView.loadMoreComplete(false);
                         String errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.listDatas != null && m.listDatas.size() > 0) {

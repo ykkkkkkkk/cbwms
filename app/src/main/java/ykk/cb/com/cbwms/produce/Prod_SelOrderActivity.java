@@ -90,6 +90,7 @@ public class Prod_SelOrderActivity extends BaseActivity implements XRecyclerView
 
                         break;
                     case UNSUCC1: // 数据加载失败！
+                        m.mAdapter.notifyDataSetChanged();
                         m.toasts("抱歉，没有加载到数据！");
 
                         break;

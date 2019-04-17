@@ -180,38 +180,38 @@ public class Prod_StartFragment1 extends BaseFragment {
 //                                    return;
 //                                }
                                 int prodEntryStatus2 = m.parseInt(m.prodOrder.getProdEntryStatus());
-                                if(prodEntryStatus2 == 4) {
-                                    Comm.showWarnDialog(m.mContext,"扫描的条码状态为开工，请扫码未开工的条码！");
+                                if (prodEntryStatus2 == 4) {
+                                    Comm.showWarnDialog(m.mContext, "扫描的条码状态为开工，请扫码未开工的条码！");
                                     return;
-                                } else if(prodEntryStatus2 > 4) {
-                                    Comm.showWarnDialog(m.mContext,"扫描的条码已完工，请扫码未完工的条码！");
+                                } else if (prodEntryStatus2 > 4) {
+                                    Comm.showWarnDialog(m.mContext, "扫描的条码已完工，请扫码未完工的条码！");
                                     return;
                                 }
-                                if(m.prodEntryStatus > 0 && (m.prodEntryStatus == 4) != (prodEntryStatus2 == 4)) {
-                                    Comm.showWarnDialog(m.mContext,"扫描的条码和现有的条码状态不一致，请检查！");
+                                if (m.prodEntryStatus > 0 && (m.prodEntryStatus == 4) != (prodEntryStatus2 == 4)) {
+                                    Comm.showWarnDialog(m.mContext, "扫描的条码和现有的条码状态不一致，请检查！");
                                     return;
                                 }
                                 m.prodEntryStatus = prodEntryStatus2;
 //                                if(m.prodEntryStatus == 0) {
-                                    m.run_itemList();
+//                                    m.run_itemList();
 //                                } else {
-//
-//                                    int size = m.checkDatas.size();
-//                                    boolean addRow = true;
-//                                    for(int i=0; i<size; i++) {
-//                                        ScanningRecord2 sr = m.checkDatas.get(i);
-//                                        // 有相同的，就不新增了
-//                                        if(sr.getEntryId() == prodOrder.getEntryId()) {
-//                                            addRow = false;
-//                                            break;
-//                                        }
-//                                    }
-//                                    if(addRow) {
-//                                        m.getBarCodeTableAfter(m.barCodeTable);
-//                                    } else {
-//                                        m.getMtlAfter(m.barCodeTable);
-//                                    }
-//                                }
+                                int size = m.checkDatas.size();
+                                boolean addRow = true;
+                                for (int i = 0; i < size; i++) {
+                                    ScanningRecord2 sr = m.checkDatas.get(i);
+                                    // 有相同的，就不新增了
+                                    if (sr.getEntryId() == m.prodOrder.getEntryId()) {
+                                        addRow = false;
+                                        break;
+                                    }
+                                }
+                                if (addRow) {
+                                    m.getBarCodeTableAfter(m.barCodeTable);
+                                } else {
+                                    m.getMtlAfter(m.barCodeTable);
+                                }
+//                        }
+
 
                                 break;
                         }

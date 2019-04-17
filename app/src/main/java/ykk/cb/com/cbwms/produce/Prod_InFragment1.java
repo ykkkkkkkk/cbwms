@@ -102,6 +102,8 @@ public class Prod_InFragment1 extends BaseFragment {
     TextView tvInOrg;
     @BindView(R.id.tv_prodOrg)
     TextView tvProdOrg;
+    @BindView(R.id.tv_smCountNum)
+    TextView tvSmCountNum;
     @BindView(R.id.tv_countSum)
     TextView tvCountSum;
 
@@ -440,7 +442,7 @@ public class Prod_InFragment1 extends BaseFragment {
             case R.id.tv_deptSel: // 选择部门
                 bundle = new Bundle();
                 bundle.putInt("isAll", 0);
-                showForResult(Dept_DialogActivity.class, SEL_DEPT, null);
+                showForResult(Dept_DialogActivity.class, SEL_DEPT, bundle);
 
                 break;
             case R.id.tv_sourceNo: // 选择源单
@@ -687,6 +689,7 @@ public class Prod_InFragment1 extends BaseFragment {
         prodEntryStatus = 0;
         sourceList.clear();
         tvCountSum.setText("0.0");
+        tvSmCountNum.setText("0");
         parent.isChange = false;
         curPos = -1;
     }
@@ -1085,14 +1088,22 @@ public class Prod_InFragment1 extends BaseFragment {
             sr2.setListBarcode(list);
             sr2.setStrBarcodes(bt.getBarcode());
         } else sr2.setStrBarcodes("");
-
+        setCheckFalse();
+        sr2.setCheck(true);
         checkDatas.add(sr2);
         sourceList.add(prodOrder);
         mAdapter.notifyDataSetChanged();
 
-
+        // 条码格式
+        tvSmCountNum.setText(String.valueOf(parseInt(getValues(tvSmCountNum))+1));
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
+    }
+
+    private void setCheckFalse() {
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            checkDatas.get(i).setCheck(false);
+        }
     }
 
     private double countSum() {
@@ -1110,12 +1121,14 @@ public class Prod_InFragment1 extends BaseFragment {
         Material tmpMtl = bt.getMtl();
 
         int size = checkDatas.size();
+        int position = -1;
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             // 如果扫码相同
             if (bt.getEntryId() == sr2.getEntryId()) {
                 isFlag = true;
+                position = i;
 
 //                double fqty = 1;
 //                int coveQty = sr2.getCoveQty();
@@ -1191,15 +1204,20 @@ public class Prod_InFragment1 extends BaseFragment {
 //                        return;
 //                    }
                 }
-                mAdapter.notifyDataSetChanged();
                 break;
             }
         }
         if (!isFlag) {
             Comm.showWarnDialog(mContext, "该物料与订单不匹配！");
+            return;
         }
-        setFocusable(etMtlCode);
+        setCheckFalse();
+        checkDatas.get(position).setCheck(true);
+        mAdapter.notifyDataSetChanged();
 
+        setFocusable(etMtlCode);
+        // 条码格式
+        tvSmCountNum.setText(String.valueOf(parseInt(getValues(tvSmCountNum))+1));
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
     }

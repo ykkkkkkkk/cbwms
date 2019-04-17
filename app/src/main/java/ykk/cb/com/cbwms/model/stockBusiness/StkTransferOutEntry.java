@@ -157,6 +157,7 @@ public class StkTransferOutEntry implements Serializable {
     private String strBarcodes; // 用逗号拼接的条码号
     private int isCheck; // 是否选中
     private double inventoryFqty; // 即时库存数
+    private int stockPosSeq; // 库位序号
 
     public StkTransferOutEntry() {
         super();
@@ -712,6 +713,14 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setInventoryFqty(double inventoryFqty) {
         this.inventoryFqty = inventoryFqty;
+    }
+
+    public int getStockPosSeq() {
+        return stockPosSeq;
+    }
+
+    public void setStockPosSeq(int stockPosSeq) {
+        this.stockPosSeq = stockPosSeq;
     }
 
 }

@@ -825,6 +825,7 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
     private void getMtlAfter(BarCodeTable bt) {
         Material tmpMtl = bt.getMtl();
 
+        int position = -1;
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
@@ -832,6 +833,7 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
             // 如果扫码相同
             if (bt.getEntryId() == sr2.getEntryId()) {
                 isFlag = true;
+                position = i;
 
                 double fqty = 0;
 //                int coveQty = sr2.getCoveQty();
@@ -903,17 +905,25 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
                     sr2.setStrBarcodes(sb.toString());
                     sr2.setStockqty(sr2.getStockqty() + fqty);
                 }
-                mAdapter.notifyDataSetChanged();
                 break;
             }
         }
         if(!isFlag) {
             Comm.showWarnDialog(mContext, "该物料与订单不匹配！");
         }
+        setCheckFalse();
+        checkDatas.get(position).setCheck(true);
+        mAdapter.notifyDataSetChanged();
         setFocusable(etMtlCode);
 
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
+    }
+
+    private void setCheckFalse() {
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            checkDatas.get(i).setCheck(false);
+        }
     }
 
     /**

@@ -70,6 +70,13 @@ public class Pur_InFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRec
             tv_stockAP.setText("");
         }
 
+        View view = (View) tv_row.getParent();
+        if(entity.isCheck()) {
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
+
         View.OnClickListener click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {

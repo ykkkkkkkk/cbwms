@@ -104,7 +104,6 @@ public class Pur_InFragment2 extends BaseFragment {
     private String mtlBarcode; // 对应的条码号
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：部门， 4：采购订单， 5：物料
     private int curPos = -1; // 当前行
-    private boolean isStockLong; // 判断选择（仓库，库区）是否长按了
     private OkHttpClient okHttpClient = null;
     private User user;
     private Activity mContext;
@@ -115,6 +114,10 @@ public class Pur_InFragment2 extends BaseFragment {
     private boolean isTextChange; // 是否进入TextChange事件
     private BarCodeTable bt;
     private boolean isOpenSupplier; // 是否打开供应商界面
+    private Map<String, Boolean> suppAndBillMap = new HashMap<>(); // 记录供应商和单据类型合并的值
+    private List<String> fbillNoList = new ArrayList<>(); // 记录采购入库单号
+    private int countSaveSum; // 计算保存的总条数
+    private String suppAndBillKey; // 记录当前供应商和单据类型合并的值
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -134,6 +137,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 switch (msg.what) {
                     case SUCC1:
                         m.k3Number = JsonUtil.strToString((String) msg.obj);
+                        m.fbillNoList.add(m.k3Number);
 //                        m.reset('0');
 //
 //                        m.checkDatas.clear();
@@ -143,7 +147,15 @@ public class Pur_InFragment2 extends BaseFragment {
                         m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
-                        Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
+                        if(m.countSaveSum > 0) {
+                            m.countSaveSum -= 1;
+                        }
+                        if(m.countSaveSum == 0) {
+                            Comm.showWarnDialog(m.mContext, "保存成功，请点击“审核按钮”！");
+                        } else { // 继续下一个保存
+                            m.suppAndBillMap.remove(m.suppAndBillKey);
+                            m.run_addScanningRecord_Before();
+                        }
 
                         break;
                     case UNSUCC1:
@@ -259,13 +271,9 @@ public class Pur_InFragment2 extends BaseFragment {
 
                         break;
                     case UNSUCC2:
-                        errMsg = m.isNULLS((String) msg.obj);
-                        if(errMsg.length() > 0) {
-                            String message = JsonUtil.strToString(errMsg);
-                            Comm.showWarnDialog(m.mContext, message);
-                        } else {
-                            Comm.showWarnDialog(m.mContext,"条码不存在，或者扫错了条码！");
-                        }
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "服务器超时，请重试！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
                     case RESET: // 没有得到数据，就把回车的去掉，恢复正常数据
@@ -309,11 +317,11 @@ public class Pur_InFragment2 extends BaseFragment {
                                 }
                             }
                         }
-                        m.run_addScanningRecord();
+                        m.run_addScanningRecord_Before();
 
                         break;
                     case UNSUCC3: // 判断是否存在返回
-                        m.run_addScanningRecord();
+                        m.run_addScanningRecord_Before();
 
                         break;
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -361,7 +369,7 @@ public class Pur_InFragment2 extends BaseFragment {
                     .build();
         }
 
-            mContext = getActivity();
+        mContext = getActivity();
         parent = (Pur_InMainActivity) mContext;
 
         recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
@@ -392,6 +400,11 @@ public class Pur_InFragment2 extends BaseFragment {
                 LogUtil.e("del", "行：" + position);
                 checkDatas.remove(position);
                 sourceList.remove(position);
+                String suppNumber = entity.getSupplierFnumber();
+                String fbillTypeNumber = entity.getFbillTypeNumber();
+                if(suppAndBillMap.containsKey(suppNumber+fbillTypeNumber)) {
+                    suppAndBillMap.remove(suppNumber+fbillTypeNumber);
+                }
                 mAdapter.notifyDataSetChanged();
                 // 合计总数
                 tvCountSum.setText(String.valueOf(countSum()));
@@ -627,6 +640,9 @@ public class Pur_InFragment2 extends BaseFragment {
         sourceList.clear();
         parent.isChange = false;
         curPos = -1;
+        suppAndBillMap.clear();
+        fbillNoList.clear();
+        countSaveSum = 0;
     }
 
     private void resetSon() {
@@ -927,6 +943,7 @@ public class Pur_InFragment2 extends BaseFragment {
         Material tmpMtl = bt.getMtl();
         String fbillNo = isNULLS(bt.getRelationBillNumber()); // 单据编号
         int caseId = bt.getCaseId();
+        int position = -1;
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
         for (int i = 0; i < size; i++) {
@@ -938,6 +955,7 @@ public class Pur_InFragment2 extends BaseFragment {
             if ((caseId == 11 || caseId == 21 || fbillNo.equals(fbillNo2)) && bt.getMaterialId() == mtl.getfMaterialId()) {
                 sr2.setBatchno(bt.getBatchCode());
                 isFlag = true;
+                position = i;
 
 //                double fqty = 1;
 //                // 计量单位数量
@@ -994,13 +1012,16 @@ public class Pur_InFragment2 extends BaseFragment {
                     String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode());
                     showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
                 }
-                mAdapter.notifyDataSetChanged();
                 break;
             }
         }
         if(!isFlag) {
             Comm.showWarnDialog(mContext, "扫的物料与订单不匹配！");
+            return;
         }
+        setCheckFalse();
+        checkDatas.get(position).setCheck(true);
+        mAdapter.notifyDataSetChanged();
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
     }
@@ -1047,6 +1068,11 @@ public class Pur_InFragment2 extends BaseFragment {
             sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
         }
         sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
+        // 记录供应商的条数和采购订单类型的条数
+        String keys = purOrder.getSupplierNumber()+sr2.getFbillTypeNumber();
+        if(!suppAndBillMap.containsKey(keys)) {
+            suppAndBillMap.put(keys, true);
+        }
 
         Material tmpMtl = purOrder.getMtl();
         // 得到物料的默认仓库仓位
@@ -1070,9 +1096,9 @@ public class Pur_InFragment2 extends BaseFragment {
         supplier.setfName(purOrder.getSupplierName());
 
         setEnables(tvSupplierSel, R.drawable.back_style_gray3, false);
-        sr2.setSupplierId(supplier.getFsupplierid());
-        sr2.setSupplierName(supplier.getfName());
-        sr2.setSupplierFnumber(supplier.getfNumber());
+        sr2.setSupplierId(purOrder.getSupplierId());
+        sr2.setSupplierFnumber(purOrder.getSupplierNumber());
+        sr2.setSupplierName(purOrder.getSupplierName());
         // 收料组织
         if(receiveOrg == null) receiveOrg = new Organization();
         receiveOrg.setFpkId(purOrder.getReceiveOrgId());
@@ -1130,7 +1156,8 @@ public class Pur_InFragment2 extends BaseFragment {
             sr2.setStrBarcodes(bt.getBarcode());
         }
         sr2.setStrBarcodes("");
-
+        setCheckFalse();
+        sr2.setCheck(true);
         checkDatas.add(sr2);
         sourceList.add(purOrder);
         mAdapter.notifyDataSetChanged();
@@ -1139,22 +1166,23 @@ public class Pur_InFragment2 extends BaseFragment {
         tvCountSum.setText(String.valueOf(countSum()));
     }
 
-    /**
-     * 保存方法
-     */
-    private void run_addScanningRecord() {
-        showLoadDialog("保存中...");
-        getUserInfo();
+    private void setCheckFalse() {
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            checkDatas.get(i).setCheck(false);
+        }
+    }
 
-        ScanningRecord2 sr2Tmp = checkDatas.get(0);
-        int type = 1;
-        if(sr2Tmp.getFbillTypeNumber().equals("RKD03_SYS")) type = 6; // 委外采购入库
+    private void run_addScanningRecord_Before() {
+        countSaveSum = 0;
+        getUserInfo();
 
         List<ScanningRecord> list = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             ScanningRecord record = new ScanningRecord();
             // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库 6、委外采购入库
+            int type = 1;
+            if(sr2.getFbillTypeNumber().equals("RKD03_SYS")) type = 6; // 委外采购入库
             record.setType(type);
             record.setSourceId(sr2.getSourceId());
             record.setSourceK3Id(sr2.getSourceK3Id());
@@ -1208,10 +1236,43 @@ public class Pur_InFragment2 extends BaseFragment {
             list.add(record);
         }
 
-        String mJson = JsonUtil.objectToString(list);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
+        int listSize = list.size();
+        int mapSize = suppAndBillMap.size();
+
+        if(mapSize > 0) {
+            countSaveSum = mapSize;
+
+            for(String keys : suppAndBillMap.keySet()) {
+                suppAndBillKey = keys;
+                List<ScanningRecord> list2 = new ArrayList<>();
+                for(int j=0; j<listSize; j++) {
+                    ScanningRecord sr = list.get(j);
+                    String suppNumber = sr.getSupplierFnumber();
+                    String fbillTypeNumber = sr.getFbillTypeNumber();
+                    if(keys.equals(suppNumber+fbillTypeNumber)) {
+                        list2.add(sr);
+                    }
+                }
+                String mJson = JsonUtil.objectToString(list2);
+                run_addScanningRecord(mJson);
+                break;
+            }
+//        } else {
+//            String mJson = JsonUtil.objectToString(list);
+//            run_addScanningRecord(mJson);
+        }
+    }
+
+    /**
+     * 保存方法
+     */
+    private void run_addScanningRecord(String strJson) {
+        if(parentLoadDialog == null) {
+            showLoadDialog("保存中...");
+        }
+
         FormBody formBody = new FormBody.Builder()
-                .add("strJson", mJson)
+                .add("strJson", strJson)
                 .build();
 
         String mUrl = getURL("addScanningRecord");
@@ -1260,7 +1321,6 @@ public class Pur_InFragment2 extends BaseFragment {
             case '1':
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
 //                barcode = stockBarcode;
-                isStockLong = false;
                 strCaseId = "12";
                 break;
             case '2':
@@ -1288,7 +1348,7 @@ public class Pur_InFragment2 extends BaseFragment {
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", strCaseId)
                 .add("barcode", barcode)
-                .add("supplierNumber", supplier != null ? supplier.getfNumber() : "")
+//                .add("supplierNumber", supplier != null ? supplier.getfNumber() : "")
                 .add("sourceType","2") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .build();
 
@@ -1380,8 +1440,20 @@ public class Pur_InFragment2 extends BaseFragment {
         showLoadDialog("正在审核...");
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
+
+        StringBuilder strFbillNo = new StringBuilder();
+        for(int i=0, size=fbillNoList.size(); i<size; i++) {
+            strFbillNo.append("'" + fbillNoList.get(i) + "',");
+        }
+
+        // 减去前面'
+        strFbillNo.delete(0, 1);
+        // 减去最好一个'，
+        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
+
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+//                .add("fbillNo", k3Number)
+                .add("fbillNo", strFbillNo.toString())
                 .add("type", "1")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

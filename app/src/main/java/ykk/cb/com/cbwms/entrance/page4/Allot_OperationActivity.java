@@ -257,10 +257,10 @@ public class Allot_OperationActivity extends BaseActivity {
 
                 break;
             case R.id.btn_find: // 查询调拨单
-                if(department == null) {
-                    Comm.showWarnDialog(context,"请选择领料部门！");
-                    return;
-                }
+//                if(department == null) {
+//                    Comm.showWarnDialog(context,"请选择领料部门！");
+//                    return;
+//                }
                 run_smGetDatas();
 
                 break;
@@ -521,12 +521,10 @@ public class Allot_OperationActivity extends BaseActivity {
         mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
         barcode = "";
         strCaseId = "";
-        outDeptNumber = department.getDepartmentNumber();
-        if(stock != null) {
-            outStockNumber = stock.getfNumber();
-        } else {
-            outStockNumber = "";
-        }
+        if(department != null) outDeptNumber = department.getDepartmentNumber();
+        else outDeptNumber = "";
+        if(stock != null) outStockNumber = stock.getfNumber();
+        else outStockNumber = "";
         outDate = getValues(tvDateSel);
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", strCaseId)

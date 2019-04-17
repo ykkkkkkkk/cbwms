@@ -25,7 +25,9 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -131,6 +133,11 @@ public class Pur_InFragment2_190403 extends BaseFragment {
     private DecimalFormat df = new DecimalFormat("#.####");
     private String k3Number; // 记录传递到k3返回的单号
     private boolean isTextChange; // 是否进入TextChange事件
+    private List<String> billTypeNumberList = new ArrayList<>(); // 记录采购订单的类型的条数
+    private Map<String, Boolean> suppAndBillMap = new HashMap<>(); // 记录供应商和单据类型合并的值
+    private List<String> fbillNoList = new ArrayList<>(); // 记录采购入库单号
+    private int countSaveSum; // 计算保存的总条数
+    private String suppAndBillKey; // 记录当前供应商和单据类型合并的值
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -150,6 +157,7 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                 switch (msg.what) {
                     case SUCC1:
                         m.k3Number = JsonUtil.strToString((String) msg.obj);
+                        m.fbillNoList.add(m.k3Number);
 //                        m.reset('0');
 //
 //                        m.checkDatas.clear();
@@ -159,7 +167,15 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                         m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
-                        Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
+                        if(m.countSaveSum > 0) {
+                            m.countSaveSum -= 1;
+                        }
+                        if(m.countSaveSum == 0) {
+                            Comm.showWarnDialog(m.mContext, "保存成功，请点击“审核按钮”！");
+                        } else { // 继续下一个保存
+                            m.suppAndBillMap.remove(m.suppAndBillKey);
+                            m.run_addScanningRecord_Before();
+                        }
 
                         break;
                     case UNSUCC1:
@@ -281,11 +297,11 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                                 }
                             }
                         }
-                        m.run_addScanningRecord();
+                        m.run_addScanningRecord_Before();
 
                         break;
                     case UNSUCC3: // 判断是否存在返回
-                        m.run_addScanningRecord();
+                        m.run_addScanningRecord_Before();
 
                         break;
                     case CLEAR1: // 清空数据（来源单）
@@ -382,6 +398,14 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                 LogUtil.e("del", "行：" + position);
                 checkDatas.remove(position);
                 sourceList.remove(position);
+//                String suppNumber = entity.getSupplierFnumber();
+//                String fbillTypeNumber = entity.getFbillTypeNumber();
+//                if(suppAndBillMap.containsKey(suppNumber+fbillTypeNumber)) {
+//                    suppAndBillMap.remove(suppNumber+fbillTypeNumber);
+//                }
+                if(checkDatas.size() == 0) {
+                    suppAndBillMap.clear();
+                }
                 mAdapter.notifyDataSetChanged();
                 // 合计总数
                 tvCountSum.setText(String.valueOf(countSum()));
@@ -697,6 +721,10 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         sourceList.clear();
         parent.isChange = false;
         curPos = -1;
+        billTypeNumberList.clear();
+        suppAndBillMap.clear();
+        fbillNoList.clear();
+        countSaveSum = 0;
     }
 
     private void resetSon() {
@@ -918,6 +946,11 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                 sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
             }
             sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
+            // 记录采购订单类型的条数
+            String keys = purOrder.getSupplierNumber()+sr2.getFbillTypeNumber();
+            if(!suppAndBillMap.containsKey(keys)) {
+                suppAndBillMap.put(keys, true);
+            }
 //            sr2.setBatchno(purOrder.getBct().getBatchCode());
 //            sr2.setSequenceNo(purOrder.getBct().getSnCode());
             sr2.setUsableFqty(purOrder.getUsableFqty());
@@ -1236,22 +1269,17 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         }
     }
 
-    /**
-     * 保存方法
-     */
-    private void run_addScanningRecord() {
-        showLoadDialog("保存中...");
+    private void run_addScanningRecord_Before() {
+        countSaveSum = 0;
         getUserInfo();
-
-        ScanningRecord2 sr2Tmp = checkDatas.get(0);
-        int type = 1;
-        if(sr2Tmp.getFbillTypeNumber().equals("RKD03_SYS")) type = 6; // 委外采购入库
 
         List<ScanningRecord> list = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             ScanningRecord record = new ScanningRecord();
             // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库 6、委外采购入库
+            int type = 1;
+            if(sr2.getFbillTypeNumber().equals("RKD03_SYS")) type = 6; // 委外采购入库
             record.setType(type);
             record.setSourceId(sr2.getSourceId());
             record.setSourceK3Id(sr2.getSourceK3Id());
@@ -1305,8 +1333,40 @@ public class Pur_InFragment2_190403 extends BaseFragment {
             list.add(record);
         }
 
-        String mJson = JsonUtil.objectToString(list);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
+        int listSize = list.size();
+        int mapSize = suppAndBillMap.size();
+
+        if(mapSize > 0) {
+            countSaveSum = mapSize;
+            for(String keys : suppAndBillMap.keySet()) {
+                suppAndBillKey = keys;
+                List<ScanningRecord> list2 = new ArrayList<>();
+                for(int j=0; j<listSize; j++) {
+                    ScanningRecord sr = list.get(j);
+                    String suppNumber = sr.getSupplierFnumber();
+                    String fbillTypeNumber = sr.getFbillTypeNumber();
+                    if(keys.equals(suppNumber+fbillTypeNumber)) {
+                        list2.add(sr);
+                    }
+                }
+                String mJson = JsonUtil.objectToString(list2);
+                run_addScanningRecord(mJson);
+                break;
+            }
+//        } else {
+//            String mJson = JsonUtil.objectToString(list);
+//            run_addScanningRecord(mJson);
+        }
+    }
+
+    /**
+     * 保存方法
+     */
+    private void run_addScanningRecord(String mJson) {
+        if(parentLoadDialog == null) {
+            showLoadDialog("保存中...");
+        }
+
         FormBody formBody = new FormBody.Builder()
                 .add("strJson", mJson)
                 .build();
@@ -1475,8 +1535,20 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         showLoadDialog("正在审核...");
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
+
+        StringBuilder strFbillNo = new StringBuilder();
+        for(int i=0, size=fbillNoList.size(); i<size; i++) {
+            strFbillNo.append("'" + fbillNoList.get(i) + "',");
+        }
+
+        // 减去前面'
+        strFbillNo.delete(0, 1);
+        // 减去最好一个'，
+        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
+
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+//                .add("fbillNo", k3Number)
+                .add("fbillNo", strFbillNo.toString())
                 .add("type", "1")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

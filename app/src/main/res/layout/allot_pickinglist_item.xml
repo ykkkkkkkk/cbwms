@@ -37,6 +37,7 @@
         android:id="@+id/tv_mtlNumber"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
+        android:visibility="gone"
         android:gravity="center|left"
         android:text="物料代码"
         android:textColor="#000000"
@@ -44,7 +45,7 @@
 
     <TextView
         android:id="@+id/tv_mtlName"
-        android:layout_width="120dp"
+        android:layout_width="196dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center|left"
         android:text="物料名称"

@@ -70,7 +70,8 @@
                 android:gravity="center"
                 android:text="工序"
                 android:textColor="#000000"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tv_process"
@@ -81,7 +82,8 @@
                 android:gravity="center"
                 android:inputType="none"
                 android:paddingLeft="2dp"
-                android:textSize="@dimen/_12sp" />
+                android:textSize="@dimen/_12sp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
@@ -224,11 +226,12 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="物料代码"
+                    android:visibility="gone"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="120dp"
+                    android:layout_width="196dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="物料名称"

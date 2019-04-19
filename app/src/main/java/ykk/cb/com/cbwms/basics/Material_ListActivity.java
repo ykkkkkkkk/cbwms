@@ -167,7 +167,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
         String mUrl = getURL("findMaterialListByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
-                .add("fNumberIsOneAndTwo", fNumberIsOneAndTwo)
+                .add("fNumberIsOneAndTwo", isNULLS(fNumberIsOneAndTwo))
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

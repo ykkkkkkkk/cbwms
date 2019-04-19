@@ -134,6 +134,8 @@ public class ProdOrder implements Serializable {
     private double createCodeQty;
     /* 是否启用批号管理，0代表不启用，1代表启用 (用于在前端显示值，方便前端操作)*/
     private int isBatchManager;
+    /*入库上限数量*/
+    private double stockInLimith;
 
     // 临时字段，不加表
     private int isCheck; // 新加的是否选中
@@ -709,6 +711,14 @@ public class ProdOrder implements Serializable {
 
     public void setFmrpTerminateStatus(String fmrpTerminateStatus) {
         this.fmrpTerminateStatus = fmrpTerminateStatus;
+    }
+
+    public double getStockInLimith() {
+        return stockInLimith;
+    }
+
+    public void setStockInLimith(double stockInLimith) {
+        this.stockInLimith = stockInLimith;
     }
 
 }

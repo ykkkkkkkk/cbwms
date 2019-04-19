@@ -1,9 +1,11 @@
 package ykk.cb.com.cbwms.produce;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -82,8 +84,10 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
     TextView tvMtls;
     @BindView(R.id.tv_prodNum)
     TextView tvProdNum;
-    @BindView(R.id.tv_okCreateNum)
-    TextView tvOkCreateNum;
+    @BindView(R.id.tv_createCodeQty)
+    TextView tvCreateCodeQty;
+    @BindView(R.id.tv_limitNum)
+    TextView tvLimitNum;
 
     private static final String TAG = "Prod_CreateBarcodeDialog";
     private Prod_CreateBarcodeDialog context = this;
@@ -105,6 +109,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
     private boolean isBatch;
     private boolean isSucc; // 是否生码成功
     private DecimalFormat df = new DecimalFormat("#.####");
+    private double sumCountNum; // 统计本次生码总数
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -127,6 +132,9 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                         m.listBt.clear();
                         List<BarCodeTable> list = JsonUtil.strToList((String) msg.obj, BarCodeTable.class);
                         m.listBt.addAll(list);
+                        if(m.isBatch) {
+                            m.tvCreateCodeQty.setText(Html.fromHtml("已生码数：<font color='#000000'>"+m.df.format(m.sumCountNum)+"</font>"));
+                        }
                         m.toasts("生码成功✔");
 
                         break;
@@ -259,10 +267,13 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
 //                item1.setNum2(fqty-prodOrder.getCreateCodeQty());
                 tvMtls.setVisibility(View.VISIBLE);
                 tvProdNum.setVisibility(View.VISIBLE);
-                tvOkCreateNum.setVisibility(View.VISIBLE);
+                tvCreateCodeQty.setVisibility(View.VISIBLE);
+                tvLimitNum.setVisibility(View.VISIBLE);
                 tvMtls.setText(Html.fromHtml("物料名称：<font color='#000000'>"+mtl.getfName()+"</font>"));
                 tvProdNum.setText(Html.fromHtml("订单数量：<font color='#000000'>"+df.format(prodOrder.getProdFqty())+prodOrder.getUnitFname()+"</font>"));
-                tvOkCreateNum.setText(Html.fromHtml("已生码数：<font color='#000000'>"+df.format(prodOrder.getCreateCodeQty())+"</font>"));
+                sumCountNum = prodOrder.getCreateCodeQty();
+                tvCreateCodeQty.setText(Html.fromHtml("已生码数：<font color='#000000'>"+df.format(prodOrder.getCreateCodeQty())+"</font>"));
+                tvLimitNum.setText(Html.fromHtml("上限数：<font color='#000000'>"+df.format(prodOrder.getStockInLimith())+"</font>"));
                 setTexts(etBatchNo, Comm.getSysDate(3));
                 listDatas.add(item1);
                 mAdapter.notifyDataSetChanged();
@@ -307,61 +318,48 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                         Comm.showWarnDialog(context, "请填写批次号！");
                         return;
                     }
-                    List<AdapterItem1> list = new ArrayList<>();
+                    final List<AdapterItem1> list = new ArrayList<>();
+                    double countNum = 0; // 统计行数量
+                    double fqty = prodOrder.getStockInLimith();
                     for (int i = 0; i < listDatas.size(); i++) {
                         AdapterItem1 item = listDatas.get(i);
-                        if (item.getNum4() > 0) {
+                        double num1 = item.getNum();
+                        double num4 = item.getNum4();
+                        if (num4 > 0) {
                             // 判断是否超数
-                            Material mtl = prodOrder.getMtl();
-                            double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
-                            if(item.getNum4() > fqty) {
-                                Comm.showWarnDialog(context, "第"+(i+1)+"行，实收数超出了可用数量，可用数："+(fqty-prodOrder.getCreateCodeQty()));
+//                            Material mtl = prodOrder.getMtl();
+//                            double fqty = prodOrder.getProdFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+                            if(num4 > fqty) {
+//                                Comm.showWarnDialog(context, "第"+(i+1)+"行，实收数超出了可用数量，可用数："+(fqty-prodOrder.getCreateCodeQty()));
+                                Comm.showWarnDialog(context, "第"+(i+1)+"行，实收数超出了可用数量！");
                                 return;
                             }
+                            countNum += (num1 * num4);
                             list.add(item);
                         }
                     }
                     if (list.size() == 0) {
-                        Comm.showWarnDialog(context, "请填写物料数量！");
+                        Comm.showWarnDialog(context, "请填写应收数！");
+                        return;
+                    }
+                    if((countNum+sumCountNum) > fqty) {
+                        AlertDialog.Builder build = new AlertDialog.Builder(context);
+                        build.setIcon(R.drawable.caution);
+                        build.setTitle("系统提示");
+                        build.setMessage("当前实收数的总和已超出了上限，是否继续生码？");
+                        build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                saveBatchBefore(list);
+                            }
+                        });
+                        build.setNegativeButton("否", null);
+                        build.setCancelable(false);
+                        build.show();
                         return;
                     }
 
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < list.size(); i++) {
-                        AdapterItem1 item = list.get(i);
-                        sb.append(item.getNum()+":"+item.getNum2()+":"+item.getNum3()+":"+item.getNum4()+";");
-                    }
-                    // 去掉最后;
-                    sb.delete(sb.length()-1, sb.length());
-                    // 有多少个条码数，就拆成几行存到list中
-                    List<AdapterItem1> listTmp = new ArrayList<>();
-                    for(int i=0; i<list.size(); i++) {
-                        AdapterItem1 item1 = list.get(i);
-                        double num2 = item1.getNum2();
-                        double num3 = item1.getNum3();
-                        double num4 = item1.getNum4();
-
-                        for(int j=0; j<item1.getNum(); j++) {
-                            AdapterItem1 item2 = new AdapterItem1();
-                            item2.setNum(1);
-                            item2.setNum2(num2);
-                            item2.setNum3(num3);
-                            item2.setNum4(num4);
-                            listTmp.add(item2);
-                        }
-                    }
-                    listDatas.clear();
-                    listDatas.addAll(list);
-                    recordList.clear();
-                    recordList.addAll(listTmp); // 记录拆分成几行
-                    // 批次号赋值
-                    for(int i=0; i<checkDatas.size(); i++) {
-                        checkDatas.get(i).setBatchCode(getValues(etBatchNo).trim());
-                    }
-                    mAdapter.notifyDataSetChanged();
-
-
-                    run_prodOrderSemiBarCodeCreate(sb.toString());
+                    saveBatchBefore(list);
 
                 } else { // 未启用批次号
                     run_prodOrderSemiBarCodeCreateBatch();
@@ -390,6 +388,49 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
 
                 break;
         }
+    }
+
+    /**
+     * 启用批次号的生码处理
+     * @param list
+     */
+    private void saveBatchBefore(List<AdapterItem1> list) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            AdapterItem1 item = list.get(i);
+            sb.append(item.getNum()+":"+item.getNum2()+":"+item.getNum3()+":"+item.getNum4()+";");
+        }
+        // 去掉最后;
+        sb.delete(sb.length()-1, sb.length());
+        // 有多少个条码数，就拆成几行存到list中
+        List<AdapterItem1> listTmp = new ArrayList<>();
+        for(int i=0; i<list.size(); i++) {
+            AdapterItem1 item1 = list.get(i);
+            double num2 = item1.getNum2();
+            double num3 = item1.getNum3();
+            double num4 = item1.getNum4();
+
+            for(int j=0; j<item1.getNum(); j++) {
+                AdapterItem1 item2 = new AdapterItem1();
+                item2.setNum(1);
+                item2.setNum2(num2);
+                item2.setNum3(num3);
+                item2.setNum4(num4);
+                listTmp.add(item2);
+                sumCountNum += num4;
+            }
+        }
+        listDatas.clear();
+        listDatas.addAll(list);
+        recordList.clear();
+        recordList.addAll(listTmp); // 记录拆分成几行
+        // 批次号赋值
+        for(int i=0; i<checkDatas.size(); i++) {
+            checkDatas.get(i).setBatchCode(getValues(etBatchNo).trim());
+        }
+        mAdapter.notifyDataSetChanged();
+
+        run_prodOrderSemiBarCodeCreate(sb.toString());
     }
 
     /**
@@ -534,12 +575,10 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
             fqty3 = recordList.get(numIndex).getNum3();
             fqty4 = recordList.get(numIndex).getNum4();
         } else{
-            fqty2 = 0;
-            fqty3 = 0;
             fqty4 = prodOrder.getProdFqty();
         }
-        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"应收数："+df.format(fqty2)+" \n");
-        tsc.addText(230, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"不良数："+df.format(fqty3)+" \n");
+        tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"应收数："+(fqty2 > 0 ? df.format(fqty2) : "")+" \n");
+        tsc.addText(230, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"不良数："+(fqty3 > 0 ? df.format(fqty3) : "")+" \n");
         tsc.addText(400, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"实收数："+df.format(fqty4)+" \n");
         rowHigthSum = rowHigthSum + rowSpacing;
         tsc.addText(beginXPos, rowHigthSum, LabelCommand.FONTTYPE.SIMPLIFIED_CHINESE, LabelCommand.ROTATION.ROTATION_0, LabelCommand.FONTMUL.MUL_1, LabelCommand.FONTMUL.MUL_1,"日期："+ Comm.getSysDate(7)+" \n");

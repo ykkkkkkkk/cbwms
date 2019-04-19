@@ -52,6 +52,7 @@ import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -114,8 +115,8 @@ public class Pur_InFragment2_190403 extends BaseFragment {
     private static final int CLEAR1 = 1, SETFOCUS = 2, SAOMA = 3, WRITE_BARCODE = 4, NUM_RESULT = 50, RESET = 60;
     private Supplier supplier; // 供应商
     //    private Material mtl;
-    private Stock stock, stock2; // 仓库
-    private StockPosition stockP, stockP2; // 库位
+    private Stock defaltStock, stock, stock2; // 仓库
+    private StockPosition defaltStockPos, stockP, stockP2; // 库位
     private Department department; // 部门
     private Organization receiveOrg, purOrg; // 组织
     private Pur_InFragment2Adapter mAdapter;
@@ -427,6 +428,15 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         hideSoftInputMode(mContext, etSourceNo);
         hideSoftInputMode(mContext, etMtlNo);
         getUserInfo();
+
+        // 得到默认仓库的值
+        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
+        if(defaultStockVal == '2') {
+
+            if(user.getStock() != null) defaltStock = user.getStock();
+
+            if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
+        }
     }
 
     @Override
@@ -968,12 +978,22 @@ public class Pur_InFragment2_190403 extends BaseFragment {
 //            }
             Stock stock = mtl.getStock();
             StockPosition stockPos = mtl.getStockPos();
-            if (stock != null) {
+            if (defaltStock != null) {
+                sr2.setStock(defaltStock);
+                sr2.setStockId(defaltStock.getfStockid());
+                sr2.setStockFnumber(defaltStock.getfNumber());
+                sr2.setStockName(defaltStock.getfName());
+            } else if (stock != null) { // 物料默认的仓库库位
                 sr2.setStock(stock);
                 sr2.setStockId(stock.getfStockid());
                 sr2.setStockFnumber(stock.getfNumber());
+                sr2.setStockName(stock.getfName());
             }
-            if (stockPos != null) {
+            if (defaltStockPos != null) {
+                sr2.setStockPos(defaltStockPos);
+                sr2.setStockPositionId(defaltStockPos.getId());
+                sr2.setStockPName(defaltStockPos.getFname());
+            } else if (stockPos != null) { // 物料默认的仓库库位
                 sr2.setStockPos(stockPos);
                 sr2.setStockPositionId(stockPos.getId());
                 sr2.setStockPName(stockPos.getFname());
@@ -1004,8 +1024,7 @@ public class Pur_InFragment2_190403 extends BaseFragment {
             // 物料是否启用序列号
             if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
                 sr2.setListBarcode(new ArrayList<String>());
-            }
-            sr2.setStrBarcodes("");
+            } else sr2.setStrBarcodes("");
 
             checkDatas.add(sr2);
         }
@@ -1149,7 +1168,11 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         // 采购订单单据类型编码（转）采购入库单据类型编码
         if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
             sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
-        } else  {
+
+        } else if(billTypeNumber.equals("CGDD02_SYS")) { // 委外采购订单入库
+            sr2.setFbillTypeNumber("RKD03_SYS"); // 采购入库单据类型（标准采购入库）
+
+        } else{
             sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
         }
         sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
@@ -1158,12 +1181,22 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         // 得到物料的默认仓库仓位
         Stock stock = tmpMtl.getStock();
         StockPosition stockPos = tmpMtl.getStockPos();
-        if (stock != null) {
+        if (defaltStock != null) {
+            sr2.setStock(defaltStock);
+            sr2.setStockId(defaltStock.getfStockid());
+            sr2.setStockFnumber(defaltStock.getfNumber());
+            sr2.setStockName(defaltStock.getfName());
+        } else if (stock != null) { // 物料默认的仓库库位
             sr2.setStock(stock);
             sr2.setStockId(stock.getfStockid());
             sr2.setStockFnumber(stock.getfNumber());
+            sr2.setStockName(stock.getfName());
         }
-        if (stockPos != null) {
+        if (defaltStockPos != null) {
+            sr2.setStockPos(defaltStockPos);
+            sr2.setStockPositionId(defaltStockPos.getId());
+            sr2.setStockPName(defaltStockPos.getFname());
+        } else if (stockPos != null) { // 物料默认的仓库库位
             sr2.setStockPos(stockPos);
             sr2.setStockPositionId(stockPos.getId());
             sr2.setStockPName(stockPos.getFname());
@@ -1222,8 +1255,7 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         // 物料是否启用序列号
         if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             sr2.setListBarcode(new ArrayList<String>());
-        }
-        sr2.setStrBarcodes("");
+        } else sr2.setStrBarcodes("");
 
         checkDatas.add(sr2);
         sourceList.add(purOrder);

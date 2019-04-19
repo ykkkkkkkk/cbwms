@@ -253,6 +253,7 @@ public class Prod_OrderSearchActivity extends BaseActivity implements XRecyclerV
                 .add("mtlFnumberAndName", getValues(etMtls).trim())
                 .add("prodSeqNumber", getValues(etProdSeqNumber).trim())
                 .add("deptId", department != null ? String.valueOf(department.getFitemID()) : "")
+//                .add("createCodeStatus", "0") // 单据分录生码状态查询，0是默认值代表未生码，1代表已生码。在wms系统生码后更新此字段值
                 .add("fbillStatus2", "1")
                 .add("isDefaultStock", "1") // 查询默认仓库和库位
                 .add("limit", String.valueOf(limit))

@@ -9,7 +9,7 @@
     <TextView
         android:id="@+id/tv_row"
         android:layout_width="32dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="行号"
         android:textColor="#000000"
@@ -18,8 +18,9 @@
     <TextView
         android:id="@+id/tv_fnumber"
         android:layout_width="68dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
+        android:visibility="gone"
         android:text="物料代码"
         android:textColor="#000000"
         android:textSize="12sp" />
@@ -27,18 +28,17 @@
     <TextView
         android:id="@+id/tv_fname"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_46dp"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="center|left"
         android:text="物料名称"
         android:textColor="#000000"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_FModel"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/_38dp"
-        android:layout_weight="1"
+        android:layout_width="68dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="规格"
         android:textColor="#000000"
@@ -47,7 +47,7 @@
     <TextView
         android:id="@+id/tv_isBatch"
         android:layout_width="52dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="已启用"
         android:textColor="#000000"
@@ -56,7 +56,7 @@
     <TextView
         android:id="@+id/tv_isSn"
         android:layout_width="52dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="已启用"
         android:textColor="#000000"

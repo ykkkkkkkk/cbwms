@@ -1,6 +1,8 @@
 package ykk.cb.com.cbwms.produce.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -49,9 +51,11 @@ public class Prod_InFragment1Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             tv_nums.setEnabled(false);
             tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
+            tv_canStockNum.setTextColor(Color.parseColor("#FF2200"));
         } else {
             tv_nums.setEnabled(true);
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
+            tv_canStockNum.setTextColor(Color.parseColor("#000000"));
         }
         String batchNo = Comm.isNULLS(entity.getBatchno());
         batchNo = batchNo.length() == 0 ? "无" : batchNo;

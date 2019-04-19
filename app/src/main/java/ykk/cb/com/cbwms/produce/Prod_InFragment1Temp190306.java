@@ -150,7 +150,6 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
 
                         break;
                     case PASS: // 审核成功 返回
-                        m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
                         m.btnPrint.setVisibility(View.GONE);
@@ -160,7 +159,8 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
                         m.checkDatas.clear();
                         m.getBarCodeTableBefore(true);
                         m.mAdapter.notifyDataSetChanged();
-                        Comm.showWarnDialog(m.mContext,"审核成功✔");
+                        Comm.showWarnDialog(m.mContext, "【"+m.k3Number + "】，审核成功✔");
+                        m.k3Number = null;
 
                         break;
                     case UNPASS: // 审核失败 返回

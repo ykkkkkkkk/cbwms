@@ -75,6 +75,8 @@ public class Allot_PickingListActivity extends BaseActivity {
     View viewRadio1;
     @BindView(R.id.viewRadio2)
     View viewRadio2;
+    @BindView(R.id.viewRadio3)
+    View viewRadio3;
     @BindView(R.id.et_mtlCode)
     EditText etMtlCode;
     @BindView(R.id.tv_staffSel)
@@ -372,13 +374,15 @@ public class Allot_PickingListActivity extends BaseActivity {
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                setCheckFalse();
                 StkTransferOutEntry m = checkDatas.get(pos);
-                int isCheck = m.getIsCheck();
-                if (isCheck == 1) {
-                    m.setIsCheck(0);
-                } else {
-                    m.setIsCheck(1);
-                }
+                m.setIsCheck(1);
+//                int isCheck = m.getIsCheck();
+//                if (isCheck == 1) {
+//                    m.setIsCheck(0);
+//                } else {
+//                    m.setIsCheck(1);
+//                }
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -409,7 +413,7 @@ public class Allot_PickingListActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_close, R.id.btn_menu, R.id.tv_staffSel, R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_deptSel, R.id.tv_inStockSel,
-            R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.btn_scan, R.id.tv_canStockNum, R.id.tv_deliveryWay, R.id.tv_prodSeqNumber, R.id.tv_stockPosSeq})
+            R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.lin_tab1, R.id.lin_tab2, R.id.lin_tab3, R.id.btn_scan, R.id.tv_canStockNum, R.id.tv_deliveryWay, R.id.tv_prodSeqNumber, R.id.tv_stockPosSeq})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -556,6 +560,15 @@ public class Allot_PickingListActivity extends BaseActivity {
                 }
                 businessType = "2";
                 tabSelected(viewRadio2);
+
+                break;
+            case R.id.lin_tab3:
+                if (checkDatas.size() > 0) {
+                    Comm.showWarnDialog(context, "请先保存本次数据！");
+                    return;
+                }
+                businessType = "3";
+                tabSelected(viewRadio3);
 
                 break;
             case R.id.btn_scan: // 调用摄像头扫描
@@ -749,10 +762,10 @@ public class Allot_PickingListActivity extends BaseActivity {
 //                writeBatchDialog();
 //                return false;
 //            }
-            if (stkEntry.getTmpPickFqty() > stkEntry.getUsableFqty()) {
-                Comm.showWarnDialog(context, "第" + (i + 1) + "行（拣货数）不能大于（调拨数）！");
-                return false;
-            }
+//            if (stkEntry.getTmpPickFqty() > stkEntry.getUsableFqty()) {
+//                Comm.showWarnDialog(context, "第" + (i + 1) + "行（拣货数）不能大于（调拨数）！");
+//                return false;
+//            }
             if (stkEntry.getOutStockId() == 0) {
                 Comm.showWarnDialog(context, "第" + (i + 1) + "行请选择仓库！");
                 return false;
@@ -1053,43 +1066,11 @@ public class Allot_PickingListActivity extends BaseActivity {
                 isFlag = true;
                 position = i;
 
-                double fqty = 1;
-                // 计量单位数量
-                if (tmpMtl.getCalculateFqty() > 0) fqty = tmpMtl.getCalculateFqty();
                 // 未启用序列号
                 if (tmpMtl.getIsSnManager() == 0) {
-                    // 调拨数大于拣货数
-                    if (stkEntry.getUsableFqty() > stkEntry.getTmpPickFqty()) {
-                        // 如果扫的是物料包装条码，就显示个数
-                        double number = 0;
-                        if (bt != null) number = bt.getMaterialCalculateNumber();
-
-                        if (number > 0) {
-                            stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + (number * fqty));
-                        } else {
-                            stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + fqty);
-                        }
-                        stkEntry.setBatchCode(bt.getBatchCode());
-                        stkEntry.setSnCode(bt.getSnCode());
-
-                        // 启用了最小包装
-//                    } else if(mtl.getMtlPack() != null && mtl.getMtlPack().getIsMinNumberPack() == 1) {
-//                        if(mtl.getMtlPack().getIsMinNumberPack() == 1) {
-//                            // 如果拣货数小于调拨数，就加数量
-//                            if(stkEntry.getPickingListNum() < stkEntry.getDeliFremainoutqty()) {
-//                                stkEntry.setPickingListNum(stkEntry.getPickingListNum() + fqty);
-//                            } else {
-//                                Comm.showWarnDialog(context, "第" + (i + 1) + "行，已经达到最小包装发货数量！");
-//                                return;
-//                            }
-//                        }
-
-//                    } else if ((mtl.getMtlPack() == null || mtl.getMtlPack().getIsMinNumberPack() == 0) && stkEntry.getPickingListNum() > stkEntry.getDeliFremainoutqty()) {
-                    } else if (stkEntry.getTmpPickFqty() > stkEntry.getUsableFqty()) {
-                        // 数量已满
-                        Comm.showWarnDialog(context, "第" + (i + 1) + "行，（拣货数）不能大于（调拨数）！");
-                        return;
-                    }
+                    stkEntry.setBatchCode(bt.getBatchCode());
+                    stkEntry.setSnCode(bt.getSnCode());
+                    stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
                 } else {
                     if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
                         Comm.showWarnDialog(context, "第" + (i + 1) + "行，已捡完！");
@@ -1121,8 +1102,8 @@ public class Allot_PickingListActivity extends BaseActivity {
             Comm.showWarnDialog(context, "该物料与订单不匹配！");
             return;
         }
-//        setCheckFalse();
-//        checkDatas.get(position).setIsCheck(1);
+        setCheckFalse();
+        checkDatas.get(position).setIsCheck(1);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -1262,7 +1243,7 @@ public class Allot_PickingListActivity extends BaseActivity {
             case '2': // 物料
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
-                strCaseId = "11,21,34";
+                strCaseId = "11,21,32,34";
                 outDeptNumber = "";
                 inStockNumber = "";
                 outStockNumber = "";

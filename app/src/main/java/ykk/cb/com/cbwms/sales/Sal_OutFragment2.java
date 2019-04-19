@@ -231,7 +231,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                                 if(m.isAlikeCust(mbr)) return;
                                 if(m.caseId > 0 && m.caseId != mbr.getCaseId()) {
-                                    Comm.showWarnDialog(m.mContext,"扫码的箱码单据和当前行的单据不一致！");
+                                    Comm.showWarnDialog(m.mContext,"扫描的箱码单据和当前行的单据不一致！");
                                     return;
                                 }
                                 m.caseId = mbr.getCaseId();
@@ -248,7 +248,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                     else if(orderDeliveryType2 == '2') context2 = "整单发货";
                                     else if(orderDeliveryType2 == '3') context2 = "拼单";
 
-                                    Comm.showWarnDialog(m.mContext,"扫码的箱码对应的单据发货类型和当前行的不一致！(行数据是“"+context+"”，你扫了“"+context2+"”！)");
+                                    Comm.showWarnDialog(m.mContext,"扫描的箱码对应的单据发货类型和当前行的不一致！(行数据是“"+context+"”，你扫了“"+context2+"”！)");
                                     return;
                                 }
                                 m.orderDeliveryType = orderDeliveryType2;

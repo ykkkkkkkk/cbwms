@@ -1,6 +1,8 @@
 package ykk.cb.com.cbwms.entrance.page4.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -56,19 +58,28 @@ public class Allot_PickingListAdapter extends BaseArrayRecyclerAdapter<StkTransf
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
-        if(mtl.getIsSnManager() == 1) {
+        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             tv_nums.setEnabled(false);
             tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
+            tv_canStockNum.setTextColor(Color.parseColor("#FF2200"));
         } else {
             tv_nums.setEnabled(true);
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
+            tv_canStockNum.setTextColor(Color.parseColor("#000000"));
         }
         View view = (View) tv_row.getParent();
         if(entity.getIsCheck() == 1) {
+            if(mtl.getIsSnManager() == 0) {
+                tv_nums.setEnabled(true);
+            } else {
+                tv_nums.setEnabled(false);
+            }
             view.setBackgroundResource(R.drawable.back_style_check1_true);
         } else {
+            tv_nums.setEnabled(false);
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
+
         tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty())+"<br><font color='#009900'>"+df.format(entity.getTmpPickFqty())+"</font>"));
         double inventoryFqty = entity.getInventoryFqty();
         tv_canStockNum.setText(inventoryFqty > 0 ? df.format(inventoryFqty) : "");

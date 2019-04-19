@@ -91,12 +91,10 @@
         <activity
             android:name=".basics.PrintMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
         <activity
             android:name=".basics.PublicInputDialog"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="stateHidden|adjustResize" />
-
         <activity
             android:name=".basics.PublicInputDialog2"
             android:theme="@style/dialogStyle"
@@ -137,6 +135,16 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".entrance.page4.Allot_OperationReplaceMaterialActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_SearchActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_SearchEntryActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_OperationAddActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
 

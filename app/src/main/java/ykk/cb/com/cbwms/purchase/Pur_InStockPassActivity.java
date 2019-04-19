@@ -155,10 +155,10 @@ public class Pur_InStockPassActivity extends BaseActivity implements XRecyclerVi
         mAdapter.setCallBack(new Pur_InStockPassAdapter.MyCallBack() {
             @Override
             public void onClick(PurInStock entity, int position) {
-                Bundle bundle = new Bundle();
-                bundle.putString("fbillno", entity.getFbillno());
-                bundle.putString("suppName", entity.getSupName());
-                show(Pur_InStockPassEntryActivity.class, bundle);
+            Bundle bundle = new Bundle();
+            bundle.putString("fbillno", entity.getFbillno());
+            bundle.putString("suppName", entity.getSupName());
+            show(Pur_InStockPassEntryActivity.class, bundle);
             }
         });
     }

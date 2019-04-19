@@ -153,6 +153,9 @@ public class StkTransferOut implements Serializable {
      */
     private String closerName;
 
+    // 临时字段，不存表
+    private int entryRowNum; // 查询子表的行数
+
     public StkTransferOut() {
         super();
     }
@@ -492,6 +495,14 @@ public class StkTransferOut implements Serializable {
 
     public void setCloserName(String closerName) {
         this.closerName = closerName;
+    }
+
+    public int getEntryRowNum() {
+        return entryRowNum;
+    }
+
+    public void setEntryRowNum(int entryRowNum) {
+        this.entryRowNum = entryRowNum;
     }
 
 }

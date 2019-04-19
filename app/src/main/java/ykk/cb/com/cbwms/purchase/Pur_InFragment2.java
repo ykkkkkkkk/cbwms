@@ -49,6 +49,7 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
+import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -93,8 +94,8 @@ public class Pur_InFragment2 extends BaseFragment {
     private static final int SETFOCUS = 2, SAOMA = 3, WRITE_BARCODE = 4, NUM_RESULT = 50, RESET = 60;
     private Supplier supplier; // 供应商
     //    private Material mtl;
-    private Stock stock, stock2; // 仓库
-    private StockPosition stockP, stockP2; // 库位
+    private Stock defaltStock, stock, stock2; // 仓库
+    private StockPosition defaltStockPos, stockP, stockP2; // 库位
     private Organization receiveOrg, purOrg; // 组织
     private Pur_InFragment2Adapter mAdapter;
     private List<ScanningRecord2> checkDatas = new ArrayList<>();
@@ -307,7 +308,7 @@ public class Pur_InFragment2 extends BaseFragment {
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
                                         double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
 //                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
-                                        if((so.getFqty()+sr2.getStockqty()) > fqty) {
+                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
                                         Comm.showWarnDialog(m.mContext,"第" + (j + 1) + "行已入库数“"+so.getFqty()+"”，当前超出数“"+(so.getFqty()+sr2.getStockqty() - sr2.getFqty())+"”！");
                                         return;
                                     } else if(so.getFqty() == fqty) {
@@ -416,6 +417,15 @@ public class Pur_InFragment2 extends BaseFragment {
     public void initData() {
         hideSoftInputMode(mContext, etMtlNo);
         getUserInfo();
+
+        // 得到默认仓库的值
+        defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
+        if(defaultStockVal == '2') {
+
+            if(user.getStock() != null) defaltStock = user.getStock();
+
+            if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
+        }
     }
 
     @Override
@@ -834,100 +844,6 @@ public class Pur_InFragment2 extends BaseFragment {
         mAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * 选择来源单返回
-     */
-    private void getSourceAfter(List<PurOrder> list) {
-        for (int i = 0, size = list.size(); i < size; i++) {
-            PurOrder purOrder = list.get(i);
-            ScanningRecord2 sr2 = new ScanningRecord2();
-            Material mtl = purOrder.getMtl();
-
-            sr2.setSourceK3Id(purOrder.getfId());
-            sr2.setSourceFnumber(purOrder.getFbillno());
-            sr2.setFitemId(mtl.getfMaterialId());
-            mtl.setReceiveMaxScale(purOrder.getReceiveMaxScale());
-            mtl.setReceiveMinScale(purOrder.getReceiveMinScale());
-            sr2.setMtl(mtl);
-            sr2.setMtlFnumber(mtl.getfNumber());
-            sr2.setUnitFnumber(mtl.getUnit().getUnitNumber());
-            sr2.setPoFid(purOrder.getfId());
-            sr2.setEntryId(purOrder.getEntryId());
-            sr2.setPoFbillno(purOrder.getFbillno());
-            String billTypeNumber = purOrder.getBillTypeNumber();
-            // 采购订单单据类型编码（转）采购入库单据类型编码
-            if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
-                sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
-
-            } else if(billTypeNumber.equals("CGDD02_SYS")) { // 委外采购订单入库
-                sr2.setFbillTypeNumber("RKD03_SYS"); // 采购入库单据类型（标准采购入库）
-
-            } else{
-                sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
-            }
-            sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
-//            sr2.setBatchno(purOrder.getBct().getBatchCode());
-//            sr2.setSequenceNo(purOrder.getBct().getSnCode());
-            sr2.setUsableFqty(purOrder.getUsableFqty());
-            sr2.setFqty(purOrder.getPoFqty());
-            sr2.setPoFmustqty(purOrder.getPoFqty());
-            sr2.setStockqty(0);
-            sr2.setFprice(purOrder.getFprice());
-
-            // 是否启用物料的序列号,如果启用了，则数量为1
-//            if (purOrder.getMtl().getIsSnManager() == 1) {
-//                double fqty = 1;
-//                // 计量单位数量
-//                if(purOrder.getMtl().getCalculateFqty() > 0) fqty = purOrder.getMtl().getCalculateFqty();
-//                sr2.setStockqty(fqty);
-//            }
-            Stock stock = mtl.getStock();
-            StockPosition stockPos = mtl.getStockPos();
-            if (stock != null) {
-                sr2.setStock(stock);
-                sr2.setStockId(stock.getfStockid());
-                sr2.setStockFnumber(stock.getfNumber());
-            }
-            if (stockPos != null) {
-                sr2.setStockPos(stockPos);
-                sr2.setStockPositionId(stockPos.getId());
-                sr2.setStockPName(stockPos.getFname());
-            }
-            sr2.setSupplierId(purOrder.getSupplierId());
-            sr2.setSupplierName(purOrder.getSupplierName());
-            sr2.setSupplierFnumber(purOrder.getSupplierNumber());
-            if(supplier == null) supplier = new Supplier();
-            supplier.setFsupplierid(purOrder.getSupplierId());
-            supplier.setfNumber(purOrder.getSupplierNumber());
-            supplier.setfName(purOrder.getSupplierName());
-//            if (department != null) {
-//                sr2.setEmpId(department.getFitemID()); // 部门
-//                sr2.setDepartmentFnumber(department.getDepartmentNumber());
-//            }
-            receiveOrg = purOrder.getReceiveOrg();
-            if(receiveOrg != null) { // 收料组织
-                sr2.setReceiveOrgFnumber(receiveOrg.getNumber());
-            }
-            purOrg = purOrder.getPurOrg();
-            if(purOrg != null) { // 采购组织
-                sr2.setPurOrgFnumber(purOrg.getNumber());
-            }
-            // 物料是否启用序列号
-            if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
-                sr2.setListBarcode(new ArrayList<String>());
-            }
-            sr2.setStrBarcodes("");
-
-            checkDatas.add(sr2);
-        }
-        mAdapter.notifyDataSetChanged();
-        tvSupplierSel.setText(supplier.getfName());
-        getBarCodeTableAfterEnable(false);
-
-        // 合计总数
-        tvCountSum.setText(String.valueOf(countSum()));
-    }
-
     private double countSum() {
         double sum = 0.0;
         for (int i = 0; i < checkDatas.size(); i++) {
@@ -1078,12 +994,22 @@ public class Pur_InFragment2 extends BaseFragment {
         // 得到物料的默认仓库仓位
         Stock stock = tmpMtl.getStock();
         StockPosition stockPos = tmpMtl.getStockPos();
-        if (stock != null) {
+        if (defaltStock != null) {
+            sr2.setStock(defaltStock);
+            sr2.setStockId(defaltStock.getfStockid());
+            sr2.setStockFnumber(defaltStock.getfNumber());
+            sr2.setStockName(defaltStock.getfName());
+        } else if (stock != null) { // 物料默认的仓库库位
             sr2.setStock(stock);
             sr2.setStockId(stock.getfStockid());
             sr2.setStockFnumber(stock.getfNumber());
+            sr2.setStockName(stock.getfName());
         }
-        if (stockPos != null) {
+        if (defaltStockPos != null) {
+            sr2.setStockPos(defaltStockPos);
+            sr2.setStockPositionId(defaltStockPos.getId());
+            sr2.setStockPName(defaltStockPos.getFname());
+        } else if (stockPos != null) { // 物料默认的仓库库位
             sr2.setStockPos(stockPos);
             sr2.setStockPositionId(stockPos.getId());
             sr2.setStockPName(stockPos.getFname());
@@ -1154,8 +1080,8 @@ public class Pur_InFragment2 extends BaseFragment {
             list.add(bt.getBarcode());
             sr2.setListBarcode(list);
             sr2.setStrBarcodes(bt.getBarcode());
-        }
-        sr2.setStrBarcodes("");
+        } else sr2.setStrBarcodes("");
+
         setCheckFalse();
         sr2.setCheck(true);
         checkDatas.add(sr2);

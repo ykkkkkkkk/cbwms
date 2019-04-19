@@ -31,7 +31,6 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
@@ -40,17 +39,11 @@ import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_OperationAdapter;
-import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.PickingList;
-import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -63,18 +56,20 @@ public class Allot_OperationActivity extends BaseActivity {
 
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
-    @BindView(R.id.tv_stockSel)
-    TextView tvStockSel;
+    @BindView(R.id.tv_inStockSel)
+    TextView tvInStockSel;
+    @BindView(R.id.tv_outStockSel)
+    TextView tvOutStockSel;
     @BindView(R.id.tv_dateSel)
     TextView tvDateSel;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
     private Allot_OperationActivity context = this;
-    private static final int SEL_DEPT = 11, SEL_STOCK = 12, SEL_STOCK2 = 13, SEL_STOCKP2 = 14;
+    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15;
     private static final int SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, MODIFY = 205, UNMODIFY = 505;
     private static final int RESULT_NUM = 1, REFRESH = 2;
-    private Stock stock, stock2; // 仓库
+    private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Department department; // 部门
     private Allot_OperationAdapter mAdapter;
@@ -225,8 +220,8 @@ public class Allot_OperationActivity extends BaseActivity {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.btn_pass,
-            R.id.tv_deptSel, R.id.tv_stockSel, R.id.tv_dateSel, R.id.btn_find    })
+    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
+              R.id.tv_dateSel, R.id.lin_find, R.id.btn_add    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -246,21 +241,23 @@ public class Allot_OperationActivity extends BaseActivity {
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, bundle);
 
                 break;
-            case R.id.tv_stockSel: // 调出仓库
+            case R.id.tv_inStockSel: // 调入仓库
+                bundle = new Bundle();
+                bundle.putInt("isAll", 10);
+                showForResult(Stock_DialogActivity.class, SEL_IN_STOCK, bundle);
+
+                break;
+            case R.id.tv_outStockSel: // 调出仓库
                 bundle = new Bundle();
                 bundle.putInt("isAll", 11);
-                showForResult(Stock_DialogActivity.class, SEL_STOCK, bundle);
+                showForResult(Stock_DialogActivity.class, SEL_OUT_STOCK, bundle);
 
                 break;
             case R.id.tv_dateSel: // 日期
                 Comm.showDateDialog(context, view, 0);
 
                 break;
-            case R.id.btn_find: // 查询调拨单
-//                if(department == null) {
-//                    Comm.showWarnDialog(context,"请选择领料部门！");
-//                    return;
-//                }
+            case R.id.lin_find: // 查询调拨单
                 run_smGetDatas();
 
                 break;
@@ -288,6 +285,10 @@ public class Allot_OperationActivity extends BaseActivity {
                 // 去掉最好：
                 sbIds.delete(sbIds.length()-1, sbIds.length());
                 run_pass(sbIds.toString());
+
+                break;
+            case R.id.btn_add: // 新增行
+                show(Allot_OperationAddActivity.class, null);
 
                 break;
         }
@@ -383,21 +384,19 @@ public class Allot_OperationActivity extends BaseActivity {
                 }
 
                 break;
-            case SEL_STOCK: //行事件选择仓库	返回
+            case SEL_IN_STOCK: //行事件选择调入仓库	返回
                 if (resultCode == Activity.RESULT_OK) {
-                    stock = (Stock) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_STOCK", stock.getfName());
-                    tvStockSel.setText(stock.getfName());
-                    // 启用了库位管理
-//                    if (stock2.isStorageLocation()) {
-//                        Bundle bundle = new Bundle();
-//                        bundle.putInt("stockId", stock2.getfStockid());
-//                        showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
-//                    } else {
-//                        stockAllFill(false);
-//                        saveObjectToXml(stock2, "strStock", getResStr(R.string.saveUser));
-//                    }
+                    inStock = (Stock) data.getSerializableExtra("obj");
+                    Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
+                    tvInStockSel.setText(inStock.getfName());
+                }
 
+                break;
+            case SEL_OUT_STOCK: // 行事件选择调出仓库	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    outStock = (Stock) data.getSerializableExtra("obj");
+                    Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName());
+                    tvOutStockSel.setText(outStock.getfName());
                 }
 
                 break;
@@ -510,29 +509,15 @@ public class Allot_OperationActivity extends BaseActivity {
      */
     private void run_smGetDatas() {
         showLoadDialog("加载中...");
-        String mUrl = null;
-        String barcode = null;
-        String strCaseId = null;
-        String isList = ""; // 是否根据单据查询全部
-        String outDeptNumber = null; // 领料部门
-        String outStockNumber = null; // 调出仓库
-        String outDate = null; // 调出日期
-
-        mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
-        barcode = "";
-        strCaseId = "";
-        if(department != null) outDeptNumber = department.getDepartmentNumber();
-        else outDeptNumber = "";
-        if(stock != null) outStockNumber = stock.getfNumber();
-        else outStockNumber = "";
-        outDate = getValues(tvDateSel);
+        String mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");;
+        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
+        String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
+        String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
+        String outDate = getValues(tvDateSel); // 调出日期
         FormBody formBody = new FormBody.Builder()
-                .add("strCaseId", strCaseId)
-                .add("isList", String.valueOf(isList))
-                .add("barcode", barcode)
                 .add("isValidStatus", "1")
-                .add("sourceType","6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
+                .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单））
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", "1") // 未审核的单据（查询调拨单）

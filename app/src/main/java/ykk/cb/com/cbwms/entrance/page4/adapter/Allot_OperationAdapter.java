@@ -40,7 +40,8 @@ public class Allot_OperationAdapter extends BaseArrayRecyclerAdapter<StkTransfer
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
-        TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
+        TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
+        TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_rowStatus = holder.obtainView(R.id.tv_rowStatus);
 
         // 赋值
@@ -68,11 +69,12 @@ public class Allot_OperationAdapter extends BaseArrayRecyclerAdapter<StkTransfer
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
         tv_nums.setText(df.format(entity.getFqty()));
-        String stockName = Comm.isNULLS(entity.getInStockName());
-        stockName = stockName.length() == 0 ? "无" : stockName;
-        String stockPNumber = Comm.isNULLS(entity.getInStockPositionNumber());
-        stockPNumber = stockPNumber.length() == 0 ? "无" : stockPNumber;
-        tv_stockAP.setText(Html.fromHtml(stockName + "<br><font color='#6a5acd'>" + stockPNumber + "</font>"));
+        String outStockName = Comm.isNULLS(entity.getOutStockName());
+        outStockName = outStockName.length() == 0 ? "无" : outStockName;
+        String outStockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
+        outStockPNumber = outStockPNumber.length() == 0 ? "无" : outStockPNumber;
+        tv_outStockAP.setText(Html.fromHtml(outStockName + "<br><font color='#6a5acd'>" + outStockPNumber + "</font>"));
+        tv_inStockAP.setText(Comm.isNULLS(entity.getInStockName()));
         if(entity.getStkTransferOut().getCloseStatus() > 1 || entity.getEntryStatus() > 1) {
             tv_rowStatus.setText(Html.fromHtml("<font color='#FF2200'>已关闭</font>"));
         } else {

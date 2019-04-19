@@ -179,7 +179,6 @@ public class Prod_InFragment1 extends BaseFragment {
 
                         break;
                     case PASS: // 审核成功 返回
-                        m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
                         m.btnBatchAdd.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
@@ -190,7 +189,8 @@ public class Prod_InFragment1 extends BaseFragment {
                         m.checkDatas.clear();
                         m.getBarCodeTableBefore(true);
                         m.mAdapter.notifyDataSetChanged();
-                        Comm.showWarnDialog(m.mContext, "审核成功✔");
+                        Comm.showWarnDialog(m.mContext, "【"+m.k3Number + "】，审核成功✔");
+                        m.k3Number = null;
 
                         break;
                     case UNPASS: // 审核失败 返回
@@ -259,12 +259,17 @@ public class Prod_InFragment1 extends BaseFragment {
                             ShrinkOrder so = list.get(i);
                             for (int j = 0, size = m.checkDatas.size(); j < size; j++) {
                                 ScanningRecord2 sr2 = m.checkDatas.get(j);
+                                Material mtl2 = sr2.getMtl();
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
-                                    if ((so.getFqty() + sr2.getStockqty()) > sr2.getFqty()) {
+//                                    double fqty = sr2.getFqty()*(1+mtl2.getFinishReceiptOverRate()/100);
+                                    double fqty = sr2.getStockInLimith();
+
+//                                    if ((so.getFqty() + sr2.getStockqty()) > sr2.getFqty()) {
+                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
                                         Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + (so.getFqty() + sr2.getStockqty() - sr2.getFqty()) + "”！");
                                         return;
-                                    } else if (so.getFqty() == sr2.getFqty()) {
+                                    } else if (so.getFqty() == fqty) {
                                         Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已全部入库，不能重复操作！");
                                         return;
                                     }
@@ -623,9 +628,10 @@ public class Prod_InFragment1 extends BaseFragment {
 //                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行（实收数）不能大于（应收数）！");
 //                return false;
 //            }
-            double fqty = sr2.getFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+//            double fqty = sr2.getFqty()*(1+mtl.getFinishReceiptOverRate()/100);
+            double fqty = sr2.getStockInLimith();
             if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
-                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getFinishReceiptOverRate() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
+                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(fqty > sr2.getFqty() ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
             // 如果实收数大于应收数，那么传到k3,把实收数复制到应收数的字段
@@ -853,6 +859,7 @@ public class Prod_InFragment1 extends BaseFragment {
             }
             sr2.setReceiveOrgFnumber(prodOrder.getProdOrgNumber());
             sr2.setPurOrgFnumber(prodOrder.getProdOrgNumber());
+            sr2.setStockInLimith(prodOrder.getStockInLimith());
 
             // 入库组织
             if (inOrg == null) inOrg = new Organization();
@@ -1016,6 +1023,7 @@ public class Prod_InFragment1 extends BaseFragment {
         ProdOrder prodOrder = JsonUtil.stringToObject(bt.getRelationObj(), ProdOrder.class);
         sr2.setReceiveOrgFnumber(prodOrder.getProdOrgNumber());
         sr2.setPurOrgFnumber(prodOrder.getProdOrgNumber());
+        sr2.setStockInLimith(prodOrder.getStockInLimith());
 
         // 入库组织
         if (inOrg == null) inOrg = new Organization();
@@ -1088,6 +1096,7 @@ public class Prod_InFragment1 extends BaseFragment {
             sr2.setListBarcode(list);
             sr2.setStrBarcodes(bt.getBarcode());
         } else sr2.setStrBarcodes("");
+
         setCheckFalse();
         sr2.setCheck(true);
         checkDatas.add(sr2);

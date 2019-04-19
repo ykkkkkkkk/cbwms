@@ -79,6 +79,8 @@ public class ScanningRecord2 implements Serializable {
     private double salOrderSumQty; // 箱子对应的销售订单的总数量
     private double inventoryFqty; // 即时库存数
     private boolean isCheck; // 是否选中
+    /*入库上限数量*/
+    private double stockInLimith;
 
 
     public int getID() {
@@ -655,6 +657,14 @@ public class ScanningRecord2 implements Serializable {
 
     public void setCheck(boolean check) {
         isCheck = check;
+    }
+
+    public double getStockInLimith() {
+        return stockInLimith;
+    }
+
+    public void setStockInLimith(double stockInLimith) {
+        this.stockInLimith = stockInLimith;
     }
 
     public ScanningRecord2() {

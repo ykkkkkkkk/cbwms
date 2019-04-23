@@ -153,6 +153,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private char orderDeliveryType = '0'; // 单据发货类型 （1、非整非拼，2、整单发货，3、拼单）
     private boolean isTextChange; // 是否进入TextChange事件
     private boolean isFold; // 是否折叠
+    private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -1155,6 +1156,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderId(prodOrder.getSalOrderId());
                 sr2.setSalOrderNo(prodOrder.getSalOrderNo());
                 sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
+                if(checkDatas.size() == 0) { // 这里是为了箱子是整单，订单在数据库更新为非整单，然后就按照非整单判断
+                    singleshipment = prodOrder.getSingleshipment() ;
+                }
             }
             sr2.setCaseId(mbr.getCaseId());
             // 物料默认的仓库库位

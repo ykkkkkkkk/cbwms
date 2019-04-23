@@ -242,7 +242,14 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_prodSeqNumber"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="单据日期"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:layout_width="76dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -251,7 +258,6 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_stockPosSeq"
                     android:layout_width="70dp"
                     android:layout_height="match_parent"
                     android:gravity="center"

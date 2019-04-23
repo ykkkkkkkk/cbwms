@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +46,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
+import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -70,8 +74,8 @@ import static ykk.cb.com.cbwms.util.blueTooth.DeviceConnFactoryManager.CONN_STAT
  */
 public class Prod_InStockSearchActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
-    @BindView(R.id.et_stockName)
-    EditText etStockName;
+    @BindView(R.id.tv_stockSel)
+    TextView tvStockSel;
     @BindView(R.id.et_mtlName)
     EditText etMtlName;
     @BindView(R.id.tv_begDate)
@@ -84,11 +88,13 @@ public class Prod_InStockSearchActivity extends BaseActivity implements XRecycle
     XRecyclerView xRecyclerView;
 
     private Prod_InStockSearchActivity context = this;
+    private static final int SEL_STOCK = 10;
     private static final int SUCC2 = 202, UNSUCC2 = 502;
     private Prod_InStockSearchAdapter mAdapter;
     private List<ScanningRecord> listDatas = new ArrayList<>();
     private OkHttpClient okHttpClient = null;
     private int limit = 1;
+    private Stock stock;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String strType = "1,6"; // 1：采购入库，5：生产入库，6：委外采购入库
 
@@ -193,12 +199,21 @@ public class Prod_InStockSearchActivity extends BaseActivity implements XRecycle
         tvEndDate.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_clone, R.id.tv_begDate, R.id.tv_endDate, R.id.tv_billType, R.id.btn_search    })
+    @OnClick({R.id.btn_close, R.id.btn_clone, R.id.tv_stockSel, R.id.tv_begDate, R.id.tv_endDate, R.id.tv_billType, R.id.btn_search    })
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
                 closeHandler(mHandler);
                 context.finish();
+
+                break;
+            case R.id.tv_stockSel: // 选择仓库
+                Bundle bundle = new Bundle();
+                bundle.putInt("isAll", 12);
+                bundle.putString("startTime", getValues(tvBegDate)); // 单据开始日期
+                bundle.putString("endTime", getValues(tvEndDate)); // 单据结束日期
+                bundle.putString("strType", strType); // 方案id
+                showForResult(Stock_DialogActivity.class, SEL_STOCK, bundle);
 
                 break;
             case R.id.tv_begDate: // 开始日期
@@ -279,7 +294,8 @@ public class Prod_InStockSearchActivity extends BaseActivity implements XRecycle
      *
      */
     private void reset() {
-        etStockName.setText("");
+        tvStockSel.setText("");
+        stock = null;
         etMtlName.setText("");
 
 //        listDatas.clear();
@@ -289,6 +305,16 @@ public class Prod_InStockSearchActivity extends BaseActivity implements XRecycle
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case SEL_STOCK: //选择仓库	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    stock = (Stock) data.getSerializableExtra("obj");
+                    Log.e("onActivityResult --> SEL_IN_STOCK", stock.getfName());
+                    tvStockSel.setText(stock.getfName());
+                }
+
+                break;
+        }
     }
 
     private void initLoadDatas() {
@@ -320,7 +346,8 @@ public class Prod_InStockSearchActivity extends BaseActivity implements XRecycle
         String mUrl = getURL("findScanningRecordByParamApp");
 
         FormBody formBody = new FormBody.Builder()
-                .add("stockName", getValues(etStockName)) // 客户
+                .add("stockId", stock != null ? String.valueOf(stock.getfStockid()) : "") // 客户id
+//                .add("stockName", getValues(etStockName)) // 客户
                 .add("mtlName", getValues(etMtlName)) // 物料
                 .add("startTime", getValues(tvBegDate)) // 单据开始日期
                 .add("endTime", getValues(tvEndDate)) // 单据结束日期

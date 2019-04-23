@@ -34,8 +34,9 @@ public class Prod_MendBarcodeAdapter extends BaseArrayRecyclerAdapter<StkTransfe
     public void onBindHoder(RecyclerHolder holder, final StkTransferOutEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_fbillNo = holder.obtainView(R.id.tv_fbillNo);
         TextView tv_stkDate = holder.obtainView(R.id.tv_stkDate);
+        TextView tv_fbillNo = holder.obtainView(R.id.tv_fbillNo);
+        TextView tv_orderDate = holder.obtainView(R.id.tv_orderDate);
         TextView tv_deliveryWay = holder.obtainView(R.id.tv_deliveryWay);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_fqty = holder.obtainView(R.id.tv_fqty);
@@ -55,8 +56,9 @@ public class Prod_MendBarcodeAdapter extends BaseArrayRecyclerAdapter<StkTransfe
         StkTransferOut stkOut = entity.getStkTransferOut();
 
         tv_row.setText(String.valueOf(pos + 1));
+        tv_stkDate.setText(stkOut.getBillDate());
         tv_fbillNo.setText(entity.getOrderNo());
-        tv_stkDate.setText(entity.getOrderDate());
+        tv_orderDate.setText(entity.getOrderDate());
         tv_deliveryWay.setText(entity.getDeliveryWayName());
         tv_mtlName.setText(entity.getMtlFname());
         tv_fqty.setText(df.format(entity.getFqty()));

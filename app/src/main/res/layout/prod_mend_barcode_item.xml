@@ -16,6 +16,16 @@
         android:textSize="12sp" />
 
     <TextView
+        android:id="@+id/tv_stkDate"
+        android:layout_width="70dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="订单日期"
+        android:maxLength="10"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/tv_fbillNo"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
@@ -25,7 +35,7 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_stkDate"
+        android:id="@+id/tv_orderDate"
         android:layout_width="70dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"

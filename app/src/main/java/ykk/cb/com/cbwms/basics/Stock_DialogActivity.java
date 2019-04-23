@@ -61,6 +61,7 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isAll; // 是否加载所有仓库
+    private String startTime, endTime, strType;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -135,6 +136,11 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             isAll = bundle.getInt("isAll");
+            // 以下条件是查询ScanningRecord表的对应仓库列表用到的条件
+            // 对应方法：List<String> list12 = scRecordService.findStockList(param);
+            startTime = bundle.getString("startTime", ""); // 单据开始日期
+            endTime = bundle.getString("endTime", ""); // 单据结束日期
+            strType = bundle.getString("strType", ""); // 方案id
         }
 
         initLoadDatas();
@@ -171,6 +177,9 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("isAll", String.valueOf(isAll))
+                .add("startTime", startTime)
+                .add("endTime", endTime)
+                .add("strType", strType)
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

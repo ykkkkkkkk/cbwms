@@ -445,6 +445,18 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser) {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() { setFocusable(etBoxCode); // 物料代码获取焦点
+                }
+            },200);
+        }
+    }
+
+    @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.prod_box_fragment1, container, false);
     }
@@ -494,11 +506,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
 
-        mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() { setFocusable(etBoxCode); // 物料代码获取焦点
-                }
-            },200);
     }
 
     @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print,

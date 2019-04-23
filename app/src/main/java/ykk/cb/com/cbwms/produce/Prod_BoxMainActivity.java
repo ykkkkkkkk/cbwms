@@ -97,10 +97,10 @@ public class Prod_BoxMainActivity extends BaseActivity {
 //        bundle2.putSerializable("customer", customer);
 //        fragment1.setArguments(bundle2); // 传参数
         Prod_BoxFragment1 fragment1 = new Prod_BoxFragment1();
-//        Prod_BoxFragment2 fragment2 = new Prod_BoxFragment2();
+        Prod_BoxFragment2 fragment2 = new Prod_BoxFragment2();
 
         listFragment.add(fragment1);
-//        listFragment.add(fragment2);
+        listFragment.add(fragment2);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
@@ -122,13 +122,13 @@ public class Prod_BoxMainActivity extends BaseActivity {
                 switch (position) {
                     case 0:
                         tabSelected(radio1);
-                        tvTitle.setText("生产装箱-非批量");
+                        tvTitle.setText("生产装箱");
                         viewPager.setCurrentItem(0, false);
 
                         break;
                     case 1:
                         tabSelected(radio2);
-                        tvTitle.setText("生产装箱-批量");
+                        tvTitle.setText("装箱编辑");
                         viewPager.setCurrentItem(1, false);
 
                         break;
@@ -175,13 +175,13 @@ public class Prod_BoxMainActivity extends BaseActivity {
                 break;
             case R.id.lin_tab1:
                 tabSelected(radio1);
-                tvTitle.setText("生产装箱-非批量");
+                tvTitle.setText("生产装箱");
                 viewPager.setCurrentItem(0, false);
 
                 break;
             case R.id.lin_tab2:
                 tabSelected(radio2);
-                tvTitle.setText("生产装箱-批量");
+                tvTitle.setText("装箱编辑");
                 viewPager.setCurrentItem(1, false);
 
                 break;

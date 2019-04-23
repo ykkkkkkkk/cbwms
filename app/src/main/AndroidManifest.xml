@@ -277,6 +277,7 @@
 
         <activity android:name=".util.ImageLoadActivity" />
         <activity android:name=".MainActivity" />
+        <activity android:name=".WebViewTestActivity" />
         <activity android:name=".entrance.MainTabFragmentActivity" />
         <activity android:name=".LoadMoreActivity" />
         <activity android:name=".LoadMoreWrapperActivity" />

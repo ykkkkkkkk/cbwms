@@ -77,6 +77,7 @@ public class Allot_OperationAddActivity extends BaseActivity {
     private static final int SUCC1 = 201, UNSUCC1 = 501;
     private static final int RESULT_NUM = 1;
     private Stock inStock, outStock; // 仓库
+    private Stock inStockPos, outStockPos; // 仓库库位
     private Department department; // 部门
     private Allot_OperationAddAdapter mAdapter;
     private List<StkTransferOutTemp> listDatas = new ArrayList<>();
@@ -101,11 +102,16 @@ public class Allot_OperationAddActivity extends BaseActivity {
                 String errMsg = null;
                 switch (msg.what) {
                     case SUCC1: // 保存 调拨单 成功
+                        m.listDatas.clear();
+                        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
+                        m.listDatas.add(stkTemp);
+                        m.mAdapter.notifyDataSetChanged();
+                        m.toasts("保存成功✔");
 
                         break;
                     case UNSUCC1:
                         errMsg = JsonUtil.strToString((String) msg.obj);
-                        if(m.isNULLS(errMsg).length() == 0) errMsg = "当前时间段没有调拨单！！！";
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "服务器繁忙，请稍候再试！";
                         Comm.showWarnDialog(m.context, errMsg);
 
                         break;
@@ -201,10 +207,103 @@ public class Allot_OperationAddActivity extends BaseActivity {
 
                 break;
             case R.id.btn_save: // 保存
+                if(department == null) {
+                    Comm.showWarnDialog(context,"请选择领料部门！");
+                    return;
+                }
+                if(inStock == null) {
+                    Comm.showWarnDialog(context,"请选择调入仓库！");
+                    return;
+                }
+                if(outStock == null) {
+                    Comm.showWarnDialog(context,"请选择调出仓库！");
+                    return;
+                }
+                int size = listDatas.size();
+                List<StkTransferOutEntry> listStkEntry = new ArrayList<>();
+                for(int i=0; i<size; i++) {
+                    StkTransferOutTemp stkTemp = listDatas.get(i);
+                    if(stkTemp.getMtl() != null && stkTemp.getFqty() > 0) {
+                        StkTransferOutEntry entry = getStkOutEntry(stkTemp);
+                        listStkEntry.add(entry);
+                    }
+                }
+                if(listStkEntry.size() == 0) {
+                    Comm.showWarnDialog(context,"第1行，请选择物料名称并填入数量！");
+                    return;
+                }
 
+                StkTransferOut stkOut = new StkTransferOut();
+                stkOut.setBillNo("dicey"); // 使用这个字符串是为了在存储过程中更据这个来修改单号
+                stkOut.setTransferDirect("General"); // 调拨方向名称 * General：普通 * Return：退货
+                stkOut.setBizType("Standard"); // 业务类型名称 * Standard 标准  * Consignment 寄售
+                stkOut.setOutOrgID(100508);
+                stkOut.setOutOrgNumber("HN02");
+                stkOut.setOutOrgName("河南工厂");
+                stkOut.setInOrgId(100508);
+                stkOut.setInOrgNumber("HN02");
+                stkOut.setInOrgName("河南工厂");
+//                stkOut.setBillDate(getValues(tvDateSel));
+                stkOut.setStockManagerId(0);
+                stkOut.setStockManagerNumber("");
+                stkOut.setStockManagerName("");
+                stkOut.setTransferBizType("InnerOrgTransfer");
+                stkOut.setSettleOrgId(100508);
+                stkOut.setSettleOrgNumber("HN02");
+                stkOut.setSettleOrgName("河南工厂");
+                stkOut.setPickDepartId(department.getFitemID());
+                stkOut.setPickDepartNumber(department.getDepartmentNumber());
+                stkOut.setPickDepartName(department.getDepartmentName());
+                stkOut.setOwnerTypeIn("BD_OwnerOrg");
+                stkOut.setOwnerInId(100508);
+                stkOut.setOwnerInNumber("HN02");
+                stkOut.setOwnerInName("河南工厂");
+                stkOut.setOwnerTypeOut("BD_OwnerOrg");
+                stkOut.setOwnerOutId(100508);
+                stkOut.setOwnerOutNumber("HN02");
+                stkOut.setOwnerOutName("河南工厂");
+                stkOut.setBillStatus(2);
+                stkOut.setCloseStatus(1);
+                stkOut.setBusinessType(1);
+                // 把对象转为json字符串
+                String strStkTransferOut = JsonUtil.objectToString(stkOut);
+                String strStkTransferOutEntry = JsonUtil.objectToString(listStkEntry);
+                run_addStk(strStkTransferOut, strStkTransferOutEntry);
 
                 break;
         }
+    }
+
+    private StkTransferOutEntry getStkOutEntry(StkTransferOutTemp temp) {
+        Material mtl = temp.getMtl();
+        StkTransferOutEntry entry = new StkTransferOutEntry();
+        entry.setStkBillId(0);
+        entry.setMtlId(mtl.getfMaterialId());
+        entry.setMtlFnumber(mtl.getfNumber());
+        entry.setMtlFname(mtl.getfName());
+        entry.setInStockId(inStock.getfStockid());
+        entry.setInStockNumber(inStock.getfNumber());
+        entry.setInStockName(inStock.getfName());
+        entry.setInStockPositionId(0);
+        entry.setInStockPositionNumber("");
+        entry.setInStockPositionName("");
+        entry.setOutStockId(outStock.getfStockid());
+        entry.setOutStockNumber(outStock.getfNumber());
+        entry.setOutStockName(outStock.getfName());
+        entry.setOutStockPositionId(0);
+        entry.setOutStockPositionNumber("");
+        entry.setOutStockPositionName("");
+        entry.setUnitId(mtl.getUnit().getfUnitId());
+        entry.setUnitFumber(mtl.getUnit().getUnitNumber());
+        entry.setUnitFname(mtl.getUnit().getUnitName());
+        entry.setFqty(temp.getFqty());
+        entry.setPickFqty(0);
+        entry.setNeedFqty(0);
+        entry.setEntryStatus(1);
+        entry.setEntrySrc("2");
+        entry.setCreateCodeStatus(1);
+
+        return entry;
     }
 
     @Override
@@ -264,22 +363,14 @@ public class Allot_OperationAddActivity extends BaseActivity {
     }
 
     /**
-     * 扫码查询对应的方法
+     * 新增的方法
      */
-    private void run_smGetDatas() {
-        showLoadDialog("加载中...");
-        String mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");;
-        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
-        String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
-        String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
-        String outDate = getValues(tvDateSel); // 调出日期
+    private void run_addStk(String strStkTransferOut, String strStkTransferOutEntry) {
+        showLoadDialog("保存中...");
+        String mUrl = getURL("stkTransferOut/addStk");;
         FormBody formBody = new FormBody.Builder()
-                .add("isValidStatus", "1")
-                .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
-                .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单））
-                .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
-                .add("outDate", outDate) // 调出日期（查询调拨单）
-                .add("billStatus", "1") // 未审核的单据（查询调拨单）
+                .add("strStkTransferOut", strStkTransferOut)
+                .add("strStkTransferOutEntry", strStkTransferOutEntry)
                 .build();
 
         Request request = new Request.Builder()
@@ -299,7 +390,7 @@ public class Allot_OperationAddActivity extends BaseActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_smGetDatas --> onResponse", result);
+                LogUtil.e("run_addStk --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC1, result);
                     mHandler.sendMessage(msg);

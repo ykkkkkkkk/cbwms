@@ -558,9 +558,11 @@ public class Prod_MendBarcodeActivity extends BaseActivity implements XRecyclerV
                 .add("businessType", "3") // 业务类型:1、材料按次 2、材料按批 3、成品
                 .add("custName", getValues(etCustName)) // 客户
                 .add("mtlNumberAndName", getValues(etMtls)) // 物料
-                .add("orderNo", getValues(etOrderNo)) // 单据号
-                .add("begDate", getValues(tvBegDate)) // 单据开始日期（查询调拨单）
-                .add("endDate", getValues(tvEndDate)) // 单据结束日期（查询调拨单）
+                .add("orderNo", getValues(etOrderNo)) // 订单号
+//                .add("begDate", getValues(tvBegDate)) // 订单开始日期（查询调拨单）
+//                .add("endDate", getValues(tvEndDate)) // 订单结束日期（查询调拨单）
+                .add("billStartTime", getValues(tvBegDate)) // 单据开始日期（查询调拨单）
+                .add("billEndTime", getValues(tvEndDate)) // 单据结束日期（查询调拨单）
                 .add("billStatus", "2") // 已审核的单据（查询调拨单）
                 .add("entryStatus", "1") // 未关闭的行（查询调拨单）
                 .add("deliveryWayName", getValues(tvDeliveryWay)) // 发货类别

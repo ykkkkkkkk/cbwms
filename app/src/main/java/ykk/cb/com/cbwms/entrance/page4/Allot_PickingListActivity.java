@@ -1071,6 +1071,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                     stkEntry.setBatchCode(bt.getBatchCode());
                     stkEntry.setSnCode(bt.getSnCode());
                     stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
+
                 } else {
                     if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
                         Comm.showWarnDialog(context, "第" + (i + 1) + "行，已捡完！");

@@ -180,15 +180,16 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void setListener() {
-//        btnLogin.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
+        btnLogin.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 //                Intent intent = new Intent(context, CaptureActivity.class);
 //                startActivityForResult(intent, 123);
-//
-//                return true;
-//            }
-//        });
+                show(WebViewTestActivity.class, null);
+
+                return true;
+            }
+        });
 
     }
 

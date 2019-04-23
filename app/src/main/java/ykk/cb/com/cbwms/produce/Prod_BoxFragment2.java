@@ -131,7 +131,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
 
                 switch (msg.what) {
                     case SUCC1: // 扫码成功后进入
-                        m.reset(false);
+                        m.reset();
                         m.boxBarCode = JsonUtil.strToObject((String) msg.obj, BoxBarCode.class);
                         m.getBox();
 
@@ -144,10 +144,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
                         break;
                     case SAVE: // 修改状态 成功
                         m.toasts("修改成功✔");
-                        m.btnSave.setVisibility(View.GONE);
-                        m.etBoxCode.setText("");
-                        m.checkDatas.clear();
-                        m.mAdapter.notifyDataSetChanged();
+                        m.reset();
 
                         break;
                     case UNSAVE: // 修改状态 失败
@@ -234,14 +231,13 @@ public class Prod_BoxFragment2 extends BaseFragment {
     /**
      * 重置
      */
-    private void reset(boolean isClear) {
+    private void reset() {
+        btnSave.setVisibility(View.GONE);
         status = '0';
         singleshipment = 0;
-        if(isClear) {
-            etBoxCode.setText("");
-            boxBarCode = null;
-            setFocusable(etBoxCode);
-        }
+        etBoxCode.setText("");
+        boxBarCode = null;
+        setFocusable(etBoxCode);
         tvStatus.setText(Html.fromHtml(""+"<font color='#000000'>状态：未开箱</font>"));
         tvBoxName.setText("");
         tvBoxSize.setText("");

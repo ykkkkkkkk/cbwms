@@ -144,6 +144,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
                         break;
                     case SAVE: // 修改状态 成功
                         m.toasts("修改成功✔");
+                        m.btnSave.setVisibility(View.GONE);
                         m.etBoxCode.setText("");
                         m.checkDatas.clear();
                         m.mAdapter.notifyDataSetChanged();

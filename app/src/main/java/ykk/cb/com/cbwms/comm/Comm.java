@@ -351,4 +351,31 @@ public class Comm {
 		build.show();
 	}
 
+	/**
+	 * 判断字符串最好一位是否为字母
+	 * @param s
+	 * @return
+	 */
+	public static boolean isLetter(String s) {
+		if(isNULLS(s).length() == 0) return false;
+		int len = s.length()-1; // 得到最好一位字符串的长度
+		char c = s.charAt(len);
+		int i = (int) c;
+		if ((i >= 65 && i <= 90) || (i >= 97 && i <= 122)) return true;
+		else return false;
+	}
+
+	/**
+	 * 得到客户，如果最好一位为字母，就剔除
+	 * @param s
+	 * @return
+	 */
+	public static String getRealCustName(String s) {
+		int len = s.length()-1; // 得到最好一位字符串的长度
+		char c = s.charAt(len);
+		int i = (int) c;
+		if ((i >= 65 && i <= 90) || (i >= 97 && i <= 122)) return s.substring(0, s.length()-1);
+		else return s;
+	}
+
 }

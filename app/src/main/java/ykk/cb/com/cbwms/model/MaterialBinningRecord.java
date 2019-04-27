@@ -115,6 +115,7 @@ public class MaterialBinningRecord implements Serializable {
     private int salOrderSumRow; // 箱子对应的销售订单的总行数
     private double salOrderSumQty; // 箱子对应的销售订单的总数量
     private int salOrderAutoMtlSum; // 箱子对应的销售订单配件的总行数
+    private int countBoxNum; // 客户的第几个箱子
 
 
     public MaterialBinningRecord() {
@@ -471,6 +472,14 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setSalOrderSumQty(double salOrderSumQty) {
         this.salOrderSumQty = salOrderSumQty;
+    }
+
+    public int getCountBoxNum() {
+        return countBoxNum;
+    }
+
+    public void setCountBoxNum(int countBoxNum) {
+        this.countBoxNum = countBoxNum;
     }
 
 }

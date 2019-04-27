@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:gravity="center">
 
     <WebView
         android:id="@+id/mWebView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/btn_showmsg" />
+        android:layout_above="@+id/btn_print"
+        android:visibility="gone" />
 
     <Button
-        android:id="@+id/btn_showmsg"
+        android:id="@+id/btn_print"
         android:layout_width="200dip"
-        android:layout_height="40dip"
+        android:layout_height="46dip"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="调用html中js方法" />
+        android:textColor="@color/white"
+        android:background="@drawable/btn_blue_selector"
+        android:text="Lodop打印" />
 
 
 </RelativeLayout>

@@ -90,13 +90,13 @@ public class StkTransferOutEntry implements Serializable {
     /* 订单号 */
     private String orderNo;
     /* 订单号内码 */
-    private Integer orderId;
+    private int orderId;
     /* 订单行分录Id */
-    private Integer orderEntryId;
+    private int orderEntryId;
     /* 行关闭人 */
     private String entryCloserName;
     /*  被替换物料id */
-    private Integer oldMtlId;
+    private int oldMtlId;
     /* 被替换物料代码 */
     private String oldMtlNumber;
     /**
@@ -531,19 +531,19 @@ public class StkTransferOutEntry implements Serializable {
         this.orderNo = orderNo;
     }
 
-    public Integer getOrderId() {
+    public int getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
 
-    public Integer getOrderEntryId() {
+    public int getOrderEntryId() {
         return orderEntryId;
     }
 
-    public void setOrderEntryId(Integer orderEntryId) {
+    public void setOrderEntryId(int orderEntryId) {
         this.orderEntryId = orderEntryId;
     }
 
@@ -555,11 +555,11 @@ public class StkTransferOutEntry implements Serializable {
         this.entryCloserName = entryCloserName;
     }
 
-    public Integer getOldMtlId() {
+    public int getOldMtlId() {
         return oldMtlId;
     }
 
-    public void setOldMtlId(Integer oldMtlId) {
+    public void setOldMtlId(int oldMtlId) {
         this.oldMtlId = oldMtlId;
     }
 

@@ -177,9 +177,9 @@ public class Stock_DialogActivity extends BaseDialogActivity implements XRecycle
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("isAll", String.valueOf(isAll))
-                .add("startTime", startTime)
-                .add("endTime", endTime)
-                .add("strType", strType)
+                .add("startTime", isNULLS(startTime))
+                .add("endTime", isNULLS(endTime))
+                .add("strType", isNULLS(strType))
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

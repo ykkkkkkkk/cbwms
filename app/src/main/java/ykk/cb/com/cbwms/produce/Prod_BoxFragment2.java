@@ -169,7 +169,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
                         // 执行查询方法
                         m.run_smGetDatas(m.strBoxBarcode);
 
-                                break;
+                        break;
                 }
             }
         }
@@ -179,11 +179,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if(isVisibleToUser) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() { setFocusable(etBoxCode); // 物料代码获取焦点
-                }
-            },200);
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
         }
     }
 

@@ -1017,8 +1017,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private boolean custNameIsEquals(String str, String str2) {
         int len = str.length();
         int len2 = str2.length();
-        String temp = str.substring(0,len-1);
-        String temp2 = str2.substring(0, len2-1);
+        String temp = null, temp2 = null;
+        if(Comm.isLetter(str)) temp = str.substring(0,len-1);
+        else temp = str;
+        if(Comm.isLetter(str2)) temp2 = str2.substring(0,len2-1);
+        else temp2 = str2;
         return temp.equals(temp2);
     }
 

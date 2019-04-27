@@ -185,6 +185,7 @@ public class LoginActivity extends BaseActivity {
             public boolean onLongClick(View v) {
 //                Intent intent = new Intent(context, CaptureActivity.class);
 //                startActivityForResult(intent, 123);
+
                 show(WebViewTestActivity.class, null);
 
                 return true;

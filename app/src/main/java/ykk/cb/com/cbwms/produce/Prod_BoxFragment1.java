@@ -15,18 +15,16 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.view.ViewParent;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.solidfire.gson.JsonObject;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -47,24 +45,17 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Box_DialogActivity;
-import ykk.cb.com.cbwms.basics.Cust_DialogActivity;
-import ykk.cb.com.cbwms.basics.DeliveryWay_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.model.AssistInfo;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Box;
 import ykk.cb.com.cbwms.model.BoxBarCode;
-import ykk.cb.com.cbwms.model.Customer;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
-import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment1Adapter;
-import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -105,6 +96,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
     Button btnSave;
     @BindView(R.id.btn_end)
     Button btnEnd;
+    @BindView(R.id.btn_print)
+    Button btnPrint;
+    @BindView(R.id.mWebView)
+    WebView mWebView;
 
     public Prod_BoxFragment1() {}
 
@@ -112,7 +107,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private Prod_BoxMainActivity parent;
     private Activity mContext;
     private static final int SEL_BOX = 13, SEL_NUM = 14;
-    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508, CHECK_AUTO = 209, CHECK_AUTO_NULL = 509;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508, CHECK_AUTO = 209, CHECK_AUTO_NULL = 509, FIND_BOXNUM = 210, UNFIND_BOXNUM = 510;
     private static final int SETFOCUS = 1, SAOMA = 100;
     private Box box; // 箱子表
     private BoxBarCode boxBarCode; // 箱码表
@@ -132,6 +127,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
     private boolean isTextChange; // 是否进入TextChange事件
     private boolean isNeedSave, isPass; // 点击封箱的时候需要保存
+    private int countBoxNum = 0; // 记录箱数
 
     // 消息处理
     private Prod_BoxFragment1.MyHandler mHandler = new Prod_BoxFragment1.MyHandler(this);
@@ -245,6 +241,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         List<MaterialBinningRecord> listMbr = JsonUtil.strToList((String) msg.obj, MaterialBinningRecord.class);
                         m.checkDatas.addAll(listMbr);
                         m.btnEnd.setVisibility(View.VISIBLE);
+                        m.btnPrint.setVisibility(View.VISIBLE);
 //                        double sum = 0;
 //                        for(int i = 0, size = m.checkDatas.size(); i<size; i++) {
 //                            sum += m.checkDatas.get(i).getNumber();
@@ -439,6 +436,15 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
                         }
                         break;
+                    case FIND_BOXNUM: // 查询客户的箱数    成功
+                        String strNum = JsonUtil.strToString((String) msg.obj) ;
+                        m.countBoxNum = m.parseInt(strNum) + 1;
+
+                        break;
+                    case UNFIND_BOXNUM: // 查询客户的箱数  失败
+                        m.countBoxNum = 1;
+
+                        break;
                 }
             }
         }
@@ -448,11 +454,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if(isVisibleToUser) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() { setFocusable(etBoxCode); // 物料代码获取焦点
-                }
-            },200);
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
         }
     }
 
@@ -505,7 +507,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //        hideSoftInputMode(mContext, etProdOrderCode);
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
-
+        // 初始化WebView 页面
+        mWebView.getSettings().setBuiltInZoomControls(true);
+        //内容的渲染需要webviewChromClient去实现，设置webviewChromClient基类，解决js中alert不弹出的问题和其他内容渲染问题
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        //把js绑定到全局的myjs上，myjs的作用域是全局的，初始化后可随处使用
+//        mWebView.addJavascriptInterface(js, "myjs");
+        mWebView.loadUrl("file:///android_asset/lodop.html");
     }
 
     @OnClick({R.id.btn_boxConfirm, R.id.tv_deliverSel, R.id.btn_clone, R.id.btn_del, R.id.btn_save, R.id.btn_end, R.id.btn_print,
@@ -581,11 +590,26 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"箱子里还没有物料不能打印！");
                     return;
                 }
-                if(status != '2') {
-                    Comm.showWarnDialog(mContext,"请先封箱，然后打印！");
-                    return;
+                int size = checkDatas.size();
+                StringBuilder json = new StringBuilder();
+                String custName = getValues(tvCustSel).replace("客户：", "");
+                json.append("{\"boxCount\":\""+countBoxNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
+                json.append("[");
+                for(int i=0;i<size;i++){
+                    MaterialBinningRecord m = checkDatas.get(i);
+                    json.append("{\"orderNo\":\""+ m.getSalOrderNo() +"\",\"mtlName\":\""+ m.getMtl().getfName() +" \",\"unitName\":\""+ m.getMtl().getUnit().getUnitName() +" \",\"fqty\":\""+m.getNumber()+"  \"},");
                 }
-                parent.setFragmentPrint1(0, checkDatas, boxBarCode);
+                // 去掉最后一个，
+                json.delete(json.length()-1, json.length());
+                json.append("]");
+                json.append("}");
+//                if(status != '2') {
+//                    Comm.showWarnDialog(mContext,"请先封箱，然后打印！");
+//                    return;
+//                }
+//                parent.setFragmentPrint1(0, checkDatas, boxBarCode);
+                //调用 HTML 中的javaScript 函数
+                mWebView.loadUrl("javascript:print("+json.toString()+")");
 
                 break;
             case R.id.btn_clone: // 新装
@@ -633,6 +657,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             MaterialBinningRecord mbr = checkDatas.get(i);
             if(mbr.getNumber() > 0) {
                 sumFqty += mbr.getNumber();
+                mbr.setCountBoxNum(countBoxNum);
                 list.add(mbr);
             }
         }
@@ -657,12 +682,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 重置
      */
     private void reset(boolean isClear) {
+        countBoxNum = 0;
         isNeedSave = false;
         isPass = false;
         status = '0';
         combineSalOrderId = 0;
         singleshipment = 0;
         btnEnd.setVisibility(View.GONE);
+        btnPrint.setVisibility(View.GONE);
         if(isClear) {
             etBoxCode.setText("");
             boxBarCode = null;
@@ -777,6 +804,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                return true;
 //            }
 //        });
+        btnSave.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                //调用 HTML 中的javaScript 函数
+                mWebView.loadUrl("javascript:print()");
+                return true;
+            }
+        });
     }
 
     @Override
@@ -857,6 +892,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             // 把箱子里的物料显示出来
             if(boxBarCode.getMtlBinningRecord() != null && boxBarCode.getMtlBinningRecord().size() > 0) {
                 MaterialBinningRecord mbr = boxBarCode.getMtlBinningRecord().get(0);
+                countBoxNum = mbr.getCountBoxNum();
 
                 if(mbr.getCaseId() != 34) {
                     etBoxCode.setText("");
@@ -905,18 +941,21 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 setEnables(etMtlCode, R.color.transparent, true);
                 this.status = '0';
                 btnEnd.setVisibility(View.GONE);
+                btnPrint.setVisibility(View.GONE);
                 btnSave.setVisibility(View.VISIBLE);
             } else if(status == 1) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
                 setFocusable(etMtlCode);
                 setEnables(etMtlCode, R.color.transparent, true);
                 btnEnd.setVisibility(View.VISIBLE);
+                btnPrint.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.VISIBLE);
                 this.status = '1';
             } else if(status == 2) {
                 tvStatus.setText(Html.fromHtml("状态：<font color='#6A4BC5'>已封箱</font>"));
                 btnEnd.setText("开箱");
                 btnEnd.setVisibility(View.VISIBLE);
+                btnPrint.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.GONE);
                 setEnables(etMtlCode, R.color.c_eaeaea, false);
                 this.status = '2';
@@ -1052,6 +1091,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
         isNeedSave = true; // 点击封箱时是否需要保存
+
+        // 查询客户开的是第几个箱子
+        String custName = Comm.getRealCustName(mbr.getCustomerName());
+        run_findUseBoxNum(custName);
     }
 
     /**
@@ -1198,9 +1241,20 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private boolean custNameIsEquals(String str, String str2) {
         int len = str.length();
         int len2 = str2.length();
-        String temp = str.substring(0,len-1);
-        String temp2 = str2.substring(0, len2-1);
+        String temp = null, temp2 = null;
+        if(Comm.isLetter(str)) temp = str.substring(0,len-1);
+        else temp = str;
+        if(Comm.isLetter(str2)) temp2 = str2.substring(0,len2-1);
+        else temp2 = str2;
         return temp.equals(temp2);
+    }
+
+    private String custNameIsEquals2(String str) {
+        int len = str.length();
+        String temp = null;
+        if(Comm.isLetter(str)) temp = str.substring(0,len-1);
+        else temp = str;
+        return temp;
     }
 
     /**
@@ -1686,6 +1740,43 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     /**
+     * 查询当前客户用的是第几个箱子
+     */
+    private void run_findUseBoxNum(String custName) {
+        String mUrl = getURL("countCustUseBoxService/findUseBoxNum");
+        FormBody formBody = new FormBody.Builder()
+                .add("custName", custName)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNFIND_BOXNUM);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findUseBoxNum --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNFIND_BOXNUM);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(FIND_BOXNUM, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
      *  得到用户对象
      */
     private void getUserInfo() {
@@ -1696,6 +1787,23 @@ public class Prod_BoxFragment1 extends BaseFragment {
     public void onDestroyView() {
         closeHandler(mHandler);
         mBinder.unbind();
+        if( mWebView!=null) {
+
+            // 如果先调用destroy()方法，则会命中if (isDestroyed()) return;这一行代码，需要先onDetachedFromWindow()，再
+            // destory()
+            ViewParent parent = mWebView.getParent();
+            if (parent != null) {
+                ((ViewGroup) parent).removeView(mWebView);
+            }
+
+            mWebView.stopLoading();
+            // 退出时调用此方法，移除绑定的服务，否则某些特定系统会报错
+            mWebView.getSettings().setJavaScriptEnabled(false);
+            mWebView.clearHistory();
+            mWebView.clearView();
+            mWebView.removeAllViews();
+            mWebView.destroy();
+        }
         super.onDestroyView();
     }
 

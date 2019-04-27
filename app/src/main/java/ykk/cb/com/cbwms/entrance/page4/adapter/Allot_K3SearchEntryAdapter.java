@@ -5,20 +5,18 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Map;
 
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.model.pur.PurInStockEntry;
+import ykk.cb.com.cbwms.model.stockBusiness.K3_StkTransferOut;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Allot_SearchEntryAdapter extends BaseArrayRecyclerAdapter<Map> {
+public class Allot_K3SearchEntryAdapter extends BaseArrayRecyclerAdapter<K3_StkTransferOut> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
-    private List<Map> datas;
+    private List<K3_StkTransferOut> datas;
 
-    public Allot_SearchEntryAdapter(Activity context, List<Map> datas) {
+    public Allot_K3SearchEntryAdapter(Activity context, List<K3_StkTransferOut> datas) {
         super(datas);
         this.context = context;
         this.datas = datas;
@@ -26,19 +24,19 @@ public class Allot_SearchEntryAdapter extends BaseArrayRecyclerAdapter<Map> {
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.allot_search_entry_item;
+        return R.layout.allot_k3_search_entry_item;
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, Map entity, final int pos) {
+    public void onBindHoder(RecyclerHolder holder, K3_StkTransferOut entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_numUnit = holder.obtainView(R.id.tv_numUnit);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mtlName.setText(Comm.isNULLS(entity.get("mtlFname")));
-        tv_numUnit.setText(df.format(Comm.parseDouble(entity.get("fqty"))));
+        tv_mtlName.setText(entity.getMtlName());
+        tv_numUnit.setText(df.format(entity.getFqty()));
     }
 
     public void setCallBack(MyCallBack callBack) {

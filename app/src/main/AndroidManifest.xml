@@ -144,7 +144,17 @@
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".entrance.page4.Allot_K3SearchActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_K3SearchEntryActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".entrance.page4.Allot_OperationAddActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_PickingListMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
 

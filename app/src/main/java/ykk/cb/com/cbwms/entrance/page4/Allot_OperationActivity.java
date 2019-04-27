@@ -19,10 +19,12 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -44,6 +46,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -64,6 +67,8 @@ public class Allot_OperationActivity extends BaseActivity {
     TextView tvDateSel;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.tv_countSum)
+    TextView tvCountSum;
 
     private Allot_OperationActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15;
@@ -75,10 +80,21 @@ public class Allot_OperationActivity extends BaseActivity {
     private Allot_OperationAdapter mAdapter;
     private List<StkTransferOutEntry> listDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private char defaultStockVal; // 默认仓库的值
     private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
+    private String businessType = "1"; // 业务类型:1、材料按次 2、材料按批 3、成品
+    private String billNo; // 调拨单号
+    private DecimalFormat df = new DecimalFormat("#.####");
+
+    private String countSum() {
+        double sum = 0.0;
+        for (int i = 0; i < listDatas.size(); i++) {
+            sum += listDatas.get(i).getFqty();
+        }
+        return String.valueOf(df.format(sum));
+    }
 
     // 消息处理
     private Allot_OperationActivity.MyHandler mHandler = new Allot_OperationActivity.MyHandler(this);
@@ -100,6 +116,8 @@ public class Allot_OperationActivity extends BaseActivity {
                         m.listDatas.clear();
                         List<StkTransferOutEntry> list = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
                         m.listDatas.addAll(list);
+                        // 合计总数
+                        m.tvCountSum.setText(m.countSum());
                         m.mAdapter.notifyDataSetChanged();
 
                         break;
@@ -171,6 +189,29 @@ public class Allot_OperationActivity extends BaseActivity {
             }
 
             @Override
+            public void onFind(StkTransferOutEntry entity, int position) {
+                LogUtil.e("onFind", "行：" + position);
+                boolean isBool = true;
+                StkTransferOut stkOut = entity.getStkTransferOut();
+                String curBillNo = stkOut.getBillNo();
+                for(int i=0; i<listDatas.size(); i++) {
+                    String billNo2 = listDatas.get(i).getStkTransferOut().getBillNo();
+                    if(!billNo2.equals(curBillNo)) {
+                        isBool = false;
+                        break;
+                    }
+                }
+                // 如果列表中全部为一个单号就不查询
+                if(billNo == null && !isBool) {
+                    context.billNo = curBillNo;
+                    run_smGetDatas();
+                } else if(billNo != null){
+                    context.billNo = Comm.isNULLS(billNo).length() > 0 ? "" : curBillNo;
+                    run_smGetDatas();
+                }
+            }
+
+            @Override
             public void onClick_selStock(View v, StkTransferOutEntry entity, int position) {
                 LogUtil.e("selStock", "行：" + position);
 //                curPos = position;
@@ -216,12 +257,19 @@ public class Allot_OperationActivity extends BaseActivity {
 
     @Override
     public void initData() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
         getUserInfo();
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
     @OnClick({R.id.btn_close, R.id.btn_menu, R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
-              R.id.tv_dateSel, R.id.lin_find, R.id.btn_add    })
+              R.id.tv_dateSel, R.id.lin_find, R.id.btn_add, R.id.radio1, R.id.radio2, R.id.radio3,    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -290,6 +338,15 @@ public class Allot_OperationActivity extends BaseActivity {
             case R.id.btn_add: // 新增行
                 show(Allot_OperationAddActivity.class, null);
 
+                break;
+            case R.id.radio1: // 材料按次
+                businessType = "1";
+                break;
+            case R.id.radio2: // 材料按批
+                businessType = "2";
+                break;
+            case R.id.radio3: // 成品
+                businessType = "3";
                 break;
         }
     }
@@ -516,11 +573,14 @@ public class Allot_OperationActivity extends BaseActivity {
         String outDate = getValues(tvDateSel); // 调出日期
         FormBody formBody = new FormBody.Builder()
                 .add("isValidStatus", "1")
+                .add("billNo", billNo == null ? "" : billNo) // 单据编号（查询调拨单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单））
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", "1") // 未审核的单据（查询调拨单）
+                .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
+                .add("isAotuBringOut", "0") // 物料是否自动带出：默认0(不带出)，1带出
                 .build();
 
         Request request = new Request.Builder()

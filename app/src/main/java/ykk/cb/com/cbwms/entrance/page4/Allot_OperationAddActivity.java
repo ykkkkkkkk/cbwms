@@ -57,7 +57,7 @@ import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 
 /**
- * 拣货单界面
+ * 新增调拨单界面
  */
 public class Allot_OperationAddActivity extends BaseActivity {
 
@@ -74,7 +74,7 @@ public class Allot_OperationAddActivity extends BaseActivity {
 
     private Allot_OperationAddActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14;
-    private static final int SUCC1 = 201, UNSUCC1 = 501;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502;
     private static final int RESULT_NUM = 1;
     private Stock inStock, outStock; // 仓库
     private Stock inStockPos, outStockPos; // 仓库库位
@@ -113,6 +113,16 @@ public class Allot_OperationAddActivity extends BaseActivity {
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.isNULLS(errMsg).length() == 0) errMsg = "服务器繁忙，请稍候再试！";
                         Comm.showWarnDialog(m.context, errMsg);
+
+                        break;
+                    case SUCC2: // 保存 调拨单 成功
+                        m.inStock = JsonUtil.strToObject((String)msg.obj, Stock.class);
+                        m.tvInStockSel.setText(m.inStock.getfName());
+
+                        break;
+                    case UNSUCC2:
+                        m.inStock = null;
+                        m.tvInStockSel.setText("");
 
                         break;
                 }
@@ -315,6 +325,7 @@ public class Allot_OperationAddActivity extends BaseActivity {
                     department = (Department) data.getSerializableExtra("obj");
                     LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
                     tvDeptSel.setText(department.getDepartmentName());
+                    run_findStockNumberByDeptNumber(department.getDepartmentNumber());
                 }
 
                 break;
@@ -397,6 +408,44 @@ public class Allot_OperationAddActivity extends BaseActivity {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC1, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 根据领料部门查询调入仓库
+     */
+    private void run_findStockNumberByDeptNumber(String deptNumber) {
+        String mUrl = getURL("stock/findStockNumberByDeptNumber");
+        FormBody formBody = new FormBody.Builder()
+                .add("deptNumber", deptNumber)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC2);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findStockNumberByDeptNumber --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC2, result);
                 mHandler.sendMessage(msg);
             }
         });

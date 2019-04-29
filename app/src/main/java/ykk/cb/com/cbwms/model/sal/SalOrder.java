@@ -34,6 +34,7 @@ public class SalOrder implements Serializable{
     private double salFqty; // 销售数量
     private double salFstockoutqty; // 累计出库数量
     private double salFcanoutqty; // 可出数量
+    private double usableFqty; // 可用的数量
     private int isCheck; // 新加的，用于前台临时用判断是否选中
     /*对应k3单据分录号字段*/
     private Integer entryId;
@@ -518,6 +519,14 @@ public class SalOrder implements Serializable{
 
     public void setFmrpTerminateStatus(String fmrpTerminateStatus) {
         this.fmrpTerminateStatus = fmrpTerminateStatus;
+    }
+
+    public double getUsableFqty() {
+        return usableFqty;
+    }
+
+    public void setUsableFqty(double usableFqty) {
+        this.usableFqty = usableFqty;
     }
 
 }

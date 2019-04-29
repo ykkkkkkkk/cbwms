@@ -74,7 +74,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
             Sal_OutStockPassActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
-
+                if(m.xRecyclerView == null) return;
                 switch (msg.what) {
                     case SUCC1: // 成功
                         List<SalOutStock> list = JsonUtil.strToList2((String) msg.obj, SalOutStock.class);
@@ -91,7 +91,6 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
 
                         break;
                     case UNSUCC1: // 数据加载失败！
-                        if(m.xRecyclerView == null) return;
                         m.xRecyclerView.loadMoreComplete(false);
                         String errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.listDatas != null && m.listDatas.size() > 0) {

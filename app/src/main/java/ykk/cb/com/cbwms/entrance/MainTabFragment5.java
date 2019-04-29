@@ -249,7 +249,7 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
      */
     private void run_findAppInfo() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("findAppInfo");
+        String mUrl = getURL("appInfo/findAppInfo");
         ;
         FormBody formBody = new FormBody.Builder()
 //                .add("limit", "10")

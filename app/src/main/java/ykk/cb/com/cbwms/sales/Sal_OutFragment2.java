@@ -255,27 +255,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 m.orderDeliveryType = orderDeliveryType2;
 
                                 m.getBarCodeTableBefore(false);
-                                switch (m.caseId) {
-                                    case 32: // 销售装箱
-//                                        m.getSourceAfter(m.mbrList);
-//                                        m.getSourceAfter2(listMbr);
-                                        break;
-                                    case 34: // 生产装箱
-                                        m.getSourceAfter2(listMbr);
-                                        break;
-                                    case 37: // 发货通知单，复核单装箱
-//                                        MaterialBinningRecord tmpMbr = m.mbrList.get(0);
-//                                        DeliOrder deliOrder = JsonUtil.stringToObject(tmpMbr.getRelationObj(), DeliOrder.class);
-//                                        String exitType = m.isNULLS(deliOrder.getExitType());
-//                                        if(!exitType.equals("销售出库")) {
-//                                            Comm.showWarnDialog(m.mContext,"该销售订单的出库类型不是销售出库，不能操作");
-//                                            return;
-//                                        }
-//                                        // 把这个箱码保存到map中
-//                                        m.mapBox.put(m.boxBarcode, true);
-//                                        m.getSourceAfter3(m.mbrList);
-                                        break;
-                                }
+
+                                m.getSourceAfter2(listMbr);
                                 // 把这个箱码保存到map中
                                 m.mapBox.put(m.boxBarcode, true);
 
@@ -1003,6 +984,14 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     return true;
                 }
                 break;
+            case 38: // 销售装箱
+                SalOrder s38 = JsonUtil.stringToObject(mbr.getRelationObj(), SalOrder.class);
+//                if(customer != null && !customer.getCustomerCode().equals(s.getCustNumber())){
+                if(customer != null && !custNameIsEquals(customer.getCustomerName(), s38.getCustName())) {
+                    Comm.showWarnDialog(mContext,"扫描的箱码客户不一致，请检查！");
+                    return true;
+                }
+                break;
 
         }
         return false;
@@ -1039,87 +1028,6 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     }
 
     /**
-     * 选择来源单返回（销售装箱）
-     */
-    private void getSourceAfter(List<MaterialBinningRecord> list) {
-        for (int i = 0, size = list.size(); i < size; i++) {
-            MaterialBinningRecord mbr = list.get(i);
-            ScanningRecord2 sr2 = new ScanningRecord2();
-            sr2.setSourceK3Id(mbr.getRelationBillId());
-            sr2.setSourceFnumber(mbr.getRelationBillNumber());
-            sr2.setFitemId(mbr.getMaterialId());
-            sr2.setMtl(mbr.getMtl());
-            sr2.setMtlFnumber(mbr.getMtl().getfNumber());
-            sr2.setUnitFnumber(mbr.getMtl().getUnit().getUnitNumber());
-            sr2.setPoFid(mbr.getRelationBillId());
-            sr2.setPoFbillno(mbr.getRelationBillNumber());
-            sr2.setBatchno(mbr.getBatchCode());
-            sr2.setSequenceNo(mbr.getSnCode());
-            sr2.setBarcode(mbr.getBarcode());
-
-            if (stock != null) {
-                sr2.setStockId(stock.getfStockid());
-                sr2.setStock(stock);
-                sr2.setStockFnumber(stock.getfNumber());
-            }
-            if (stockP != null) {
-                sr2.setStockPositionId(stockP.getId());
-                sr2.setStockPName(stockP.getFname());
-            }
-//            sr2.setSupplierId(mbr.getSupplierId());
-//            sr2.setSupplierName(mbr.getSupplierName());
-//            sr2.setSupplierFnumber(supplier.getfNumber());
-            if (department != null) {
-                sr2.setEmpId(department.getFitemID()); // 部门
-                sr2.setDepartmentFnumber(department.getDepartmentNumber());
-            }
-            // 得到销售订单
-            SalOrder salOrder = JsonUtil.stringToObject(mbr.getRelationObj(), SalOrder.class);
-            sr2.setEntryId(salOrder.getEntryId());
-            sr2.setFqty(mbr.getRelationBillFQTY());
-            sr2.setPoFmustqty(mbr.getRelationBillFQTY());
-            sr2.setStockqty(mbr.getNumber());
-            // 发货组织
-            if(salOrder.getInventoryOrgId() > 0) {
-                if(receiveOrg == null) receiveOrg = new Organization();
-                receiveOrg.setFpkId(salOrder.getInventoryOrgId());
-                receiveOrg.setNumber(salOrder.getInventoryOrgNumber());
-                receiveOrg.setName(salOrder.getInventoryOrgName());
-                setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
-                tvReceiveOrg.setText(receiveOrg.getName());
-            }
-            sr2.setReceiveOrgFnumber(receiveOrg.getNumber());
-
-            // 销售组织
-            if(salOrder.getSalOrgId() > 0) {
-                if(salOrg == null) salOrg = new Organization();
-                salOrg.setFpkId(salOrder.getSalOrgId());
-                salOrg.setNumber(salOrder.getSalOrgNumber());
-                salOrg.setName(salOrder.getSalOrgName());
-
-                setEnables(tvSalOrg, R.drawable.back_style_gray3, false);
-                tvSalOrg.setText(salOrg.getName());
-            }
-            sr2.setPurOrgFnumber(salOrg.getNumber());
-            sr2.setCustomerId(salOrder.getCustId());
-            sr2.setCustomerName(salOrder.getCustName());
-            sr2.setCustFnumber(salOrder.getCustNumber());
-            if(customer == null) {
-                customer = new Customer();
-                customer.setFcustId(salOrder.getCustId());
-                customer.setCustomerCode(salOrder.getCustNumber());
-                customer.setCustomerName(salOrder.getCustName());
-
-                tvCustSel.setText("客户："+salOrder.getCustName());
-            }
-            checkDatas.add(sr2);
-        }
-        setFocusable(etBoxCode); // 物料代码获取焦点
-
-        mAdapter.notifyDataSetChanged();
-    }
-
-    /**
      * 选择来源单返回（生产装箱）
      */
     private void getSourceAfter2(List<MaterialBinningRecord> list) {
@@ -1141,7 +1049,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             //
             sr2.setMtlFnumber(mtl.getfNumber());
             sr2.setUnitFnumber(mtl.getUnit().getUnitNumber());
-            if(mbr.getCaseId() == 32) { // 销售订单
+            if(mbr.getCaseId() == 32 || mbr.getCaseId() == 38) { // 销售订单
                 sr2.setPoFid(salOrder.getfId());
                 sr2.setPoFbillno(salOrder.getFbillno());
                 sr2.setEntryId(salOrder.getEntryId());
@@ -1149,6 +1057,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderId(salOrder.getfId());
                 sr2.setSalOrderNo(salOrder.getFbillno());
                 sr2.setSalOrderNoEntryId(salOrder.getEntryId());
+
             } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
                 sr2.setPoFbillno(prodOrder.getSalOrderNo());
@@ -1209,12 +1118,19 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             // 发货组织
             if (receiveOrg == null) {
                 receiveOrg = new Organization();
+            }
+
+            if(mbr.getCaseId() == 32 || mbr.getCaseId() == 38) { // 销售订单
+                receiveOrg.setFpkId(salOrder.getInventoryOrgId());
+                receiveOrg.setNumber(salOrder.getInventoryOrgNumber());
+                receiveOrg.setName(salOrder.getInventoryOrgName());
+            } else {
                 receiveOrg.setFpkId(prodOrder.getProdOrgId());
                 receiveOrg.setNumber(prodOrder.getProdOrgNumber());
                 receiveOrg.setName(prodOrder.getProdOrgName());
-                setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
-                tvReceiveOrg.setText(receiveOrg.getName());
             }
+            setEnables(tvReceiveOrg, R.drawable.back_style_gray3, false);
+            tvReceiveOrg.setText(receiveOrg.getName());
             sr2.setReceiveOrgFnumber(receiveOrg.getNumber());
 
             if (salOrg == null) {

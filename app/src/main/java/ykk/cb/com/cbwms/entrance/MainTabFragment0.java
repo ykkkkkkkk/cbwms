@@ -60,7 +60,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
 
     private MainTabFragment0 context = this;
     private Activity mContext;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, UPDATE = 201, UNUPDATE = 501, UPDATE_PLAN = 1;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, UPDATE = 201, UNUPDATE = 501, UPDATE_PLAN = 1, SUCC2 = 202, UNSUCC2 = 502;
     private static final int DELAYED_LOAD = 10;
     private User user;
     private OkHttpClient okHttpClient = new OkHttpClient();
@@ -103,9 +103,22 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
                         if (m.getAppVersionCode(m.mContext) != appInfo.getAppVersion()) {
                             m.showNoticeDialog(appInfo.getAppRemark());
                         }
+                        // 去得到AppInfo中的lodopAddress的值
+                        m.run_findLodopAddress();
 
                         break;
                     case UNUPDATE: // 更新版本  失败！
+                        // 去得到AppInfo中的lodopAddress的值
+                        m.run_findLodopAddress();
+
+                        break;
+                    case SUCC2: // 查询AppInfo中的lodopAddress的值
+                        String lodopAddress = JsonUtil.strToString((String)msg.obj);
+                        SharedPreferences spfConfig = m.spf(m.getResStr(R.string.saveConfig));
+                        SharedPreferences.Editor editor = spfConfig.edit();
+                        editor.putString("lodopAddress", lodopAddress);
+                        editor.commit();
+
                         break;
                     case DELAYED_LOAD: // 延时刷新
                         m.run_findMsgNumber_app();
@@ -307,7 +320,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
      */
     private void run_findAppInfo() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("findAppInfo");
+        String mUrl = getURL("appInfo/findAppInfo");
         ;
         FormBody formBody = new FormBody.Builder()
 //                .add("limit", "10")
@@ -334,12 +347,53 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                Log.e("MainTabFragment0 --> onResponse", result);
+                Log.e("run_findAppInfo --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     mHandler.sendEmptyMessage(UNUPDATE);
                     return;
                 }
                 Message msg = mHandler.obtainMessage(UPDATE, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 获取服务端的App信息
+     */
+    private void run_findLodopAddress() {
+        showLoadDialog("加载中...");
+        String mUrl = getURL("appInfo/findLodopAddress");
+        ;
+        FormBody formBody = new FormBody.Builder()
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        // step 3：创建 Call 对象
+        Call call = okHttpClient.newCall(request);
+
+        //step 4: 开始异步请求
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC2);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                Log.e("run_findLodopAddress --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNSUCC2);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC2, result);
                 mHandler.sendMessage(msg);
             }
         });

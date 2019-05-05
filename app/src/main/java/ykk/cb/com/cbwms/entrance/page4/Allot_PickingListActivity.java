@@ -55,7 +55,6 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.InventorySyncRecord;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.PickingList;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -487,7 +486,7 @@ public class Allot_PickingListActivity extends BaseActivity {
                     bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
                     bundle.putString("mtlName", stkEntry.getMtlFname());
                     bundle.putString("remark", stkEntry.getMoNote());
-                    showForResult(Allot_OperationReplaceMaterialActivity.class, REFRESH, bundle);
+                    showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
                 }
             }
         });

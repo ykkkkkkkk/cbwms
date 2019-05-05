@@ -267,12 +267,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         }
                         if(m.status == '2') {
                             // 去打印
-                            List<MaterialBinningRecord> list = new ArrayList<>();
-                            for(int i=0; i<m.checkDatas.size(); i++) {
-                                MaterialBinningRecord mbr = m.checkDatas.get(i);
-                                if(mbr.getNumber() > 0) list.add(mbr);
-                            }
-//                            m.parent.setFragmentPrint1(0, list, m.boxBarCode);
+                            m.servicePrint();
                         }
 
                         break;
@@ -460,6 +455,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //        hideSoftInputMode(mContext, etProdOrderCode);
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
+
+        //实例化js对象
+        js = new JSKit();
         // 初始化WebView 页面
         mWebView.getSettings().setBuiltInZoomControls(true);
         //内容的渲染需要webviewChromClient去实现，设置webviewChromClient基类，解决js中alert不弹出的问题和其他内容渲染问题
@@ -543,26 +541,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"箱子里还没有物料不能打印！");
                     return;
                 }
-                int size = checkDatas.size();
-                StringBuilder json = new StringBuilder();
-                String custName = getValues(tvCustSel).replace("客户：", "");
-                json.append("{\"boxCount\":\""+countBoxNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
-                json.append("[");
-                for(int i=0;i<size;i++){
-                    MaterialBinningRecord m = checkDatas.get(i);
-                    json.append("{\"orderNo\":\""+ m.getSalOrderNo() +"\",\"mtlName\":\""+ m.getMtl().getfName() +" \",\"unitName\":\""+ m.getMtl().getUnit().getUnitName() +" \",\"fqty\":\""+m.getNumber()+"  \"},");
-                }
-                // 去掉最后一个，
-                json.delete(json.length()-1, json.length());
-                json.append("]");
-                json.append("}");
-//                if(status != '2') {
-//                    Comm.showWarnDialog(mContext,"请先封箱，然后打印！");
-//                    return;
-//                }
-//                parent.setFragmentPrint1(0, checkDatas, boxBarCode);
-                //调用 HTML 中的javaScript 函数
-                mWebView.loadUrl("javascript:print("+json.toString()+")");
+                servicePrint();
 
                 break;
             case R.id.btn_clone: // 新装
@@ -597,6 +576,29 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 break;
         }
     }
+
+    /**
+     * 调用服务器来打印
+     */
+    private void servicePrint() {
+        int size = checkDatas.size();
+        StringBuilder json = new StringBuilder();
+        String custName = getValues(tvCustSel).replace("客户：", "");
+        json.append("{\"boxCount\":\""+countBoxNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
+        json.append("[");
+        for(int i=0;i<size;i++){
+            MaterialBinningRecord m = checkDatas.get(i);
+            json.append("{\"orderNo\":\""+ m.getSalOrderNo() +"\",\"mtlName\":\""+ m.getMtl().getfName() +" \",\"unitName\":\""+ m.getMtl().getUnit().getUnitName() +" \",\"fqty\":\""+m.getNumber()+"  \"},");
+        }
+        // 去掉最后一个，
+        json.delete(json.length()-1, json.length());
+        json.append("]");
+        json.append("}");
+        //调用 HTML 中的javaScript 函数
+        mWebView.loadUrl("javascript:print("+json.toString()+")");
+    }
+
+
     private void saveBefore() {
         if(boxBarCode == null) {
             Comm.showWarnDialog(mContext,"请先扫描箱码！");
@@ -1387,7 +1389,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private void getSalOrderAfter2(List<SalOrder> listSal) {
         int size = listSal.size();
         int countRow = size;
-        List<SalOrder> listRecord = new ArrayList<>();
         for(int i=0; i<size; i++) {
             SalOrder salOrder = listSal.get(i);
             // 判断是否有重复的行
@@ -1414,6 +1415,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 build.setNegativeButton("取消", null);
                 build.setCancelable(false);
                 build.show();
+
+                break;
             } else {
                 run_modifyStatus();
             }
@@ -2014,7 +2017,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         @JavascriptInterface
         public String getLodopAddress() {
             SharedPreferences spfConfig = spf(getResStr(R.string.saveConfig));
-            String address = spfConfig.getString("lodopAddress", "http://192.168.3.213:8008/CLodopfuncs.js");
+            String address = spfConfig.getString("lodopAddress", "http://192.168.3.213:8006/CLodopfuncs.js");
             return address;
         }
     }

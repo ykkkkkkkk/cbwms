@@ -29,7 +29,7 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_OperationReplaceMaterialAdapter;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyReplaceMaterialAdapter;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -40,7 +40,7 @@ import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 /**
  * 拣货单界面
  */
-public class Allot_OperationReplaceMaterialActivity extends BaseActivity implements XRecyclerView.LoadingListener {
+public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
     @BindView(R.id.tv_mtls)
     TextView tvMtls;
@@ -51,9 +51,9 @@ public class Allot_OperationReplaceMaterialActivity extends BaseActivity impleme
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
 
-    private Allot_OperationReplaceMaterialActivity context = this;
+    private Allot_ApplyReplaceMaterialActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500, REPLACE = 201, UNREPLACE = 501;
-    private Allot_OperationReplaceMaterialAdapter mAdapter;
+    private Allot_ApplyReplaceMaterialAdapter mAdapter;
     private List<Material> listDatas = new ArrayList<>();
     private Material mtl;
     private int curPos = -1; // 当前行
@@ -67,14 +67,14 @@ public class Allot_OperationReplaceMaterialActivity extends BaseActivity impleme
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_OperationReplaceMaterialActivity> mActivity;
+        private final WeakReference<Allot_ApplyReplaceMaterialActivity> mActivity;
 
-        public MyHandler(Allot_OperationReplaceMaterialActivity activity) {
-            mActivity = new WeakReference<Allot_OperationReplaceMaterialActivity>(activity);
+        public MyHandler(Allot_ApplyReplaceMaterialActivity activity) {
+            mActivity = new WeakReference<Allot_ApplyReplaceMaterialActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_OperationReplaceMaterialActivity m = mActivity.get();
+            Allot_ApplyReplaceMaterialActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
@@ -120,14 +120,14 @@ public class Allot_OperationReplaceMaterialActivity extends BaseActivity impleme
 
     @Override
     public int setLayoutResID() {
-        return R.layout.allot_operation_replace_material;
+        return R.layout.allot_apply_replace_material;
     }
 
     @Override
     public void initView() {
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Allot_OperationReplaceMaterialAdapter(context, listDatas);
+        mAdapter = new Allot_ApplyReplaceMaterialAdapter(context, listDatas);
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 

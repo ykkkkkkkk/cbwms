@@ -41,7 +41,7 @@ import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_OperationAdapter;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -53,9 +53,9 @@ import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 
 /**
- * 拣货单界面
+ * 调拨申请界面
  */
-public class Allot_OperationActivity extends BaseActivity {
+public class Allot_ApplyActivity extends BaseActivity {
 
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
@@ -70,14 +70,14 @@ public class Allot_OperationActivity extends BaseActivity {
     @BindView(R.id.tv_countSum)
     TextView tvCountSum;
 
-    private Allot_OperationActivity context = this;
+    private Allot_ApplyActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15;
     private static final int SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, MODIFY = 205, UNMODIFY = 505;
     private static final int RESULT_NUM = 1, REFRESH = 2;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Department department; // 部门
-    private Allot_OperationAdapter mAdapter;
+    private Allot_ApplyAdapter mAdapter;
     private List<StkTransferOutEntry> listDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = null;
@@ -97,16 +97,16 @@ public class Allot_OperationActivity extends BaseActivity {
     }
 
     // 消息处理
-    private Allot_OperationActivity.MyHandler mHandler = new Allot_OperationActivity.MyHandler(this);
+    private Allot_ApplyActivity.MyHandler mHandler = new Allot_ApplyActivity.MyHandler(this);
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_OperationActivity> mActivity;
+        private final WeakReference<Allot_ApplyActivity> mActivity;
 
-        public MyHandler(Allot_OperationActivity activity) {
-            mActivity = new WeakReference<Allot_OperationActivity>(activity);
+        public MyHandler(Allot_ApplyActivity activity) {
+            mActivity = new WeakReference<Allot_ApplyActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_OperationActivity m = mActivity.get();
+            Allot_ApplyActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
@@ -169,18 +169,18 @@ public class Allot_OperationActivity extends BaseActivity {
 
     @Override
     public int setLayoutResID() {
-        return R.layout.allot_operation;
+        return R.layout.allot_apply;
     }
 
     @Override
     public void initView() {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Allot_OperationAdapter(context, listDatas);
+        mAdapter = new Allot_ApplyAdapter(context, listDatas);
         recyclerView.setAdapter(mAdapter);
         //这个是让listview空间失去焦点
         recyclerView.setFocusable(false);
-        mAdapter.setCallBack(new Allot_OperationAdapter.MyCallBack() {
+        mAdapter.setCallBack(new Allot_ApplyAdapter.MyCallBack() {
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
@@ -249,7 +249,7 @@ public class Allot_OperationActivity extends BaseActivity {
                 bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
                 bundle.putString("mtlName", stkEntry.getMtlFname());
                 bundle.putString("remark", stkEntry.getMoNote());
-                showForResult(Allot_OperationReplaceMaterialActivity.class, REFRESH, bundle);
+                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
             }
         });
 
@@ -336,7 +336,7 @@ public class Allot_OperationActivity extends BaseActivity {
 
                 break;
             case R.id.btn_add: // 新增行
-                show(Allot_OperationAddActivity.class, null);
+                show(Allot_ApplyAddActivity.class, null);
 
                 break;
             case R.id.radio1: // 材料按次

@@ -15,19 +15,19 @@ import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Allot_OperationAdapter extends BaseArrayRecyclerAdapter<StkTransferOutEntry> {
+public class Allot_ApplyAdapter extends BaseArrayRecyclerAdapter<StkTransferOutEntry> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
 
-    public Allot_OperationAdapter(Activity context, List<StkTransferOutEntry> datas) {
+    public Allot_ApplyAdapter(Activity context, List<StkTransferOutEntry> datas) {
         super(datas);
         this.context = context;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.allot_operation_item;
+        return R.layout.allot_apply_item;
     }
 
     @Override

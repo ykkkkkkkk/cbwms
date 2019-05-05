@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.entrance.page4.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.text.Html;
@@ -16,72 +17,87 @@ import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<StkTransferOutEntry> {
+public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTransferOutEntry> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
 
-    public Allot_PickingListFragment3Adapter(Activity context, List<StkTransferOutEntry> datas) {
+    public Allot_ApplyFragment1Adapter(Activity context, List<StkTransferOutEntry> datas) {
         super(datas);
         this.context = context;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.allot_pickinglist_fragment3_item;
+        return R.layout.allot_apply_fragment1_item;
     }
 
     @Override
     public void onBindHoder(RecyclerHolder holder, final StkTransferOutEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_orderNo = holder.obtainView(R.id.tv_orderNo);
+        TextView tv_prodSeqNumber = holder.obtainView(R.id.tv_prodSeqNumber);
+        TextView tv_check = holder.obtainView(R.id.tv_check);
+        TextView tv_sourceNo = holder.obtainView(R.id.tv_sourceNo);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
-        TextView tv_canStockNum = holder.obtainView(R.id.tv_canStockNum);
         TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
         TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
-        TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
+        TextView tv_rowStatus = holder.obtainView(R.id.tv_rowStatus);
 
         // 赋值
+        StkTransferOut stkOut = entity.getStkTransferOut();
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
-        tv_orderNo.setText(String.valueOf(entity.getOrderNo()));
+        tv_prodSeqNumber.setText(entity.getProductionSeq());
+        tv_sourceNo.setText(stkOut.getBillNo());
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
-        if (mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
+        if (mtl.getIsSnManager() == 1) {
             tv_nums.setEnabled(false);
             tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
-            tv_canStockNum.setTextColor(Color.parseColor("#FF2200"));
         } else {
             tv_nums.setEnabled(true);
             tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
-            tv_canStockNum.setTextColor(Color.parseColor("#000000"));
         }
-        View view = (View) tv_row.getParent();
-        if (entity.getIsCheck() == 1) {
-            if (mtl.getIsSnManager() == 0) {
-                tv_nums.setEnabled(true);
-            } else {
-                tv_nums.setEnabled(false);
-            }
+        View view = (View) tv_check.getParent();
+        if(entity.getIsCheck() == 1) {
+            tv_check.setBackgroundResource(R.drawable.check_true);
             view.setBackgroundResource(R.drawable.back_style_check1_true);
         } else {
-            tv_nums.setEnabled(false);
+            tv_check.setBackgroundResource(R.drawable.check_false);
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
-
-        tv_nums.setText(Html.fromHtml(df.format(entity.getUsableFqty()) + "<br><font color='#009900'>" + df.format(entity.getTmpPickFqty()) + "</font>"));
-        double inventoryFqty = entity.getInventoryFqty();
-        tv_canStockNum.setText(inventoryFqty > 0 ? df.format(inventoryFqty) : "");
-        String stockName = Comm.isNULLS(entity.getOutStockName());
-        stockName = stockName.length() == 0 ? "无" : stockName;
-        String stockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
-        stockPNumber = stockPNumber.length() == 0 ? "无" : stockPNumber;
-        tv_outStockAP.setText(Html.fromHtml(stockName + "<br><font color='#6a5acd'>" + stockPNumber + "</font>"));
+        tv_nums.setText(df.format(entity.getFqty()));
+        String outStockName = Comm.isNULLS(entity.getOutStockName());
+        outStockName = outStockName.length() == 0 ? "无" : outStockName;
+        String outStockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
+        outStockPNumber = outStockPNumber.length() == 0 ? "无" : outStockPNumber;
+        tv_outStockAP.setText(Html.fromHtml(outStockName + "<br><font color='#6a5acd'>" + outStockPNumber + "</font>"));
         tv_inStockAP.setText(Comm.isNULLS(entity.getInStockName()));
+        if(entity.getStkTransferOut().getCloseStatus() > 1 || entity.getEntryStatus() > 1) {
+            tv_row.setTextColor(Color.parseColor("#FF2200"));
+            tv_prodSeqNumber.setTextColor(Color.parseColor("#FF2200"));
+            tv_sourceNo.setTextColor(Color.parseColor("#FF2200"));
+            tv_mtlNumber.setTextColor(Color.parseColor("#FF2200"));
+            tv_mtlName.setTextColor(Color.parseColor("#FF2200"));
+            tv_nums.setTextColor(Color.parseColor("#FF2200"));
+            tv_outStockAP.setTextColor(Color.parseColor("#FF2200"));
+            tv_inStockAP.setTextColor(Color.parseColor("#FF2200"));
+            tv_rowStatus.setText(Html.fromHtml("<font color='#FF2200'>已关闭</font>"));
+        } else {
+            tv_row.setTextColor(Color.parseColor("#000000"));
+            tv_prodSeqNumber.setTextColor(Color.parseColor("#000000"));
+            tv_sourceNo.setTextColor(Color.parseColor("#000000"));
+            tv_mtlNumber.setTextColor(Color.parseColor("#000000"));
+            tv_mtlName.setTextColor(Color.parseColor("#000000"));
+            tv_nums.setTextColor(Color.parseColor("#000000"));
+            tv_outStockAP.setTextColor(Color.parseColor("#000000"));
+            tv_inStockAP.setTextColor(Color.parseColor("#000000"));
+            tv_rowStatus.setText("未关闭");
+        }
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -93,15 +109,15 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
                         }
 
                         break;
-                    case R.id.tv_outStockAP: // 选择调出仓库，库位
+                    case R.id.tv_stockAP: // 选择库位
                         if (callBack != null) {
                             callBack.onClick_selStock(v, entity, pos);
                         }
 
                         break;
-                    case R.id.tv_delRow: // 删除行
+                    case R.id.tv_sourceNo: // 根据调拨单单号查询
                         if (callBack != null) {
-                            callBack.onClick_del(entity, pos);
+                            callBack.onFind(entity, pos);
                         }
 
                         break;
@@ -109,8 +125,8 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
             }
         };
         tv_nums.setOnClickListener(click);
-        tv_outStockAP.setOnClickListener(click);
-        tv_delRow.setOnClickListener(click);
+        tv_sourceNo.setOnClickListener(click);
+//        tv_stockAP.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -119,10 +135,8 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
 
     public interface MyCallBack {
         void onClick_num(View v, StkTransferOutEntry entity, int position);
-
+        void onFind(StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
-
-        void onClick_del(StkTransferOutEntry entity, int position);
     }
 
     /*之下的方法都是为了方便操作，并不是必须的*/

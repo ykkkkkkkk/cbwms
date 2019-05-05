@@ -352,6 +352,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
                 showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0", RESULT_NUM);
@@ -360,8 +363,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             @Override
             public void onClick_selStock(View v, StkTransferOutEntry entity, int position) {
                 LogUtil.e("selStock", "行：" + position);
-                curPos = position;
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
 
+                curPos = position;
                 int stockId = entity.getOutStockId();
                 Stock stock = entity.getOutStock();
                 if (stockId == 0) {
@@ -376,6 +381,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             @Override
             public void onClick_del(StkTransferOutEntry entity, int position) {
                 LogUtil.e("del", "行：" + position);
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
                 checkDatas.remove(position);
                 mAdapter.notifyDataSetChanged();
             }
@@ -383,6 +391,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
                 setCheckFalse();
                 StkTransferOutEntry m = checkDatas.get(pos);
                 m.setIsCheck(1);
@@ -399,6 +410,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
                 StkTransferOutEntry stkEntry = checkDatas.get(pos);
                 Bundle bundle = new Bundle();
                 bundle.putInt("stkEntryId", stkEntry.getId());
@@ -406,7 +420,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
                 bundle.putString("mtlName", stkEntry.getMtlFname());
                 bundle.putString("remark", stkEntry.getMoNote());
-                showForResult(Allot_OperationReplaceMaterialActivity.class, REFRESH, bundle);
+                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
             }
         });
     }
@@ -619,6 +633,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     }
 
     public void closeBefer() {
+        // 点击了保存，就只能点击审核操作，其他都屏蔽
+        if(isNULLS(k3Number).length() > 0) return;
+
         StringBuilder sbIds = new StringBuilder();
         for (int i = 0; i < checkDatas.size(); i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
@@ -657,11 +674,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
-            Material mtl = stkEntry.getMaterial();
-            if (stkEntry.getTmpPickFqty() == 0) {
-                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行（拣货数）必须大于0！");
-                return false;
-            }
+//            Material mtl = stkEntry.getMaterial();
+//            if (stkEntry.getTmpPickFqty() == 0) {
+//                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行（拣货数）必须大于0！");
+//                return false;
+//            }
 //            if ((mtl.getMtlPack() == null || stkEntry.getMtl().getMtlPack().getIsMinNumberPack() == 0) && stkEntry.getPickingListNum() > stkEntry.getDeliFremainoutqty()) {
 //                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（拣货数）不能大于（调拨数）！");
 //                return false;
@@ -679,9 +696,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             if (stkEntry.getOutStockId() == 0) {
                 Comm.showWarnDialog(mContext, "第" + (i + 1) + "行请选择仓库！");
                 return false;
-            } else if (stkEntry.getOutStock().isStorageLocation() && stkEntry.getOutStockPositionId() == 0) {
-                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行请选择库位！");
-                return false;
+//            } else if (stkEntry.getOutStock().isStorageLocation() && stkEntry.getOutStockPositionId() == 0) {
+//                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行请选择库位！");
+//                return false;
             }
         }
         return true;
@@ -1003,7 +1020,13 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             return;
         }
         setCheckFalse();
-        checkDatas.get(position).setIsCheck(1);
+//        checkDatas.get(position).setIsCheck(1);
+        StkTransferOutEntry curStkEntry = checkDatas.get(position);
+        curStkEntry.setIsCheck(1);
+        StkTransferOutEntry stkEntryTop1 = checkDatas.get(0);
+        checkDatas.set(0, curStkEntry); // 把当前选中的放在第一行的位置
+        checkDatas.set(position, stkEntryTop1); // 把第一行的放在第一行当前选中的位置
+
         mAdapter.notifyDataSetChanged();
     }
 
@@ -1040,24 +1063,30 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         List<PickingList> pickLists = new ArrayList<>();
         for (int i = 0; i < checkDatas.size(); i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
-            PickingList pick = new PickingList();
-            pick.setPickNo("");
-            pick.setRelationType('1'); // 关联类型（1：调拨拣货，2：销售拣货）
-            pick.setRelationBillId(stkEntry.getStkBillId());
-            pick.setRelationBillEntryId(stkEntry.getId());
-            pick.setPickFqty(stkEntry.getTmpPickFqty());
-            pick.setStockId(stkEntry.getOutStockId());
-            pick.setStockPosId(stkEntry.getOutStockPositionId());
-            pick.setStockStaffId(stockStaff != null ? stockStaff.getStaffId() : 0);
-            pick.setCreateUserId(user.getId());
-            pick.setCreateUserName(user.getUsername());
-            pick.setRelationObj(JsonUtil.objectToString(stkEntry));
-            pick.setListBarcode(stkEntry.getListBarcode());
-            pick.setStrBarcodes(stkEntry.getStrBarcodes());
-            pick.setKdAccount(user.getKdAccount());
-            pick.setKdAccountPassword(user.getKdAccountPassword());
+            if(stkEntry.getTmpPickFqty() > 0) { // 大于0的，就添加到list
+                PickingList pick = new PickingList();
+                pick.setPickNo("");
+                pick.setRelationType('1'); // 关联类型（1：调拨拣货，2：销售拣货）
+                pick.setRelationBillId(stkEntry.getStkBillId());
+                pick.setRelationBillEntryId(stkEntry.getId());
+                pick.setPickFqty(stkEntry.getTmpPickFqty());
+                pick.setStockId(stkEntry.getOutStockId());
+                pick.setStockPosId(stkEntry.getOutStockPositionId());
+                pick.setStockStaffId(stockStaff != null ? stockStaff.getStaffId() : 0);
+                pick.setCreateUserId(user.getId());
+                pick.setCreateUserName(user.getUsername());
+                pick.setRelationObj(JsonUtil.objectToString(stkEntry));
+                pick.setListBarcode(stkEntry.getListBarcode());
+                pick.setStrBarcodes(stkEntry.getStrBarcodes());
+                pick.setKdAccount(user.getKdAccount());
+                pick.setKdAccountPassword(user.getKdAccountPassword());
 
-            pickLists.add(pick);
+                pickLists.add(pick);
+            }
+        }
+        if(pickLists.size() == 0) {
+            Comm.showWarnDialog(mContext, "请至少输入一行拣货数！");
+            return;
         }
         String billDate = getValues(tvDateSel);
 

@@ -1,7 +1,6 @@
 package ykk.cb.com.cbwms.entrance.page4.adapter;
 
 import android.app.Activity;
-import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,26 +8,23 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.model.AdapterItem1;
 import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutTemp;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Allot_OperationAddAdapter extends BaseArrayRecyclerAdapter<StkTransferOutTemp> {
+public class Allot_ApplyAddAdapter extends BaseArrayRecyclerAdapter<StkTransferOutTemp> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
 
-    public Allot_OperationAddAdapter(Activity context, List<StkTransferOutTemp> datas) {
+    public Allot_ApplyAddAdapter(Activity context, List<StkTransferOutTemp> datas) {
         super(datas);
         this.context = context;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.allot_operation_add_item;
+        return R.layout.allot_apply_add_item;
     }
 
     @Override

@@ -155,6 +155,8 @@ public class StkTransferOut implements Serializable {
 
     // 临时字段，不存表
     private int entryRowNum; // 查询子表的行数
+    private double entrySumQty; // 查询子表的调拨总数
+    private int isCheck; // 是否选中
 
     public StkTransferOut() {
         super();
@@ -504,5 +506,22 @@ public class StkTransferOut implements Serializable {
     public void setEntryRowNum(int entryRowNum) {
         this.entryRowNum = entryRowNum;
     }
+
+    public double getEntrySumQty() {
+        return entrySumQty;
+    }
+
+    public void setEntrySumQty(double entrySumQty) {
+        this.entrySumQty = entrySumQty;
+    }
+
+    public int getIsCheck() {
+        return isCheck;
+    }
+
+    public void setIsCheck(int isCheck) {
+        this.isCheck = isCheck;
+    }
+
 
 }

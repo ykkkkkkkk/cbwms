@@ -1,93 +1,25 @@
 package ykk.cb.com.cbwms.produce;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.gprinter.command.EscCommand;
-import com.gprinter.command.LabelCommand;
-
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.PrintMainActivity;
-import ykk.cb.com.cbwms.basics.Staff_DialogActivity;
-import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
-import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.entrance.page4.Allot_OperationReplaceMaterialActivity;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingListAdapter;
-import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.PickingList;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
-import ykk.cb.com.cbwms.model.Staff;
-import ykk.cb.com.cbwms.model.Stock;
-import ykk.cb.com.cbwms.model.StockPosition;
-import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
-import ykk.cb.com.cbwms.util.JsonUtil;
-import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.MyViewPager;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
-import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
-import ykk.cb.com.cbwms.util.blueTooth.BluetoothDeviceListDialog;
-import ykk.cb.com.cbwms.util.blueTooth.Constant;
-import ykk.cb.com.cbwms.util.blueTooth.DeviceConnFactoryManager;
-import ykk.cb.com.cbwms.util.blueTooth.ThreadPool;
-import ykk.cb.com.cbwms.util.blueTooth.Utils;
-
-import static android.hardware.usb.UsbManager.ACTION_USB_DEVICE_DETACHED;
-import static ykk.cb.com.cbwms.util.blueTooth.Constant.MESSAGE_UPDATE_PARAMETER;
-import static ykk.cb.com.cbwms.util.blueTooth.DeviceConnFactoryManager.CONN_STATE_FAILED;
 
 /**
  * 拣货单界面

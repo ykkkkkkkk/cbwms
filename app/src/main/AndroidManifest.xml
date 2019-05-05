@@ -131,10 +131,10 @@
             android:name=".entrance.page4.InventoryNowSearchActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".entrance.page4.Allot_OperationActivity"
+            android:name=".entrance.page4.Allot_ApplyActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".entrance.page4.Allot_OperationReplaceMaterialActivity"
+            android:name=".entrance.page4.Allot_ApplyReplaceMaterialActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".entrance.page4.Allot_SearchActivity"
@@ -151,10 +151,17 @@
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".entrance.page4.Allot_OperationAddActivity"
+            android:name=".entrance.page4.Allot_ApplyAddActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".entrance.page4.Allot_PickingListMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_ApplyMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_ApplyEntryActivity"
+            android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
@@ -282,8 +289,8 @@
         <!-- 扫一扫界面 -->
         <activity
             android:name=".util.zxing.android.CaptureActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" />
 
         <activity android:name=".util.ImageLoadActivity" />
         <activity android:name=".MainActivity" />

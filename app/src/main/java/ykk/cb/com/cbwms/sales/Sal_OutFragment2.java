@@ -676,7 +676,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                     break;
                 case '2':
-                    Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
+//                    Comm.showWarnDialog(mContext,"当前订单发货类型为“整单发货”，请扫完箱码再出库！");
+                    Comm.showWarnDialog(mContext,"整单发货还有未装箱物料！");
                     break;
                 case '3':
 //                    Comm.showWarnDialog(mContext,"当前订单发货类型为“拼单”，请扫完箱码再出库！");

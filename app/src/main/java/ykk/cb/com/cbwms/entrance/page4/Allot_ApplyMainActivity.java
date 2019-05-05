@@ -1,86 +1,34 @@
 package ykk.cb.com.cbwms.entrance.page4;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Staff_DialogActivity;
-import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
-import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.entrance.MainTabFragment0;
-import ykk.cb.com.cbwms.entrance.MainTabFragment1;
-import ykk.cb.com.cbwms.entrance.MainTabFragment2;
-import ykk.cb.com.cbwms.entrance.MainTabFragment3;
-import ykk.cb.com.cbwms.entrance.MainTabFragment4;
-import ykk.cb.com.cbwms.entrance.MainTabFragment5;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingListAdapter;
-import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.InventorySyncRecord;
-import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.PickingList;
-import ykk.cb.com.cbwms.model.Staff;
-import ykk.cb.com.cbwms.model.Stock;
-import ykk.cb.com.cbwms.model.StockPosition;
-import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
-import ykk.cb.com.cbwms.util.JsonUtil;
-import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
-import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
-import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
- * 调拨拣货主界面
+ * 调拨申请主界面
  */
-public class Allot_PickingListMainActivity extends BaseActivity {
+public class Allot_ApplyMainActivity extends BaseActivity {
 
     @BindView(R.id.tv_searchIco)
     TextView tvSearchIco;
@@ -90,31 +38,28 @@ public class Allot_PickingListMainActivity extends BaseActivity {
     RadioButton radio1;
     @BindView(R.id.radio2)
     RadioButton radio2;
-    @BindView(R.id.radio3)
-    RadioButton radio3;
     @BindView(R.id.viewPager)
     ViewPager viewPager;
 
-    private Allot_PickingListMainActivity context = this;
+    private Allot_ApplyMainActivity context = this;
     private boolean isTextChange; // 是否进入TextChange事件
     public int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
-    private Allot_PickingListFragment1 fragment1 = new Allot_PickingListFragment1();
-    private Allot_PickingListFragment2 fragment2 = new Allot_PickingListFragment2();
-    private Allot_PickingListFragment3 fragment3 = new Allot_PickingListFragment3();
+    private Allot_ApplyFragment1 fragment1 = new Allot_ApplyFragment1();
+    private Allot_ApplyFragment2 fragment2 = new Allot_ApplyFragment2();
     private int pageId; // 页面id
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_PickingListMainActivity> mActivity;
+        private final WeakReference<Allot_ApplyMainActivity> mActivity;
 
-        public MyHandler(Allot_PickingListMainActivity activity) {
-            mActivity = new WeakReference<Allot_PickingListMainActivity>(activity);
+        public MyHandler(Allot_ApplyMainActivity activity) {
+            mActivity = new WeakReference<Allot_ApplyMainActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_PickingListMainActivity m = mActivity.get();
+            Allot_ApplyMainActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
@@ -133,7 +78,7 @@ public class Allot_PickingListMainActivity extends BaseActivity {
 
     @Override
     public int setLayoutResID() {
-        return R.layout.allot_pickinglist_main;
+        return R.layout.allot_apply_main;
     }
 
     @Override
@@ -145,7 +90,6 @@ public class Allot_PickingListMainActivity extends BaseActivity {
         List<Fragment> listFragment = new ArrayList<Fragment>();
         listFragment.add(fragment1);
         listFragment.add(fragment2);
-        listFragment.add(fragment3);
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //设置ViewPage缓存界面数，默认为1
@@ -166,10 +110,7 @@ public class Allot_PickingListMainActivity extends BaseActivity {
                         tabSelected(radio1, View.VISIBLE, position);
                         break;
                     case 1:
-                        tabSelected(radio2, View.VISIBLE, position);
-                        break;
-                    case 2:
-                        tabSelected(radio3, View.VISIBLE, position);
+                        tabSelected(radio2, View.INVISIBLE, position);
                         break;
                 }
             }
@@ -181,7 +122,7 @@ public class Allot_PickingListMainActivity extends BaseActivity {
         });
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.radio1, R.id.radio2, R.id.radio3, R.id.lin_find })
+    @OnClick({R.id.btn_close, R.id.btn_menu, R.id.radio1, R.id.radio2, R.id.lin_find })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -203,9 +144,6 @@ public class Allot_PickingListMainActivity extends BaseActivity {
                     case 1:
                         fragment2.findFun();
                         break;
-                    case 2:
-                        fragment3.findFun();
-                        break;
                 }
 
                 break;
@@ -213,12 +151,8 @@ public class Allot_PickingListMainActivity extends BaseActivity {
                 tabSelected(radio1, View.VISIBLE, 0);
 
                 break;
-            case R.id.radio2: // 材料按批
-                tabSelected(radio2, View.VISIBLE, 1);
-
-                break;
-            case R.id.radio3: // 成品
-                tabSelected(radio3, View.VISIBLE, 2);
+            case R.id.radio2: // 成品
+                tabSelected(radio2, View.INVISIBLE, 1);
 
                 break;
         }
@@ -236,7 +170,6 @@ public class Allot_PickingListMainActivity extends BaseActivity {
      * 创建PopupWindow 【查询菜单】
      */
     private PopupWindow popWindowA;
-
     private void popupWindow_A() {
         if (null != popWindowA) {// 不为空就隐藏
             popWindowA.dismiss();
@@ -248,8 +181,6 @@ public class Allot_PickingListMainActivity extends BaseActivity {
         Button btn2 = (Button) popView.findViewById(R.id.btn2);
         Button btn3 = (Button) popView.findViewById(R.id.btn3);
         Button btn4 = (Button) popView.findViewById(R.id.btn4);
-        btn2.setVisibility(View.GONE);
-        btn4.setVisibility(View.GONE);
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -268,18 +199,7 @@ public class Allot_PickingListMainActivity extends BaseActivity {
                         menuStatus = 4;
                         break;
                 }
-                switch (pageId) {
-                    case 0:
-                        fragment1.closeBefer();
-                        break;
-                    case 1:
-                        fragment2.closeBefer();
-                        break;
-                    case 2:
-                        fragment3.closeBefer();
-                        break;
-                }
-
+                fragment1.closeBefer();
                 popWindowA.dismiss();
             }
         };

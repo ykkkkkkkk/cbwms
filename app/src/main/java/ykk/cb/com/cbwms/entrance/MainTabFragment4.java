@@ -9,11 +9,10 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
+import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyMainActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_K3SearchActivity;
-import ykk.cb.com.cbwms.entrance.page4.Allot_OperationActivity;
-import ykk.cb.com.cbwms.entrance.page4.Allot_PickingListActivity;
+import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_PickingListMainActivity;
-import ykk.cb.com.cbwms.entrance.page4.Allot_SearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.InventoryNowSearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.StevedoreActivity;
 
@@ -35,32 +34,26 @@ public class MainTabFragment4 extends BaseFragment {
                 show(StevedoreActivity.class, null);
 
                 break;
-            case R.id.relative2:
-//                showLoadDialog("连接服务器...");
-                break;
-            case R.id.relative3:
-//                showLoadDialog("连接服务器...");
-                break;
-            case R.id.relative4:
-//                showLoadDialog("连接服务器...");
-                break;
-            case R.id.relative5:
-//                showLoadDialog("连接服务器...");
-                break;
-            case R.id.relative6: // 调拨拣货
-//                show(Allot_PickingListActivity.class, null);
-                show(Allot_PickingListMainActivity.class, null);
-                break;
-            case R.id.relative7: // 库存查询
+            case R.id.relative2: // 库存查询
                 show(InventoryNowSearchActivity.class, null);
                 break;
-            case R.id.relative8: // 调拨操作
-                show(Allot_OperationActivity.class, null);
+            case R.id.relative3: // 调拨查询
+               show(Allot_K3SearchActivity.class, null);
+                break;
+            case R.id.relative4: // 调拨申请
+//                show(Allot_ApplyActivity.class, null);
+                show(Allot_ApplyMainActivity.class, null);
+                break;
+            case R.id.relative5: // 调拨拣货
+                show(Allot_PickingListMainActivity.class, null);
+                break;
+            case R.id.relative6:
+                break;
+            case R.id.relative7:
+                break;
+            case R.id.relative8:
                 break;
             case R.id.relative9: // 调拨操作
-//                show(Allot_SearchActivity.class, null);
-                show(Allot_K3SearchActivity.class, null);
-
                 break;
         }
     }
@@ -79,7 +72,7 @@ public class MainTabFragment4 extends BaseFragment {
 ////                showLoadDialog("连接服务器...");
 //                break;
 //            case R.id.relative4:
-////                showLoadDialog("连接服务器...");
+//                show(Allot_ApplyMainActivity.class, null);
 //                break;
 //            case R.id.relative5:
 ////                showLoadDialog("连接服务器...");
@@ -91,7 +84,7 @@ public class MainTabFragment4 extends BaseFragment {
 //                show(InventoryNowSearchActivity.class, null);
 //                break;
 //            case R.id.relative8: // 调拨操作
-//                show(Allot_OperationActivity.class, null);
+////                show(Allot_ApplyActivity.class, null);
 //                break;
 //            case R.id.relative9: // 调拨操作
 //                show(Allot_K3SearchActivity.class, null);

@@ -12,19 +12,19 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Allot_OperationReplaceMaterialAdapter extends BaseArrayRecyclerAdapter<Material> {
+public class Allot_ApplyReplaceMaterialAdapter extends BaseArrayRecyclerAdapter<Material> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
 
-    public Allot_OperationReplaceMaterialAdapter(Activity context, List<Material> datas) {
+    public Allot_ApplyReplaceMaterialAdapter(Activity context, List<Material> datas) {
         super(datas);
         this.context = context;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.allot_operation_replace_material_item;
+        return R.layout.allot_apply_replace_material_item;
     }
 
     @Override

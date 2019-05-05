@@ -2,7 +2,6 @@ package ykk.cb.com.cbwms.entrance.page4;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -12,17 +11,12 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -36,30 +30,24 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.basics.Material_ListActivity;
-import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_OperationAdapter;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_OperationAddAdapter;
-import ykk.cb.com.cbwms.model.AdapterItem1;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Stock;
-import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutTemp;
-import ykk.cb.com.cbwms.produce.adapter.Prod_CreateBarcodeAdapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
-import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 
 /**
  * 新增调拨单界面
  */
-public class Allot_OperationAddActivity extends BaseActivity {
+public class Allot_ApplyAddActivity extends BaseActivity {
 
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
@@ -72,30 +60,30 @@ public class Allot_OperationAddActivity extends BaseActivity {
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    private Allot_OperationAddActivity context = this;
+    private Allot_ApplyAddActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502;
     private static final int RESULT_NUM = 1;
     private Stock inStock, outStock; // 仓库
     private Stock inStockPos, outStockPos; // 仓库库位
     private Department department; // 部门
-    private Allot_OperationAddAdapter mAdapter;
+    private Allot_ApplyAddAdapter mAdapter;
     private List<StkTransferOutTemp> listDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
 
     // 消息处理
-    private Allot_OperationAddActivity.MyHandler mHandler = new Allot_OperationAddActivity.MyHandler(this);
+    private Allot_ApplyAddActivity.MyHandler mHandler = new Allot_ApplyAddActivity.MyHandler(this);
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_OperationAddActivity> mActivity;
+        private final WeakReference<Allot_ApplyAddActivity> mActivity;
 
-        public MyHandler(Allot_OperationAddActivity activity) {
-            mActivity = new WeakReference<Allot_OperationAddActivity>(activity);
+        public MyHandler(Allot_ApplyAddActivity activity) {
+            mActivity = new WeakReference<Allot_ApplyAddActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_OperationAddActivity m = mActivity.get();
+            Allot_ApplyAddActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
@@ -132,7 +120,7 @@ public class Allot_OperationAddActivity extends BaseActivity {
 
     @Override
     public int setLayoutResID() {
-        return R.layout.allot_operation_add;
+        return R.layout.allot_apply_add;
     }
 
     @Override
@@ -142,10 +130,10 @@ public class Allot_OperationAddActivity extends BaseActivity {
 
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Allot_OperationAddAdapter(context, listDatas);
+        mAdapter = new Allot_ApplyAddAdapter(context, listDatas);
         recyclerView.setAdapter(mAdapter);
 
-        mAdapter.setCallBack(new Allot_OperationAddAdapter.MyCallBack() {
+        mAdapter.setCallBack(new Allot_ApplyAddAdapter.MyCallBack() {
             @Override
             public void selMtl(StkTransferOutTemp entity, int position) {
                 curPos = position;

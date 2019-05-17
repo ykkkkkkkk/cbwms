@@ -209,7 +209,8 @@
         android:gravity="center"
         android:text="长按行替换物料"
         android:textColor="@color/c_FF4400"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:visibility="gone" />
 
     <HorizontalScrollView
         android:layout_width="wrap_content"

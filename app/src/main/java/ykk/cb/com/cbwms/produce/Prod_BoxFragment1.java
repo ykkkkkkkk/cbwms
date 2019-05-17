@@ -1151,11 +1151,15 @@ public class Prod_BoxFragment1 extends BaseFragment {
             list.add(bt.getBarcode());
             mbr.setBatchCode(bt.getBatchCode());
             mbr.setSnCode(bt.getSnCode());
+            mbr.setIsUniqueness('Y');
             mbr.setListBarcode(list);
             mbr.setStrBarcodes(bt.getBarcode());
             // 如果是启用批次和序列号的，就把单据数显示
             mbr.setUsableFqty(prodOrder.getProdFqty());
-        } else mbr.setStrBarcodes("");
+        } else {
+            mbr.setIsUniqueness('N');
+            mbr.setStrBarcodes(bt.getBarcode());
+        }
         mbr.setRelationObj(JsonUtil.objectToString(prodOrder));
         mbr.setIsMtlParts(0);
 
@@ -1269,11 +1273,15 @@ public class Prod_BoxFragment1 extends BaseFragment {
             list.add(bt.getBarcode());
             mbr.setBatchCode(bt.getBatchCode());
             mbr.setSnCode(bt.getSnCode());
+            mbr.setIsUniqueness('Y');
             mbr.setListBarcode(list);
             mbr.setStrBarcodes(bt.getBarcode());
             // 如果是启用批次和序列号的，就把单据数显示
             mbr.setUsableFqty(salOrder.getUsableFqty());
-        } else mbr.setStrBarcodes("");
+        } else {
+            mbr.setStrBarcodes(bt.getBarcode());
+            mbr.setIsUniqueness('N');
+        }
         mbr.setRelationObj(JsonUtil.objectToString(salOrder));
         mbr.setIsMtlParts(0);
 
@@ -1503,6 +1511,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     }
                     mbr.setBatchCode(bt.getBatchCode());
                     mbr.setSnCode(bt.getSnCode());
+                    mbr.setIsUniqueness('Y');
                     mbr.setListBarcode(list);
                     mbr.setStrBarcodes(sb.toString());
                     if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
@@ -1522,10 +1531,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                        } else {
 //                            mbr.setNumber(mbr.getNumber() + fqty);
 //                        }
-                        mbr.setNumber(mbr.getUsableFqty());
-                        mbr.setBatchCode(bt.getBatchCode());
-                        mbr.setSnCode(bt.getSnCode());
-
+                    mbr.setNumber(mbr.getUsableFqty());
+                    mbr.setBatchCode(bt.getBatchCode());
+                    mbr.setSnCode(bt.getSnCode());
+                    mbr.setIsUniqueness('N');
+                    mbr.setStrBarcodes(bt.getBarcode());
                         // 启用了最小包装
 //                    } else if(mtl.getMtlPack() != null && mtl.getMtlPack().getIsMinNumberPack() == 1) {
 //                        if(mtl.getMtlPack().getIsMinNumberPack() == 1) {

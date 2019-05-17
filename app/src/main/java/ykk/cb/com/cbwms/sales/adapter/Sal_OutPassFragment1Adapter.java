@@ -30,6 +30,7 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
     public void onBindHoder(RecyclerHolder holder, final SalOutStock entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_salNo = holder.obtainView(R.id.tv_salNo);
         TextView tv_ckNo = holder.obtainView(R.id.tv_ckNo);
         TextView tv_curCarriageNo = holder.obtainView(R.id.tv_curCarriageNo);
         TextView tv_allCarriageNo = holder.obtainView(R.id.tv_allCarriageNo);
@@ -38,6 +39,7 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
         TextView tv_check = holder.obtainView(R.id.tv_check);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
+        tv_salNo.setText(entity.getSalOrderNo());
         tv_ckNo.setText(entity.getFbillno());
 //        tv_curCarriageNo.setText(entity.getCurCarriageNo());
         tv_allCarriageNo.setText(Html.fromHtml(entity.getfCarriageNO()));

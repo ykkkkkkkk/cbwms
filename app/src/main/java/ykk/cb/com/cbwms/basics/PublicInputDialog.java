@@ -176,6 +176,7 @@ public class PublicInputDialog extends BaseDialogActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close:
+
                 context.finish();
 
                 break;

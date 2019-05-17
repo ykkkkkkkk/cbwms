@@ -56,6 +56,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
     private OkHttpClient okHttpClient = null;
     private Sal_OutStockPassAdapter mAdapter;
     private List<SalOutStock> listDatas = new ArrayList<>();
+    private List<String> listUnPassNo = new ArrayList<>();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private User user;
@@ -104,6 +105,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
 
                         break;
                     case PASS: // 审核成功
+                        m.showUnPassNo();
                         m.initLoadDatas();
                         m.toasts("审核成功✔");
 
@@ -229,20 +231,40 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
             return;
         }
         int size = listDatas.size();
-
+        listUnPassNo.clear();
         StringBuilder strFbillNo = new StringBuilder();
         StringBuilder strFdocumentStatus = new StringBuilder();
+        List<SalOutStock> listOk = new ArrayList<>();
+        boolean isChecked = false; // 是否选中过
         // 得到当前要审核的行
         for (int i = 0; i < size; i++) {
             SalOutStock s = listDatas.get(i);
             if (s.isCheck()) {
-                strFbillNo.append(s.getFbillno() + ",");
-                strFdocumentStatus.append(s.getFdocumentStatus()+",");
+                isChecked = true;
+                if(isNULLS(s.getOrderCloseStatus()).indexOf("B") == -1 && isNULLS(s.getOrderEntryTerminateStatus()).indexOf("B") == -1) {
+                    listOk.add(s);
+                } else {
+                    if(!listUnPassNo.contains(s.getFbillno())) {
+                        listUnPassNo.add(s.getFbillno());
+                    }
+                }
             }
         }
-        if(strFbillNo.length() == 0) {
+        if(!isChecked) {
             Comm.showWarnDialog(context,"请至少选中一行！");
             return;
+        }
+        // 选中的行，全部都不能审核
+        if(listOk.size() == 0) {
+            showUnPassNo();
+            return;
+        }
+
+        // 数据状态不为终止和关闭的就审核
+        for (int i = 0, sizeK=listOk.size(); i < sizeK; i++) {
+            SalOutStock s = listOk.get(i);
+            strFbillNo.append(s.getFbillno() + ",");
+            strFdocumentStatus.append(s.getFdocumentStatus() + ",");
         }
 
         // 减去最后一个，
@@ -250,6 +272,24 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
         strFdocumentStatus.delete(strFdocumentStatus.length() - 1, strFdocumentStatus.length());
 
         run_submitAndPass(strFbillNo.toString(), strFdocumentStatus.toString());
+    }
+
+    /**
+     * 提示不能审核的单据
+     */
+    private void showUnPassNo() {
+        if(listUnPassNo.size() == 0) return;
+
+        StringBuilder strNo = new StringBuilder();
+        strNo.append("【");
+        for (int i = 0, sizeJ=listUnPassNo.size(); i < sizeJ; i++) {
+            String s = listUnPassNo.get(i);
+            if((i+1) == sizeJ) strNo.append(s);
+            else strNo.append(s+",");
+        }
+        strNo.append("】");
+        Comm.showWarnDialog(context,strNo+"出库单，对应的销售订单,存在业务终止或整单关闭。");
+        return;
     }
 
     @OnCheckedChanged(R.id.cbAll)

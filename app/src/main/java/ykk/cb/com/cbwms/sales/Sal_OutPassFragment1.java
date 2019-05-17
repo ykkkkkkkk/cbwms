@@ -406,7 +406,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         boolean isBool = false;
         for (int i = 0; i < size; i++) {
             SalOutStock sOut = checkDatas.get(i);
-            if (barcode != null && barcode.equals(sOut.getCurCarriageNo())) {
+            if (barcode != null && barcode.equals(sOut.getCurCarriageNo().toUpperCase())) {
                 if (sOut.isSm()) {
                     Comm.showWarnDialog(mContext, "该运单号已经扫过了！");
                 } else {
@@ -436,7 +436,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         for (int i = 0; i < size; i++) {
             SalOutStock sOut = list.get(i);
             String carriageNo = sOut.getfCarriageNO();
-            if (barcode != null && barcode.equals(sOut.getCurCarriageNo())) {
+            if (barcode != null && barcode.equals(sOut.getCurCarriageNo().toUpperCase())) {
                 sOut.setSm(true);
             }
             sOut.setfCarriageNO(carriageNo.replace("/", "<br>"));

@@ -65,6 +65,7 @@ public class ScanningRecord implements Serializable {
     private String fbusinessTypeNumber; // 采购入库单据业务类型编码
     // 临时变量
     private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private char isUniqueness; // 条码是否唯一：Y是，N否
     private String strBarcodes; // 用逗号拼接的条码号
     private String kdAccount; // k3 用户的密码
     private String kdAccountPassword; // k3 用户的密码
@@ -613,6 +614,15 @@ public class ScanningRecord implements Serializable {
     public void setSupplier(Supplier supplier) {
         this.supplier = supplier;
     }
+
+    public char getIsUniqueness() {
+        return isUniqueness;
+    }
+
+    public void setIsUniqueness(char isUniqueness) {
+        this.isUniqueness = isUniqueness;
+    }
+
 
     public ScanningRecord() {
         super();

@@ -109,6 +109,7 @@ public class MaterialBinningRecord implements Serializable {
 
     // 临时字段
     private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private char isUniqueness; // 条码是否唯一：Y是，N否
     private String strBarcodes; // 用逗号拼接的条码号
     private int isMtlParts; // 是否为物料配件
     private int isCheck; // 是否选中
@@ -480,6 +481,14 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setCountBoxNum(int countBoxNum) {
         this.countBoxNum = countBoxNum;
+    }
+
+    public char getIsUniqueness() {
+        return isUniqueness;
+    }
+
+    public void setIsUniqueness(char isUniqueness) {
+        this.isUniqueness = isUniqueness;
     }
 
 }

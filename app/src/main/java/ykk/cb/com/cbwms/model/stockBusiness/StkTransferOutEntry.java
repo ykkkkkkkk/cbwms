@@ -153,7 +153,9 @@ public class StkTransferOutEntry implements Serializable {
     // 临时字段
     private double tmpPickFqty; // 保存当前的拣货数量
     private double usableFqty; // 可使用的数量（调拨数-拣货数量）
+
     private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private char isUniqueness; // 条码是否唯一：Y是，N否
     private String strBarcodes; // 用逗号拼接的条码号
     private int isCheck; // 是否选中
     private double inventoryFqty; // 即时库存数
@@ -721,6 +723,14 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setStockPosSeq(int stockPosSeq) {
         this.stockPosSeq = stockPosSeq;
+    }
+
+    public char getIsUniqueness() {
+        return isUniqueness;
+    }
+
+    public void setIsUniqueness(char isUniqueness) {
+        this.isUniqueness = isUniqueness;
     }
 
 }

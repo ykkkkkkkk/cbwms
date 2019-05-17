@@ -118,6 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_6dp"
         android:gravity="center"
+        android:visibility="gone"
         android:text="长按行替换物料"
         android:textColor="@color/c_FF4400"
         android:textSize="14sp" />
@@ -125,7 +126,7 @@
     <HorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-
+        android:layout_marginTop="@dimen/_6dp"
         android:layout_weight="1"
         android:scrollbars="none">
 
@@ -271,10 +272,21 @@
             android:id="@+id/btn_add"
             android:layout_width="0dp"
             android:layout_height="38dp"
+            android:layout_weight="0.6"
+            android:background="@drawable/btn_gray2_selector"
+            android:gravity="center"
+            android:text="新增"
+            android:textColor="@color/c_666666"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
             android:layout_weight="1"
             android:background="@drawable/btn_blue2_selector"
             android:gravity="center"
-            android:text="新增"
+            android:text="保存"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
@@ -282,7 +294,7 @@
             android:id="@+id/btn_pass"
             android:layout_width="0dp"
             android:layout_height="38dp"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:background="@drawable/btn_purple2_selector"
             android:gravity="center"
             android:text="审核"

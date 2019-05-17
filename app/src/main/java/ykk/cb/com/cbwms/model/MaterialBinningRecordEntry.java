@@ -13,6 +13,7 @@ public class MaterialBinningRecordEntry implements Serializable {
 	private int id;
 	private int mbrId;
 	private String barcode; // 条码号
+	private char isUniqueness; // 条码是否唯一：Y是，N否
 	private String createDate;
 	/* 创建人id  */
 	private int	createUserId;
@@ -69,6 +70,14 @@ public class MaterialBinningRecordEntry implements Serializable {
 
 	public void setBarcode(String barcode) {
 		this.barcode = barcode;
+	}
+
+	public char getIsUniqueness() {
+		return isUniqueness;
+	}
+
+	public void setIsUniqueness(char isUniqueness) {
+		this.isUniqueness = isUniqueness;
 	}
 
 }

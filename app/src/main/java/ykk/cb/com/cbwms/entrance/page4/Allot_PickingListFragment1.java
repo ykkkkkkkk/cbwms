@@ -36,7 +36,6 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
@@ -46,7 +45,6 @@ import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingListFragment1Adapter;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
@@ -107,7 +105,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private Activity mContext;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, SUCC4 = 205, UNSUCC4 = 505;
-    private static final int RESULT_NUM = 1, SETFOCUS = 2, SAOMA = 3, REFRESH = 5;
+    private static final int RESULT_NUM = 1, RESULT_NUM2 = 2, SETFOCUS = 3, SAOMA = 4, REFRESH = 5;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Staff stockStaff; // 仓管员
@@ -126,6 +124,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private String businessType = "1"; // 业务类型:1、材料按次 2、材料按批 3、成品
     private String prodSeqNumberStatus = ""; // 1：升序，2：降序
     private String stockPosSeqStatus = "";
+    private List<String> code_QtyList = new ArrayList<>(); // 记录物料启用批次好的barcode和数量
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -237,7 +236,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC3: // 判断是否存在返回
-                        m.run_addScanningRecord();
+                        m.run_save();
 
                         break;
                     case CLOSE: //  关闭 成功 返回
@@ -355,6 +354,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 // 点击了保存，就只能点击审核操作，其他都屏蔽
                 if(isNULLS(k3Number).length() > 0) return;
 
+                Material mtl = entity.getMaterial();
+                // 是否启用序列号
+                if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) return;
+
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
                 showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0", RESULT_NUM);
@@ -407,22 +410,22 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             }
         });
         // 长按替换物料
-        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                // 点击了保存，就只能点击审核操作，其他都屏蔽
-                if(isNULLS(k3Number).length() > 0) return;
-
-                StkTransferOutEntry stkEntry = checkDatas.get(pos);
-                Bundle bundle = new Bundle();
-                bundle.putInt("stkEntryId", stkEntry.getId());
-                bundle.putInt("mtlId", stkEntry.getMtlId());
-                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
-                bundle.putString("mtlName", stkEntry.getMtlFname());
-                bundle.putString("remark", stkEntry.getMoNote());
-                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
-            }
-        });
+//        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
+//            @Override
+//            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+//                // 点击了保存，就只能点击审核操作，其他都屏蔽
+//                if(isNULLS(k3Number).length() > 0) return;
+//
+//                StkTransferOutEntry stkEntry = checkDatas.get(pos);
+//                Bundle bundle = new Bundle();
+//                bundle.putInt("stkEntryId", stkEntry.getId());
+//                bundle.putInt("mtlId", stkEntry.getMtlId());
+//                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+//                bundle.putString("mtlName", stkEntry.getMtlFname());
+//                bundle.putString("remark", stkEntry.getMoNote());
+//                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
+//            }
+//        });
     }
 
     @Override
@@ -498,7 +501,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     return;
                 }
 //                run_findMatIsExistList();
-                run_addScanningRecord();
+                run_save();
 
                 break;
             case R.id.btn_pass: // 审核
@@ -757,6 +760,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         etMtlCode.setText(""); // 物料代码
         mtlBarcode = null;
         curPos = -1;
+        code_QtyList.clear();
     }
 
     private void resetSon() {
@@ -765,7 +769,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         btnBatchAdd.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
         btnPass.setVisibility(View.GONE);
-
+        code_QtyList.clear();
         checkDatas.clear();
         mAdapter.notifyDataSetChanged();
         reset('0');
@@ -868,6 +872,32 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
                         checkDatas.get(curPos).setTmpPickFqty(num);
+                        mAdapter.notifyDataSetChanged();
+                        isPickingEnd();
+                    }
+                }
+
+                break;
+            case RESULT_NUM2: // 数量2
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        double curQty = checkDatas.get(curPos).getTmpPickFqty();
+                        checkDatas.get(curPos).setTmpPickFqty(curQty + num);
+                        // 把最后的结果存到list
+                        for(int i = 0; i< code_QtyList.size(); i++) {
+                            String code_num = code_QtyList.get(i);
+                            if(code_num.indexOf(mtlBarcode) > -1) {
+                                String[] arrs = code_num.split(":");
+                                double qty = parseDouble(arrs[1]) - num;
+                                code_QtyList.add(mtlBarcode+":"+qty); // 保留现在新的
+                                code_QtyList.remove(code_num); // 删除之前旧的
+                                break;
+                            }
+                        }
+
                         mAdapter.notifyDataSetChanged();
                         isPickingEnd();
                     }
@@ -982,20 +1012,15 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 isFlag = true;
                 position = i;
 
-                // 未启用序列号
-                if (tmpMtl.getIsSnManager() == 0) {
-                    stkEntry.setBatchCode(bt.getBatchCode());
-                    stkEntry.setSnCode(bt.getSnCode());
-                    stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
-
-                } else {
+                // 启用序列号，批次号
+                if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
                     if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
                         return;
                     }
                     List<String> list = stkEntry.getListBarcode();
                     if (list.contains(bt.getBarcode())) {
-                        Comm.showWarnDialog(mContext, "该物料条码已在拣货行中，请扫描未使用过的条码！");
+                        Comm.showWarnDialog(mContext, "该条码已使用过！");
                         return;
                     }
                     list.add(bt.getBarcode());
@@ -1007,9 +1032,31 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     }
                     stkEntry.setBatchCode(bt.getBatchCode());
                     stkEntry.setSnCode(bt.getSnCode());
+                    stkEntry.setIsUniqueness('Y');
                     stkEntry.setListBarcode(list);
                     stkEntry.setStrBarcodes(sb.toString());
-                    stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
+                    if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
+//                        stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + bt.getMaterialCalculateNumber());
+                        String code_num = bt.getBarcode()+":"+bt.getMaterialCalculateNumber();
+                        if(code_QtyList.contains(code_num)) {
+                            Comm.showWarnDialog(mContext, "该条码已使用过！");
+                            return;
+                        }
+                        code_QtyList.add(code_num);
+                        curPos = i;
+                        String showInfo = "<font color='#666666'>物料编码：</font>"+tmpMtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+tmpMtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode()+"<br><font color='#666666'>条码数量：</font>"+isNULLS(bt.getMaterialCalculateNumber()));
+                        showInputDialog("数量", showInfo, String.valueOf(bt.getMaterialCalculateNumber()), "0.0", RESULT_NUM2);
+
+                    } else {
+                        stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
+                    }
+
+                } else {
+                    stkEntry.setBatchCode(bt.getBatchCode());
+                    stkEntry.setSnCode(bt.getSnCode());
+                    stkEntry.setIsUniqueness('N');
+                    stkEntry.setStrBarcodes(bt.getBarcode());
+                    stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
                 }
                 isPickingEnd();
                 break;
@@ -1020,12 +1067,12 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             return;
         }
         setCheckFalse();
-//        checkDatas.get(position).setIsCheck(1);
-        StkTransferOutEntry curStkEntry = checkDatas.get(position);
-        curStkEntry.setIsCheck(1);
-        StkTransferOutEntry stkEntryTop1 = checkDatas.get(0);
-        checkDatas.set(0, curStkEntry); // 把当前选中的放在第一行的位置
-        checkDatas.set(position, stkEntryTop1); // 把第一行的放在第一行当前选中的位置
+        checkDatas.get(position).setIsCheck(1);
+//        StkTransferOutEntry curStkEntry = checkDatas.get(position);
+//        curStkEntry.setIsCheck(1);
+//        StkTransferOutEntry stkEntryTop1 = checkDatas.get(0);
+//        checkDatas.set(0, curStkEntry); // 把当前选中的放在第一行的位置
+//        checkDatas.set(position, stkEntryTop1); // 把第一行的放在第一行当前选中的位置
 
         mAdapter.notifyDataSetChanged();
     }
@@ -1056,7 +1103,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     /**
      * 保存方法
      */
-    private void run_addScanningRecord() {
+    private void run_save() {
         showLoadDialog("保存中...");
         getUserInfo();
 
@@ -1076,6 +1123,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 pick.setCreateUserId(user.getId());
                 pick.setCreateUserName(user.getUsername());
                 pick.setRelationObj(JsonUtil.objectToString(stkEntry));
+                pick.setIsUniqueness(stkEntry.getIsUniqueness());
                 pick.setListBarcode(stkEntry.getListBarcode());
                 pick.setStrBarcodes(stkEntry.getStrBarcodes());
                 pick.setKdAccount(user.getKdAccount());
@@ -1091,10 +1139,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         String billDate = getValues(tvDateSel);
 
         String mJson = JsonUtil.objectToString(pickLists);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
+        String mJson2 = JsonUtil.objectToString(code_QtyList);
         FormBody formBody = new FormBody.Builder()
                 .add("billDate", billDate)
                 .add("strJson", mJson)
+                .add("strJson2", mJson2)
                 .build();
 
         String mUrl = getURL("pickingList/add");
@@ -1114,7 +1163,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_addScanningRecord --> onResponse", result);
+                LogUtil.e("run_save --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC1, result);
                     mHandler.sendMessage(msg);

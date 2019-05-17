@@ -38,6 +38,7 @@ public class PickingList {
 
 	// 临时字段
 	private String relationObj; // 来源对象json
+	private char isUniqueness; // 条码是否唯一：Y是，N否
 	private List<String> listBarcode; // 记录每行中扫的条码barcode
 	private String strBarcodes; // 用逗号拼接的条码号
 	private String kdAccount; // k3 用户的密码
@@ -189,6 +190,14 @@ public class PickingList {
 
 	public void setKdAccountPassword(String kdAccountPassword) {
 		this.kdAccountPassword = kdAccountPassword;
+	}
+
+	public char getIsUniqueness() {
+		return isUniqueness;
+	}
+
+	public void setIsUniqueness(char isUniqueness) {
+		this.isUniqueness = isUniqueness;
 	}
 
 }

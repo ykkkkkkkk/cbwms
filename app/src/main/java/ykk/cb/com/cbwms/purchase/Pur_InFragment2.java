@@ -895,6 +895,7 @@ public class Pur_InFragment2 extends BaseFragment {
                         if((k+1) == sizeK) sb.append(list.get(k));
                         else sb.append(list.get(k)+",");
                     }
+                    sr2.setIsUniqueness('Y');
                     sr2.setListBarcode(list);
                     sr2.setStrBarcodes(sb.toString());
                     if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
@@ -924,6 +925,8 @@ public class Pur_InFragment2 extends BaseFragment {
 
                     // 使用弹出框确认数量
                     sr2.setStockqty(0);
+                    sr2.setIsUniqueness('N');
+                    sr2.setStrBarcodes(bt.getBarcode());
                     curPos = i;
                     String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode());
                     showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
@@ -1078,9 +1081,13 @@ public class Pur_InFragment2 extends BaseFragment {
         if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             List<String> list = new ArrayList<String>();
             list.add(bt.getBarcode());
+            sr2.setIsUniqueness('Y');
             sr2.setListBarcode(list);
             sr2.setStrBarcodes(bt.getBarcode());
-        } else sr2.setStrBarcodes("");
+        } else {
+            sr2.setIsUniqueness('N');
+            sr2.setStrBarcodes(bt.getBarcode());
+        }
 
         setCheckFalse();
         sr2.setCheck(true);
@@ -1154,6 +1161,7 @@ public class Pur_InFragment2 extends BaseFragment {
             record.setFsrcBillTypeId("PUR_PurchaseOrder");
             record.setfRuleId("PUR_PurchaseOrder-STK_InStock");
             record.setFsTableName("t_PUR_POOrderEntry");
+            record.setIsUniqueness(sr2.getIsUniqueness());
             record.setListBarcode(sr2.getListBarcode());
             record.setStrBarcodes(sr2.getStrBarcodes());
             record.setKdAccount(user.getKdAccount());

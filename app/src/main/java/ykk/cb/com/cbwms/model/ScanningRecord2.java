@@ -71,6 +71,7 @@ public class ScanningRecord2 implements Serializable {
     private String salOrderNo; // 关联的销售订单号
     private int salOrderNoEntryId; // 关联的销售订单分录id
     private List<String> listBarcode; // 记录每行中扫的条码barcode
+    private char isUniqueness; // 条码是否唯一：Y是，N否
     private String strBarcodes; // 用逗号拼接的条码号
     private ScanningRecordTok3 srTok3; // 提交到k3的字段
     private int salOrderSumRow; // 箱子对应的销售订单的总行数
@@ -665,6 +666,14 @@ public class ScanningRecord2 implements Serializable {
 
     public void setStockInLimith(double stockInLimith) {
         this.stockInLimith = stockInLimith;
+    }
+
+    public char getIsUniqueness() {
+        return isUniqueness;
+    }
+
+    public void setIsUniqueness(char isUniqueness) {
+        this.isUniqueness = isUniqueness;
     }
 
     public ScanningRecord2() {

@@ -231,7 +231,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 }
 
                                 if(m.isAlikeCust(mbr)) return;
-                                if(m.caseId > 0 && m.caseId != mbr.getCaseId()) {
+//                                if(m.caseId > 0 && m.caseId != mbr.getCaseId()) {
+                                if(m.caseId > 0 && !(m.caseId == 34 || m.caseId == 38)) {
                                     Comm.showWarnDialog(m.mContext,"扫描的箱码单据和当前行的单据不一致！");
                                     return;
                                 }
@@ -650,6 +651,35 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             }
             if (sr2.getStockqty() == 0) {
                 Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实发数）必须大于0！");
+                return false;
+            }
+
+            if (sr2.getFqty() > sr2.getStockqty()) {
+                // 1、非整非拼，2、整单发货，3、拼单
+                switch (orderDeliveryType) {
+                    case '1':
+                        AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+                        build.setIcon(R.drawable.caution);
+                        build.setTitle("系统提示");
+                        build.setMessage("当前客户还有非整单发货的箱号未扫描，是否继续出库？");
+                        build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                run_findStatus();
+                            }
+                        });
+                        build.setNegativeButton("否", null);
+                        build.setCancelable(false);
+                        build.show();
+
+                        break;
+                    case '2':
+                        Comm.showWarnDialog(mContext, "整单发货还有未装箱物料！！");
+                        break;
+                    case '3':
+                        Comm.showWarnDialog(mContext, "拼单缺少物料或配件,或者未扫完箱码！！");
+                        break;
+                }
                 return false;
             }
         }
@@ -1494,6 +1524,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         StringBuilder strCustNumber = new StringBuilder();
         String custName = customer.getCustomerName();
         custName = custName.substring(0, custName.length()-1);
+        double countRowSumNum = 0;
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             if((i+1) == size) {
@@ -1512,6 +1543,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 strProdNumber.append(sr2.getPoFbillno2() + ",");
                 strProdEntryId.append(sr2.getEntryId2() + ",");
             }
+            countRowSumNum += sr2.getStockqty();
         }
         StringBuilder strBoxBarcode = new StringBuilder();
         //遍历箱码map中的键
@@ -1538,6 +1570,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 .add("strCustNumber", strCustNumber.toString())
                 .add("strBoxBarcode", strBoxBarcode.toString())
                 .add("custName", custName)
+                .add("countRowSumNum", String.valueOf(countRowSumNum))
                 .build();
 
         Request request = new Request.Builder()

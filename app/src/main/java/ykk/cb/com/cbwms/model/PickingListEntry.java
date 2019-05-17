@@ -11,6 +11,7 @@ public class PickingListEntry {
 	private int id;
 	private int parentId;
 	private String barcode; // 条码号
+	private char isUniqueness; // 条码是否唯一：Y是，N否
 	private String createDate;
 	/* 创建人id  */
 	private int	createUserId;
@@ -67,6 +68,14 @@ public class PickingListEntry {
 
 	public void setCreateUserName(String createUserName) {
 		this.createUserName = createUserName;
+	}
+
+	public char getIsUniqueness() {
+		return isUniqueness;
+	}
+
+	public void setIsUniqueness(char isUniqueness) {
+		this.isUniqueness = isUniqueness;
 	}
 
 }

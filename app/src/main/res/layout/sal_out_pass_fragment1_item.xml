@@ -24,6 +24,14 @@
         android:background="@drawable/check_false"
         android:gravity="center" />
 
+    <TextView
+        android:id="@+id/tv_salNo"
+        android:layout_width="@dimen/_76dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="销售订单"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_ckNo"

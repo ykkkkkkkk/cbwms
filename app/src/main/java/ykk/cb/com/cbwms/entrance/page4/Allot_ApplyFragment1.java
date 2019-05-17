@@ -255,20 +255,19 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             }
         });
         // 长按替换物料
-        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                StkTransferOutEntry stkEntry = listDatas.get(pos);
-                Bundle bundle = new Bundle();
-                bundle.putInt("stkEntryId", stkEntry.getId());
-                bundle.putInt("mtlId", stkEntry.getMtlId());
-                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
-                bundle.putString("mtlName", stkEntry.getMtlFname());
-                bundle.putString("remark", stkEntry.getMoNote());
-                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
-            }
-        });
-
+//        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
+//            @Override
+//            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+//                StkTransferOutEntry stkEntry = listDatas.get(pos);
+//                Bundle bundle = new Bundle();
+//                bundle.putInt("stkEntryId", stkEntry.getId());
+//                bundle.putInt("mtlId", stkEntry.getMtlId());
+//                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+//                bundle.putString("mtlName", stkEntry.getMtlFname());
+//                bundle.putString("remark", stkEntry.getMoNote());
+//                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
+//            }
+//        });
     }
 
     @Override
@@ -284,7 +283,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add    })
+    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -338,6 +337,15 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 break;
             case R.id.btn_add: // 新增行
                 show(Allot_ApplyAddActivity.class, null);
+
+                break;
+            case R.id.btn_save: // 保存
+                if(listDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext,"请先查询数据！");
+                    return;
+                }
+                String strJson = JsonUtil.objectToString(listDatas);
+                run_modifyFqty(strJson);
 
                 break;
         }
@@ -403,8 +411,10 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                             Comm.showWarnDialog(mContext,"数量必须大于0！");
                             return;
                         }
-                        StkTransferOutEntry stkEntry = listDatas.get(curPos);
-                        run_modifyFqty(stkEntry.getId(), num);
+                        listDatas.get(curPos).setFqty(num);
+                        mAdapter.notifyDataSetChanged();
+//                        StkTransferOutEntry stkEntry = listDatas.get(curPos);
+//                        run_modifyFqty(stkEntry.getId(), num);
                     }
                 }
 
@@ -619,12 +629,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     /**
      * 修改调拨数
      */
-    private void run_modifyFqty(int id, double fqty) {
+    private void run_modifyFqty(String strJson) {
         showLoadDialog("操作中...");
-        String mUrl = getURL("stkTransferOut/modifyStkTransferOutEntryByFqty");
+        String mUrl = getURL("stkTransferOut/modifyStkTransferOutEntryByFqty2");
         FormBody formBody = new FormBody.Builder()
-                .add("id", String.valueOf(id))
-                .add("fqty", String.valueOf(fqty))
+                .add("strJson", strJson)
                 .build();
 
         Request request = new Request.Builder()

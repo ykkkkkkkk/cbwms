@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -37,17 +36,14 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Staff_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingListFragment3Adapter;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
@@ -919,13 +915,8 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 isFlag = true;
                 position = i;
 
-                // 未启用序列号
-                if (tmpMtl.getIsSnManager() == 0) {
-                    stkEntry.setBatchCode(bt.getBatchCode());
-                    stkEntry.setSnCode(bt.getSnCode());
-                    stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
-
-                } else {
+                // 启用序列号，批次号
+                if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
                     if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
                         Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
                         return;
@@ -944,9 +935,21 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     }
                     stkEntry.setBatchCode(bt.getBatchCode());
                     stkEntry.setSnCode(bt.getSnCode());
+                    stkEntry.setIsUniqueness('Y');
                     stkEntry.setListBarcode(list);
                     stkEntry.setStrBarcodes(sb.toString());
-                    stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
+                    if(tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
+                        stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + bt.getMaterialCalculateNumber());
+                    } else {
+                        stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
+                    }
+
+                } else {
+                    stkEntry.setBatchCode(bt.getBatchCode());
+                    stkEntry.setSnCode(bt.getSnCode());
+                    stkEntry.setIsUniqueness('N');
+                    stkEntry.setStrBarcodes(bt.getBarcode());
+                    stkEntry.setTmpPickFqty(stkEntry.getUsableFqty());
                 }
                 isPickingEnd();
                 break;
@@ -1012,11 +1015,12 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 pick.setStockStaffId(stockStaff != null ? stockStaff.getStaffId() : 0);
                 pick.setCreateUserId(user.getId());
                 pick.setCreateUserName(user.getUsername());
-                pick.setRelationObj(JsonUtil.objectToString(stkEntry));
+                pick.setIsUniqueness(stkEntry.getIsUniqueness());
                 pick.setListBarcode(stkEntry.getListBarcode());
                 pick.setStrBarcodes(stkEntry.getStrBarcodes());
                 pick.setKdAccount(user.getKdAccount());
                 pick.setKdAccountPassword(user.getKdAccountPassword());
+                pick.setRelationObj(JsonUtil.objectToString(stkEntry));
 
                 pickLists.add(pick);
             }
@@ -1028,7 +1032,6 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         String billDate = getValues(tvDateSel);
 
         String mJson = JsonUtil.objectToString(pickLists);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
         FormBody formBody = new FormBody.Builder()
                 .add("billDate", billDate)
                 .add("strJson", mJson)

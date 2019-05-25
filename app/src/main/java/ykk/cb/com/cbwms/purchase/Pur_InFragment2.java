@@ -1191,7 +1191,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 run_addScanningRecord(mJson);
                 break;
             }
-//        } else {
+        } else {
 //            String mJson = JsonUtil.objectToString(list);
 //            run_addScanningRecord(mJson);
         }

@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -39,7 +40,7 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
         TextView tv_check = holder.obtainView(R.id.tv_check);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_salNo.setText(entity.getSalOrderNo());
+        tv_salNo.setText(Comm.isNULLS(entity.getSalOrderNo()));
         tv_ckNo.setText(entity.getFbillno());
 //        tv_curCarriageNo.setText(entity.getCurCarriageNo());
         tv_allCarriageNo.setText(Html.fromHtml(entity.getfCarriageNO()));

@@ -1128,7 +1128,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             case '2': // 物料（纯物料查询，来配对列表）
                 mUrl = getURL("barCodeTable/findBarcode4ByParam");
                 barcode = mtlBarcode;
-                strCaseId = "11,21,34,38";
+                strCaseId = "11,21,31,34,38";
                 outDeptNumber = "";
                 inStockNumber = "";
                 outStockNumber = "";

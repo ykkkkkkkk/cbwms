@@ -103,7 +103,7 @@ public class Allot_PickingListFragment2 extends BaseFragment {
     private Allot_PickingListFragment2 context = this;
     private Allot_PickingListMainActivity parent;
     private Activity mContext;
-    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16;
+    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16, SEL_MTL = 17;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, SUCC4 = 205, UNSUCC4 = 505;
     private static final int RESULT_NUM = 1, RESULT_NUM2 = 2, SETFOCUS = 3, SAOMA = 4, REFRESH = 5;
     private Stock inStock, outStock, stock2; // 仓库
@@ -426,6 +426,22 @@ public class Allot_PickingListFragment2 extends BaseFragment {
 //                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
 //            }
 //        });
+        // 长按选择条码
+        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
+                StkTransferOutEntry stkEntry = checkDatas.get(pos);
+                // 启用批次和序列号
+                if(stkEntry.getMaterial().getIsBatchManager() == 1) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+                    showForResult(Allot_PickingList_FindBarcode_DialogActivity.class, SEL_MTL, bundle);
+                }
+            }
+        });
     }
 
     @Override
@@ -856,6 +872,14 @@ public class Allot_PickingListFragment2 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     stockStaff = (Staff) data.getSerializableExtra("staff");
                     tvStaffSel.setText(stockStaff.getName());
+                }
+
+                break;
+            case SEL_MTL: // 选择物料返回
+                if (resultCode == RESULT_OK) {
+                    BarCodeTable bt = (BarCodeTable) data.getSerializableExtra("obj");
+                    Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+                    getMtlAfter(bt, mtl);
                 }
 
                 break;

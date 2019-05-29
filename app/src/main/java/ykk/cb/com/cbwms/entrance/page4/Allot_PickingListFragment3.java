@@ -808,6 +808,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     BarCodeTable bt = (BarCodeTable) data.getSerializableExtra("obj");
                     Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+                    mtlBarcode = bt.getBarcode();
                     getMtlAfter(bt, mtl);
                 }
 
@@ -942,9 +943,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 // 启用序列号，批次号
                 if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
-                    if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
-                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
-                        return;
+                    if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
+//                        return;
+                        continue;
                     }
                     List<String> list = stkEntry.getListBarcode();
                     if (list.contains(bt.getBarcode())) {

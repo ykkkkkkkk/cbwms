@@ -401,7 +401,7 @@
                 android:background="@drawable/back_style_blue5">
 
                 <TextView
-                    android:layout_width="287dp"
+                    android:layout_width="363dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="合计："

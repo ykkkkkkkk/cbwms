@@ -63,6 +63,9 @@ public class ScanningRecord implements Serializable {
     private String leafNumber2; // 来源叶片1
     private String fbillTypeNumber; // 采购入库单据类型编码
     private String fbusinessTypeNumber; // 采购入库单据业务类型编码
+    private String fownerTypeIdHead; // ORG_Organizations:库存组织 、BD_Supplier:供应商、 BD_Customer:客户
+    private String fownerIdHeadNumber; // 货主
+
     // 临时变量
     private List<String> listBarcode; // 记录每行中扫的条码barcode
     private char isUniqueness; // 条码是否唯一：Y是，N否
@@ -621,6 +624,22 @@ public class ScanningRecord implements Serializable {
 
     public void setIsUniqueness(char isUniqueness) {
         this.isUniqueness = isUniqueness;
+    }
+
+    public String getFownerTypeIdHead() {
+        return fownerTypeIdHead;
+    }
+
+    public String getFownerIdHeadNumber() {
+        return fownerIdHeadNumber;
+    }
+
+    public void setFownerTypeIdHead(String fownerTypeIdHead) {
+        this.fownerTypeIdHead = fownerTypeIdHead;
+    }
+
+    public void setFownerIdHeadNumber(String fownerIdHeadNumber) {
+        this.fownerIdHeadNumber = fownerIdHeadNumber;
     }
 
 

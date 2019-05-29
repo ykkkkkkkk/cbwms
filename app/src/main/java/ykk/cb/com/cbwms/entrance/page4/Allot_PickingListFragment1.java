@@ -427,7 +427,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 //            }
 //        });
 
-        // 长按选择条码
+        // 长按选择提条码
         mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
             @Override
             public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
@@ -436,7 +436,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 StkTransferOutEntry stkEntry = checkDatas.get(pos);
                 // 启用批次和序列号
-                if(stkEntry.getMaterial().getIsBatchManager() == 1) {
+                if(stkEntry.getMaterial().getIsBatchManager() == 1 || stkEntry.getMaterial().getIsSnManager() == 1) {
                     Bundle bundle = new Bundle();
                     bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
                     showForResult(Allot_PickingList_FindBarcode_DialogActivity.class, SEL_MTL, bundle);
@@ -879,6 +879,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     BarCodeTable bt = (BarCodeTable) data.getSerializableExtra("obj");
                     Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+                    mtlBarcode = bt.getBarcode();
                     getMtlAfter(bt, mtl);
                 }
 
@@ -1039,9 +1040,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 // 启用序列号，批次号
                 if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
-                    if (stkEntry.getTmpPickFqty() == stkEntry.getUsableFqty()) {
-                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
-                        return;
+                    if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
+//                        return;
+                        continue;
                     }
                     List<String> list = stkEntry.getListBarcode();
                     if (list.contains(bt.getBarcode())) {

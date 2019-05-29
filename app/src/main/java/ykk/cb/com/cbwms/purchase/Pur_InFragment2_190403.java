@@ -948,12 +948,18 @@ public class Pur_InFragment2_190403 extends BaseFragment {
             // 采购订单单据类型编码（转）采购入库单据类型编码
             if(billTypeNumber.equals("CGDD07_SYS")) { // 采购订单单据类型
                 sr2.setFbillTypeNumber("RKD07_SYS"); // 采购入库单据类型（VMI入库）
+                sr2.setFownerTypeIdHead("BD_Supplier");
+                sr2.setFownerIdHeadNumber(purOrder.getSupplierNumber());
 
             } else if(billTypeNumber.equals("CGDD02_SYS")) { // 委外采购订单入库
                 sr2.setFbillTypeNumber("RKD03_SYS"); // 采购入库单据类型（标准采购入库）
+                sr2.setFownerTypeIdHead("BD_OwnerOrg");
+                sr2.setFownerIdHeadNumber(purOrder.getPurOrgNumber());
 
             } else{
                 sr2.setFbillTypeNumber("RKD01_SYS"); // 采购入库单据类型（标准采购入库）
+                sr2.setFownerTypeIdHead("BD_OwnerOrg");
+                sr2.setFownerIdHeadNumber(purOrder.getPurOrgNumber());
             }
             sr2.setFbusinessTypeNumber(purOrder.getBusinessType());
             // 记录采购订单类型的条数
@@ -1334,6 +1340,9 @@ public class Pur_InFragment2_190403 extends BaseFragment {
             record.setPoFmustqty(sr2.getPoFmustqty());
             record.setFbillTypeNumber(sr2.getFbillTypeNumber());
             record.setFbusinessTypeNumber(sr2.getFbusinessTypeNumber());
+            record.setFownerTypeIdHead(sr2.getFownerTypeIdHead());
+            record.setFownerIdHeadNumber(sr2.getFownerIdHeadNumber());
+
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());
                 record.setDepartmentFnumber(department.getDepartmentNumber());

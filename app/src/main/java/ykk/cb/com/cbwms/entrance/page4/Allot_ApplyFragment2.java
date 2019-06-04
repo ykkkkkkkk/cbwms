@@ -2,7 +2,6 @@ package ykk.cb.com.cbwms.entrance.page4;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -37,19 +34,15 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment1Adapter;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment2Adapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -57,7 +50,7 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * 调拨拣货--（成品）
+ * 调拨申请--（成品）
  */
 public class Allot_ApplyFragment2 extends BaseFragment {
 

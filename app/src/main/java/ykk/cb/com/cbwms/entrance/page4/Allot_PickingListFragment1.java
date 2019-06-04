@@ -54,6 +54,7 @@ import ykk.cb.com.cbwms.model.PickingList;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
+import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
@@ -110,6 +111,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private StockPosition stockP2; // 库位
     private Staff stockStaff; // 仓管员
     private Department department; // 部门
+    private Supplier supplier; // 扫码的条码对应的供应商
     private Allot_PickingListFragment1Adapter mAdapter;
     private List<StkTransferOutEntry> checkDatas = new ArrayList<>();
     private String mtlBarcode; // 对应的条码号
@@ -125,6 +127,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private String prodSeqNumberStatus = ""; // 1：升序，2：降序
     private String stockPosSeqStatus = "";
     private List<String> code_QtyList = new ArrayList<>(); // 记录物料启用批次好的barcode和数量
+    private int isVMI; // 是否为VMI的单
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -201,6 +204,18 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                             case '2': // 物料（纯物料匹配行）
                                 bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
                                 Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+                                if(m.isVMI > 0 ) { // 是否为VMI的数据
+                                    Supplier supp = bt.getSupplier();
+                                    if(supp == null) {
+                                        Comm.showWarnDialog(m.mContext,"该条码未设置供应商信息，无法进行VMI调拨！");
+                                        return;
+                                    }
+                                    if(m.supplier != null && supp.getFsupplierid() != m.supplier.getFsupplierid()) {
+                                        Comm.showWarnDialog(m.mContext,"扫码的条码对应的供应商与当前供应商不一致！");
+                                        return;
+                                    }
+                                    m.supplier = supp;
+                                }
                                 m.getMtlAfter(bt, mtl);
 
                                 break;
@@ -439,7 +454,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 if(stkEntry.getMaterial().getIsBatchManager() == 1 || stkEntry.getMaterial().getIsSnManager() == 1) {
                     Bundle bundle = new Bundle();
                     bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
-                    showForResult(Allot_PickingList_FindBarcode_DialogActivity.class, SEL_MTL, bundle);
+                    showForResult(Allot_PickingList_FindBarcode_Dialog.class, SEL_MTL, bundle);
                 }
             }
         });
@@ -778,9 +793,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         mtlBarcode = null;
         curPos = -1;
         code_QtyList.clear();
+        isVMI = 0;
     }
 
     private void resetSon() {
+        supplier = null;
         k3Number = null;
         btnClone.setVisibility(View.VISIBLE);
         btnBatchAdd.setVisibility(View.VISIBLE);
@@ -864,6 +881,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     outStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName());
+                    isVMI = outStock.getIsVMI();
                     tvOutStockSel.setText(outStock.getfName());
                 }
 
@@ -1134,9 +1152,12 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         showLoadDialog("保存中...");
         getUserInfo();
 
+
         List<PickingList> pickLists = new ArrayList<>();
         for (int i = 0; i < checkDatas.size(); i++) {
             StkTransferOutEntry stkEntry = checkDatas.get(i);
+            StkTransferOut stk = stkEntry.getStkTransferOut();
+
             if(stkEntry.getTmpPickFqty() > 0) { // 大于0的，就添加到list
                 PickingList pick = new PickingList();
                 pick.setPickNo("");
@@ -1150,11 +1171,15 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 pick.setCreateUserId(user.getId());
                 pick.setCreateUserName(user.getUsername());
                 pick.setRelationObj(JsonUtil.objectToString(stkEntry));
-                pick.setIsUniqueness(stkEntry.getIsUniqueness());
+                pick.setIsUniqueness(isVMI > 0 ? 'N' : stkEntry.getIsUniqueness());
                 pick.setListBarcode(stkEntry.getListBarcode());
                 pick.setStrBarcodes(stkEntry.getStrBarcodes());
                 pick.setKdAccount(user.getKdAccount());
                 pick.setKdAccountPassword(user.getKdAccountPassword());
+                // 货主类型代码（  BD_OwnerOrg:库存组织 、BD_Supplier:供应商、 BD_Customer:客户 ）
+                pick.setFownerTypeOutId(isVMI > 0 ? "BD_Supplier" : "BD_OwnerOrg");
+                // 调出货主
+                pick.setFownerOutId(isVMI > 0 ? supplier.getfNumber() : stk.getOwnerOutNumber());
 
                 pickLists.add(pick);
             }
@@ -1207,6 +1232,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      */
     public void findFun() {
         Log.e("findFun", "第1个查询");
+        if (outStock == null) {
+            Comm.showWarnDialog(mContext, "请选择调出仓库！");
+            return;
+        }
         if (checkDatas.size() > 0) {
             Comm.showWarnDialog(mContext, "请先保存本次数据！");
             return;
@@ -1296,6 +1325,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 .add("deliveryWayName", deliveryWayName) // 发货类别
                 .add("prodSeqNumberStatus", prodSeqNumberStatus) // 按照生产顺序号来排序
                 .add("stockPosSeqStatus", stockPosSeqStatus) // 按照库位序号来排序
+                .add("isVMI", isVMI > 0 ? String.valueOf(isVMI) : "") // 是否VMI的数据
                 .build();
 
         Request request = new Request.Builder()

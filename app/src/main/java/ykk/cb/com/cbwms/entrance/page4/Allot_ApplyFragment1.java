@@ -2,7 +2,6 @@ package ykk.cb.com.cbwms.entrance.page4;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -41,7 +38,6 @@ import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAdapter;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment1Adapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
@@ -56,7 +52,7 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * 调拨拣货--（材料按批）
+ * 调拨申请--（材料按批）
  */
 public class Allot_ApplyFragment1 extends BaseFragment {
 
@@ -520,7 +516,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
      */
     private void run_smGetDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");;
+        String mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
         String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
         String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
         String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
@@ -534,7 +530,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", "1") // 未审核的单据（查询调拨单）
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
-                .add("isAotuBringOut", "0") // 物料是否自动带出：默认0(不带出)，1带出
+//                .add("isAotuBringOut", "0") // 物料是否自动带出：默认0(不带出)，1带出
                 .build();
 
         Request request = new Request.Builder()

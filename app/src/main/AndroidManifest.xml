@@ -165,8 +165,7 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
-            android:name=".entrance.page4.Allot_PickingList_FindBarcode_DialogActivity"
-            android:theme="@style/dialogStyle"
+            android:name=".entrance.page4.Allot_PickingList_FindBarcode_Dialog"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
 

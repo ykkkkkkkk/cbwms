@@ -43,6 +43,8 @@ public class PickingList {
 	private String strBarcodes; // 用逗号拼接的条码号
 	private String kdAccount; // k3 用户的密码
 	private String kdAccountPassword; // k3 用户的密码
+	private String fownerTypeOutId; // 货主类型代码（  BD_OwnerOrg:库存组织 、BD_Supplier:供应商、 BD_Customer:客户 ）
+	private String fownerOutId; // 调出货主
 
 	public PickingList() {
 		super();
@@ -198,6 +200,22 @@ public class PickingList {
 
 	public void setIsUniqueness(char isUniqueness) {
 		this.isUniqueness = isUniqueness;
+	}
+
+	public String getFownerTypeOutId() {
+		return fownerTypeOutId;
+	}
+
+	public String getFownerOutId() {
+		return fownerOutId;
+	}
+
+	public void setFownerTypeOutId(String fownerTypeOutId) {
+		this.fownerTypeOutId = fownerTypeOutId;
+	}
+
+	public void setFownerOutId(String fownerOutId) {
+		this.fownerOutId = fownerOutId;
 	}
 
 }

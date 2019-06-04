@@ -62,7 +62,22 @@ public class BarCodeTable implements Serializable {
     private MaterialBinningRecord mbr;
     /*k3对应单据分录的id值*/
     private int entryId;
-    // 临时用的数据
+    //以下两个字段用于车邦供应商生码时使用
+    /*生产日期*/
+    private String productDate;
+    /*生码数量*/
+    private double createCodeQty;
+    /*供应商ID 或者生产车间ID*/
+    private int supplierId;
+    private Supplier supplier;
+
+    //应收数量
+    private double receivableQty;
+    //不良数量
+    private double rejectsQty;
+
+
+
     // 临时数据, 不存表
     private int combineSalOrderId; // 拼单主表id
     private int combineSalOrderRow; // 拼单子表行数
@@ -264,6 +279,54 @@ public class BarCodeTable implements Serializable {
 
     public void setIsCheck(int isCheck) {
         this.isCheck = isCheck;
+    }
+
+    public String getProductDate() {
+        return productDate;
+    }
+
+    public void setProductDate(String productDate) {
+        this.productDate = productDate;
+    }
+
+    public double getCreateCodeQty() {
+        return createCodeQty;
+    }
+
+    public void setCreateCodeQty(double createCodeQty) {
+        this.createCodeQty = createCodeQty;
+    }
+
+    public int getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public Supplier getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(Supplier supplier) {
+        this.supplier = supplier;
+    }
+
+    public double getReceivableQty() {
+        return receivableQty;
+    }
+
+    public void setReceivableQty(double receivableQty) {
+        this.receivableQty = receivableQty;
+    }
+
+    public double getRejectsQty() {
+        return rejectsQty;
+    }
+
+    public void setRejectsQty(double rejectsQty) {
+        this.rejectsQty = rejectsQty;
     }
 
 }

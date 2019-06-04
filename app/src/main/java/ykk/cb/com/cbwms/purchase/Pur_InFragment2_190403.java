@@ -64,6 +64,7 @@ import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.purchase.adapter.Pur_InFragment2Adapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
@@ -286,11 +287,16 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                                 Material mtl2 = sr2.getMtl();
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
-                                        double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
+                                    double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
 //                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
-                                        if((so.getFqty()+sr2.getStockqty()) > fqty) {
-                                        Comm.showWarnDialog(m.mContext,"第" + (j + 1) + "行已入库数“"+so.getFqty()+"”，当前超出数“"+(so.getFqty()+sr2.getStockqty() - sr2.getFqty())+"”！");
+                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
+                                        double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty()); //
+                                        double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
+                                        // 注释的代码会出现损失精度
+//                                        Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + (so.getFqty() + sr2.getStockqty() - sr2.getFqty()) + "”！");
+                                        Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + subVal + "”！");
                                         return;
+
                                     } else if(so.getFqty() == fqty) {
                                         Comm.showWarnDialog(m.mContext,"第" + (j + 1) + "行已全部入库，不能重复操作！");
                                         return;

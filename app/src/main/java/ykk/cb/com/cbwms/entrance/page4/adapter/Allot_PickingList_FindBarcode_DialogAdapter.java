@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -38,6 +39,14 @@ public class Allot_PickingList_FindBarcode_DialogAdapter extends BaseArrayRecycl
         TextView tv_num = holder.obtainView(R.id.tv_num);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
+        String stockName = Comm.isNULLS(entity.getStockName());
+//        if(stockName.length() > 0) {
+//            tv_stockName.setText(stockName);
+//            tv_stockName.setVisibility(View.VISIBLE);
+//        } else {
+//            tv_stockName.setText("空仓库占位");
+//            tv_stockName.setVisibility(View.INVISIBLE);
+//        }
         tv_stockName.setText(entity.getStockName());
         tv_barcode.setText(entity.getBarcode());
         tv_num.setText(df.format(entity.getMaterialCalculateNumber()));

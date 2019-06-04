@@ -274,7 +274,8 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
-                .add("outDate", getValues(tvDateSel)) // 单据开始日期（查询调拨单）
+                .add("outDateBegin", getValues(tvDateSel)) // 单据开始日期（查询调拨单）
+                .add("outDateEnd", getValues(tvDateSel)+" 23:59:59") // 单据开始日期（查询调拨单）
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

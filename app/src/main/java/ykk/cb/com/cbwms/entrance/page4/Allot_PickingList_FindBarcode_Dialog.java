@@ -10,12 +10,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -27,20 +27,17 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.adapter.Cust_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseDialogActivity;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_PickingList_FindBarcode_DialogAdapter;
 import ykk.cb.com.cbwms.model.BarCodeTable;
-import ykk.cb.com.cbwms.model.Customer;
 import ykk.cb.com.cbwms.util.JsonUtil;
-import ykk.cb.com.cbwms.util.NoDoubleClickListener;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 /**
  * 选择条码列表
  */
-public class Allot_PickingList_FindBarcode_DialogActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
+public class Allot_PickingList_FindBarcode_Dialog extends BaseDialogActivity implements XRecyclerView.LoadingListener {
 
     @BindView(R.id.btn_close)
     Button btnClose;
@@ -49,11 +46,11 @@ public class Allot_PickingList_FindBarcode_DialogActivity extends BaseDialogActi
     @BindView(R.id.btn_search)
     Button btnSearch;
 
-    private Allot_PickingList_FindBarcode_DialogActivity context = this;
+    private Allot_PickingList_FindBarcode_Dialog context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
     private List<BarCodeTable> listDatas = new ArrayList<>();
     private Allot_PickingList_FindBarcode_DialogAdapter mAdapter;
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String mtlNumber;
@@ -61,14 +58,14 @@ public class Allot_PickingList_FindBarcode_DialogActivity extends BaseDialogActi
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_PickingList_FindBarcode_DialogActivity> mActivity;
+        private final WeakReference<Allot_PickingList_FindBarcode_Dialog> mActivity;
 
-        public MyHandler(Allot_PickingList_FindBarcode_DialogActivity activity) {
-            mActivity = new WeakReference<Allot_PickingList_FindBarcode_DialogActivity>(activity);
+        public MyHandler(Allot_PickingList_FindBarcode_Dialog activity) {
+            mActivity = new WeakReference<Allot_PickingList_FindBarcode_Dialog>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_PickingList_FindBarcode_DialogActivity m = mActivity.get();
+            Allot_PickingList_FindBarcode_Dialog m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
                 switch (msg.what) {
@@ -105,6 +102,14 @@ public class Allot_PickingList_FindBarcode_DialogActivity extends BaseDialogActi
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Allot_PickingList_FindBarcode_DialogAdapter(context, listDatas);

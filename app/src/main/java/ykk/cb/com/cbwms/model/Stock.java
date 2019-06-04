@@ -50,6 +50,10 @@ public class Stock implements Serializable {
     private boolean storageLocation;
     /* 条码 */
     private String barcode;
+    /*库存同步方向，1代表从wms同步到k3；2代表从k3同步到wms*/
+    private Integer inventorySyncDirection;
+    /*是否vmi仓库 0代表不是vmi仓库，1代表是vmi仓库*/
+    private int isVMI;
 
     public int getId() {
         return id;
@@ -225,6 +229,22 @@ public class Stock implements Serializable {
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
+    }
+
+    public Integer getInventorySyncDirection() {
+        return inventorySyncDirection;
+    }
+
+    public void setInventorySyncDirection(Integer inventorySyncDirection) {
+        this.inventorySyncDirection = inventorySyncDirection;
+    }
+
+    public int getIsVMI() {
+        return isVMI;
+    }
+
+    public void setIsVMI(int isVMI) {
+        this.isVMI = isVMI;
     }
 
     public Stock() {

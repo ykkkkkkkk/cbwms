@@ -152,6 +152,10 @@ public class StkTransferOut implements Serializable {
      * 关闭人
      */
     private String closerName;
+    /* 单据类型编码 */
+    private String fbillTypeNumber;
+    /* 是否VMI数据 1：是，0：否 */
+    private int isVMI;
 
     // 临时字段，不存表
     private int entryRowNum; // 查询子表的行数
@@ -521,6 +525,22 @@ public class StkTransferOut implements Serializable {
 
     public void setIsCheck(int isCheck) {
         this.isCheck = isCheck;
+    }
+
+    public String getFbillTypeNumber() {
+        return fbillTypeNumber;
+    }
+
+    public int getIsVMI() {
+        return isVMI;
+    }
+
+    public void setFbillTypeNumber(String fbillTypeNumber) {
+        this.fbillTypeNumber = fbillTypeNumber;
+    }
+
+    public void setIsVMI(int isVMI) {
+        this.isVMI = isVMI;
     }
 
 

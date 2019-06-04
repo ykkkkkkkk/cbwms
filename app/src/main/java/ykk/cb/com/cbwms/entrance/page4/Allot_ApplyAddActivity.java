@@ -232,9 +232,10 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 }
 
                 StkTransferOut stkOut = new StkTransferOut();
+                int isVMI = outStock.getIsVMI(); // 是否为VMI的仓库
                 stkOut.setBillNo("dicey"); // 使用这个字符串是为了在存储过程中更据这个来修改单号
                 stkOut.setTransferDirect("General"); // 调拨方向名称 * General：普通 * Return：退货
-                stkOut.setBizType("Standard"); // 业务类型名称 * Standard 标准  * Consignment 寄售
+                stkOut.setBizType(isVMI > 0 ? "VMI" : "Standard"); // 业务类型名称 * Standard 标准  * Consignment 寄售
                 stkOut.setOutOrgID(100508);
                 stkOut.setOutOrgNumber("HN02");
                 stkOut.setOutOrgName("河南工厂");
@@ -245,10 +246,13 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 stkOut.setStockManagerId(0);
                 stkOut.setStockManagerNumber("");
                 stkOut.setStockManagerName("");
-                stkOut.setTransferBizType("InnerOrgTransfer");
+                stkOut.setTransferBizType(isVMI > 0 ? "OverOrgTransfer" : "InnerOrgTransfer");
                 stkOut.setSettleOrgId(100508);
                 stkOut.setSettleOrgNumber("HN02");
                 stkOut.setSettleOrgName("河南工厂");
+                stkOut.setSaleOrgId(100508);
+                stkOut.setSaleOrgNumber("HN02");
+                stkOut.setSaleOrgName("河南工厂");
                 stkOut.setPickDepartId(department.getFitemID());
                 stkOut.setPickDepartNumber(department.getDepartmentNumber());
                 stkOut.setPickDepartName(department.getDepartmentName());
@@ -263,6 +267,10 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 stkOut.setBillStatus(2);
                 stkOut.setCloseStatus(1);
                 stkOut.setBusinessType(1);
+
+                // 单据类型 （VMI直接调拨单：ZJDB05_SYS，标准直接调拨单：ZJDB01_SYS）
+                stkOut.setFbillTypeNumber(isVMI > 0 ? "ZJDB05_SYS" : "ZJDB01_SYS");
+                stkOut.setIsVMI(isVMI > 0 ? 1 : 0);
                 // 把对象转为json字符串
                 String strStkTransferOut = JsonUtil.objectToString(stkOut);
                 String strStkTransferOutEntry = JsonUtil.objectToString(listStkEntry);

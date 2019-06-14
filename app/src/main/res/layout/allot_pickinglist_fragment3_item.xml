@@ -16,6 +16,15 @@
         android:textSize="12sp" />
 
     <TextView
+        android:id="@+id/tv_stkNumber"
+        android:layout_width="78dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="调拨单"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/tv_orderNo"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"

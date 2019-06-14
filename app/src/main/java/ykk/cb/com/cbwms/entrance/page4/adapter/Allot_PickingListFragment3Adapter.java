@@ -35,6 +35,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
     public void onBindHoder(RecyclerHolder holder, final StkTransferOutEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_stkNumber = holder.obtainView(R.id.tv_stkNumber);
         TextView tv_orderNo = holder.obtainView(R.id.tv_orderNo);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
@@ -47,6 +48,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
         // 赋值
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
+        tv_stkNumber.setText(entity.getStkTransferOut().getBillNo());
         tv_orderNo.setText(String.valueOf(entity.getOrderNo()));
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
@@ -87,6 +89,12 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
+                    case R.id.tv_stkNumber: // 数量
+                        if(callBack != null) {
+                            callBack.onClick_findNo(v, entity, pos);
+                        }
+
+                        break;
                     case R.id.tv_nums: // 数量
                         if (callBack != null) {
                             callBack.onClick_num(v, entity, pos);
@@ -108,6 +116,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
                 }
             }
         };
+        tv_stkNumber.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
         tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
@@ -118,10 +127,9 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
     }
 
     public interface MyCallBack {
+        void onClick_findNo(View v, StkTransferOutEntry entity, int position);
         void onClick_num(View v, StkTransferOutEntry entity, int position);
-
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
-
         void onClick_del(StkTransferOutEntry entity, int position);
     }
 

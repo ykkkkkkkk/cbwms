@@ -16,6 +16,15 @@
         android:textSize="12sp" />
 
     <TextView
+        android:id="@+id/tv_stkNumber"
+        android:layout_width="78dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="调拨单"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="12sp" />
+
+    <TextView
         android:id="@+id/tv_prodSeqNumber"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
@@ -25,11 +34,11 @@
         android:textSize="@dimen/_12sp" />
 
     <TextView
-        android:id="@+id/tv_sourceNo"
+        android:id="@+id/tv_stockPosSeq"
         android:layout_width="68dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="来源单号"
+        android:text="库位序号"
         android:textColor="#000000"
         android:textSize="@dimen/_12sp" />
 

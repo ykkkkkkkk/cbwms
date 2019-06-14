@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -91,6 +92,8 @@ public class Allot_PickingListFragment3 extends BaseFragment {
     Button btnPass;
     @BindView(R.id.tv_mendType)
     TextView tvMendType;
+    @BindView(R.id.lin_top)
+    LinearLayout linTop;
 
     private Allot_PickingListFragment3 context = this;
     private Allot_PickingListMainActivity parent;
@@ -248,7 +251,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     case CLOSE: //  关闭 成功 返回
                         m.toasts("操作成功✔");
                         m.curViewFlag = '1';
-                        m.run_smGetDatas("0");
+                        m.run_smGetDatas("0","");
 
                         break;
                     case UNCLOSE: // 关闭  失败 返回
@@ -278,7 +281,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                         } else m.mtlBarcode = etName;
                         m.setTexts(m.etMtlCode, m.mtlBarcode);
                         // 执行查询方法
-                        m.run_smGetDatas(m.mtlBarcode);
+                        m.run_smGetDatas(m.mtlBarcode,"");
 
                         break;
                     case SUCC4: // 判断是否存在返回
@@ -353,6 +356,13 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         //这个是让listview空间失去焦点
         recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Allot_PickingListFragment3Adapter.MyCallBack() {
+            @Override
+            public void onClick_findNo(View v, StkTransferOutEntry entity, int position) {
+                String stkNumber = entity.getStkTransferOut().getBillNo();
+                curViewFlag = '1';
+                run_smGetDatas("0", stkNumber);
+            }
+
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
@@ -444,8 +454,8 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.tv_outStockSel, R.id.tv_dateSel,
-            R.id.btn_scan, R.id.tv_canStockNum, R.id.tv_mendType })
+    @OnClick({R.id.btn_save, R.id.btn_pass, R.id.btn_clone, R.id.btn_batchAdd, R.id.btn_batchAddNum, R.id.tv_outStockSel, R.id.tv_dateSel,
+            R.id.btn_scan, R.id.tv_canStockNum, R.id.tv_mendType, R.id.lin_rowTitle })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -481,12 +491,20 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     return;
                 }
                 curViewFlag = '1';
-                run_smGetDatas("0");
+                run_smGetDatas("0","");
 
                 break;
             case R.id.tv_mendType: // 补码类型
                 popupWindow_C();
                 popWindowC.showAsDropDown(view);
+
+                break;
+            case R.id.lin_rowTitle: // 点击行标题头
+                if(linTop.getVisibility() == View.VISIBLE) {
+                    linTop.setVisibility(View.GONE);
+                } else {
+                    linTop.setVisibility(View.VISIBLE);
+                }
 
                 break;
             case R.id.btn_save: // 保存
@@ -555,6 +573,22 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                             stkOutEntry.setOutStockPositionName(stockPos.getFname());
                             stkOutEntry.setOutStockPos(stockPos);
                         }
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+
+                break;
+            case R.id.btn_batchAddNum: // 一键填数
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                for (int i = 0; i < checkDatas.size(); i++) {
+                    StkTransferOutEntry stkOutEntry = checkDatas.get(i);
+                    Material mtl = stkOutEntry.getMaterial();
+                    // 未启用序列号，批次号
+                    if (mtl.getIsSnManager() == 0 && mtl.getIsBatchManager() == 0) {
+                        stkOutEntry.setTmpPickFqty(stkOutEntry.getUsableFqty());
                     }
                 }
                 mAdapter.notifyDataSetChanged();
@@ -657,6 +691,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 //                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行请选择库位！");
 //                return false;
             }
+        }
+        if(isVMI > 0 && supplier == null) {
+            Comm.showWarnDialog(mContext, "当前没有扫码或条码未设置供应商信息，无法进行VMI调拨！");
+            return false;
         }
         return true;
     }
@@ -834,7 +872,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             case REFRESH: // 刷新列表
                 if (resultCode == RESULT_OK) {
                     curViewFlag = '1';
-                    run_smGetDatas("0");
+                    run_smGetDatas("0","");
                 }
 
                 break;
@@ -958,14 +996,17 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             if (tmpMtl.getfMaterialId() == stkEntry.getMtlId()) {
                 isFlag = true;
                 position = i;
+                if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+                    continue;
+                }
 
                 // 启用序列号，批次号
                 if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
-                    if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
-//                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
-//                        return;
-                        continue;
-                    }
+//                    if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+////                        Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，已捡完！");
+////                        return;
+//                        continue;
+//                    }
                     List<String> list = stkEntry.getListBarcode();
                     if (list.contains(bt.getBarcode())) {
                         Comm.showWarnDialog(mContext, "该物料条码已在拣货行中，请扫描未使用过的条码！");
@@ -1131,13 +1172,13 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             return;
         }
         curViewFlag = '1';
-        run_smGetDatas("0");
+        run_smGetDatas("0","");
     }
 
     /**
      * 扫码查询对应的方法
      */
-    private void run_smGetDatas(String val) {
+    private void run_smGetDatas(String val, String stkNumber) {
         isTextChange = false;
         if (val.length() == 0) {
             Comm.showWarnDialog(mContext, "请对准条码！");
@@ -1156,7 +1197,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         String entryStatus = "1"; // 未关闭的行
         String isValidStatus = null, isValidStatus2 = null;
         String deliveryWayName = null; // 发货类别
-        String billNo = getValues(etBillNo).trim();
+        String stkBillNo = null; // 调拨单号
         switch (curViewFlag) {
             case '1': // 调拨单
                 mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
@@ -1178,6 +1219,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     isValidStatus2 = "1";
                 }
                 deliveryWayName = "";
+                stkBillNo = stkNumber;
 
                 break;
             case '2': // 物料（纯物料查询，来配对列表）
@@ -1196,6 +1238,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 prodSeqNumberStatus = "";
                 stockPosSeqStatus = "";
                 deliveryWayName = "";
+                stkBillNo = "";
 
                 break;
         }
@@ -1219,6 +1262,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 .add("isAotuBringOut", mendType == 2 ? "1" : "0") // 物料是否自动带出：默认0(不带出)，1带出
 //                .add("billNo", billNo) // 调拨单号（查询调拨单）
                 .add("isVMI", isVMI > 0 ? String.valueOf(isVMI) : "") // 是否VMI的数据
+                .add("billNo", stkBillNo) // 调拨单号（查询调拨单）
                 .build();
 
         Request request = new Request.Builder()

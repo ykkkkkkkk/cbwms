@@ -16,7 +16,7 @@ public class SalOutStock implements Serializable {
     private String mtlName;//物料名称
     private String unitName; // 单位
     private double salOutStockQty;//销售出库单出库数量
-    private String fdocumentStatus; // 单据状态
+    private String fdocumentStatus; // 单据状态，A:新建， Z:暂存， B:审核中 ，C:已审核 ，D:重新审核
     private String custNumber;//客户代码
     private String custName;//客户名称
     private double sumQty;//销售出库单总数量

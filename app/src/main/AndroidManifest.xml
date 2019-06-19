@@ -163,9 +163,12 @@
             android:name=".entrance.page4.Allot_ApplyEntryActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-
         <activity
             android:name=".entrance.page4.Allot_PickingList_FindBarcode_Dialog"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_PickingList_BillNoList_DialogActivity"
+            android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 
 

@@ -44,6 +44,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
         TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
         TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
+        TextView tv_remark = holder.obtainView(R.id.tv_remark);
 
         // 赋值
         Material mtl = entity.getMaterial();
@@ -84,17 +85,18 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
         stockPNumber = stockPNumber.length() == 0 ? "无" : stockPNumber;
         tv_outStockAP.setText(Html.fromHtml(stockName + "<br><font color='#6a5acd'>" + stockPNumber + "</font>"));
         tv_inStockAP.setText(Comm.isNULLS(entity.getInStockName()));
+        tv_remark.setText(Comm.isNULLS(entity.getMoNote()));
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
-                    case R.id.tv_stkNumber: // 数量
-                        if(callBack != null) {
-                            callBack.onClick_findNo(v, entity, pos);
-                        }
-
-                        break;
+//                    case R.id.tv_stkNumber: // 数量
+//                        if(callBack != null) {
+//                            callBack.onClick_findNo(v, entity, pos);
+//                        }
+//
+//                        break;
                     case R.id.tv_nums: // 数量
                         if (callBack != null) {
                             callBack.onClick_num(v, entity, pos);
@@ -113,13 +115,18 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
                         }
 
                         break;
+                    case R.id.tv_remark: // 弹框显示备注
+                        Comm.showWarnDialog(context, Comm.isNULLS(entity.getMoNote()));
+
+                        break;
                 }
             }
         };
-        tv_stkNumber.setOnClickListener(click);
+//        tv_stkNumber.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
         tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
+        tv_remark.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -127,7 +134,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
     }
 
     public interface MyCallBack {
-        void onClick_findNo(View v, StkTransferOutEntry entity, int position);
+//        void onClick_findNo(View v, StkTransferOutEntry entity, int position);
         void onClick_num(View v, StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
         void onClick_del(StkTransferOutEntry entity, int position);

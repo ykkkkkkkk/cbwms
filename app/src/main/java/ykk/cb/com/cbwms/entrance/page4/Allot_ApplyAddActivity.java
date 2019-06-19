@@ -234,7 +234,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 StkTransferOut stkOut = new StkTransferOut();
                 int isVMI = outStock.getIsVMI(); // 是否为VMI的仓库
                 stkOut.setBillNo("dicey"); // 使用这个字符串是为了在存储过程中更据这个来修改单号
-                stkOut.setTransferDirect("General"); // 调拨方向名称 * General：普通 * Return：退货
+                stkOut.setTransferDirect("GENERAL"); // 调拨方向名称 * GENERAL：普通 * RETURN：退货
                 stkOut.setBizType(isVMI > 0 ? "VMI" : "Standard"); // 业务类型名称 * Standard 标准  * Consignment 寄售
                 stkOut.setOutOrgID(100508);
                 stkOut.setOutOrgNumber("HN02");

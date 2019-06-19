@@ -97,6 +97,8 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     Button btnClone;
     @BindView(R.id.btn_batchAdd)
     Button btnBatchAdd;
+    @BindView(R.id.btn_batchAddNum)
+    Button btnBatchAddNum;
     @BindView(R.id.btn_save)
     Button btnSave;
     @BindView(R.id.btn_pass)
@@ -107,8 +109,8 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private Allot_PickingListFragment1 context = this;
     private Allot_PickingListMainActivity parent;
     private Activity mContext;
-    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16, SEL_MTL = 17;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, SUCC4 = 205, UNSUCC4 = 505;
+    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_STAFF = 16, SEL_MTL = 17, SEL_BILLNO = 18;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, SUCC4 = 204, UNSUCC4 = 504, SUCC5 = 205, UNSUCC5 = 505, CLOSE = 206, UNCLOSE = 506;
     private static final int RESULT_NUM = 1, RESULT_NUM2 = 2, SETFOCUS = 3, SAOMA = 4, REFRESH = 5;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
@@ -118,7 +120,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private Allot_PickingListFragment1Adapter mAdapter;
     private List<StkTransferOutEntry> checkDatas = new ArrayList<>();
     private String mtlBarcode; // 对应的条码号
-    private char curViewFlag = '1'; // 1：调拨单，2：物料
+    private char curViewFlag = '1'; // 1：调拨单，2：调拨单号列表
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = null;
     private User user;
@@ -127,10 +129,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private boolean isTextChange; // 是否进入TextChange事件
 //    private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
     private String businessType = "1"; // 业务类型:1、材料按次 2、材料按批 3、成品
-    private String prodSeqNumberStatus = ""; // 1：升序，2：降序
+    private String prodSeqNumberStatus = "ASC"; // 1：升序，2：降序
     private String stockPosSeqStatus = "";
     private List<String> code_QtyList = new ArrayList<>(); // 记录物料启用批次好的barcode和数量
     private int isVMI; // 是否为VMI的单
+    private String stkFbillNo; // 调拨单号
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -157,6 +160,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 //                        m.mAdapter.notifyDataSetChanged();
                         m.btnClone.setVisibility(View.GONE);
                         m.btnBatchAdd.setVisibility(View.GONE);
+                        m.btnBatchAddNum.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
                         Comm.showWarnDialog(m.mContext, "保存成功，请点击“审核按钮”！");
@@ -174,6 +178,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         m.k3Number = null;
                         m.btnClone.setVisibility(View.VISIBLE);
                         m.btnBatchAdd.setVisibility(View.VISIBLE);
+                        m.btnBatchAddNum.setVisibility(View.VISIBLE);
                         m.btnSave.setVisibility(View.VISIBLE);
                         m.btnPass.setVisibility(View.GONE);
                         m.reset('0');
@@ -204,22 +209,12 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                                 m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
 
                                 break;
-                            case '2': // 物料（纯物料匹配行）
-                                bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
-                                Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
-                                if(m.isVMI > 0 ) { // 是否为VMI的数据
-                                    Supplier supp = bt.getSupplier();
-                                    if(supp == null) {
-                                        Comm.showWarnDialog(m.mContext,"该条码未设置供应商信息，无法进行VMI调拨！");
-                                        return;
-                                    }
-                                    if(m.supplier != null && supp.getFsupplierid() != m.supplier.getFsupplierid()) {
-                                        Comm.showWarnDialog(m.mContext,"扫码的条码对应的供应商与当前供应商不一致！");
-                                        return;
-                                    }
-                                    m.supplier = supp;
-                                }
-                                m.getMtlAfter(bt, mtl);
+                            case '2': // 调拨单号列表
+                                List<String> listBillNo = JsonUtil.strToList((String) msg.obj, String.class);
+
+                                Bundle bundle = new Bundle();
+                                bundle.putStringArrayList("list", (ArrayList<String>) listBillNo);
+                                m.showForResult(Allot_PickingList_BillNoList_DialogActivity.class, SEL_BILLNO, bundle);
 
                                 break;
                         }
@@ -260,7 +255,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     case CLOSE: //  关闭 成功 返回
                         m.toasts("操作成功✔");
                         m.curViewFlag = '1';
-                        m.run_smGetDatas("0","");
+                        m.run_findDatas(m.stkFbillNo);
 
                         break;
                     case UNCLOSE: // 关闭  失败 返回
@@ -290,10 +285,34 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         } else m.mtlBarcode = etName;
                         m.setTexts(m.etMtlCode, m.mtlBarcode);
                         // 执行查询方法
-                        m.run_smGetDatas(m.mtlBarcode,"");
+                        m.run_smGetDatas(m.mtlBarcode);
 
                         break;
-                    case SUCC4: // 判断是否存在返回
+                    case SUCC4: // 扫码物料
+                        bt = JsonUtil.strToObject((String) msg.obj, BarCodeTable.class);
+                        Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
+                        if(m.isVMI > 0 ) { // 是否为VMI的数据
+                            Supplier supp = bt.getSupplier();
+                            if(supp == null) {
+                                Comm.showWarnDialog(m.mContext,"该条码未设置供应商信息，无法进行VMI调拨！");
+                                return;
+                            }
+                            if(m.supplier != null && supp.getFsupplierid() != m.supplier.getFsupplierid()) {
+                                Comm.showWarnDialog(m.mContext,"扫码的条码对应的供应商与当前供应商不一致！");
+                                return;
+                            }
+                            m.supplier = supp;
+                        }
+                        m.getMtlAfter(bt, mtl);
+
+                        break;
+                    case UNSUCC4: // 判断是否存在返回
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到条码！！！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case SUCC5: // 判断是否存在返回
                         List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
                         for (int i = 0, len = listInventory.size(); i < len; i++) {
                             m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
@@ -301,7 +320,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         m.mAdapter.notifyDataSetChanged();
 
                         break;
-                    case UNSUCC4: // 判断是否存在返回
+                    case UNSUCC5: // 判断是否存在返回
                         Comm.showWarnDialog(m.mContext, "查询即时库存失败！");
 
                         break;
@@ -366,12 +385,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         //这个是让listview空间失去焦点
         recyclerView.setFocusable(false);
         mAdapter.setCallBack(new Allot_PickingListFragment1Adapter.MyCallBack() {
-            @Override
-            public void onClick_findNo(View v, StkTransferOutEntry entity, int position) {
-                String stkNumber = entity.getStkTransferOut().getBillNo();
-                curViewFlag = '1';
-                run_smGetDatas("0", stkNumber);
-            }
+//            @Override
+//            public void onClick_findNo(View v, StkTransferOutEntry entity, int position) {
+//            }
 
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
@@ -523,7 +539,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     return;
                 }
                 curViewFlag = '1';
-                run_smGetDatas("0","");
+                run_findDatas(stkFbillNo);
 
                 break;
             case R.id.tv_staffSel: // 仓管员
@@ -666,14 +682,16 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 // 生产顺序号默认为升序，所以在此点击就是降序，否则升序
                 if (getValues(tvProdSeqNumber).indexOf("↑") > -1) {
                     tvProdSeqNumber.setText("生产顺序号↓");
+                    tvStockPosSeq.setText("库位序号↓");
                     prodSeqNumberStatus = "DESC";
                 } else {
                     prodSeqNumberStatus = "ASC";
                     tvProdSeqNumber.setText("生产顺序号↑");
+                    tvStockPosSeq.setText("库位序号↑");
                 }
                 stockPosSeqStatus = "";
                 curViewFlag = '1';
-                run_smGetDatas("0","");
+                run_findDatas(stkFbillNo);
 
                 break;
             case R.id.tv_stockPosSeq: // 库位顺序好
@@ -687,15 +705,17 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 //                }
                 // 库位序默认不排序，所以在此点击就是升序，否则降序
                 if (getValues(tvStockPosSeq).indexOf("↑") > -1) {
+                    tvProdSeqNumber.setText("生产顺序号↓");
                     tvStockPosSeq.setText("库位序号↓");
                     stockPosSeqStatus = "ASC";
                 } else {
                     stockPosSeqStatus = "DESC";
+                    tvProdSeqNumber.setText("生产顺序号↑");
                     tvStockPosSeq.setText("库位序号↑");
                 }
                 prodSeqNumberStatus = "";
                 curViewFlag = '1';
-                run_smGetDatas("0","");
+                run_findDatas(stkFbillNo);
 
                 break;
         }
@@ -810,7 +830,6 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) return;
-                curViewFlag = '2';
                 if (!isTextChange) {
                     isTextChange = true;
                     mHandler.sendEmptyMessageDelayed(SAOMA, 300);
@@ -832,6 +851,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         curPos = -1;
         code_QtyList.clear();
         isVMI = 0;
+        stkFbillNo = null;
     }
 
     private void resetSon() {
@@ -839,6 +859,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         k3Number = null;
         btnClone.setVisibility(View.VISIBLE);
         btnBatchAdd.setVisibility(View.VISIBLE);
+        btnBatchAddNum.setVisibility(View.VISIBLE);
         btnSave.setVisibility(View.VISIBLE);
         btnPass.setVisibility(View.GONE);
         code_QtyList.clear();
@@ -934,6 +955,18 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             case SEL_MTL: // 选择物料返回
                 if (resultCode == RESULT_OK) {
                     BarCodeTable bt = (BarCodeTable) data.getSerializableExtra("obj");
+                    if(isVMI > 0 ) { // 是否为VMI的数据
+                        Supplier supp = bt.getSupplier();
+                        if(supp == null) {
+                            Comm.showWarnDialog(mContext,"该条码未设置供应商信息，无法进行VMI调拨！");
+                            return;
+                        }
+                        if(supplier != null && supp.getFsupplierid() != supplier.getFsupplierid()) {
+                            Comm.showWarnDialog(mContext,"扫码的条码对应的供应商与当前供应商不一致！");
+                            return;
+                        }
+                        supplier = supp;
+                    }
                     Material mtl = JsonUtil.stringToObject(bt.getRelationObj(), Material.class);
                     mtlBarcode = bt.getBarcode();
                     getMtlAfter(bt, mtl);
@@ -943,7 +976,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             case REFRESH: // 刷新列表
                 if (resultCode == RESULT_OK) {
                     curViewFlag = '1';
-                    run_smGetDatas("0","");
+                    run_findDatas(stkFbillNo);
                 }
 
                 break;
@@ -1074,6 +1107,14 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     }
                 }
 
+                break;
+            case SEL_BILLNO:
+                if (resultCode == RESULT_OK) {
+                    String billNo = (String) data.getSerializableExtra("obj");
+                    stkFbillNo = billNo;
+                    curViewFlag = '1';
+                    run_findDatas(billNo);
+                }
                 break;
         }
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
@@ -1237,6 +1278,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 .add("billDate", billDate)
                 .add("strJson", mJson)
                 .add("strJson2", mJson2)
+                .add("isVMI", isVMI > 0 ? "1" : "")
                 .build();
 
         String mUrl = getURL("pickingList/add");
@@ -1281,92 +1323,42 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请先保存本次数据！");
             return;
         }
-        curViewFlag = '1';
-        run_smGetDatas("0", "");
+        curViewFlag = '2';
+        run_findDatas(null);
     }
 
     /**
-     * 扫码查询对应的方法
+     * 查询对应的方法
      */
-    private void run_smGetDatas(String val, String stkNumber) {
+    private void run_findDatas(String fbillNo) {
         isTextChange = false;
-        if (val.length() == 0) {
-            Comm.showWarnDialog(mContext, "请对准条码！");
-            return;
-        }
         showLoadDialog("加载中...");
         String mUrl = null;
-        String barcode = null;
-        String strCaseId = null;
-        String isList = ""; // 是否根据单据查询全部
-        String outDeptNumber = null; // 领料部门
-        String inStockNumber = null; // 调入仓库
-        String outStockNumber = null; // 调出仓库
-        String outDate = null; // 调出日期
-        String billStatus = "2"; // 单据是否审核
-        String entryStatus = "1"; // 未关闭的行
-        String isValidStatus = null, isValidStatus2 = null;
-        String deliveryWayName = null; // 发货类别
-        String stkBillNo = null; // 调拨单号
+        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
+        String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
+        String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
+        String stkBillNo = fbillNo != null ? fbillNo : ""; // 调拨单号
         switch (curViewFlag) {
             case '1': // 调拨单
                 mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
-                barcode = "";
-                strCaseId = "";
-                if (department != null) outDeptNumber = department.getDepartmentNumber();
-                else outDeptNumber = "";
-                if (inStock != null) inStockNumber = inStock.getfNumber();
-                else inStockNumber = "";
-                if (outStock != null) outStockNumber = outStock.getfNumber();
-                else outStockNumber = "";
-                outDate = getValues(tvDateSel);
-                billStatus = "2";
-                entryStatus = "1";
-                isValidStatus = "1";
-                if (businessType.equals("1")) {
-                    isValidStatus2 = "";
-                } else {
-                    isValidStatus2 = "1";
-                }
-                deliveryWayName = getValues(tvDeliveryWay);
-                stkBillNo = stkNumber;
 
                 break;
-            case '2': // 物料（纯物料查询，来配对列表）
-                mUrl = getURL("barCodeTable/findBarcode4ByParam");
-                barcode = mtlBarcode;
-                strCaseId = "11,21,31,34,38";
-                outDeptNumber = "";
-                inStockNumber = "";
-                outStockNumber = "";
-                outDate = "";
-                billStatus = "";
-                entryStatus = "";
-                businessType = "";
-                isValidStatus = "";
-                isValidStatus2 = "";
-                prodSeqNumberStatus = "";
-                stockPosSeqStatus = "";
-                deliveryWayName = "";
-                stkBillNo = "";
+            case '2': // 查询调拨单号列表
+                mUrl = getURL("stkTransferOut/findBillNoList");
 
                 break;
         }
         FormBody formBody = new FormBody.Builder()
-                .add("strCaseId", strCaseId)
-                .add("isList", String.valueOf(isList))
-                .add("barcode", barcode)
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
-                .add("isValidStatus", isValidStatus)
-//                .add("isValidStatus2", isValidStatus2)
+                .add("isValidStatus", "1")
                 .add("sourceType", "6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
-                .add("outDate", outDate) // 调出日期（查询调拨单）
-                .add("billStatus", billStatus) // 已审核的单据（查询调拨单）
-                .add("entryStatus", entryStatus) // 未关闭的行（查询调拨单）
-                .add("deliveryWayName", deliveryWayName) // 发货类别
+                .add("outDate", getValues(tvDateSel)) // 调出日期（查询调拨单）
+                .add("billStatus", "2") // 已审核的单据（查询调拨单）
+                .add("entryStatus", "1") // 未关闭的行（查询调拨单）
+                .add("deliveryWayName", getValues(tvDeliveryWay)) // 发货类别
                 .add("prodSeqNumberStatus", prodSeqNumberStatus) // 按照生产顺序号来排序
                 .add("stockPosSeqStatus", stockPosSeqStatus) // 按照库位序号来排序
                 .add("isVMI", isVMI > 0 ? String.valueOf(isVMI) : "") // 是否VMI的数据
@@ -1397,6 +1389,52 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC2, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 扫码查询对应的方法
+     */
+    private void run_smGetDatas(String val) {
+        isTextChange = false;
+        if (val.length() == 0) {
+            Comm.showWarnDialog(mContext, "请对准条码！");
+            return;
+        }
+        showLoadDialog("加载中...");
+        String mUrl = getURL("barCodeTable/findBarcode4ByParam");
+        FormBody formBody = new FormBody.Builder()
+                .add("strCaseId", "11,21,31,34,38")
+                .add("barcode", val)
+                .add("isVMI", isVMI > 0 ? String.valueOf(isVMI) : "") // 是否VMI的数据
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC4);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_smGetDatas --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC4, result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1526,7 +1564,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC4);
+                mHandler.sendEmptyMessage(UNSUCC5);
             }
 
             @Override
@@ -1534,11 +1572,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 ResponseBody body = response.body();
                 String result = body.string();
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    Message msg = mHandler.obtainMessage(UNSUCC5, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC4, result);
+                Message msg = mHandler.obtainMessage(SUCC5, result);
                 LogUtil.e("run_findInventoryByParams --> onResponse", result);
                 mHandler.sendMessage(msg);
             }

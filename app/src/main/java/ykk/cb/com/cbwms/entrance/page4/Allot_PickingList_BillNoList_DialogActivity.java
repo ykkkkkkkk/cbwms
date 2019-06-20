@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -92,6 +93,7 @@ public class Allot_PickingList_BillNoList_DialogActivity extends BaseDialogActiv
             listDatas = bundle.getStringArrayList("list");
         }
 
+        recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Allot_PickingList_BillNoList_DialogAdapter(context, listDatas);

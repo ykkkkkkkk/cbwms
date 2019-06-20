@@ -45,6 +45,7 @@ public class Allot_PickingListFragment1Adapter extends BaseArrayRecyclerAdapter<
         TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
         TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
+        TextView tv_oldMtlName = holder.obtainView(R.id.tv_oldMtlName);
         TextView tv_remark = holder.obtainView(R.id.tv_remark);
 
         // 赋值
@@ -88,7 +89,15 @@ public class Allot_PickingListFragment1Adapter extends BaseArrayRecyclerAdapter<
         stockPNumber = stockPNumber.length() == 0 ? "无" : stockPNumber;
         tv_outStockAP.setText(Html.fromHtml(stockName+"<br><font color='#6a5acd'>"+stockPNumber+"</font>"));
         tv_inStockAP.setText(Comm.isNULLS(entity.getInStockName()));
+        String oldMtlName = Comm.isNULLS(entity.getOldMtlName());
+        tv_oldMtlName.setText(oldMtlName);
         tv_remark.setText(Comm.isNULLS(entity.getMoNote()));
+
+        if(oldMtlName.length() > 0) {
+            tv_mtlName.setTextColor(Color.parseColor("#FF2200"));
+        } else {
+            tv_mtlName.setTextColor(Color.parseColor("#000000"));
+        }
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -130,6 +139,17 @@ public class Allot_PickingListFragment1Adapter extends BaseArrayRecyclerAdapter<
         tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
         tv_remark.setOnClickListener(click);
+
+        // 长按物料替换
+        tv_mtlName.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(callBack != null) {
+                    callBack.onLongClickMtl(v, entity, pos);
+                }
+                return true;
+            }
+        });
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -138,6 +158,7 @@ public class Allot_PickingListFragment1Adapter extends BaseArrayRecyclerAdapter<
 
     public interface MyCallBack {
 //        void onClick_findNo(View v, StkTransferOutEntry entity, int position);
+        void onLongClickMtl(View v, StkTransferOutEntry entity, int position);
         void onClick_num(View v, StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
         void onClick_del(StkTransferOutEntry entity, int position);

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -211,6 +212,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                                 break;
                             case '2': // 调拨单号列表
                                 List<String> listBillNo = JsonUtil.strToList((String) msg.obj, String.class);
+                                listBillNo.addAll(listBillNo);
+                                listBillNo.addAll(listBillNo);
+                                listBillNo.addAll(listBillNo);
 
                                 Bundle bundle = new Bundle();
                                 bundle.putStringArrayList("list", (ArrayList<String>) listBillNo);
@@ -373,8 +377,8 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient.Builder()
 //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
                     .build();
         }
 
@@ -384,10 +388,26 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         recyclerView.setAdapter(mAdapter);
         //这个是让listview空间失去焦点
         recyclerView.setFocusable(false);
+
         mAdapter.setCallBack(new Allot_PickingListFragment1Adapter.MyCallBack() {
 //            @Override
 //            public void onClick_findNo(View v, StkTransferOutEntry entity, int position) {
 //            }
+
+            @Override
+            public void onLongClickMtl(View v, StkTransferOutEntry entity, int position) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
+                StkTransferOutEntry stkEntry = checkDatas.get(position);
+                Bundle bundle = new Bundle();
+                bundle.putInt("stkEntryId", stkEntry.getId());
+                bundle.putInt("mtlId", stkEntry.getMtlId());
+                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+                bundle.putString("mtlName", stkEntry.getMtlFname());
+                bundle.putString("remark", stkEntry.getMoNote());
+                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
+            }
 
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
@@ -707,9 +727,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 if (getValues(tvStockPosSeq).indexOf("↑") > -1) {
                     tvProdSeqNumber.setText("生产顺序号↓");
                     tvStockPosSeq.setText("库位序号↓");
-                    stockPosSeqStatus = "ASC";
-                } else {
                     stockPosSeqStatus = "DESC";
+                } else {
+                    stockPosSeqStatus = "ASC";
                     tvProdSeqNumber.setText("生产顺序号↑");
                     tvStockPosSeq.setText("库位序号↑");
                 }

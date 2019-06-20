@@ -373,8 +373,8 @@ public class Allot_PickingListFragment2 extends BaseFragment {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient.Builder()
 //                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
-                    .writeTimeout(30, TimeUnit.SECONDS) // 设置写的超时时间
-                    .readTimeout(30, TimeUnit.SECONDS) //设置读取超时时间
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
                     .build();
         }
 
@@ -388,6 +388,21 @@ public class Allot_PickingListFragment2 extends BaseFragment {
 //            @Override
 //            public void onClick_findNo(View v, StkTransferOutEntry entity, int position) {
 //            }
+
+            @Override
+            public void onLongClickMtl(View v, StkTransferOutEntry entity, int position) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
+                StkTransferOutEntry stkEntry = checkDatas.get(position);
+                Bundle bundle = new Bundle();
+                bundle.putInt("stkEntryId", stkEntry.getId());
+                bundle.putInt("mtlId", stkEntry.getMtlId());
+                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+                bundle.putString("mtlName", stkEntry.getMtlFname());
+                bundle.putString("remark", stkEntry.getMoNote());
+                showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
+            }
 
             @Override
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -407,13 +408,33 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (Activity) context;
+    }
+
+    //SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            mContext = activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
+    @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.prod_box_fragment1, container, false);
     }
 
     @Override
     public void initView() {
-        mContext = getActivity();
         parent = (Prod_BoxMainActivity) mContext;
 
         recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
@@ -1903,16 +1924,17 @@ public class Prod_BoxFragment1 extends BaseFragment {
         showLoadDialog("加载中...");
         String mUrl = getURL("salOrder/findSalOrderByAutoMtl");
         StringBuffer strFbillNo = new StringBuffer();
-        Map<String, Boolean> mapFbillNo = new HashMap<String, Boolean>();
         for(int i=0, size=checkDatas.size(); i<size; i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
             String fbillNo = mbr.getSalOrderNo();
-            if(mapFbillNo.containsKey(fbillNo)) continue; // 如果已经存了订单号，就下一个
 
-            if((i+1) == size) strFbillNo.append(fbillNo);
-            else strFbillNo.append(fbillNo+",");
-
-            mapFbillNo.put(fbillNo, true);
+            if(strFbillNo.indexOf(fbillNo) == -1) {
+                strFbillNo.append(fbillNo+",");
+            }
+        }
+        // 去除最后，号
+        if(strFbillNo.length() > 0) {
+            strFbillNo.delete(strFbillNo.length()-1, strFbillNo.length());
         }
 
         FormBody formBody = new FormBody.Builder()

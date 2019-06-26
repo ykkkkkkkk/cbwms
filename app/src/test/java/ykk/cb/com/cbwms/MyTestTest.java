@@ -9,6 +9,9 @@ public class MyTestTest {
 
     @Test
     public void main() {
-        System.out.print(BigdecimalUtil.sub(10,1));
+        String a = "1.1.06.00.00.08";
+        int len = a.length();
+        String result = a.substring(len-1, len);
+        System.out.print(result);
     }
 }

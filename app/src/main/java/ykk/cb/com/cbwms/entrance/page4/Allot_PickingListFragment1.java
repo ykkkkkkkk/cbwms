@@ -2,9 +2,11 @@ package ykk.cb.com.cbwms.entrance.page4;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,9 +27,12 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -212,9 +217,6 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                                 break;
                             case '2': // 调拨单号列表
                                 List<String> listBillNo = JsonUtil.strToList((String) msg.obj, String.class);
-                                listBillNo.addAll(listBillNo);
-                                listBillNo.addAll(listBillNo);
-                                listBillNo.addAll(listBillNo);
 
                                 Bundle bundle = new Bundle();
                                 bundle.putStringArrayList("list", (ArrayList<String>) listBillNo);
@@ -365,13 +367,33 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (Activity) context;
+    }
+
+    //SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            mContext = activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
+    @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.allot_pickinglist_fragment1, container, false);
     }
 
     @Override
     public void initView() {
-        mContext = getActivity();
         parent = (Allot_PickingListMainActivity) mContext;
 
         if (okHttpClient == null) {
@@ -400,12 +422,45 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 if(isNULLS(k3Number).length() > 0) return;
 
                 StkTransferOutEntry stkEntry = checkDatas.get(position);
+                String prodSeq = isNULLS(stkEntry.getProductionSeq());
+                List<StkTransferOutEntry> listStkEntry = new ArrayList<>(); // 记录有生产顺序好的数据
+                // 循环得到点击的生产顺序号对应的数据
+                for(int i=0; i<checkDatas.size(); i++) {
+                    StkTransferOutEntry stkEntryI = checkDatas.get(i);
+                    if(prodSeq.length() > 0 && prodSeq.equals(stkEntryI.getProductionSeq())) {
+                        listStkEntry.add(stkEntryI);
+                    }
+                }
+                // 一行物料替换
+                if(listStkEntry.size() == 0) {
+                    listStkEntry.add(stkEntry);
+                } else {
+                    // 用map来记录是否有相同的尾号
+                    Map<String, Integer> mapCount = new HashMap<>();
+                    for(int i=0; i<listStkEntry.size(); i++) {
+                        StkTransferOutEntry stkEntryI = listStkEntry.get(i);
+                        String mtlNumber = stkEntryI.getMtlFnumber();
+                        int len = mtlNumber.length();
+                        String lastNo = mtlNumber.substring(len-1, len); // 得到最后一位
+                        // 如果有相同的位置号，例如：物料代码最后一位有相同数据，就以选中的来进行物料替换
+                        if(mapCount.containsKey(lastNo)) {
+                            listStkEntry.clear();
+                            listStkEntry.add(stkEntry); // 以选中的物料来替换
+                            break;
+                        } else {
+                            mapCount.put(lastNo, 1);
+                        }
+                    }
+                }
+
                 Bundle bundle = new Bundle();
                 bundle.putInt("stkEntryId", stkEntry.getId());
                 bundle.putInt("mtlId", stkEntry.getMtlId());
                 bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
                 bundle.putString("mtlName", stkEntry.getMtlFname());
                 bundle.putString("remark", stkEntry.getMoNote());
+                bundle.putSerializable("listStkEntry", (Serializable) listStkEntry);
+
                 showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
             }
 
@@ -1351,6 +1406,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      * 查询对应的方法
      */
     private void run_findDatas(String fbillNo) {
+        // 查询前，先清空
+        checkDatas.clear();
+        mAdapter.notifyDataSetChanged();
+
         isTextChange = false;
         showLoadDialog("加载中...");
         String mUrl = null;

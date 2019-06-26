@@ -32,13 +32,14 @@ import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyReplaceMaterialAdapter;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 /**
- * 拣货单界面
+ * 替换物料界面
  */
 public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
@@ -55,14 +56,13 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
     private static final int SUCC1 = 200, UNSUCC1 = 500, REPLACE = 201, UNREPLACE = 501;
     private Allot_ApplyReplaceMaterialAdapter mAdapter;
     private List<Material> listDatas = new ArrayList<>();
-    private Material mtl;
-    private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private int stkEntryId, mtlId;
     private String mtlNumber, mtlName; // 传过来的物料信息
+    private List<StkTransferOutEntry> listStkEntry; // 记录有生产顺序好的数据
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -136,13 +136,22 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                int i = pos - 1;
-                if(curPos > -1) {
-                    listDatas.get(curPos).setIsCheck(0);
+                int curPos = pos - 1;
+                // 只要一行物料替换的情况
+                if(listStkEntry.size() == 1) {
+                    for (int i=0; i<listDatas.size(); i++) {
+                        listDatas.get(i).setIsCheck(0);
+                    }
+                    listDatas.get(curPos).setIsCheck(1);
+
+                } else { // 多行物料替换
+                    Material mtl = listDatas.get(curPos);
+                    if(mtl.getIsCheck() == 1) {
+                        listDatas.get(curPos).setIsCheck(0);
+                    } else {
+                        listDatas.get(curPos).setIsCheck(1);
+                    }
                 }
-                curPos = i;
-                listDatas.get(i).setIsCheck(1);
-                mtl = listDatas.get(i);
 
                 mAdapter.notifyDataSetChanged();
             }
@@ -161,6 +170,8 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
             String remark = bundle.getString("remark","");
             tvMtls.setText(Html.fromHtml("物料编码：<font color='#000000'>"+mtlNumber+"</font><br>物料名称：<font color='#000000'>"+mtlName+"</font>"));
             tvRemark.setText(Html.fromHtml("备注：<font color='#000000'>"+remark+"</font>"));
+
+            listStkEntry = (List<StkTransferOutEntry>) bundle.getSerializable("listStkEntry");
         }
 
         getUserInfo();
@@ -181,11 +192,61 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
                 initLoadDatas();
 
                 break;
-            case R.id.btn_confirm: // 替换
+            case R.id.btn_confirm: // 确认替换
                 hideKeyboard(getCurrentFocus());
-                if(curPos == -1) {
+                List<Material> listSelMtl = new ArrayList<>();
+                // 得到选中的行
+                for(int i=0; i<listDatas.size(); i++) {
+                    int isCheck = listDatas.get(i).getIsCheck();
+                    if(isCheck == 1) {
+                        listSelMtl.add(listDatas.get(i));
+                    }
+                }
+                int seedSize = listStkEntry.size();
+                int selSize = listSelMtl.size();
+                if(selSize == 0) {
                     Comm.showWarnDialog(context,"请选中一行替换！");
                     return;
+                }
+                if(seedSize > 1) {
+                    if(selSize != seedSize) {
+                        Comm.showWarnDialog(context,"数据不匹配,被替换的物料有"+seedSize+"行，当前选中了"+selSize+"行，请检查！");
+                        return;
+                    }
+
+                    // 判断顺序号是否一致，物料代码最后一位
+                    for (int i = 0; i < seedSize; i++) {
+                        String mtlNumber = listStkEntry.get(i).getMtlFnumber();
+                        int len = mtlNumber.length();
+                        String positionNo = mtlNumber.substring(len-1, len);
+
+                        boolean isBool = false; // 是否数据代码一样
+                        for (int j = 0; j < selSize; j++) {
+                            String mtlNumber2 = listSelMtl.get(j).getfNumber();
+                            int len2 = mtlNumber2.length();
+                            String positionNo2 = mtlNumber2.substring(len2-1, len2);
+                            if (positionNo.equals(positionNo2)) {
+                                isBool = true;
+                                break;
+                            }
+                        }
+                        if (!isBool) {
+                            Comm.showWarnDialog(context, "选择替换的物料不能完全匹配，请检查！");
+                            return;
+                        }
+                    }
+                }
+                // 把数据写到对象中
+                for (int i = 0; i < seedSize; i++) {
+                    StkTransferOutEntry stkEntry = listStkEntry.get(i);
+                    Material mtl = listSelMtl.get(i);
+                    stkEntry.setOldMtlId(stkEntry.getMtlId());
+                    stkEntry.setOldMtlNumber(stkEntry.getMtlFnumber());
+                    stkEntry.setOldMtlName(stkEntry.getMtlFname());
+
+                    stkEntry.setMtlId(mtl.getfMaterialId());
+                    stkEntry.setMtlFnumber(mtl.getfNumber());
+                    stkEntry.setMtlFname(mtl.getfName());
                 }
                 run_replace();
 
@@ -208,6 +269,7 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("fNumberIsOneAndTwo", "1") // 只显示半成品和原材料
+                .add("columnName", "fNumber")
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();
@@ -273,17 +335,10 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
      */
     private void run_replace() {
         showLoadDialog("操作中...");
-        String mUrl = getURL("stkTransferOut/materialReplace");
-        getUserInfo();
+        String mUrl = getURL("stkTransferOut/materialReplaceList");
+        String strJson = JsonUtil.objectToString(listStkEntry);
         FormBody formBody = new FormBody.Builder()
-                .add("isAppUse", "1")
-                .add("id", String.valueOf(stkEntryId))
-                .add("rMtlId", String.valueOf(mtl.getfMaterialId()))
-                .add("rMtlFnumber", mtl.getfNumber())
-                .add("rMtlFname", mtl.getfName())
-                .add("mtlId", String.valueOf(mtlId))
-                .add("mtlFnumber", mtlNumber)
-                .add("mtlFname", mtlName)
+                .add("strJson", strJson)
                 .build();
 
         Request request = new Request.Builder()

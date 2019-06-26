@@ -2,9 +2,11 @@ package ykk.cb.com.cbwms.entrance.page4;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -351,13 +353,33 @@ public class Allot_PickingListFragment3 extends BaseFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (Activity) context;
+    }
+
+    //SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            mContext = activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
+    @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.allot_pickinglist_fragment3, container, false);
     }
 
     @Override
     public void initView() {
-        mContext = getActivity();
         parent = (Allot_PickingListMainActivity) mContext;
 
         if (okHttpClient == null) {
@@ -1215,6 +1237,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
      * 查询对应的方法
      */
     private void run_findDatas(String fbillNo) {
+        // 查询前，先清空
+        checkDatas.clear();
+        mAdapter.notifyDataSetChanged();
+
         isTextChange = false;
         showLoadDialog("加载中...");
         String mUrl = null;

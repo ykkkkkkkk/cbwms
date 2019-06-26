@@ -92,6 +92,8 @@ public class SalOrderFragment1 extends BaseFragment implements XRecyclerView.Loa
 
     }
 
+
+
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.sal_sel_order, container, false);
@@ -99,7 +101,6 @@ public class SalOrderFragment1 extends BaseFragment implements XRecyclerView.Loa
 
     @Override
     public void initData() {
-        mContext = getActivity();
         bundle();
         run_okhttpDatas();
     }

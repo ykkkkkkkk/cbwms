@@ -179,7 +179,7 @@
 //
 //    @Override
 //    public void initView() {
-//        mContext = getActivity();
+//        mContext = (Activity) mListener;
 //        parent = (Sal_OutMainActivity) mContext;
 //
 //        recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));

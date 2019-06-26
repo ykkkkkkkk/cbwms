@@ -3,8 +3,10 @@ package ykk.cb.com.cbwms.produce;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -176,11 +178,24 @@ public class Prod_BoxFragment2 extends BaseFragment {
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser) {
-            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (Activity) context;
+    }
+
+    //SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            mContext = activity;
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
     }
 
     @Override
@@ -190,7 +205,6 @@ public class Prod_BoxFragment2 extends BaseFragment {
 
     @Override
     public void initView() {
-        mContext = getActivity();
         parent = (Prod_BoxMainActivity) mContext;
 
         recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
@@ -207,6 +221,14 @@ public class Prod_BoxFragment2 extends BaseFragment {
 //        hideSoftInputMode(mContext, etProdOrderCode);
         getUserInfo();
 
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser) {
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
+        }
     }
 
     @OnClick({R.id.btn_save, R.id.btn_scan})

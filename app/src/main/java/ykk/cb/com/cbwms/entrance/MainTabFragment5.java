@@ -116,13 +116,33 @@ public class MainTabFragment5 extends BaseFragment implements IDownloadContract.
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = (Activity) context;
+    }
+
+    //SDK API<23时，onAttach(Context)不执行，需要使用onAttach(Activity)。Fragment自身的Bug，v4的没有此问题
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            mContext = activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
+    @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.aa_main_item5, container, false);
     }
 
     @Override
     public void initData() {
-        mContext = getActivity();
         mPresenter = new IDownloadPresenter(this);
         requestPermission();
     }

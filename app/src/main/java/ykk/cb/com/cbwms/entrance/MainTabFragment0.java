@@ -439,18 +439,18 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
         if(downloadDialog != null) downloadDialog.dismiss();
 
         try {
-            String authority = mContext.getApplicationContext().getPackageName() + ".fileProvider";
-            Uri fileUri = FileProvider.getUriForFile(mContext, authority, file);
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             //7.0以上需要添加临时读取权限
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                String authority = mContext.getApplicationContext().getPackageName() + ".fileProvider";
+                Uri fileUri = FileProvider.getUriForFile(mContext, authority, file);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setDataAndType(fileUri, "application/vnd.android.package-archive");
+
             } else {
-                Uri uri = Uri.fromFile(file);
-                intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
             }
 
             startActivity(intent);
@@ -458,6 +458,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
             //弹出安装窗口把原程序关闭。
             //避免安装完毕点击打开时没反应
             killProcess(android.os.Process.myPid());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

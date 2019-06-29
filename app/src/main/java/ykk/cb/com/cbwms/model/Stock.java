@@ -9,7 +9,7 @@ public class Stock implements Serializable {
     /*id*/
     private int id;
     /*仓库id*/
-    private int fStockid ;
+    private int fStockid;
     /*仓库编码*/
     private String fNumber;
     /*仓库名称*/
@@ -54,6 +54,12 @@ public class Stock implements Serializable {
     private Integer inventorySyncDirection;
     /*是否vmi仓库 0代表不是vmi仓库，1代表是vmi仓库*/
     private int isVMI;
+    /* 合并拣货（字段 F_PAEZ_IsCombine） */
+    private boolean fpaezIsCombine;
+
+    public Stock() {
+        super();
+    }
 
     public int getId() {
         return id;
@@ -247,8 +253,13 @@ public class Stock implements Serializable {
         this.isVMI = isVMI;
     }
 
-    public Stock() {
-        super();
+    public boolean isFpaezIsCombine() {
+        return fpaezIsCombine;
     }
+
+    public void setFpaezIsCombine(boolean fpaezIsCombine) {
+        this.fpaezIsCombine = fpaezIsCombine;
+    }
+
 
 }

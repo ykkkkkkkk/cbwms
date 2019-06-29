@@ -109,15 +109,21 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
 //                        }
 //
 //                        break;
+                    case R.id.tv_mtlName: // 点击物料选中行
+                        if(callBack != null) {
+                            callBack.onCheckNowRow(entity);
+                        }
+
+                        break;
                     case R.id.tv_nums: // 数量
                         if(callBack != null) {
-                            callBack.onClick_num(v, entity, pos);
+                            callBack.onClick_num(entity, pos);
                         }
 
                         break;
                     case R.id.tv_outStockAP: // 选择调出仓库，库位
                         if(callBack != null) {
-                            callBack.onClick_selStock(v, entity, pos);
+                            callBack.onClick_selStock(entity, pos);
                         }
 
                         break;
@@ -135,6 +141,7 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
             }
         };
 //        tv_stkNumber.setOnClickListener(click);
+        tv_mtlName.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
         tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
@@ -145,7 +152,7 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
             @Override
             public boolean onLongClick(View v) {
                 if(callBack != null) {
-                    callBack.onLongClickMtl(v, entity, pos);
+                    callBack.onLongClickMtl(entity);
                 }
                 return true;
             }
@@ -158,9 +165,10 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
 
     public interface MyCallBack {
 //        void onClick_findNo(View v, StkTransferOutEntry entity, int position);
-        void onLongClickMtl(View v, StkTransferOutEntry entity, int position);
-        void onClick_num(View v, StkTransferOutEntry entity, int position);
-        void onClick_selStock(View v, StkTransferOutEntry entity, int position);
+        void onCheckNowRow(StkTransferOutEntry entity);
+        void onLongClickMtl(StkTransferOutEntry entity);
+        void onClick_num(StkTransferOutEntry entity, int position);
+        void onClick_selStock(StkTransferOutEntry entity, int position);
         void onClick_del(StkTransferOutEntry entity, int position);
     }
 

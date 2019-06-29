@@ -16,6 +16,8 @@ public class StkTransferOutTemp implements Serializable {
     private Material mtl;
     /*调拨数量*/
     private double fqty;
+    /* 原因 */
+    private String cause;
 
     public StkTransferOutTemp() {
         super();
@@ -35,5 +37,13 @@ public class StkTransferOutTemp implements Serializable {
 
     public void setFqty(double fqty) {
         this.fqty = fqty;
+    }
+
+    public String getCause() {
+        return cause;
+    }
+
+    public void setCause(String cause) {
+        this.cause = cause;
     }
 }

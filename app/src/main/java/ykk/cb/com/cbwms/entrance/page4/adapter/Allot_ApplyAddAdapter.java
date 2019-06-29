@@ -33,8 +33,9 @@ public class Allot_ApplyAddAdapter extends BaseArrayRecyclerAdapter<StkTransferO
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_num = holder.obtainView(R.id.tv_num);
+        TextView tv_cause = holder.obtainView(R.id.tv_cause);
         TextView tv_delRow = holder.obtainView(R.id.tv_delRow);
-        TextView tv_addRow = holder.obtainView(R.id.tv_addRow);
+//        TextView tv_addRow = holder.obtainView(R.id.tv_addRow);
 
         // 赋值
         Material mtl = entity.getMtl();
@@ -42,6 +43,7 @@ public class Allot_ApplyAddAdapter extends BaseArrayRecyclerAdapter<StkTransferO
         tv_mtlName.setText(mtl != null ? mtl.getfName() : "");
         double fqty = entity.getFqty();
         tv_num.setText(fqty > 0 ? df.format(entity.getFqty()) : "");
+        tv_cause.setText(entity.getCause());
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -59,25 +61,32 @@ public class Allot_ApplyAddAdapter extends BaseArrayRecyclerAdapter<StkTransferO
                         }
 
                         break;
+                    case R.id.tv_cause: // 输入原因
+                        if (callBack != null) {
+                            callBack.writeCause(entity, pos);
+                        }
+
+                        break;
                     case R.id.tv_delRow: // 删除行
                         if (callBack != null) {
                             callBack.delRowClick(pos);
                         }
 
                         break;
-                    case R.id.tv_addRow: // 新增行
-                        if (callBack != null) {
-                            callBack.addRowClick();
-                        }
-
-                        break;
+//                    case R.id.tv_addRow: // 新增行
+//                        if (callBack != null) {
+//                            callBack.addRowClick();
+//                        }
+//
+//                        break;
                 }
             }
         };
         tv_mtlName.setOnClickListener(click);
         tv_num.setOnClickListener(click);
+        tv_cause.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
-        tv_addRow.setOnClickListener(click);
+//        tv_addRow.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -87,8 +96,9 @@ public class Allot_ApplyAddAdapter extends BaseArrayRecyclerAdapter<StkTransferO
     public interface MyCallBack {
         void selMtl(StkTransferOutTemp entity, int position);
         void selNum(StkTransferOutTemp entity, int position);
+        void writeCause(StkTransferOutTemp entity, int position);
         void delRowClick(int position);
-        void addRowClick();
+//        void addRowClick();
     }
 
 }

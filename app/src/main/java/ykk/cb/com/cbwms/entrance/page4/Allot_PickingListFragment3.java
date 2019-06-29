@@ -127,6 +127,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
     private int mendType = 1; // 补码类型1：有补码，2：无补码
     private int isVMI; // 是否为VMI的单
     private String stkFbillNo; // 调拨单号
+    private boolean isFpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -812,6 +813,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         tvOutStockSel.setText("");
         inStock = null;
         outStock = null;
+        isFpaezIsCombine = false;
     }
 
     /**
@@ -881,6 +883,11 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     inStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
+                    if(outStock != null && outStock.isFpaezIsCombine() && inStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                 }
 
                 break;
@@ -889,6 +896,11 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     outStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName());
                     isVMI = outStock.getIsVMI();
+                    if(inStock != null && inStock.isFpaezIsCombine() && outStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                     tvOutStockSel.setText(outStock.getfName());
                 }
 
@@ -1229,8 +1241,14 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请先保存本次数据！");
             return;
         }
-        curViewFlag = '2';
-        run_findDatas(null);
+        // 如果是合并查询，就不显示单号列表
+        if(isFpaezIsCombine) {
+            curViewFlag = '1';
+            run_findDatas(null);
+        } else {
+            curViewFlag = '2';
+            run_findDatas(null);
+        }
     }
 
     /**

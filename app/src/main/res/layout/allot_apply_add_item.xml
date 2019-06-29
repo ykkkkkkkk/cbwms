@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="horizontal">
@@ -18,9 +18,8 @@
 
     <TextView
         android:id="@+id/tv_mtlName"
-        android:layout_width="0dp"
+        android:layout_width="150dp"
         android:layout_height="@dimen/_46dp"
-        android:layout_weight="1"
         android:background="@drawable/back_style_blue2"
         android:drawableRight="@drawable/xiala4"
         android:gravity="center|left"
@@ -30,11 +29,20 @@
 
     <TextView
         android:id="@+id/tv_num"
-        android:layout_width="52dp"
+        android:layout_width="58dp"
         android:layout_height="@dimen/_46dp"
         android:background="@drawable/back_style_blue5c"
         android:gravity="center"
         android:text="数量"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_cause"
+        android:layout_width="150dp"
+        android:layout_height="@dimen/_46dp"
+        android:background="@drawable/back_style_blue5c"
+        android:gravity="center"
         android:textColor="#000000"
         android:textSize="12sp" />
 
@@ -46,15 +54,5 @@
         android:layout_marginRight="@dimen/_3dp"
         android:background="@drawable/del_ico"
         android:gravity="center" />
-
-    <TextView
-        android:id="@+id/tv_addRow"
-        android:layout_width="@dimen/_40dp"
-        android:layout_height="@dimen/_40dp"
-        android:layout_marginLeft="@dimen/_3dp"
-        android:layout_marginRight="@dimen/_3dp"
-        android:background="@drawable/add_ico"
-        android:gravity="center" />
-
 
 </LinearLayout>

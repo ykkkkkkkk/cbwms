@@ -37,6 +37,7 @@ import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
@@ -61,7 +62,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
     RecyclerView recyclerView;
 
     private Allot_ApplyAddActivity context = this;
-    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14;
+    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14, SEL_MTL2 = 15, SEL_CAUSE = 16;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502;
     private static final int RESULT_NUM = 1;
     private Stock inStock, outStock; // 仓库
@@ -91,8 +92,8 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 switch (msg.what) {
                     case SUCC1: // 保存 调拨单 成功
                         m.listDatas.clear();
-                        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
-                        m.listDatas.add(stkTemp);
+//                        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
+//                        m.listDatas.add(stkTemp);
                         m.mAdapter.notifyDataSetChanged();
                         m.toasts("保存成功✔");
 
@@ -125,8 +126,8 @@ public class Allot_ApplyAddActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
-        listDatas.add(stkTemp);
+//        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
+//        listDatas.add(stkTemp);
 
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -149,20 +150,26 @@ public class Allot_ApplyAddActivity extends BaseActivity {
             }
 
             @Override
+            public void writeCause(StkTransferOutTemp entity, int position) {
+                curPos = position;
+                showInputDialog("原因", entity.getCause(), "none", SEL_CAUSE);
+            }
+
+            @Override
             public void delRowClick(int position) {
-                if (listDatas.size() == 1) {
-                    return;
-                }
+//                if (listDatas.size() == 1) {
+//                    return;
+//                }
                 listDatas.remove(position);
                 mAdapter.notifyDataSetChanged();
             }
 
-            @Override
-            public void addRowClick() {
-                StkTransferOutTemp stkTemp = new StkTransferOutTemp();
-                listDatas.add(stkTemp);
-                mAdapter.notifyDataSetChanged();
-            }
+//            @Override
+//            public void addRowClick() {
+//                StkTransferOutTemp stkTemp = new StkTransferOutTemp();
+//                listDatas.add(stkTemp);
+//                mAdapter.notifyDataSetChanged();
+//            }
 
         });
 
@@ -175,7 +182,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
     }
 
     @OnClick({R.id.btn_close, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
-              R.id.tv_dateSel, R.id.btn_save    })
+              R.id.tv_dateSel, R.id.btn_batchAdd, R.id.btn_selMtl, R.id.btn_save    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -204,6 +211,33 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 Comm.showDateDialog(context, view, 0);
 
                 break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (listDatas == null || listDatas.size() == 0) {
+                    Comm.showWarnDialog(context, "请先选物料！");
+                    return;
+                }
+                if (curPos == -1) {
+                    Comm.showWarnDialog(context, "请输入任意一行的原因！");
+                    return;
+                }
+                StkTransferOutTemp stkTemp = listDatas.get(curPos);
+                String cause = Comm.isNULLS(stkTemp.getCause());
+                for (int i = curPos; i < listDatas.size(); i++) {
+                    StkTransferOutTemp stkTemp2 = listDatas.get(i);
+                    if (Comm.isNULLS(stkTemp2.getCause()).length() == 0) {
+                        stkTemp2.setCause(cause);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+
+                break;
+            case R.id.btn_selMtl: // 选择物料
+                bundle = new Bundle();
+                bundle.putString("fNumberIsOneAndTwo", "1");
+                bundle.putInt("returnType", 2); // 选择多行数据返回
+                showForResult(Material_ListActivity.class, SEL_MTL2, bundle);
+
+                break;
             case R.id.btn_save: // 保存
                 if(department == null) {
                     Comm.showWarnDialog(context,"请选择领料部门！");
@@ -218,19 +252,24 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                     return;
                 }
                 int size = listDatas.size();
-                List<StkTransferOutEntry> listStkEntry = new ArrayList<>();
-                for(int i=0; i<size; i++) {
-                    StkTransferOutTemp stkTemp = listDatas.get(i);
-                    if(stkTemp.getMtl() != null && stkTemp.getFqty() > 0) {
-                        StkTransferOutEntry entry = getStkOutEntry(stkTemp);
-                        listStkEntry.add(entry);
-                    }
-                }
-                if(listStkEntry.size() == 0) {
-                    Comm.showWarnDialog(context,"第1行，请选择物料名称并填入数量！");
+                if(size == 0) {
+                    Comm.showWarnDialog(context,"请先选物料！");
                     return;
                 }
-
+                List<StkTransferOutEntry> listStkEntry = new ArrayList<>();
+                for(int i=0; i<size; i++) {
+                    StkTransferOutTemp stkTemp3 = listDatas.get(i);
+                    if(stkTemp3.getFqty() == 0) {
+                        Comm.showWarnDialog(context,"第"+(i+1)+"行，请输入数量！");
+                        return;
+                    }
+                    if(isNULLS(stkTemp3.getCause()).length() == 0) {
+                        Comm.showWarnDialog(context,"第"+(i+1)+"行，请输入原因！");
+                        return;
+                    }
+                    StkTransferOutEntry entry = getStkOutEntry(stkTemp3);
+                    listStkEntry.add(entry);
+                }
                 StkTransferOut stkOut = new StkTransferOut();
                 int isVMI = outStock.getIsVMI(); // 是否为VMI的仓库
                 stkOut.setBillNo("dicey"); // 使用这个字符串是为了在存储过程中更据这个来修改单号
@@ -274,6 +313,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 // 把对象转为json字符串
                 String strStkTransferOut = JsonUtil.objectToString(stkOut);
                 String strStkTransferOutEntry = JsonUtil.objectToString(listStkEntry);
+
                 run_addStk(strStkTransferOut, strStkTransferOutEntry);
 
                 break;
@@ -308,6 +348,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
         entry.setEntryStatus(1);
         entry.setEntrySrc("2");
         entry.setCreateCodeStatus(1);
+        entry.setCause(temp.getCause());
 
         return entry;
     }
@@ -357,11 +398,35 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 }
 
                 break;
+            case SEL_CAUSE: // 原因   返回
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String cause = bundle.getString("resultValue", "");
+                        listDatas.get(curPos).setCause(cause);
+                        mAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
             case SEL_MTL: //行事件选择物料	返回
                 if (resultCode == Activity.RESULT_OK) {
                     Material mtl = (Material) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_MTL", mtl.getfName());
                     listDatas.get(curPos).setMtl(mtl);
+                    mAdapter.notifyDataSetChanged();
+                }
+
+                break;
+            case SEL_MTL2: //行事件选择多行物料	返回
+                if (resultCode == Activity.RESULT_OK) {
+                    List<Material> listMtl = (List<Material>) data.getSerializableExtra("obj");
+                    List<StkTransferOutTemp> stkTempList = new ArrayList<>();
+                    for(Material mtl : listMtl) {
+                        StkTransferOutTemp stkTemp = new StkTransferOutTemp();
+                        stkTemp.setMtl(mtl);
+                        stkTempList.add(stkTemp);
+                    }
+                    listDatas.addAll(stkTempList);
                     mAdapter.notifyDataSetChanged();
                 }
 

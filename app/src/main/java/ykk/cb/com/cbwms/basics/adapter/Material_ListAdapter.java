@@ -2,6 +2,7 @@ package ykk.cb.com.cbwms.basics.adapter;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -55,28 +56,13 @@ public class Material_ListAdapter extends BaseArrayRecyclerAdapter<Material> {
             tv_isSn.setText("未启用");
             tv_isSn.setTextColor(Color.parseColor("#666666"));
         }
-//        holder.onClick_batch_top();
-//        View.OnClickListener click = new View.OnClickListener() {
-//            @Override
-//            public void onClick_batch_top(View v) {
-//                switch (v.getId()){
-//                    case R.id.tv_check: // 选中
-////                            if(callBack != null) {
-////                                callBack.onClick_batch_top(entity, pos);
-////                            }
-//                        Log.e("setListener", "我点记录");
-//                        int check = datas.get(pos).getIsCheck();
-//                        if (check == 1) {
-//                            datas.get(pos).setIsCheck(0);
-//                        } else {
-//                            datas.get(pos).setIsCheck(1);
-//                        }
-//                        notifyDataSetChanged();
-//                        break;
-//                }
-//            }
-//        };
-//        tv_check.setOnClickListener(click);
+
+        View view = (View) tv_row.getParent();
+        if(entity.getIsCheck() == 1) {
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
     }
 
     public void setCallBack(MyCallBack callBack) {

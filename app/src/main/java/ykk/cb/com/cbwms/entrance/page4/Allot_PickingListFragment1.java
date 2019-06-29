@@ -140,6 +140,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private List<String> code_QtyList = new ArrayList<>(); // 记录物料启用批次好的barcode和数量
     private int isVMI; // 是否为VMI的单
     private String stkFbillNo; // 调拨单号
+    private boolean isFpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -417,12 +418,21 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 //            }
 
             @Override
-            public void onLongClickMtl(View v, StkTransferOutEntry entity, int position) {
+            public void onCheckNowRow(StkTransferOutEntry entity) {
                 // 点击了保存，就只能点击审核操作，其他都屏蔽
                 if(isNULLS(k3Number).length() > 0) return;
 
-                StkTransferOutEntry stkEntry = checkDatas.get(position);
-                String prodSeq = isNULLS(stkEntry.getProductionSeq());
+                setCheckFalse();
+                entity.setIsCheck(1);
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onLongClickMtl(StkTransferOutEntry entity) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
+                String prodSeq = isNULLS(entity.getProductionSeq());
                 List<StkTransferOutEntry> listStkEntry = new ArrayList<>(); // 记录有生产顺序好的数据
                 // 循环得到点击的生产顺序号对应的数据
                 for(int i=0; i<checkDatas.size(); i++) {
@@ -433,7 +443,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 }
                 // 一行物料替换
                 if(listStkEntry.size() == 0) {
-                    listStkEntry.add(stkEntry);
+                    listStkEntry.add(entity);
                 } else {
                     // 用map来记录是否有相同的尾号
                     Map<String, Integer> mapCount = new HashMap<>();
@@ -445,7 +455,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         // 如果有相同的位置号，例如：物料代码最后一位有相同数据，就以选中的来进行物料替换
                         if(mapCount.containsKey(lastNo)) {
                             listStkEntry.clear();
-                            listStkEntry.add(stkEntry); // 以选中的物料来替换
+                            listStkEntry.add(entity); // 以选中的物料来替换
                             break;
                         } else {
                             mapCount.put(lastNo, 1);
@@ -454,18 +464,18 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 }
 
                 Bundle bundle = new Bundle();
-                bundle.putInt("stkEntryId", stkEntry.getId());
-                bundle.putInt("mtlId", stkEntry.getMtlId());
-                bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
-                bundle.putString("mtlName", stkEntry.getMtlFname());
-                bundle.putString("remark", stkEntry.getMoNote());
+                bundle.putInt("stkEntryId", entity.getId());
+                bundle.putInt("mtlId", entity.getMtlId());
+                bundle.putString("mtlNumber", entity.getMtlFnumber());
+                bundle.putString("mtlName", entity.getMtlFname());
+                bundle.putString("remark", entity.getMoNote());
                 bundle.putSerializable("listStkEntry", (Serializable) listStkEntry);
 
                 showForResult(Allot_ApplyReplaceMaterialActivity.class, REFRESH, bundle);
             }
 
             @Override
-            public void onClick_num(View v, StkTransferOutEntry entity, int position) {
+            public void onClick_num(StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
                 // 点击了保存，就只能点击审核操作，其他都屏蔽
                 if(isNULLS(k3Number).length() > 0) return;
@@ -480,7 +490,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             }
 
             @Override
-            public void onClick_selStock(View v, StkTransferOutEntry entity, int position) {
+            public void onClick_selStock(StkTransferOutEntry entity, int position) {
                 LogUtil.e("selStock", "行：" + position);
                 // 点击了保存，就只能点击审核操作，其他都屏蔽
                 if(isNULLS(k3Number).length() > 0) return;
@@ -516,12 +526,6 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 setCheckFalse();
                 StkTransferOutEntry m = checkDatas.get(pos);
                 m.setIsCheck(1);
-//                int isCheck = m.getIsCheck();
-//                if (isCheck == 1) {
-//                    m.setIsCheck(0);
-//                } else {
-//                    m.setIsCheck(1);
-//                }
                 mAdapter.notifyDataSetChanged();
             }
         });
@@ -948,6 +952,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         tvOutStockSel.setText("");
         inStock = null;
         outStock = null;
+        isFpaezIsCombine = false;
     }
 
     /**
@@ -1006,7 +1011,12 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             case SEL_IN_STOCK: //行事件选择调入仓库	返回
                 if (resultCode == RESULT_OK) {
                     inStock = (Stock) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
+                    Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName()+"-"+inStock.isFpaezIsCombine());
+                    if(outStock != null && outStock.isFpaezIsCombine() && inStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                     tvInStockSel.setText(inStock.getfName());
                 }
 
@@ -1014,8 +1024,13 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             case SEL_OUT_STOCK: // 行事件选择调出仓库	返回
                 if (resultCode == RESULT_OK) {
                     outStock = (Stock) data.getSerializableExtra("obj");
-                    Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName());
+                    Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName()+"-"+outStock.isFpaezIsCombine());
                     isVMI = outStock.getIsVMI();
+                    if(inStock != null && inStock.isFpaezIsCombine() && outStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                     tvOutStockSel.setText(outStock.getfName());
                 }
 
@@ -1398,8 +1413,14 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请先保存本次数据！");
             return;
         }
-        curViewFlag = '2';
-        run_findDatas(null);
+        // 如果是合并查询，就不显示单号列表
+        if(isFpaezIsCombine) {
+            curViewFlag = '1';
+            run_findDatas(null);
+        } else {
+            curViewFlag = '2';
+            run_findDatas(null);
+        }
     }
 
     /**

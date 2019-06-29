@@ -181,10 +181,11 @@ public class PublicInputDialog extends BaseDialogActivity {
 
                 break;
             case R.id.btn_confirm: // 确定按钮
+                hideKeyboard(getCurrentFocus());
                 String inputName = getValues(etInput).trim();
                 if (inputType.equals("0") || inputType.equals("0.0")) {
-                    double num = parseDouble(inputName);
-                    if(num == 0) {
+//                    double num = parseDouble(inputName);
+                    if(inputName.length() == 0) {
                         toasts("请输入数量！");
                         return;
                     }

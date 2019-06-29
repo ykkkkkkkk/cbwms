@@ -24,7 +24,6 @@
             android:textSize="18sp" />
 
         <Button
-            android:id="@+id/btn_confirm"
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -132,11 +131,22 @@
 
     </LinearLayout>
 
-
     <ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
         android:id="@+id/xRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:overScrollMode="never" />
+
+    <Button
+        android:id="@+id/btn_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_38dp"
+        android:background="@drawable/btn_blue2_selector"
+        android:gravity="center"
+        android:text="确认"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_16sp"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -103,7 +103,6 @@ public class StkTransferOutEntry implements Serializable {
      * 被替换物料名称
      */
     private String oldMtlName;
-    //++++++++++++++++++++++++++++
     /*订单日期*/
     private String orderDate;
 
@@ -148,6 +147,8 @@ public class StkTransferOutEntry implements Serializable {
 
     /*生码状态 默认为1代表未生码，2代表已生码*/
     private int createCodeStatus;
+    /* 原因 */
+    private String cause;
     //++++++++++++++++++++++++++++
 
     // 临时字段
@@ -731,6 +732,14 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setIsUniqueness(char isUniqueness) {
         this.isUniqueness = isUniqueness;
+    }
+
+    public String getCause() {
+        return cause;
+    }
+
+    public void setCause(String cause) {
+        this.cause = cause;
     }
 
 }

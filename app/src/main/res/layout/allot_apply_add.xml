@@ -138,59 +138,103 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_25dp"
-        android:background="#D8D8D8">
-
-        <TextView
-            android:layout_width="32dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="行号"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="物料名称"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="52dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="数量"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="92dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="操作行"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-
-    </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:scrollbars="none" />
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_25dp"
+                android:background="#D8D8D8">
+
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="行号"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="物料名称"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="58dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="数量"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="原因"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="46dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="操作行"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:scrollbars="none" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
         android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_batchAdd"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_gray2_selector"
+            android:gravity="center"
+            android:text="批量填充"
+            android:textColor="@color/c_666666"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btn_selMtl"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_weight="1"
+            android:background="@drawable/btn_purple2_selector"
+            android:gravity="center"
+            android:text="选物料"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/btn_save"

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import com.solidfire.gson.JsonObject;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.adapter.Material_ListAdapter;
 import ykk.cb.com.cbwms.comm.BaseDialogActivity;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -45,6 +47,8 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
     EditText etSearch;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.btn_confirm)
+    Button btnConfirm;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
 
@@ -56,6 +60,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String fNumberIsOneAndTwo; // 只显示半成品和原材料
+    private int returnType = 1; // 选择几条数据返回 1：只能选择一条，2：选择多条
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -109,6 +114,11 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             fNumberIsOneAndTwo = bundle.getString("fNumberIsOneAndTwo", "");
+            returnType = bundle.getInt("returnType", 1);
+            // 选择多行，就要显示确认功能
+            if(returnType == 2) {
+                btnConfirm.setVisibility(View.VISIBLE);
+            }
         }
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -124,10 +134,23 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 Material m = listDatas.get(pos-1);
-                Intent intent = new Intent();
-                intent.putExtra("obj", m);
-                context.setResult(RESULT_OK, intent);
-                context.finish();
+                if(returnType == 1) { // 选择一行，直接返回
+                    Intent intent = new Intent();
+                    intent.putExtra("obj", m);
+                    context.setResult(RESULT_OK, intent);
+                    context.finish();
+
+                } else if(returnType == 2) { // // 选择多行
+                    int isCheck = m.getIsCheck();
+                    if(isCheck == 1) {
+                        m.setIsCheck(0);
+                    } else {
+                        m.setIsCheck(1);
+                    }
+                    mAdapter.notifyDataSetChanged();
+                }
+
+
             }
         });
     }
@@ -137,7 +160,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
         initLoadDatas();
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_search})
+    @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -148,6 +171,29 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
                 break;
             case R.id.btn_search: // 查询
                 initLoadDatas();
+
+                break;
+            case R.id.btn_confirm: // 确认
+                int size = listDatas.size();
+                if(size == 0) {
+                    Comm.showWarnDialog(context,"请查询数据！");
+                    return;
+                }
+                List<Material> listMtl = new ArrayList<>();
+                for(int i=0; i<size; i++) {
+                    Material mtl = listDatas.get(i);
+                    if(mtl.getIsCheck() == 1) {
+                        listMtl.add(mtl);
+                    }
+                }
+                if(listMtl.size() == 0) {
+                    Comm.showWarnDialog(context,"请至少选择一行数据！");
+                    return;
+                }
+                Intent intent = new Intent();
+                intent.putExtra("obj", (Serializable) listMtl);
+                context.setResult(RESULT_OK, intent);
+                context.finish();
 
                 break;
         }

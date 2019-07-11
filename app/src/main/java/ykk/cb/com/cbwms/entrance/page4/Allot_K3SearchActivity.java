@@ -33,12 +33,16 @@ import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment1Adapter;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_K3SearchAdapter;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_SearchAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.model.stockBusiness.K3_StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -62,9 +66,10 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
 
     private Allot_K3SearchActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 202, UNSUCC2 = 502;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 202, UNSUCC2 = 502, PASS = 203, UNPASS = 503;
     private Allot_K3SearchAdapter mAdapter;
     private Stock inStock, outStock; // 仓库
+    private User user;
     private Department department; // 部门
     private List<K3_StkTransferOut> listDatas = new ArrayList<>();
     private OkHttpClient okHttpClient = null;
@@ -118,6 +123,19 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
                         m.toasts("抱歉，没有加载到数据！");
 
                         break;
+                    case PASS: // 审核成功 返回
+                        String strBillNo = (String) msg.obj;
+                        Comm.showWarnDialog(m.context, "【"+strBillNo+"】审核成功✔");
+                        m.initLoadDatas();
+
+                        break;
+                    case UNPASS: // 审核失败 返回
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(Comm.isNULLS(errMsg).length() == 0) errMsg = "服务器忙，请重试！";
+                        Comm.showWarnDialog(m.context, errMsg);
+                        m.initLoadDatas();
+
+                        break;
                 }
             }
         }
@@ -147,25 +165,49 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
         xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
-        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+        mAdapter.setCallBack(new Allot_K3SearchAdapter.MyCallBack() {
+//            @Override
+//            public void onChecked(K3_StkTransferOut entity, int pos) {
+//                boolean check = entity.isChecked();
+//                if(check) {
+//                    entity.setChecked(false);
+//                } else {
+//                    entity.setChecked(true);
+//                }
+//                mAdapter.notifyDataSetChanged();
+//            }
+
             @Override
-            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                K3_StkTransferOut stk = listDatas.get(pos-1);
+            public void onFindRowNum(K3_StkTransferOut entity, int position) {
                 Bundle bundle = new Bundle();
-                bundle.putInt("fId", stk.getId());
-                bundle.putString("billNo", stk.getBillNo());
+                bundle.putInt("fId", entity.getId());
+                bundle.putString("billNo", entity.getBillNo());
                 show(Allot_K3SearchEntryActivity.class, bundle);
             }
         });
 
+        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                K3_StkTransferOut stk = listDatas.get(pos-1);
+                boolean check = stk.isChecked();
+                if(check) {
+                    stk.setChecked(false);
+                } else {
+                    stk.setChecked(true);
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     public void initData() {
         tvDateSel.setText(Comm.getSysDate(7));
+        getUserInfo();
     }
 
-    @OnClick({R.id.btn_close, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find})
+    @OnClick({R.id.btn_close, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.lin_find, R.id.btn_pass})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -200,12 +242,46 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
                 initLoadDatas();
 
                 break;
+            case R.id.btn_pass: // 审核
+                passBefer();
+
+                break;
         }
     }
 
     @Override
     public void setListener() {
 
+    }
+
+    /**
+     * 审核之前的判断和处理
+     */
+    private void passBefer() {
+        if (listDatas.size() == 0) {
+            Comm.showWarnDialog(context, "请先查询数据！");
+            return;
+        }
+        int size = listDatas.size();
+        StringBuilder strFbillNo = new StringBuilder();
+        StringBuilder strFdocumentStatus = new StringBuilder();
+        // 得到当前要审核的行
+        for (int i = 0; i < size; i++) {
+            K3_StkTransferOut k3Stk = listDatas.get(i);
+            if (k3Stk.isChecked()) {
+                strFbillNo.append(k3Stk.getBillNo()+",");
+                strFdocumentStatus.append(k3Stk.getFdocumentStatus()+",");
+            }
+        }
+        if(strFbillNo.length() == 0) {
+            Comm.showWarnDialog(context,"请至少选中一行！");
+            return;
+        }
+        // 减去最后一个，
+        strFbillNo.delete(strFbillNo.length() - 1, strFbillNo.length());
+        strFdocumentStatus.delete(strFdocumentStatus.length() - 1, strFdocumentStatus.length());
+
+        run_submitAndPass(strFbillNo.toString(), strFdocumentStatus.toString());
     }
 
     @Override
@@ -309,6 +385,59 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
                 mHandler.sendMessage(msg);
             }
         });
+    }
+
+    /**
+     * 提交并审核
+     */
+    private void run_submitAndPass(final String strFbillNo, String strFdocumentStatus) {
+        showLoadDialog("正在审核...");
+        String mUrl = getURL("scanningRecord/submitAndPass2");
+        getUserInfo();
+        FormBody formBody = new FormBody.Builder()
+                .add("strFbillNo", strFbillNo)
+                .add("strFdocumentStatus", strFdocumentStatus)
+                .add("type", "9")
+                .add("kdAccount", user.getKdAccount())
+                .add("kdAccountPassword", user.getKdAccountPassword())
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNPASS);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_submitAndPass --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNPASS, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(PASS, strFbillNo);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 得到用户对象
+     */
+    private void getUserInfo() {
+        if (user == null) {
+            user = showUserByXml();
+        }
     }
 
     @Override

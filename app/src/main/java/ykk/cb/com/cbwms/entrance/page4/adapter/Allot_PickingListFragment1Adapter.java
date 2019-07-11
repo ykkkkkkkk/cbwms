@@ -52,7 +52,12 @@ public class Allot_PickingListFragment1Adapter extends BaseArrayRecyclerAdapter<
         StkTransferOut stkOut = entity.getStkTransferOut();
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
-        tv_stkNumber.setText(stkOut.getBillNo());
+//        tv_stkNumber.setText(stkOut.getBillNo());
+        if(entity.isFpaezIsCombine()) {
+            tv_stkNumber.setText(stkOut.getPickDepartName());
+        } else {
+            tv_stkNumber.setText(stkOut.getBillNo());
+        }
         tv_prodSeqNumber.setText(entity.getProductionSeq());
         tv_stockPosSeq.setText(String.valueOf(entity.getStockPosSeq()));
         tv_mtlNumber.setText(entity.getMtlFnumber());

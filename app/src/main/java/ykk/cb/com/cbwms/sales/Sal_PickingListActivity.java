@@ -9,7 +9,6 @@ import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import butterknife.OnLongClick;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -402,11 +400,6 @@ public class Sal_PickingListActivity extends BaseActivity {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_stock, R.id.et_stockPos, R.id.et_deliCode, R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @OnLongClick({R.id.btn_stock})

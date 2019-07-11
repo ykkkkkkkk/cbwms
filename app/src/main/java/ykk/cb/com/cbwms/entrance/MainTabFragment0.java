@@ -64,6 +64,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
     private User user;
     private OkHttpClient okHttpClient = new OkHttpClient();
     private IDownloadPresenter mPresenter;
+    private boolean isCheckUpdate = false; // 是否已经检查过更新
 
     // 消息处理
     private MainTabFragment0.MyHandler mHandler = new MainTabFragment0.MyHandler(this);
@@ -98,6 +99,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
 
                         break;
                     case UPDATE: // 更新版本  成功
+                        m.isCheckUpdate = true;
                         AppInfo appInfo = JsonUtil.strToObject((String) msg.obj, AppInfo.class);
                         if (m.getAppVersionCode(m.mContext) != appInfo.getAppVersion()) {
                             m.showNoticeDialog(appInfo.getAppRemark());
@@ -168,6 +170,10 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
     public void initData() {
         mPresenter = new IDownloadPresenter(context);
         //run_findMsgNumber_app();
+        if(!isCheckUpdate) {
+            // 执行更新版本请求
+            run_findAppInfo();
+        }
     }
 
     @Override
@@ -178,7 +184,7 @@ public class MainTabFragment0 extends BaseFragment implements IDownloadContract.
         String port = spfConfig.getString("port", "8080");
         Consts.setIp(ip);
         Consts.setPort(port);
-        mHandler.sendEmptyMessageDelayed(DELAYED_LOAD, 500);
+//        mHandler.sendEmptyMessageDelayed(DELAYED_LOAD, 500);
     }
 
     @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4})

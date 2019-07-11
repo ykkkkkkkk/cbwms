@@ -45,7 +45,6 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -70,11 +69,13 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     RecyclerView recyclerView;
     @BindView(R.id.tv_countSum)
     TextView tvCountSum;
+    @BindView(R.id.tv_stkNumber)
+    TextView tvStkNumber;
 
     private Allot_ApplyFragment1 context = this;
     private Allot_ApplyMainActivity parent;
     private Activity mContext;
-    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15;
+    private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_BILLNO = 16;
     private static final int SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, MODIFY = 205, UNMODIFY = 505;
     private static final int RESULT_NUM = 1, REFRESH = 2;
     private Stock inStock, outStock, stock2; // 仓库
@@ -88,8 +89,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     private char defaultStockVal; // 默认仓库的值
 //    private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
     private String businessType = "2"; // 业务类型:1、材料按次 2、材料按批 3、成品
-    private String billNo; // 调拨单号
+//    private String billNo; // 调拨单号
     private DecimalFormat df = new DecimalFormat("#.####");
+    private char curViewFlag = '1'; // 1：调拨单，2：调拨单号列表
+    private String stkFbillNo; // 调拨单号
+    private boolean isFpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
 
     private String countSum() {
         double sum = 0.0;
@@ -116,12 +120,29 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 String errMsg = null;
                 switch (msg.what) {
                     case SUCC2: // 调拨单
-                        m.listDatas.clear();
-                        List<StkTransferOutEntry> list = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
-                        m.listDatas.addAll(list);
-                        // 合计总数
-                        m.tvCountSum.setText(m.countSum());
-                        m.mAdapter.notifyDataSetChanged();
+                        switch (m.curViewFlag) {
+                            case '1': // 调拨单
+                                m.listDatas.clear();
+                                List<StkTransferOutEntry> list = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
+                                m.listDatas.addAll(list);
+                                for(StkTransferOutEntry stkEntry : m.listDatas) {
+                                    stkEntry.setFpaezIsCombine(m.isFpaezIsCombine);
+                                    stkEntry.setCheckNext(false);
+                                }
+                                // 合计总数
+                                m.tvCountSum.setText(m.countSum());
+                                m.mAdapter.notifyDataSetChanged();
+
+                                break;
+                            case '2': // 调拨单号列表
+                                List<String> listBillNo = JsonUtil.strToList((String) msg.obj, String.class);
+
+                                Bundle bundle = new Bundle();
+                                bundle.putStringArrayList("list", (ArrayList<String>) listBillNo);
+                                m.showForResult(Allot_PickingList_BillNoList_DialogActivity.class, SEL_BILLNO, bundle);
+
+                                break;
+                        }
 
                         break;
                     case UNSUCC2:
@@ -134,7 +155,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         break;
                     case PASS: // 审核成功 返回
                         m.toasts("审核成功✔");
-                        m.run_smGetDatas();
+                        m.curViewFlag = '1';
+                        m.run_findDatas(m.stkFbillNo);
 
                         break;
                     case UNPASS: // 审核失败 返回
@@ -145,7 +167,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         break;
                     case CLOSE: //  关闭 成功 返回
                         m.toasts("操作成功✔");
-                        m.run_smGetDatas();
+                        m.curViewFlag = '1';
+                        m.run_findDatas(m.stkFbillNo);
 
                         break;
                     case UNCLOSE: // 关闭  失败 返回
@@ -156,7 +179,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         break;
                     case MODIFY: //  修改调拨数 成功 返回
                         m.toasts("调拨数修改成功✔");
-                        m.run_smGetDatas();
+                        m.curViewFlag = '1';
+                        m.run_findDatas(m.stkFbillNo);
 
                         break;
                     case UNMODIFY: // 修改调拨数  失败 返回
@@ -219,31 +243,31 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getFqty()), "0.0", RESULT_NUM);
+                showInputDialog("数量", String.valueOf(entity.getFqty()), "0.0",false, RESULT_NUM);
             }
 
-            @Override
-            public void onFind(StkTransferOutEntry entity, int position) {
-                LogUtil.e("onFind", "行：" + position);
-                boolean isBool = true;
-                StkTransferOut stkOut = entity.getStkTransferOut();
-                String curBillNo = stkOut.getBillNo();
-                for(int i=0; i<listDatas.size(); i++) {
-                    String billNo2 = listDatas.get(i).getStkTransferOut().getBillNo();
-                    if(!billNo2.equals(curBillNo)) {
-                        isBool = false;
-                        break;
-                    }
-                }
-                // 如果列表中全部为一个单号就不查询
-                if(billNo == null && !isBool) {
-                    context.billNo = curBillNo;
-                    run_smGetDatas();
-                } else if(billNo != null){
-                    context.billNo = Comm.isNULLS(billNo).length() > 0 ? "" : curBillNo;
-                    run_smGetDatas();
-                }
-            }
+//            @Override
+//            public void onFind(StkTransferOutEntry entity, int position) {
+//                LogUtil.e("onFind", "行：" + position);
+//                boolean isBool = true;
+//                StkTransferOut stkOut = entity.getStkTransferOut();
+//                String curBillNo = stkOut.getBillNo();
+//                for(int i=0; i<listDatas.size(); i++) {
+//                    String billNo2 = listDatas.get(i).getStkTransferOut().getBillNo();
+//                    if(!billNo2.equals(curBillNo)) {
+//                        isBool = false;
+//                        break;
+//                    }
+//                }
+//                // 如果列表中全部为一个单号就不查询
+//                if(billNo == null && !isBool) {
+//                    context.billNo = curBillNo;
+//                    run_findDatas();
+//                } else if(billNo != null){
+//                    context.billNo = Comm.isNULLS(billNo).length() > 0 ? "" : curBillNo;
+//                    run_findDatas();
+//                }
+//            }
 
             @Override
             public void onClick_selStock(View v, StkTransferOutEntry entity, int position) {
@@ -328,7 +352,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 Map<Integer,Boolean> map = new HashMap<>();
                 StringBuilder sbIds = new StringBuilder();
                 for(int i=0; i<listDatas.size(); i++) {
@@ -407,6 +431,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     inStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
+                    if(outStock != null && outStock.isFpaezIsCombine() && inStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                     tvInStockSel.setText(inStock.getfName());
                 }
 
@@ -415,6 +444,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 if (resultCode == Activity.RESULT_OK) {
                     outStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_OUT_STOCK", outStock.getfName());
+                    if(inStock != null && inStock.isFpaezIsCombine() && outStock.isFpaezIsCombine()) {
+                        isFpaezIsCombine = true;
+                    } else {
+                        isFpaezIsCombine = false;
+                    }
                     tvOutStockSel.setText(outStock.getfName());
                 }
 
@@ -439,7 +473,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 break;
             case REFRESH: // 刷新列表
                 if (resultCode == RESULT_OK) {
-                    run_smGetDatas();
+                    curViewFlag = '1';
+                    run_findDatas(stkFbillNo);
                 }
 
                 break;
@@ -522,6 +557,15 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 }
 
                 break;
+            case SEL_BILLNO: // 选择调拨单列表 返回
+                if (resultCode == Activity.RESULT_OK) {
+                    String billNo = (String) data.getSerializableExtra("obj");
+                    stkFbillNo = billNo;
+                    curViewFlag = '1';
+                    run_findDatas(stkFbillNo);
+                }
+
+                break;
         }
     }
 
@@ -530,28 +574,51 @@ public class Allot_ApplyFragment1 extends BaseFragment {
      */
     public void findFun() {
         Log.e("findFun", "第1个查询");
-        run_smGetDatas();
+        // 如果是合并查询，就不显示单号列表
+        if(isFpaezIsCombine) {
+            curViewFlag = '1';
+            tvStkNumber.setText("领料部门");
+            run_findDatas(null);
+        } else {
+            curViewFlag = '2';
+            tvStkNumber.setText("调拨单");
+            run_findDatas(null);
+        }
     }
 
     /**
      * 扫码查询对应的方法
      */
-    private void run_smGetDatas() {
+    private void run_findDatas(String fbillNo) {
         showLoadDialog("加载中...");
-        String mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
+        String mUrl = null;
         String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
         String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
         String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
         String outDate = getValues(tvDateSel); // 调出日期
+        String stkBillNo = fbillNo != null ? fbillNo : ""; // 调拨单号
+        switch (curViewFlag) {
+            case '1': // 调拨单
+                mUrl = getURL("stkTransferOut/findStkTransferOutEntryListAll");
+
+                break;
+            case '2': // 查询调拨单号列表
+                mUrl = getURL("stkTransferOut/findBillNoList");
+
+                break;
+        }
         FormBody formBody = new FormBody.Builder()
                 .add("isValidStatus", "1")
-                .add("billNo", billNo == null ? "" : billNo) // 单据编号（查询调拨单）
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单））
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", "1") // 未审核的单据（查询调拨单）
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
+                .add("prodSeqNumberStatus", "ASC") // 按照生产顺序号来排序
+                .add("stockPosSeqStatus", "ASC") // 按照库位序号来排序
+                .add("billNo", stkBillNo) // 调拨单号（查询调拨单）
+                .add("isFpaezIsCombine", isFpaezIsCombine ? "1" : "") // 是否合并拣货
 //                .add("isAotuBringOut", "0") // 物料是否自动带出：默认0(不带出)，1带出
                 .build();
 
@@ -572,7 +639,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_smGetDatas --> onResponse", result);
+                LogUtil.e("run_findDatas --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC2, result);
                     mHandler.sendMessage(msg);

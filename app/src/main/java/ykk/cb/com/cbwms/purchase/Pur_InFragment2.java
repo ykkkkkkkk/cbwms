@@ -34,13 +34,11 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
@@ -49,7 +47,6 @@ import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.basics.Supplier_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
@@ -311,9 +308,9 @@ public class Pur_InFragment2 extends BaseFragment {
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
                                         double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
 //                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
-                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
-                                        double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty()); //
-                                        double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
+                                    double sumQty = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
+                                    if(sumQty > fqty) {
+                                        double subVal = BigdecimalUtil.sub(sumQty, sr2.getFqty());
                                         // 注释的代码会出现损失精度
 //                                        Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + (so.getFqty() + sr2.getStockqty() - sr2.getFqty()) + "”！");
                                         Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + subVal + "”！");
@@ -413,7 +410,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料编码：</font>"+entity.getMtlFnumber()+"<br><font color='#666666'>物料名称：</font>"+entity.getMtl().getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(entity.getBatchno());
-                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0", NUM_RESULT);
+                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0",false, NUM_RESULT);
             }
 
             @Override
@@ -484,7 +481,7 @@ public class Pur_InFragment2 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -501,7 +498,7 @@ public class Pur_InFragment2 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -544,7 +541,7 @@ public class Pur_InFragment2 extends BaseFragment {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -555,8 +552,12 @@ public class Pur_InFragment2 extends BaseFragment {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -617,11 +618,6 @@ public class Pur_InFragment2 extends BaseFragment {
         return true;
     }
 
-    @OnFocusChange({R.id.et_mtlNo, R.id.et_deptName, R.id.et_sourceNo})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
-    }
-
     @Override
     public void setListener() {
         View.OnClickListener click = new View.OnClickListener() {
@@ -657,7 +653,7 @@ public class Pur_InFragment2 extends BaseFragment {
         etMtlNo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showInputDialog("条码号","", "+0", WRITE_BARCODE);
+                showInputDialog("条码号","", "+0",false, WRITE_BARCODE);
                 return true;
             }
         });
@@ -957,7 +953,7 @@ public class Pur_InFragment2 extends BaseFragment {
                     sr2.setStrBarcodes(bt.getBarcode());
                     curPos = i;
                     String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode());
-                    showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
+                    showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0",false, NUM_RESULT);
                 }
                 break;
             }
@@ -1098,30 +1094,6 @@ public class Pur_InFragment2 extends BaseFragment {
         sr2.setEntryId(purOrder.getEntryId());
         sr2.setPoFbillno(purOrder.getFbillno());
         sr2.setBarcode(bt.getBarcode());
-        // 启用序列号
-        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
-            if(mtl.getIsBatchManager() == 1 && mtl.getIsSnManager() == 0) {
-                // 默认等于可用数
-                sr2.setStockqty(bt.getMaterialCalculateNumber());
-            } else {
-                // 默认等于可用数
-                sr2.setStockqty(1);
-            }
-        } else {
-            sr2.setStockqty(purOrder.getUsableFqty());
-        }
-
-        // 物料是否启用序列号
-        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
-            List<String> list = new ArrayList<String>();
-            list.add(bt.getBarcode());
-            sr2.setIsUniqueness('Y');
-            sr2.setListBarcode(list);
-            sr2.setStrBarcodes(bt.getBarcode());
-        } else {
-            sr2.setIsUniqueness('N');
-            sr2.setStrBarcodes(bt.getBarcode());
-        }
 
         setCheckFalse();
         sr2.setCheck(true);
@@ -1131,6 +1103,29 @@ public class Pur_InFragment2 extends BaseFragment {
         tvSupplierSel.setText(supplier.getfName());
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
+
+        // 启用序列号，批次号
+        if (tmpMtl.getIsSnManager() == 1 || tmpMtl.getIsBatchManager() == 1) {
+            List<String> list = new ArrayList<String>();
+            list.add(bt.getBarcode());
+            sr2.setIsUniqueness('Y');
+            sr2.setListBarcode(list);
+            sr2.setStrBarcodes(bt.getBarcode());
+            if (tmpMtl.getIsBatchManager() == 1 && tmpMtl.getIsSnManager() == 0) {
+                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), bt.getMaterialCalculateNumber()));
+            } else {
+                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), 1));
+            }
+
+        } else {
+            // 使用弹出框确认数量
+            sr2.setStockqty(0);
+            sr2.setIsUniqueness('N');
+            sr2.setStrBarcodes(bt.getBarcode());
+            curPos = checkDatas.size() - 1;
+            String showInfo = "<font color='#666666'>物料编码：</font>" + mtl.getfNumber() + "<br><font color='#666666'>物料名称：</font>" + mtl.getfName() + "<br><font color='#666666'>批次：</font>" + isNULLS(bt.getBatchCode());
+            showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", false, NUM_RESULT);
+        }
     }
 
     private void setCheckFalse() {

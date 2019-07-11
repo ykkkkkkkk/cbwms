@@ -312,7 +312,7 @@ public class Prod_MendBarcodeActivity extends BaseActivity implements XRecyclerV
                 StockPosition stockPos = disEntryTemp.getOutStockPos();
                 for(int i = curPos; i< listDatas.size(); i++) {
                     StkTransferOutEntry stkOutEntry = listDatas.get(i);
-                    if (stkOutEntry.getOutStockId() == 0) {
+//                    if (stkOutEntry.getOutStockId() == 0) {
                         if (stock != null) {
                             stkOutEntry.setOutStock(stock);
                             stkOutEntry.setOutStockId(stock.getfStockid());
@@ -324,8 +324,13 @@ public class Prod_MendBarcodeActivity extends BaseActivity implements XRecyclerV
                             stkOutEntry.setOutStockPositionNumber(stockPos.getFnumber());
                             stkOutEntry.setOutStockPositionName(stockPos.getFname());
                             stkOutEntry.setOutStockPos(stockPos);
+                        } else {
+                            stkOutEntry.setOutStockPositionId(0);
+                            stkOutEntry.setOutStockPositionNumber("");
+                            stkOutEntry.setOutStockPositionName("");
+                            stkOutEntry.setOutStockPos(null);
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 

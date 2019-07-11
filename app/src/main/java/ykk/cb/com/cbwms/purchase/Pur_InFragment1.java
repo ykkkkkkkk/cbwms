@@ -30,7 +30,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -59,6 +58,7 @@ import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.purchase.adapter.Pur_InFragment1Adapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
@@ -314,7 +314,7 @@ public class Pur_InFragment1 extends BaseFragment {
                 Log.e("num", "行：" + position);
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料编码：</font>"+entity.getMtlFnumber()+"<br><font color='#666666'>物料名称：</font>"+entity.getMtl().getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(entity.getBatchno());
-                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0", CODE2);
+                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0",false, CODE2);
             }
 
             @Override
@@ -393,7 +393,7 @@ public class Pur_InFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -410,7 +410,7 @@ public class Pur_InFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -453,7 +453,7 @@ public class Pur_InFragment1 extends BaseFragment {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -464,8 +464,12 @@ public class Pur_InFragment1 extends BaseFragment {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -532,11 +536,6 @@ public class Pur_InFragment1 extends BaseFragment {
         return true;
     }
 
-    @OnFocusChange({R.id.et_mtlNo, R.id.et_deptName})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
-    }
-
     @Override
     public void setListener() {
         View.OnClickListener click = new View.OnClickListener() {
@@ -571,7 +570,7 @@ public class Pur_InFragment1 extends BaseFragment {
         etMtlNo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showInputDialog("条码号","", "+0", WRITE_BARCODE);
+                showInputDialog("条码号","", "+0",false, WRITE_BARCODE);
                 return true;
             }
         });
@@ -904,41 +903,65 @@ public class Pur_InFragment1 extends BaseFragment {
             sr2.setDepartmentFnumber(department.getDepartmentNumber());
         }
         // 包装数量
-        double number = bt.getMaterialCalculateNumber();
-        double fqty = 1;
-        // 计量单位数量
-        if(mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
-        if(number > 0) {
-            sr2.setFqty(sr2.getStockqty()+(number*fqty));
-            sr2.setStockqty(sr2.getStockqty()+(number*fqty));
-            sr2.setPoFmustqty(sr2.getStockqty()+(number*fqty));
-        } else {
-            sr2.setFqty(fqty);
-            sr2.setStockqty(fqty);
-            sr2.setPoFmustqty(fqty);
-        }
-        if(mtl.getIsSnManager() == 1) {
-            sr2.setFqty(fqty);
-            sr2.setStockqty(fqty);
-            sr2.setPoFmustqty(fqty);
-        }
-        if(mtl.getIsBatchManager() == 1) {
-            sr2.setFqty(number);
-            sr2.setStockqty(number);
-            sr2.setPoFmustqty(number);
-        }
+//        double number = bt.getMaterialCalculateNumber();
+//        double fqty = 1;
+//        // 计量单位数量
+//        if(mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
+//        if(number > 0) {
+//            sr2.setFqty(sr2.getStockqty()+(number*fqty));
+//            sr2.setStockqty(sr2.getStockqty()+(number*fqty));
+//            sr2.setPoFmustqty(sr2.getStockqty()+(number*fqty));
+//        } else {
+//            sr2.setFqty(fqty);
+//            sr2.setStockqty(fqty);
+//            sr2.setPoFmustqty(fqty);
+//        }
+//        if(mtl.getIsSnManager() == 1) {
+//            sr2.setFqty(fqty);
+//            sr2.setStockqty(fqty);
+//            sr2.setPoFmustqty(fqty);
+//        }
+//        if(mtl.getIsBatchManager() == 1) {
+//            sr2.setFqty(number);
+//            sr2.setStockqty(number);
+//            sr2.setPoFmustqty(number);
+//        }
+        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) { // 启用序列号，批次号
 
+            List<String> list = new ArrayList<String>();
+            list.add(bt.getBarcode());
+            // 拼接条码号，用逗号隔开
+            sr2.setListBarcode(list);
+            sr2.setStrBarcodes(bt.getBarcode());
+            if(mtl.getIsBatchManager() == 1 && mtl.getIsSnManager() == 0) {
+                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), mtl.getCalculateFqty()));
+            } else {
+                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), 1));
+            }
+
+        } else { // 未启用序列号，批次号
+            // 每包的数量
+//            double number = bt.getMaterialCalculateNumber();
+//            double fqty = 1;
+//            // 计量单位数量
+//            if(mtl.getCalculateFqty() > 0) fqty = mtl.getCalculateFqty();
+//
+//            if(number > 0) {
+//                sr2.setFqty(BigdecimalUtil.add(sr2.getStockqty(), BigdecimalUtil.mul(number, fqty)));
+//                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), BigdecimalUtil.mul(number, fqty)));
+//                sr2.setPoFmustqty(BigdecimalUtil.add(sr2.getStockqty(), BigdecimalUtil.mul(number, fqty)));
+//            } else {
+//                sr2.setFqty(BigdecimalUtil.add(sr2.getStockqty(), fqty));
+//                sr2.setStockqty(BigdecimalUtil.add(sr2.getStockqty(), fqty));
+//                sr2.setPoFmustqty(BigdecimalUtil.add(sr2.getStockqty(), fqty));
+//            }
+            sr2.setStockqty(sr2.getUsableFqty());
+        }
         sr2.setPoFid(0);
         sr2.setEntryId(0);
         sr2.setPoFbillno("");
-        sr2.setBarcode(bt.getBarcode());
-        // 物料是否启用序列号
-        if(mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
-            List<String> list = new ArrayList<String>();
-            list.add(bt.getBarcode());
-            sr2.setListBarcode(list);
-            sr2.setStrBarcodes(bt.getBarcode());
-        } else sr2.setStrBarcodes("");
+        sr2.setFqty(sr2.getFqty());
+        sr2.setPoFmustqty(sr2.getFqty());
 
         checkDatas.add(sr2);
         mAdapter.notifyDataSetChanged();

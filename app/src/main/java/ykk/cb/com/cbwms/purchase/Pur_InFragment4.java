@@ -31,7 +31,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -51,10 +50,8 @@ import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.DisburdenMission;
 import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.ScanningRecord;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
 import ykk.cb.com.cbwms.model.Stock;
@@ -275,7 +272,7 @@ public class Pur_InFragment4 extends BaseFragment {
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0", NUM_RESULT);
+                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0",false, NUM_RESULT);
             }
 
             @Override
@@ -350,7 +347,7 @@ public class Pur_InFragment4 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -366,7 +363,7 @@ public class Pur_InFragment4 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -401,7 +398,7 @@ public class Pur_InFragment4 extends BaseFragment {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -412,8 +409,12 @@ public class Pur_InFragment4 extends BaseFragment {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -457,11 +458,6 @@ public class Pur_InFragment4 extends BaseFragment {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_deptName})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

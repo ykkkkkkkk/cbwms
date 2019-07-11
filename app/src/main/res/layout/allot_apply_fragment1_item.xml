@@ -36,11 +36,11 @@
 
     <TextView
         android:id="@+id/tv_sourceNo"
-        android:layout_width="68dp"
+        android:layout_width="78dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="来源单号"
-        android:textColor="@color/c_FF4400"
+        android:textColor="@color/black"
         android:textSize="@dimen/_11sp" />
 
     <TextView

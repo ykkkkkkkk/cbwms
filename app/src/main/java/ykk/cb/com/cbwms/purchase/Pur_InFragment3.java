@@ -14,8 +14,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,8 +31,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
-import butterknife.OnLongClick;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -45,7 +41,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
-import ykk.cb.com.cbwms.basics.Material_ListActivity;
 import ykk.cb.com.cbwms.basics.Organization_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
@@ -55,7 +50,6 @@ import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.ScanningRecord;
@@ -365,7 +359,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料编码：</font>"+entity.getMtlFnumber()+"<br><font color='#666666'>物料名称：</font>"+entity.getMtl().getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(entity.getBatchno());
-                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0", NUM_RESULT);
+                showInputDialog("数量", showInfo, String.valueOf(entity.getStockqty()), "0.0",false, NUM_RESULT);
             }
 
             @Override
@@ -460,7 +454,7 @@ public class Pur_InFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -477,7 +471,7 @@ public class Pur_InFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -520,7 +514,7 @@ public class Pur_InFragment3 extends BaseFragment {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -531,8 +525,12 @@ public class Pur_InFragment3 extends BaseFragment {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -572,11 +570,6 @@ public class Pur_InFragment3 extends BaseFragment {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_mtlNo, R.id.et_deptName, R.id.et_sourceNo})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override
@@ -634,7 +627,7 @@ public class Pur_InFragment3 extends BaseFragment {
         etMtlNo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                showInputDialog("条码号","", "+0", WRITE_BARCODE);
+                showInputDialog("条码号","", "+0",false, WRITE_BARCODE);
                 return true;
             }
         });
@@ -1008,7 +1001,7 @@ public class Pur_InFragment3 extends BaseFragment {
                     sr2.setStockqty(0);
                     curPos = i;
                     String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode());
-                    showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0", NUM_RESULT);
+                    showInputDialog("数量", showInfo, String.valueOf(sr2.getUsableFqty()), "0.0",false, NUM_RESULT);
                 }
                 mAdapter.notifyDataSetChanged();
                 break;

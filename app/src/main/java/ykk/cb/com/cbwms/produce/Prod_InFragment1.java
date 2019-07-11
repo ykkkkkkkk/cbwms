@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -169,7 +168,7 @@ public class Prod_InFragment1 extends BaseFragment {
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPrint.setVisibility(View.VISIBLE);
                         m.btnPass.setVisibility(View.VISIBLE);
-                        Comm.showWarnDialog(m.mContext, "保存成功，请点击“审核按钮”！");
+                        Comm.showWarnDialog(m.mContext, "【"+m.k3Number+"】，保存成功，请点击“审核按钮”！");
 
                         break;
                     case UNSUCC1:
@@ -268,9 +267,9 @@ public class Prod_InFragment1 extends BaseFragment {
                                     double fqty = sr2.getStockInLimith();
 
 //                                    if ((so.getFqty() + sr2.getStockqty()) > sr2.getFqty()) {
-                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
-                                        double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty()); //
-                                        double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
+                                    double sumQty = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
+                                    if(sumQty > fqty) {
+                                        double subVal = BigdecimalUtil.sub(sumQty, sr2.getFqty());
                                         // 注释的代码会出现损失精度
 //                                        Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + (so.getFqty() + sr2.getStockqty() - sr2.getFqty()) + "”！");
                                         Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已入库数“" + so.getFqty() + "”，当前超出数“" + subVal + "”！");
@@ -384,7 +383,7 @@ public class Prod_InFragment1 extends BaseFragment {
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0", CODE2);
+                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0",false, CODE2);
             }
 
             @Override
@@ -498,7 +497,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 Comm.showDateDialog(mContext, view, 0);
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (!saveBefore()) {
                     return;
                 }
@@ -562,7 +561,7 @@ public class Prod_InFragment1 extends BaseFragment {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -573,8 +572,12 @@ public class Prod_InFragment1 extends BaseFragment {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -655,7 +658,10 @@ public class Prod_InFragment1 extends BaseFragment {
 //            }
 //            double fqty = sr2.getFqty()*(1+mtl.getFinishReceiptOverRate()/100);
             double fqty = sr2.getStockInLimith();
-            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            double subVal = BigdecimalUtil.sub(sr2.getFqty(), sr2.getUsableFqty());
+            double subVal2 = BigdecimalUtil.sub(fqty, subVal);
+//            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            if (sr2.getStockqty() > subVal2) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(fqty > sr2.getFqty() ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
@@ -666,11 +672,6 @@ public class Prod_InFragment1 extends BaseFragment {
 //            }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

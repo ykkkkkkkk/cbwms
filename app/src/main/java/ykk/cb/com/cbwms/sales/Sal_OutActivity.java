@@ -25,7 +25,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import butterknife.OnLongClick;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -522,11 +521,6 @@ public class Sal_OutActivity extends BaseActivity {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_stock, R.id.et_stockPos, R.id.et_matNo})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @OnLongClick({R.id.btn_stock})

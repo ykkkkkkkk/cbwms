@@ -266,7 +266,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 Map<Integer,Boolean> map = new HashMap<>();
                 StringBuilder sbIds = new StringBuilder();
                 for(int i=0; i<listDatas.size(); i++) {

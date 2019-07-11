@@ -35,7 +35,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -63,7 +62,6 @@ import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_StartFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -378,7 +376,7 @@ public class Prod_StartFragment1 extends BaseFragment {
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0", CODE2);
+                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0",false, CODE2);
             }
 
             @Override
@@ -472,7 +470,7 @@ public class Prod_StartFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -485,7 +483,7 @@ public class Prod_StartFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(k3Number == null) {
                     Comm.showWarnDialog(mContext,"请先保存，然后审核！");
                     return;
@@ -494,7 +492,7 @@ public class Prod_StartFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -564,11 +562,6 @@ public class Prod_StartFragment1 extends BaseFragment {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

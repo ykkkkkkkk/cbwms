@@ -246,6 +246,7 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:id="@+id/tv_stkNumber"
                     android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"

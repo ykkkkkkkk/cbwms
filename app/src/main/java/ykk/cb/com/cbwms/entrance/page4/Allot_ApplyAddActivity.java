@@ -224,9 +224,9 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 String cause = Comm.isNULLS(stkTemp.getCause());
                 for (int i = curPos; i < listDatas.size(); i++) {
                     StkTransferOutTemp stkTemp2 = listDatas.get(i);
-                    if (Comm.isNULLS(stkTemp2.getCause()).length() == 0) {
+//                    if (Comm.isNULLS(stkTemp2.getCause()).length() == 0) {
                         stkTemp2.setCause(cause);
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 

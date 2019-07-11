@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -37,7 +36,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -65,6 +63,7 @@ import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -111,6 +110,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     Button btnPass;
     @BindView(R.id.lin_top)
     LinearLayout linTop;
+    @BindView(R.id.tv_stkNumber)
+    TextView tvStkNumber;
+
 
     private Allot_PickingListFragment1 context = this;
     private Allot_PickingListMainActivity parent;
@@ -365,6 +367,8 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         if (mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             stkEntry.setListBarcode(new ArrayList<String>());
         } else stkEntry.setStrBarcodes("");
+        stkEntry.setFpaezIsCombine(isFpaezIsCombine);
+        stkEntry.setCheckNext(false);
     }
 
     @Override
@@ -486,7 +490,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
-                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0", RESULT_NUM);
+                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
             }
 
             @Override
@@ -498,13 +502,13 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 curPos = position;
                 int stockId = entity.getOutStockId();
                 Stock stock = entity.getOutStock();
-                if (stockId == 0) {
+//                if (stockId == 0) {
                     showForResult(Stock_DialogActivity.class, SEL_STOCK2, null);
-                } else if (stock.isStorageLocation()) { // 是否启用了库位
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("stockId", stockId);
-                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
-                }
+//                } else if (stock.isStorageLocation()) { // 是否启用了库位
+//                    Bundle bundle = new Bundle();
+//                    bundle.putInt("stockId", stockId);
+//                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
+//                }
             }
 
             @Override
@@ -641,7 +645,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (!saveBefore()) {
                     return;
                 }
@@ -650,7 +654,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (k3Number == null) {
                     Comm.showWarnDialog(mContext, "请先保存，然后审核！");
                     return;
@@ -659,7 +663,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -693,7 +697,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 StockPosition stockPos = disEntryTemp.getOutStockPos();
                 for (int i = curPos; i < checkDatas.size(); i++) {
                     StkTransferOutEntry stkOutEntry = checkDatas.get(i);
-                    if (stkOutEntry.getOutStockId() == 0) {
+//                    if (stkOutEntry.getOutStockId() == 0) {
                         if (stock != null) {
                             stkOutEntry.setOutStock(stock);
                             stkOutEntry.setOutStockId(stock.getfStockid());
@@ -705,8 +709,13 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                             stkOutEntry.setOutStockPositionNumber(stockPos.getFnumber());
                             stkOutEntry.setOutStockPositionName(stockPos.getFname());
                             stkOutEntry.setOutStockPos(stockPos);
+                        } else {
+                            stkOutEntry.setOutStockPositionId(0);
+                            stkOutEntry.setOutStockPositionNumber("");
+                            stkOutEntry.setOutStockPositionName("");
+                            stkOutEntry.setOutStockPos(null);
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -874,11 +883,6 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             return false;
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override
@@ -1075,8 +1079,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
+                        boolean isCheckNext = bundle.getBoolean("isCheckNext");
                         double num = parseDouble(value);
                         checkDatas.get(curPos).setTmpPickFqty(num);
+//                        checkDatas.get(curPos).setCheckNext(isCheckNext);
                         mAdapter.notifyDataSetChanged();
                         isPickingEnd();
                     }
@@ -1088,16 +1094,19 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
+                        boolean isCheckNext = bundle.getBoolean("isCheckNext");
                         double num = parseDouble(value);
                         double curQty = checkDatas.get(curPos).getTmpPickFqty();
-                        checkDatas.get(curPos).setTmpPickFqty(curQty + num);
+                        double addVal = BigdecimalUtil.add(curQty,num);
+                        checkDatas.get(curPos).setTmpPickFqty(addVal);
+                        checkDatas.get(curPos).setCheckNext(isCheckNext);
                         // 把最后的结果存到list
                         for(int i = 0; i< code_QtyList.size(); i++) {
                             String code_num = code_QtyList.get(i);
                             if(code_num.indexOf(mtlBarcode) > -1) {
                                 String[] arrs = code_num.split(":");
-                                double qty = parseDouble(arrs[1]) - num;
-                                code_QtyList.add(mtlBarcode+":"+qty); // 保留现在新的
+                                double subVal = BigdecimalUtil.add(parseDouble(arrs[1]),num);
+                                code_QtyList.add(mtlBarcode+":"+subVal); // 保留现在新的
                                 code_QtyList.remove(code_num); // 删除之前旧的
                                 break;
                             }
@@ -1132,6 +1141,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         pk.setOutStockNumber(stock2.getfNumber());
                         pk.setOutStockName(stock2.getfName());
                         pk.setOutStock(stock2);
+                        // 库位设值为空
+                        pk.setOutStockPositionId(0);
+                        pk.setOutStockPositionNumber("");
+                        pk.setOutStockPositionName("");
+                        pk.setOutStockPos(null);
 
 //                        } else { // 设置全部行
 //                            for(int i=0; i<size; i++) {
@@ -1160,10 +1174,10 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                     }
 //                    if(isBool) { // 只设置一行
                     StkTransferOutEntry entry = checkDatas.get(curPos);
-//                        entry.setOutStockId(stock2.getfStockid());
-//                        entry.setOutStockNumber(stock2.getfNumber());
-//                        entry.setOutStockName(stock2.getfName());
-//                        entry.setOutStock(stock2);
+                    entry.setOutStockId(stock2.getfStockid());
+                    entry.setOutStockNumber(stock2.getfNumber());
+                    entry.setOutStockName(stock2.getfName());
+                    entry.setOutStock(stock2);
 
                     entry.setOutStockPositionId(stockP2.getId());
                     entry.setOutStockPositionNumber(stockP2.getFnumber());
@@ -1224,7 +1238,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             if (tmpMtl.getfMaterialId() == stkEntry.getMtlId()) {
                 isFlag = true;
                 position = i;
-                if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+                if (stkEntry.isCheckNext() || stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
                     continue;
                 }
 
@@ -1262,7 +1276,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                         code_QtyList.add(code_num);
                         curPos = i;
                         String showInfo = "<font color='#666666'>物料编码：</font>"+tmpMtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+tmpMtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode()+"<br><font color='#666666'>条码数量：</font>"+isNULLS(bt.getMaterialCalculateNumber()));
-                        showInputDialog("数量", showInfo, String.valueOf(bt.getMaterialCalculateNumber()), "0.0", RESULT_NUM2);
+                        showInputDialog("数量", showInfo, String.valueOf(bt.getMaterialCalculateNumber()), "0.0",true, RESULT_NUM2);
 
                     } else {
                         stkEntry.setTmpPickFqty(stkEntry.getTmpPickFqty() + 1);
@@ -1321,7 +1335,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      * 保存方法
      */
     private void run_save() {
-        showLoadDialog("保存中...");
+        showLoadDialog("保存中...", false);
         getUserInfo();
 
 
@@ -1416,9 +1430,11 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         // 如果是合并查询，就不显示单号列表
         if(isFpaezIsCombine) {
             curViewFlag = '1';
+            tvStkNumber.setText("领料部门");
             run_findDatas(null);
         } else {
             curViewFlag = '2';
+            tvStkNumber.setText("调拨单");
             run_findDatas(null);
         }
     }
@@ -1432,7 +1448,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         mAdapter.notifyDataSetChanged();
 
         isTextChange = false;
-        showLoadDialog("加载中...");
+        showLoadDialog("加载中...", false);
         String mUrl = null;
         String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
         String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
@@ -1463,6 +1479,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 .add("stockPosSeqStatus", stockPosSeqStatus) // 按照库位序号来排序
                 .add("isVMI", isVMI > 0 ? String.valueOf(isVMI) : "") // 是否VMI的数据
                 .add("billNo", stkBillNo) // 调拨单号（查询调拨单）
+                .add("isFpaezIsCombine", isFpaezIsCombine ? "1" : "") // 是否合并拣货
                 .build();
 
         Request request = new Request.Builder()
@@ -1503,7 +1520,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请对准条码！");
             return;
         }
-        showLoadDialog("加载中...");
+        showLoadDialog("加载中...", false);
         String mUrl = getURL("barCodeTable/findBarcode4ByParam");
         FormBody formBody = new FormBody.Builder()
                 .add("strCaseId", "11,21,31,34,38")
@@ -1544,7 +1561,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      * 提交并审核
      */
     private void run_submitAndPass() {
-        showLoadDialog("正在审核...");
+        showLoadDialog("正在审核...", false);
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
@@ -1587,7 +1604,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      * 状态关闭
      */
     private void run_close(String ids) {
-        showLoadDialog("操作中...");
+        showLoadDialog("操作中...", false);
         String mUrl = null;
         String keyVal = "ids";
         switch (parent.menuStatus) {
@@ -1647,7 +1664,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
      * 查询即时库存
      */
     private void run_findInventoryByParams(String strJson) {
-        showLoadDialog("正在查询...");
+        showLoadDialog("正在查询...", false);
         String mUrl = getURL("inventoryNow/findInventoryByParams");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()

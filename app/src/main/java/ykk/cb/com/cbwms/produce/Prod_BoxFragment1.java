@@ -464,7 +464,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 if(status == 2) return;
 
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getNumber()), "0.0", SEL_NUM);
+                showInputDialog("数量", String.valueOf(entity.getNumber()), "0.0",false, SEL_NUM);
             }
         });
 

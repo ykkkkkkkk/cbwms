@@ -118,10 +118,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/_6dp"
         android:gravity="center"
-        android:visibility="gone"
         android:text="长按行替换物料"
         android:textColor="@color/c_FF4400"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:visibility="gone" />
 
     <HorizontalScrollView
         android:layout_width="wrap_content"
@@ -148,7 +148,6 @@
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
-
                 <TextView
                     android:layout_width="76dp"
                     android:layout_height="match_parent"
@@ -166,11 +165,12 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="68dp"
+                    android:id="@+id/tv_stkNumber"
+                    android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="调拨单"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
                     android:textSize="12sp" />
 
                 <TextView
@@ -237,7 +237,7 @@
                 android:background="@drawable/back_style_blue5">
 
                 <TextView
-                    android:layout_width="389dp"
+                    android:layout_width="399dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="合计："

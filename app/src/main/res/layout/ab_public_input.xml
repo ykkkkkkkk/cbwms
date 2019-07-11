@@ -53,6 +53,16 @@
         android:textColor="@color/black"
         android:textSize="12sp" />
 
+    <CheckBox
+        android:id="@+id/check_next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_10dp"
+        android:text="多行同样的物料，下次扫码换行"
+        android:textColor="@color/c_FF4400"
+        android:textSize="@dimen/_12sp"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="42dp"

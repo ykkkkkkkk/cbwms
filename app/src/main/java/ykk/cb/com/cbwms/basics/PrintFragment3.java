@@ -157,7 +157,7 @@ public class PrintFragment3 extends BaseFragment implements XRecyclerView.Loadin
             public void onPrint(Box e, int pos) {
                 Log.e("onPrint3", e.getBoxName());
                 curId = e.getId();
-                showInputDialog("打印次数", "", "0", CODE1);
+                showInputDialog("打印次数", "", "0",false, CODE1);
             }
         });
     }

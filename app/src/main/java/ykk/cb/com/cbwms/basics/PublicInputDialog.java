@@ -1,5 +1,6 @@
 package ykk.cb.com.cbwms.basics;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -33,6 +35,8 @@ public class PublicInputDialog extends BaseDialogActivity {
     TextView tvHintName;
     @BindView(R.id.tv_showInfo)
     TextView tvShowInfo;
+    @BindView(R.id.check_next)
+    CheckBox checkNext;
     @BindView(R.id.btn_confirm)
     Button btnConfirm;
     @BindView(R.id.et_input)
@@ -116,6 +120,10 @@ public class PublicInputDialog extends BaseDialogActivity {
             String hintName = bundle.getString("hintName", "");
             String showInfo = bundle.getString("showInfo", "");
             String value = bundle.getString("value", "");
+            boolean isCheckNext = bundle.getBoolean("isCheckNext", false);
+            if(isCheckNext) {
+                checkNext.setVisibility(View.VISIBLE);
+            }
 
             tvHintName.setText(hintName);
             tvShowInfo.setVisibility(showInfo.length() > 0 ? View.VISIBLE : View.GONE);
@@ -195,7 +203,11 @@ public class PublicInputDialog extends BaseDialogActivity {
                     toasts("请输入内容！");
                     return;
                 }
-                setResults(context, inputName);
+
+                Intent intent = new Intent();
+                intent.putExtra("resultValue", inputName);
+                intent.putExtra("isCheckNext", checkNext.isChecked() ? true : false);
+                context.setResult(RESULT_OK, intent);
                 context.finish();
 
                 break;

@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -296,11 +295,6 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                 break;
         }
-    }
-
-    @OnFocusChange({R.id.et_code})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

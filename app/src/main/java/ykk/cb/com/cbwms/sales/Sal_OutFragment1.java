@@ -31,7 +31,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import butterknife.OnLongClick;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -325,7 +324,7 @@ public class Sal_OutFragment1 extends BaseFragment {
             public void onClick_num(View v, ScanningRecord2 entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0", CODE2);
+                showInputDialog("数量", String.valueOf(entity.getStockqty()), "0.0",false, CODE2);
             }
 
             @Override
@@ -429,7 +428,7 @@ public class Sal_OutFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -446,7 +445,7 @@ public class Sal_OutFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -536,11 +535,6 @@ public class Sal_OutFragment1 extends BaseFragment {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_stock, R.id.et_stockPos, R.id.et_mtlNo})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @OnLongClick({R.id.btn_stock})

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -351,6 +350,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         if (mtl.getIsSnManager() == 1 || mtl.getIsBatchManager() == 1) {
             stkEntry.setListBarcode(new ArrayList<String>());
         } else stkEntry.setStrBarcodes("");
+        stkEntry.setCheckNext(false);
     }
 
     @Override
@@ -410,7 +410,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
-                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0", RESULT_NUM);
+                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
             }
 
             @Override
@@ -422,13 +422,13 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 curPos = position;
                 int stockId = entity.getOutStockId();
                 Stock stock = entity.getOutStock();
-                if (stockId == 0) {
+//                if (stockId == 0) {
                     showForResult(Stock_DialogActivity.class, SEL_STOCK2, null);
-                } else if (stock.isStorageLocation()) { // 是否启用了库位
-                    Bundle bundle = new Bundle();
-                    bundle.putInt("stockId", stockId);
-                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
-                }
+//                } else if (stock.isStorageLocation()) { // 是否启用了库位
+//                    Bundle bundle = new Bundle();
+//                    bundle.putInt("stockId", stockId);
+//                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, bundle);
+//                }
             }
 
             @Override
@@ -547,7 +547,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (!saveBefore()) {
                     return;
                 }
@@ -556,7 +556,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (k3Number == null) {
                     Comm.showWarnDialog(mContext, "请先保存，然后审核！");
                     return;
@@ -565,7 +565,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -599,7 +599,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 StockPosition stockPos = disEntryTemp.getOutStockPos();
                 for (int i = curPos; i < checkDatas.size(); i++) {
                     StkTransferOutEntry stkOutEntry = checkDatas.get(i);
-                    if (stkOutEntry.getOutStockId() == 0) {
+//                    if (stkOutEntry.getOutStockId() == 0) {
                         if (stock != null) {
                             stkOutEntry.setOutStock(stock);
                             stkOutEntry.setOutStockId(stock.getfStockid());
@@ -611,8 +611,13 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                             stkOutEntry.setOutStockPositionNumber(stockPos.getFnumber());
                             stkOutEntry.setOutStockPositionName(stockPos.getFname());
                             stkOutEntry.setOutStockPos(stockPos);
+                        } else {
+                            stkOutEntry.setOutStockPositionId(0);
+                            stkOutEntry.setOutStockPositionNumber("");
+                            stkOutEntry.setOutStockPositionName("");
+                            stkOutEntry.setOutStockPos(null);
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -736,11 +741,6 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             return false;
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override
@@ -944,8 +944,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
+                        boolean isCheckNext = bundle.getBoolean("isCheckNext");
                         double num = parseDouble(value);
                         checkDatas.get(curPos).setTmpPickFqty(num);
+                        checkDatas.get(curPos).setCheckNext(isCheckNext);
                         mAdapter.notifyDataSetChanged();
                         isPickingEnd();
                     }
@@ -975,6 +977,11 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                         pk.setOutStockNumber(stock2.getfNumber());
                         pk.setOutStockName(stock2.getfName());
                         pk.setOutStock(stock2);
+                        // 库位设值为空
+                        pk.setOutStockPositionId(0);
+                        pk.setOutStockPositionNumber("");
+                        pk.setOutStockPositionName("");
+                        pk.setOutStockPos(null);
 
 //                        } else { // 设置全部行
 //                            for(int i=0; i<size; i++) {
@@ -1003,10 +1010,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                     }
 //                    if(isBool) { // 只设置一行
                     StkTransferOutEntry entry = checkDatas.get(curPos);
-//                        entry.setOutStockId(stock2.getfStockid());
-//                        entry.setOutStockNumber(stock2.getfNumber());
-//                        entry.setOutStockName(stock2.getfName());
-//                        entry.setOutStock(stock2);
+                    entry.setOutStockId(stock2.getfStockid());
+                    entry.setOutStockNumber(stock2.getfNumber());
+                    entry.setOutStockName(stock2.getfName());
+                    entry.setOutStock(stock2);
 
                     entry.setOutStockPositionId(stockP2.getId());
                     entry.setOutStockPositionNumber(stockP2.getFnumber());
@@ -1066,7 +1073,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             if (tmpMtl.getfMaterialId() == stkEntry.getMtlId()) {
                 isFlag = true;
                 position = i;
-                if (stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
+                if (stkEntry.isCheckNext() || stkEntry.getTmpPickFqty() >= stkEntry.getUsableFqty()) {
                     continue;
                 }
 

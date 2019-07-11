@@ -154,13 +154,14 @@ public class StkTransferOutEntry implements Serializable {
     // 临时字段
     private double tmpPickFqty; // 保存当前的拣货数量
     private double usableFqty; // 可使用的数量（调拨数-拣货数量）
-
     private List<String> listBarcode; // 记录每行中扫的条码barcode
     private char isUniqueness; // 条码是否唯一：Y是，N否
     private String strBarcodes; // 用逗号拼接的条码号
     private int isCheck; // 是否选中
     private double inventoryFqty; // 即时库存数
     private int stockPosSeq; // 库位序号
+    private boolean fpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
+    private boolean checkNext; // 是否下一个物料入数
 
     public StkTransferOutEntry() {
         super();
@@ -742,4 +743,19 @@ public class StkTransferOutEntry implements Serializable {
         this.cause = cause;
     }
 
+    public boolean isFpaezIsCombine() {
+        return fpaezIsCombine;
+    }
+
+    public boolean isCheckNext() {
+        return checkNext;
+    }
+
+    public void setFpaezIsCombine(boolean fpaezIsCombine) {
+        this.fpaezIsCombine = fpaezIsCombine;
+    }
+
+    public void setCheckNext(boolean checkNext) {
+        this.checkNext = checkNext;
+    }
 }

@@ -16,22 +16,49 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_billNo"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:id="@+id/tv_check"
+        android:layout_width="@dimen/_42dp"
+        android:layout_height="@dimen/_42dp"
+        android:background="@drawable/check_false"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/tv_k3BillNo"
+        android:layout_width="120dp"
         android:layout_height="@dimen/_42dp"
         android:gravity="center"
-        android:text="调拨单"
+        android:text="K3调拨单"
         android:textColor="#000000"
         android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_wmsBillNo"
+        android:layout_width="120dp"
+        android:layout_height="@dimen/_42dp"
+        android:gravity="center"
+        android:text="WMS调拨单"
+        android:textColor="#000000"
+        android:textSize="@dimen/_12sp" />
+
+    <TextView
+        android:id="@+id/tv_fdocumentStatus"
+        android:layout_width="@dimen/_56dp"
+        android:layout_height="@dimen/_42dp"
+        android:gravity="center"
+        android:text="新建"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_entryRowNum"
         android:layout_width="68dp"
         android:layout_height="@dimen/_42dp"
+        android:layout_margin="@dimen/_2dp"
+        android:background="@drawable/btn_purple_selector"
         android:gravity="center"
         android:text="分录数"
-        android:textColor="#000000"
-        android:textSize="@dimen/_12sp" />
+        android:textColor="@color/white"
+        android:textSize="@dimen/_14sp"
+        android:textStyle="bold" />
 
 </LinearLayout>

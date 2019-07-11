@@ -51,7 +51,12 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
         tv_prodSeqNumber.setText(entity.getProductionSeq());
-        tv_sourceNo.setText(stkOut.getBillNo());
+//        tv_sourceNo.setText(stkOut.getBillNo());
+        if(entity.isFpaezIsCombine()) {
+            tv_sourceNo.setText(stkOut.getPickDepartName());
+        } else {
+            tv_sourceNo.setText(stkOut.getBillNo());
+        }
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
@@ -115,17 +120,17 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
                         }
 
                         break;
-                    case R.id.tv_sourceNo: // 根据调拨单单号查询
-                        if (callBack != null) {
-                            callBack.onFind(entity, pos);
-                        }
-
-                        break;
+//                    case R.id.tv_sourceNo: // 根据调拨单单号查询
+//                        if (callBack != null) {
+//                            callBack.onFind(entity, pos);
+//                        }
+//
+//                        break;
                 }
             }
         };
         tv_nums.setOnClickListener(click);
-        tv_sourceNo.setOnClickListener(click);
+//        tv_sourceNo.setOnClickListener(click);
 //        tv_stockAP.setOnClickListener(click);
     }
 
@@ -135,7 +140,7 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
 
     public interface MyCallBack {
         void onClick_num(View v, StkTransferOutEntry entity, int position);
-        void onFind(StkTransferOutEntry entity, int position);
+//        void onFind(StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
     }
 

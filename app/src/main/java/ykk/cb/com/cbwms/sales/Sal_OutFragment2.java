@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -283,6 +282,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 ScanningRecord2 sr2 = m.checkDatas.get(j);
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
+                                    double sumQty = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
                                     if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
                                         double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
                                         double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
@@ -532,7 +532,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                 break;
             case R.id.btn_save: // 保存
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if(!saveBefore()) {
                     return;
                 }
@@ -550,7 +550,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
@@ -585,7 +585,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 StockPosition stockPos = sr2Temp.getStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     ScanningRecord2 sr2 = checkDatas.get(i);
-                    if (sr2.getStockId() == 0) {
+//                    if (sr2.getStockId() == 0) {
                         if (stock != null) {
                             sr2.setStock(stock);
                             sr2.setStockId(stock.getfStockid());
@@ -596,8 +596,12 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                             sr2.setStockPos(stockPos);
                             sr2.setStockPositionId(stockPos.getId());
                             sr2.setStockPName(stockPos.getFname());
+                        } else {
+                            sr2.setStockPos(null);
+                            sr2.setStockPositionId(0);
+                            sr2.setStockPName("");
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -771,11 +775,6 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
 //        }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_boxCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

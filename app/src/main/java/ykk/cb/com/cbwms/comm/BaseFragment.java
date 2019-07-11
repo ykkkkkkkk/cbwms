@@ -367,7 +367,7 @@ public abstract class BaseFragment extends Fragment {
 	 * 显示输入法
 	 */
 	public void showKeyboard(View v) {
-		InputMethodManager imm = (InputMethodManager) v.getContext().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager imm = (InputMethodManager) parentActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(v, InputMethodManager.SHOW_FORCED);
 	}
 
@@ -375,7 +375,7 @@ public abstract class BaseFragment extends Fragment {
 	 * 隐藏输入法
 	 */
 	public void hideKeyboard(View v) {
-		InputMethodManager imm = (InputMethodManager) v.getContext().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager imm = (InputMethodManager) parentActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);
 	}
 
@@ -442,21 +442,23 @@ public abstract class BaseFragment extends Fragment {
 	 * @param inputType 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 	 * @param codes
 	 */
-	public void showInputDialog(String hintName, String val, String inputType, int codes) {
+	public void showInputDialog(String hintName, String val, String inputType, boolean isCheckNext, int codes) {
 		Bundle bundle = new Bundle();
 		bundle.putString("hintName", hintName);
 		bundle.putString("value", val);
 		// 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 		bundle.putString("inputType", inputType);
+		bundle.putBoolean("isCheckNext", isCheckNext); // 多行同样的物料，扫码入数下一行
 		showForResult(PublicInputDialog.class, codes, bundle);
 	}
-	public void showInputDialog(String hintName, String showInfo, String val, String inputType, int codes) {
+	public void showInputDialog(String hintName, String showInfo, String val, String inputType, boolean isCheckNext, int codes) {
 		Bundle bundle = new Bundle();
 		bundle.putString("hintName", hintName);
 		bundle.putString("showInfo", showInfo);
 		bundle.putString("value", val);
 		// 0:表示数字，0.0：表示有小数点，+0：表示全部为数字都是正整数，none:调用系统输入键盘
 		bundle.putString("inputType", inputType);
+		bundle.putBoolean("isCheckNext", isCheckNext); // 多行同样的物料，扫码入数下一行
 		showForResult(PublicInputDialog.class, codes, bundle);
 	}
 

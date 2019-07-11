@@ -26,7 +26,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -373,7 +372,7 @@ public class Allot_PickingListActivity_190309 extends BaseActivity {
                 StockPosition stockPos = disEntryTemp.getOutStockPos();
                 for(int i=curPos; i<checkDatas.size(); i++) {
                     StkTransferOutEntry stkOutEntry = checkDatas.get(i);
-                    if (stkOutEntry.getOutStockId() == 0) {
+//                    if (stkOutEntry.getOutStockId() == 0) {
                         if (stock != null) {
                             stkOutEntry.setOutStock(stock);
                             stkOutEntry.setOutStockId(stock.getfStockid());
@@ -385,8 +384,13 @@ public class Allot_PickingListActivity_190309 extends BaseActivity {
                             stkOutEntry.setOutStockPositionNumber(stockPos.getFnumber());
                             stkOutEntry.setOutStockPositionName(stockPos.getFname());
                             stkOutEntry.setOutStockPos(stockPos);
+                        } else {
+                            stkOutEntry.setOutStockPositionId(0);
+                            stkOutEntry.setOutStockPositionNumber("");
+                            stkOutEntry.setOutStockPositionName("");
+                            stkOutEntry.setOutStockPos(null);
                         }
-                    }
+//                    }
                 }
                 mAdapter.notifyDataSetChanged();
 
@@ -439,11 +443,6 @@ public class Allot_PickingListActivity_190309 extends BaseActivity {
             }
         }
         return true;
-    }
-
-    @OnFocusChange({R.id.et_sourceCode, R.id.et_mtlCode})
-    public void onViewFocusChange(View v, boolean hasFocus) {
-        if (hasFocus) hideKeyboard(v);
     }
 
     @Override

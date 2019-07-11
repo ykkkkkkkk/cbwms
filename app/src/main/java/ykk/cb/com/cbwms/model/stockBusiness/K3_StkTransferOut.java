@@ -13,6 +13,8 @@ public class K3_StkTransferOut {
 	private String billNo;
 	/*单据日期*/
 	private String billDate;
+	/* 单据状态  */
+	private String fdocumentStatus; // 单据状态，A:创建， Z:暂存， B:审核中 ，C:已审核 ，D:重新审核
 	/*物料编码*/
 	private String mtlNumber;
 	/*物料名称*/
@@ -31,10 +33,13 @@ public class K3_StkTransferOut {
 	private String pickDepartNumber;
 	/* 领料部门名称   */
 	private String pickDepartName;
+	/* WMS调拨单号  */
+	private String wmsBillNo;
 
 
 	// 临时字段，不存表
 	private int entryRowNum; // 查询子表的行数
+	private boolean checked; // 是否选中
 
 	public K3_StkTransferOut() {
 		super();
@@ -144,6 +149,28 @@ public class K3_StkTransferOut {
 		this.entryRowNum = entryRowNum;
 	}
 
+	public String getFdocumentStatus() {
+		return fdocumentStatus;
+	}
 
+	public void setFdocumentStatus(String fdocumentStatus) {
+		this.fdocumentStatus = fdocumentStatus;
+	}
+
+	public boolean isChecked() {
+		return checked;
+	}
+
+	public void setChecked(boolean checked) {
+		this.checked = checked;
+	}
+
+	public String getWmsBillNo() {
+		return wmsBillNo;
+	}
+
+	public void setWmsBillNo(String wmsBillNo) {
+		this.wmsBillNo = wmsBillNo;
+	}
 
 }

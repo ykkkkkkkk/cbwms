@@ -741,6 +741,9 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                 break;
             case R.id.tv_canStockNum: // 查询即时库存
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
                 int size = checkDatas.size();
                 if (size == 0) {
                     Comm.showWarnDialog(mContext, "当前行还没有数据！");

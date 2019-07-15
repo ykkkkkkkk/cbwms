@@ -252,6 +252,13 @@
         <activity
             android:name=".produce.Prod_InStockSearchActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_InStockPassActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_InStockPassEntryActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 销售模块 -->

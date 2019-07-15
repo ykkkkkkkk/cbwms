@@ -190,8 +190,10 @@ public class Allot_K3SearchActivity extends BaseActivity implements XRecyclerVie
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 K3_StkTransferOut stk = listDatas.get(pos-1);
-                boolean check = stk.isChecked();
-                if(check) {
+                if(stk.getFdocumentStatus().equals("C")) {
+                   return;
+                }
+                if(stk.isChecked()) {
                     stk.setChecked(false);
                 } else {
                     stk.setChecked(true);

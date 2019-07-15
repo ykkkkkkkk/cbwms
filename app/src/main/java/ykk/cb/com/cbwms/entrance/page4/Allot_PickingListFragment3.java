@@ -1240,10 +1240,10 @@ public class Allot_PickingListFragment3 extends BaseFragment {
      */
     public void findFun() {
         Log.e("findFun", "第3个查询");
-        if (outStock == null) {
-            Comm.showWarnDialog(mContext, "请选择调出仓库！");
-            return;
-        }
+//        if (outStock == null) {
+//            Comm.showWarnDialog(mContext, "请选择调出仓库！");
+//            return;
+//        }
         if (checkDatas.size() > 0) {
             Comm.showWarnDialog(mContext, "请先保存本次数据！");
             return;
@@ -1500,7 +1500,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC4);
+                mHandler.sendEmptyMessage(UNSUCC5);
             }
 
             @Override
@@ -1508,11 +1508,11 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 ResponseBody body = response.body();
                 String result = body.string();
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    Message msg = mHandler.obtainMessage(UNSUCC5, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC4, result);
+                Message msg = mHandler.obtainMessage(SUCC5, result);
                 LogUtil.e("run_findInventoryByParams --> onResponse", result);
                 mHandler.sendMessage(msg);
             }

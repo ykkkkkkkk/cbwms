@@ -51,9 +51,8 @@
 
     <TextView
         android:id="@+id/tv_entryRowNum"
-        android:layout_width="68dp"
-        android:layout_height="@dimen/_42dp"
-        android:layout_margin="@dimen/_2dp"
+        android:layout_width="@dimen/_64dp"
+        android:layout_height="@dimen/_38dp"
         android:background="@drawable/btn_purple_selector"
         android:gravity="center"
         android:text="分录数"

@@ -1551,7 +1551,7 @@ public class Allot_PickingListActivity extends BaseActivity {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+                .add("strFbillNo", k3Number)
                 .add("type", "9")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

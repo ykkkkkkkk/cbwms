@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -283,9 +284,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
                                     double sumQty = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
-                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
-                                        double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
-                                        double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
+                                    if(sumQty > sr2.getFqty()) {
+                                        double subVal = BigdecimalUtil.sub(sumQty, sr2.getFqty());
                                         // 注释的代码会出现损失精度
 //                                        Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已出库数“" + so.getFqty() + "”，当前超出数“" + (so.getFqty() + sr2.getStockqty() - sr2.getFqty()) + "”！");
                                         Comm.showWarnDialog(m.mContext, "第" + (j + 1) + "行已出库数“" + so.getFqty() + "”，当前超出数“" + subVal + "”！");
@@ -533,10 +533,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 break;
             case R.id.btn_save: // 保存
 //                hideKeyboard(mContext.getCurrentFocus());
-                if(!saveBefore()) {
-                    return;
-                }
-                run_findStatus();
+                saveBefore0();
+//                if(!saveBefore()) {
+//                    return;
+//                }
+//                run_findStatus();
 //                run_findInStockSum();
 //                run_addScanningRecord();
 
@@ -628,18 +629,18 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     /**
      * 选择保存之前的判断
      */
-    private boolean saveBefore() {
+    private void saveBefore0() {
         if (checkDatas == null || checkDatas.size() == 0) {
             Comm.showWarnDialog(mContext,"请先插入行！");
-            return false;
+            return;
         }
         if(receiveOrg == null) {
             Comm.showWarnDialog(mContext,"请选择发货组织！");
-            return false;
+            return;
         }
         if(salOrg == null) {
             Comm.showWarnDialog(mContext,"请选择销售组织！");
-            return false;
+            return;
         }
         String express = getValues(tvExpressCompany);
         String expressNo = getValues(etExpressNo).trim();
@@ -658,13 +659,69 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         double writeSumQty = 0; //
         for(int i=0; i<checkDatas.size(); i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
-            writeSumQty += sr2.getStockqty();
+            writeSumQty = BigdecimalUtil.add(writeSumQty, sr2.getStockqty());
             if(sr2.getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
         }
         if(autoMtlSum > autoMtlSumTemp) {
-            Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
-            return false;
+//            Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
+            AlertDialog.Builder build = new AlertDialog.Builder(mContext);
+            build.setIcon(R.drawable.caution);
+            build.setTitle("系统提示");
+            build.setMessage("当前单据中缺少配件，是否继续出库？");
+            build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    saveBefore();
+                }
+            });
+            build.setNegativeButton("否", null);
+            build.setCancelable(false);
+            build.show();
+        } else {
+            saveBefore();
         }
+    }
+
+    /**
+     * 选择保存之前的判断
+     */
+    private void saveBefore() {
+//        if (checkDatas == null || checkDatas.size() == 0) {
+//            Comm.showWarnDialog(mContext,"请先插入行！");
+//            return false;
+//        }
+//        if(receiveOrg == null) {
+//            Comm.showWarnDialog(mContext,"请选择发货组织！");
+//            return false;
+//        }
+//        if(salOrg == null) {
+//            Comm.showWarnDialog(mContext,"请选择销售组织！");
+//            return false;
+//        }
+//        String express = getValues(tvExpressCompany);
+//        String expressNo = getValues(etExpressNo).trim();
+//        if(express.length() == 0 && expressNo.length() > 0) {
+//            Comm.showWarnDialog(mContext,"请选择物料公司！");
+//            return false;
+//        }
+//        if(express.length() > 0 && expressNo.length() == 0) {
+//            Comm.showWarnDialog(mContext,"请输入运单号！");
+//            return false;
+//        }
+        ScanningRecord2 sRecord2 = checkDatas.get(0);
+        // 判断是否带出配件
+        int autoMtlSum = sRecord2.getSalOrderAutoMtlSum();
+        int autoMtlSumTemp = 0;
+        double writeSumQty = 0; //
+        for(int i=0; i<checkDatas.size(); i++) {
+            ScanningRecord2 sr2 = checkDatas.get(i);
+            writeSumQty = BigdecimalUtil.add(writeSumQty, sr2.getStockqty());
+            if(sr2.getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
+        }
+//        if(autoMtlSum > autoMtlSumTemp) {
+//            Comm.showWarnDialog(mContext, "当前单据中缺少配件，请检查！");
+//            return false;
+//        }
 
         // 检查数据
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
@@ -676,11 +733,11 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
             if (sr2.getStockId() == 0) {
                 Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，请选择（仓库）！");
-                return false;
+                return;
             }
             if (sr2.getStockqty() == 0) {
                 Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，（实发数）必须大于0！");
-                return false;
+                return;
             }
 
             if (sr2.getFqty() > sr2.getStockqty()) {
@@ -709,7 +766,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                         Comm.showWarnDialog(mContext, "拼单缺少物料或配件,或者未扫完箱码！！");
                         break;
                 }
-                return false;
+                return;
             }
         }
 
@@ -743,7 +800,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     Comm.showWarnDialog(mContext,"拼单缺少物料或配件,或者未扫完箱码!");
                     break;
             }
-            return false;
+            return;
         }
 //        // 检查数据
 //        for (int i = 0, size = checkDatas.size(); i < size; i++) {
@@ -774,7 +831,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 ////            }
 
 //        }
-        return true;
+        run_findStatus();
+//        return;
     }
 
     @Override
@@ -1567,7 +1625,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 strProdNumber.append(sr2.getPoFbillno2() + ",");
                 strProdEntryId.append(sr2.getEntryId2() + ",");
             }
-            countRowSumNum += sr2.getStockqty();
+            countRowSumNum = BigdecimalUtil.add(countRowSumNum, sr2.getStockqty());
         }
         StringBuilder strBoxBarcode = new StringBuilder();
         //遍历箱码map中的键
@@ -1634,26 +1692,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
 
-        String k3NumberTmp = null;
-        if(k3Number != null && k3Number.indexOf(",") > -1) {
-            String[] arr = k3Number.split(",");
-            StringBuilder strFbillNo = new StringBuilder();
-            // 得到当前要审核的行
-            for (int i = 0; i < arr.length; i++) {
-                String fbillNo = arr[i];
-                strFbillNo.append("'" + fbillNo + "',");
-            }
-
-            // 减去前面'
-            strFbillNo.delete(0, 1);
-            // 减去最好一个'，
-            strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
-            k3NumberTmp = strFbillNo.toString();
-        } else {
-            k3NumberTmp = k3Number;
-        }
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3NumberTmp)
+                .add("strFbillNo", k3Number)
                 .add("type", "2")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

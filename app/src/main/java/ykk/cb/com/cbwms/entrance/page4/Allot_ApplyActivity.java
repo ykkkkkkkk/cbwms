@@ -48,6 +48,7 @@ import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -91,7 +92,7 @@ public class Allot_ApplyActivity extends BaseActivity {
     private String countSum() {
         double sum = 0.0;
         for (int i = 0; i < listDatas.size(); i++) {
-            sum += listDatas.get(i).getFqty();
+            sum = BigdecimalUtil.add(sum, listDatas.get(i).getFqty());
         }
         return String.valueOf(df.format(sum));
     }

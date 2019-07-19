@@ -56,6 +56,7 @@ import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 
@@ -830,7 +831,7 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
     private double countSum() {
         double sum = 0.0;
         for(int i=0; i<checkDatas.size(); i++) {
-            sum += checkDatas.get(i).getStockqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(i).getStockqty());
         }
         return sum;
     }
@@ -1165,7 +1166,7 @@ public class Prod_InFragment1Temp190306 extends BaseFragment {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+                .add("strFbillNo", k3Number)
                 .add("type", "5")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

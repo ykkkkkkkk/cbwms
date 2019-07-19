@@ -212,23 +212,16 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btn_save"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
-        android:orientation="horizontal">
+        android:background="@drawable/btn_blue2_selector"
+        android:gravity="center"
+        android:text="修改为非整单"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/btn_blue2_selector"
-            android:gravity="center"
-            android:visibility="gone"
-            android:text="修改为非整单"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-    </LinearLayout>
 
 </LinearLayout>

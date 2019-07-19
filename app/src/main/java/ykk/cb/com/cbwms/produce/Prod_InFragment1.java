@@ -1148,7 +1148,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private double countSum() {
         double sum = 0.0;
         for (int i = 0; i < checkDatas.size(); i++) {
-            sum += checkDatas.get(i).getStockqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(i).getStockqty());
         }
         return sum;
     }
@@ -1492,7 +1492,7 @@ public class Prod_InFragment1 extends BaseFragment {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+                .add("strFbillNo", k3Number)
                 .add("type", "5")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

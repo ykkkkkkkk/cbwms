@@ -43,7 +43,7 @@ public class Allot_ApplyMainActivity extends BaseActivity {
 
     private Allot_ApplyMainActivity context = this;
     private boolean isTextChange; // 是否进入TextChange事件
-    public int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
+    private int menuStatus = 1; // 1：整单关闭，2：反整单关闭，3：行关闭，4：反行关闭
     private Allot_ApplyFragment1 fragment1 = new Allot_ApplyFragment1();
     private Allot_ApplyFragment2 fragment2 = new Allot_ApplyFragment2();
     private int pageId; // 页面id
@@ -199,7 +199,7 @@ public class Allot_ApplyMainActivity extends BaseActivity {
                         menuStatus = 4;
                         break;
                 }
-                fragment1.closeBefer();
+                fragment1.closeBefer(menuStatus);
                 popWindowA.dismiss();
             }
         };

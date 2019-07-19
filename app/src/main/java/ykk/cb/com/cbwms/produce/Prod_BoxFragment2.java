@@ -63,6 +63,7 @@ import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment2Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment2Adapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -337,13 +338,13 @@ public class Prod_BoxFragment2 extends BaseFragment {
                 MaterialBinningRecord mbr = boxBarCode.getMtlBinningRecord().get(0);
                 boxBarCodeId = mbr.getBoxBarCodeId();
 
-                if(mbr.getCaseId() != 34) {
-                    etBoxCode.setText("");
-                    strBoxBarcode = null;
-                    setFocusable(etBoxCode);
-                    Comm.showWarnDialog(mContext,"该箱子已经装了其他类型物料，请扫描未使用的箱码！");
-                    return;
-                }
+//                if(mbr.getCaseId() != 34) {
+//                    etBoxCode.setText("");
+//                    strBoxBarcode = null;
+//                    setFocusable(etBoxCode);
+//                    Comm.showWarnDialog(mContext,"该箱子已经装了其他类型物料，请扫描未使用的箱码！");
+//                    return;
+//                }
                 List<MaterialBinningRecord> listMbr = boxBarCode.getMtlBinningRecord();
                 for(int i=0, size = listMbr.size(); i<size; i++) {
                     MaterialBinningRecord mbr2 = listMbr.get(i);
@@ -360,7 +361,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
                 checkDatas.addAll(listMbr);
                 double sum = 0;
                 for(int i = 0, size = checkDatas.size(); i<size; i++) {
-                    sum += checkDatas.get(i).getUsableFqty();
+                    sum = BigdecimalUtil.add(sum, checkDatas.get(i).getUsableFqty());
                 }
                 tvCount.setText("数量："+df.format(sum));
                 tvCustSel.setText("客户："+mbr.getCustomer().getCustomerName());
@@ -368,7 +369,8 @@ public class Prod_BoxFragment2 extends BaseFragment {
                 // 得到是否拼单发货还是整单货非整单
                 ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(), ProdOrder.class);
                 singleshipment = prodOrder.getSingleshipment();
-                if(singleshipment == 0 && mbr.getOrderDeliveryType() == '2') {
+//                if(singleshipment == 0 && mbr.getOrderDeliveryType() == '2') {
+                if(mbr.getOrderDeliveryType() == '2') {
                     btnSave.setVisibility(View.VISIBLE);
                 } else {
                     btnSave.setVisibility(View.GONE);

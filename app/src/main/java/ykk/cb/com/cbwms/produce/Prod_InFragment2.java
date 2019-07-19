@@ -1070,7 +1070,7 @@ public class Prod_InFragment2 extends BaseFragment {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", k3Number)
+                .add("strFbillNo", k3Number)
                 .add("type", "5")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

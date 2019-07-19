@@ -49,6 +49,7 @@ import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_CreateBarcodeAdapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.blueTooth.BluetoothDeviceListDialog;
@@ -334,7 +335,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                                 Comm.showWarnDialog(context, "第"+(i+1)+"行，实收数超出了可用数量！");
                                 return;
                             }
-                            countNum += (num1 * num4);
+                            countNum = BigdecimalUtil.add(countNum, BigdecimalUtil.mul(num1, num4));
                             list.add(item);
                         }
                     }
@@ -417,7 +418,7 @@ public class Prod_CreateBarcodeDialog extends BaseActivity {
                 item2.setNum3(num3);
                 item2.setNum4(num4);
                 listTmp.add(item2);
-                sumCountNum += num4;
+                sumCountNum = BigdecimalUtil.add(sumCountNum,  num4);
             }
         }
         listDatas.clear();

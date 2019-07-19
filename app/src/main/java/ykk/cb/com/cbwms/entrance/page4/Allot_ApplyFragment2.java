@@ -45,6 +45,7 @@ import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -90,7 +91,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
     private String countSum() {
         double sum = 0.0;
         for (int i = 0; i < listDatas.size(); i++) {
-            sum += listDatas.get(i).getEntrySumQty();
+            sum = BigdecimalUtil.add(sum, listDatas.get(i).getEntrySumQty());
         }
         return String.valueOf(df.format(sum));
     }

@@ -45,7 +45,9 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -94,11 +96,12 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     private char curViewFlag = '1'; // 1：调拨单，2：调拨单号列表
     private String stkFbillNo; // 调拨单号
     private boolean isFpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
+    private Map<Integer, String> mapNeedCloseDatas = new HashMap<>(); // 记录需要关闭的数据
 
     private String countSum() {
         double sum = 0.0;
         for (int i = 0; i < listDatas.size(); i++) {
-            sum += listDatas.get(i).getFqty();
+            sum = BigdecimalUtil.add(sum, listDatas.get(i).getFqty());
         }
         return String.valueOf(df.format(sum));
     }
@@ -131,7 +134,15 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                                 }
                                 // 合计总数
                                 m.tvCountSum.setText(m.countSum());
-                                m.mAdapter.notifyDataSetChanged();
+
+                                // 判断是否要执行关闭功能
+                                if(m.mapNeedCloseDatas.size() > 0) {
+                                    m.closeFun_while();
+
+                                } else {
+                                    m.mAdapter.notifyDataSetChanged();
+                                }
+
 
                                 break;
                             case '2': // 调拨单号列表
@@ -166,9 +177,14 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 
                         break;
                     case CLOSE: //  关闭 成功 返回
-                        m.toasts("操作成功✔");
-                        m.curViewFlag = '1';
-                        m.run_findDatas(m.stkFbillNo);
+//                        m.toasts("操作成功✔");
+                        if(m.mapNeedCloseDatas.size() > 0) {
+                            m.closeFun_while();
+
+                        } else {
+                            m.curViewFlag = '1';
+                            m.run_findDatas(m.stkFbillNo);
+                        }
 
                         break;
                     case UNCLOSE: // 关闭  失败 返回
@@ -191,6 +207,38 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         break;
                 }
             }
+        }
+    }
+
+    /**
+     * 循环关闭功能
+     */
+    private void closeFun_while() {
+        // 这里只要执行一次就行，剩下的循环在关闭成功之后执行
+        int key = 0;
+        String ids = null;
+        if(mapNeedCloseDatas.containsKey(1)) { // 整单关闭
+            key = 1;
+            ids = mapNeedCloseDatas.get(1);
+            mapNeedCloseDatas.remove(1);
+
+        } else if(mapNeedCloseDatas.containsKey(2)) { // 反整单关闭
+            key = 2;
+            ids = mapNeedCloseDatas.get(2);
+            mapNeedCloseDatas.remove(2);
+
+        } else if(mapNeedCloseDatas.containsKey(3)) { // 行关闭
+            key = 3;
+            ids = mapNeedCloseDatas.get(3);
+            mapNeedCloseDatas.remove(3);
+
+        } else if(mapNeedCloseDatas.containsKey(4)) { // 反行关闭
+            key = 4;
+            ids = mapNeedCloseDatas.get(4);
+            mapNeedCloseDatas.remove(4);
+        }
+        if(key > 0) {
+            run_close(key, ids);
         }
     }
 
@@ -393,26 +441,125 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         }
     }
 
-    public void closeBefer() {
-        StringBuilder sbIds = new StringBuilder();
-        for(int i=0; i<listDatas.size(); i++) {
+    public void closeBefer(int menuStatus) {
+//        StringBuilder sbIds = new StringBuilder();
+        List<Integer> listIds = new ArrayList<>();
+        int size = listDatas.size();
+        for(int i=0; i<size; i++) {
             StkTransferOutEntry stkEntry = listDatas.get(i);
+            StkTransferOut stkOut = stkEntry.getStkTransferOut();
+            int stkBillId = stkEntry.getStkBillId();
             if(stkEntry.getIsCheck() == 1) {
-                if(parent.menuStatus == 1 || parent.menuStatus == 2) { // 整单关闭的
-                    sbIds.append(stkEntry.getStkBillId()+":");
+//                if(parent.menuStatus == 1 || parent.menuStatus == 2) { // 整单关闭的
+                if(menuStatus == 1 || menuStatus == 2) {
+                    if(menuStatus == 1) { // 整单关闭--------
+                        for(StkTransferOutEntry stkEntry2 : listDatas) {
+                            StkTransferOut stkOut2 = stkEntry2.getStkTransferOut();
+                            if(stkEntry2.getStkBillId() == stkBillId) {
+                                stkOut2.setCloseStatus(3);  // 在不执行Update方法下，改变状态
+                                stkEntry2.setEntryStatus(1);
+                            }
+                        }
+                    } else { // 反整单关闭---------
+                        for(StkTransferOutEntry stkEntry2 : listDatas) {
+                            StkTransferOut stkOut2 = stkEntry2.getStkTransferOut();
+                            if(stkEntry2.getStkBillId() == stkBillId) {
+                                stkOut2.setCloseStatus(1);  // 在不执行Update方法下，改变状态
+                                stkEntry2.setEntryStatus(1);
+                            }
+                        }
+                    }
+//                    sbIds.append(stkBillId+":");
+                    listIds.add(stkBillId);
+
                 } else {
-                    sbIds.append(stkEntry.getId()+":");
+                    stkOut.setCloseStatus(1);
+                    if(menuStatus == 3) { // 行关闭-------
+                        stkEntry.setEntryStatus(3);  // 在不执行Update方法下，改变状态
+
+                    } else if(menuStatus == 4) { // 反行关闭---------
+                        stkEntry.setEntryStatus(1);  // 在不执行Update方法下，改变状态
+                    }
+//                    sbIds.append(stkEntry.getId()+":");
+                    listIds.add(stkEntry.getId());
                 }
             }
         }
-        if(sbIds.length() == 0) {
+//        if(sbIds.length() == 0) {
+        if(listIds.size() == 0) {
             Comm.showWarnDialog(mContext,"请选中要关闭或反关闭的行！");
             return;
         }
-        // 去掉最好：
-        sbIds.delete(sbIds.length()-1, sbIds.length());
+//        // 去掉最后：
+//        sbIds.delete(sbIds.length()-1, sbIds.length());
 
-        run_close(sbIds.toString());
+        // 存入到map中，点击保存再一起提交数据
+        if (mapNeedCloseDatas.containsKey(menuStatus)) {
+            String strIds = mapNeedCloseDatas.get(menuStatus);
+            String[] idsArr = strIds.split(":");
+            // 重复的id不插入
+            for(int tmpId : listIds) {
+                boolean isBool = false; // 是否有相同的id
+                for(String tmpId2 : idsArr) {
+                    int idsInt = parseInt(tmpId2); // 判断选择的是否有一样的id，不一样才添加到Map
+                    if(idsInt == tmpId) {
+                        isBool = true;
+                        break;
+                    }
+                }
+                if(!isBool) {
+                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
+                }
+            }
+        } else { // 不存在map中，就直接put
+            for(int tmpId : listIds) {
+                if (mapNeedCloseDatas.containsKey(menuStatus)) {
+                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
+                } else {
+                    mapNeedCloseDatas.put(menuStatus, String.valueOf(tmpId));
+                }
+            }
+        }
+
+
+//        switch (parent.menuStatus) {
+//        switch (menuStatus) {
+//            case 1: // 整单关闭
+//                if (mapNeedCloseDatas.containsKey(1)) {
+//                    mapNeedCloseDatas.put(1, mapNeedCloseDatas.get(1) + ":" + sbIds.toString());
+//                } else {
+//                    mapNeedCloseDatas.put(1, sbIds.toString());
+//                }
+//                break;
+//            case 2: // 反整单关闭
+//                if (mapNeedCloseDatas.containsKey(2)) {
+//                    mapNeedCloseDatas.put(2, mapNeedCloseDatas.get(2) + ":" + sbIds.toString());
+//                } else {
+//                    mapNeedCloseDatas.put(2, sbIds.toString());
+//                }
+//                break;
+//            case 3: // 行关闭
+//                if (mapNeedCloseDatas.containsKey(3)) {
+//                    mapNeedCloseDatas.put(3, mapNeedCloseDatas.get(3) + ":" + sbIds.toString());
+//                } else {
+//                    mapNeedCloseDatas.put(3, sbIds.toString());
+//                }
+//                break;
+//            case 4: // 反行关闭
+//                if (mapNeedCloseDatas.containsKey(4)) {
+//                    mapNeedCloseDatas.put(4, mapNeedCloseDatas.get(4) + ":" + sbIds.toString());
+//                } else {
+//                    mapNeedCloseDatas.put(4, sbIds.toString());
+//                }
+//                break;
+//        }
+        Log.e("mapNeedCloseDatas打印", mapNeedCloseDatas.toString());
+        // 清空选中
+        for(StkTransferOutEntry entry : listDatas) {
+            entry.setIsCheck(0);
+        }
+        mAdapter.notifyDataSetChanged();
+//        run_close(sbIds.toString());
     }
 
     @Override
@@ -654,11 +801,12 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     /**
      * 状态关闭
      */
-    private void run_close(String ids) {
+    private void run_close(int menuStatus, String ids) {
         showLoadDialog("操作中...");
         String mUrl = null;
         String keyVal = "ids";
-        switch (parent.menuStatus) {
+//        switch (parent.menuStatus) {
+        switch (menuStatus) {
             case 1: // 整单关闭
                 mUrl = getURL("stkTransferOut/billClose");
                 keyVal = "ids";

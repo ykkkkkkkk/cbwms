@@ -286,9 +286,13 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                                 Material mtl2 = sr2.getMtl();
                                 // 比对订单号和分录id
                                 if (so.getFbillno().equals(sr2.getPoFbillno()) && so.getEntryId() == sr2.getEntryId()) {
-                                    double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
+//                                    double fqty = sr2.getFqty()*(1+mtl2.getReceiveMaxScale()/100);
+                                    double divNum = BigdecimalUtil.div(mtl2.getReceiveMaxScale(), 100);
+                                    double addNum = BigdecimalUtil.add(1, divNum);
+                                    double fqty = BigdecimalUtil.mul(sr2.getFqty(), addNum);
 //                                    if((so.getFqty()+sr2.getStockqty()) > sr2.getFqty()) {
-                                    if((so.getFqty()+sr2.getStockqty()) > fqty) {
+                                    double sumQty = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty());
+                                    if(sumQty > fqty) {
                                         double addVal = BigdecimalUtil.add(so.getFqty(), sr2.getStockqty()); //
                                         double subVal = BigdecimalUtil.sub(addVal, sr2.getFqty());
                                         // 注释的代码会出现损失精度
@@ -662,8 +666,12 @@ public class Pur_InFragment2_190403 extends BaseFragment {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）必须大于0！");
                 return false;
             }
-            double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
-            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            double divNum = BigdecimalUtil.div(mtl.getReceiveMaxScale(), 100);
+            double addNum = BigdecimalUtil.add(1, divNum);
+            double fqty = BigdecimalUtil.mul(sr2.getFqty(), addNum);
+//            double fqty = sr2.getFqty()*(1+mtl.getReceiveMaxScale()/100);
+//            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
+            if (sr2.getStockqty() > (BigdecimalUtil.sub(fqty, BigdecimalUtil.sub(sr2.getFqty(), sr2.getUsableFqty())))) {
                 Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(mtl.getReceiveMaxScale() > 0 ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
                 return false;
             }
@@ -1068,7 +1076,7 @@ public class Pur_InFragment2_190403 extends BaseFragment {
     private double countSum() {
         double sum = 0.0;
         for (int i = 0; i < checkDatas.size(); i++) {
-            sum += checkDatas.get(i).getStockqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(i).getStockqty());
         }
         return sum;
     }
@@ -1602,17 +1610,15 @@ public class Pur_InFragment2_190403 extends BaseFragment {
 
         StringBuilder strFbillNo = new StringBuilder();
         for(int i=0, size=fbillNoList.size(); i<size; i++) {
-            strFbillNo.append("'" + fbillNoList.get(i) + "',");
+            strFbillNo.append(fbillNoList.get(i)+",");
         }
-
-        // 减去前面'
-        strFbillNo.delete(0, 1);
-        // 减去最好一个'，
-        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
-
+        if(strFbillNo.length() > 0) {
+            // 减去最后一个，
+            strFbillNo.delete(strFbillNo.length() - 1, strFbillNo.length());
+        }
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillNo", k3Number)
-                .add("fbillNo", strFbillNo.toString())
+                .add("strFbillNo", strFbillNo.toString())
                 .add("type", "1")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

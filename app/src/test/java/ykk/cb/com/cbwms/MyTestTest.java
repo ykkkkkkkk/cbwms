@@ -9,9 +9,7 @@ public class MyTestTest {
 
     @Test
     public void main() {
-        String a = "1.1.06.00.00.08";
-        int len = a.length();
-        String result = a.substring(len-1, len);
-        System.out.print(result);
+        double a = BigdecimalUtil.add(10.8, BigdecimalUtil.sub(2.3, 2.2));
+        System.out.print(a);
     }
 }

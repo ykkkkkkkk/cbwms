@@ -519,7 +519,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         String mUrl = getURL("scanningRecord/submitAndPass");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("fbillNo", strFbillNo)
+                .add("strFbillNo", strFbillNo)
                 .add("type", "2")
                 .add("kdAccount", user.getKdAccount())
                 .add("kdAccountPassword", user.getKdAccountPassword())

@@ -62,6 +62,7 @@ import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.model.sal.SalOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_BoxFragment1Adapter;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -632,7 +633,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         for(int i=0; i<checkDatas.size(); i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
             if(mbr.getNumber() > 0) {
-                sumFqty += mbr.getNumber();
+                sumFqty = BigdecimalUtil.add(sumFqty, mbr.getNumber());
                 mbr.setCountBoxNum(countBoxNum);
                 list.add(mbr);
             }
@@ -1020,7 +1021,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 checkDatas.addAll(listMbr);
                 double sum = 0;
                 for(int i = 0, size = checkDatas.size(); i<size; i++) {
-                    sum += checkDatas.get(i).getUsableFqty();
+                    sum = BigdecimalUtil.add(sum, checkDatas.get(i).getUsableFqty());
                 }
                 tvCount.setText("数量："+df.format(sum));
                 tvCustSel.setText("客户："+mbr.getCustomer().getCustomerName());
@@ -1189,7 +1190,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 汇总数量
         double sum = 0;
         for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum += checkDatas.get(j).getUsableFqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
         tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
@@ -1311,7 +1312,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 汇总数量
         double sum = 0;
         for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum += checkDatas.get(j).getUsableFqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
         tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
@@ -1403,7 +1404,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 汇总数量
         double sum = 0;
         for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum += checkDatas.get(j).getUsableFqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
@@ -1454,7 +1455,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 汇总数量
         double sum = 0;
         for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum += checkDatas.get(j).getUsableFqty();
+            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));

@@ -19,6 +19,7 @@ import ykk.cb.com.cbwms.produce.Prod_OrderSearchActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcedureReportActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcessSearchActivity;
 import ykk.cb.com.cbwms.produce.Prod_StartMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_WorkMainActivity;
 
 public class MainTabFragment2 extends BaseFragment {
 
@@ -46,7 +47,8 @@ public class MainTabFragment2 extends BaseFragment {
 
                 break;
             case R.id.relative4: // 工序汇报
-                show(Prod_ProcedureReportActivity.class,null);
+//                show(Prod_ProcedureReportActivity.class,null);
+                show(Prod_WorkMainActivity.class,null);
 
                 break;
             case R.id.relative5: // 生产开工

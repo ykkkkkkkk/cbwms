@@ -64,11 +64,11 @@
 
     <TextView
         android:id="@+id/tv_nums"
-        android:layout_width="58dp"
+        android:layout_width="@dimen/_72dp"
         android:layout_height="@dimen/_46dp"
         android:background="@drawable/back_style_blue2"
         android:gravity="center"
-        android:text="调拨数"
+        android:text="需求/调拨数"
         android:textColor="#000000"
         android:textSize="12sp" />
 

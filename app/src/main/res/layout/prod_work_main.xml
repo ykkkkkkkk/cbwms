@@ -25,14 +25,13 @@
             android:textSize="18sp" />
 
         <Button
-            android:id="@+id/btn_print"
-            android:layout_width="42dp"
+            android:id="@+id/btn_search"
+            android:layout_width="@dimen/_50dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_4dp"
-            android:layout_marginRight="@dimen/_4dp"
-            android:background="@drawable/aa_ico5a_5b"
+            android:background="@drawable/btn_blue2_selector"
+            android:text="查询"
             android:textColor="#ffffff"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 
     <LinearLayout

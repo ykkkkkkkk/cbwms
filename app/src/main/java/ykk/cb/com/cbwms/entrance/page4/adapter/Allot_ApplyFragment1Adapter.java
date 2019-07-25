@@ -75,7 +75,8 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
             tv_check.setBackgroundResource(R.drawable.check_false);
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
-        tv_nums.setText(df.format(entity.getFqty()));
+//        tv_nums.setText(df.format(entity.getFqty()));
+        tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getFqty())+"</font>"));
         String outStockName = Comm.isNULLS(entity.getOutStockName());
         outStockName = outStockName.length() == 0 ? "无" : outStockName;
         String outStockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
@@ -88,7 +89,7 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
             tv_sourceNo.setTextColor(Color.parseColor("#FF2200"));
             tv_mtlNumber.setTextColor(Color.parseColor("#FF2200"));
             tv_mtlName.setTextColor(Color.parseColor("#FF2200"));
-            tv_nums.setTextColor(Color.parseColor("#FF2200"));
+//            tv_nums.setTextColor(Color.parseColor("#FF2200"));
             tv_outStockAP.setTextColor(Color.parseColor("#FF2200"));
             tv_inStockAP.setTextColor(Color.parseColor("#FF2200"));
             tv_rowStatus.setText(Html.fromHtml("<font color='#FF2200'>已关闭</font>"));
@@ -98,7 +99,7 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
             tv_sourceNo.setTextColor(Color.parseColor("#000000"));
             tv_mtlNumber.setTextColor(Color.parseColor("#000000"));
             tv_mtlName.setTextColor(Color.parseColor("#000000"));
-            tv_nums.setTextColor(Color.parseColor("#000000"));
+//            tv_nums.setTextColor(Color.parseColor("#000000"));
             tv_outStockAP.setTextColor(Color.parseColor("#000000"));
             tv_inStockAP.setTextColor(Color.parseColor("#000000"));
             tv_rowStatus.setText("未关闭");
@@ -120,6 +121,12 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
                         }
 
                         break;
+                    case R.id.tv_check: // 选中
+                        if (callBack != null) {
+                            callBack.onCheck(entity, pos, false);
+                        }
+
+                        break;
 //                    case R.id.tv_sourceNo: // 根据调拨单单号查询
 //                        if (callBack != null) {
 //                            callBack.onFind(entity, pos);
@@ -130,8 +137,19 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
             }
         };
         tv_nums.setOnClickListener(click);
+        tv_check.setOnClickListener(click);
 //        tv_sourceNo.setOnClickListener(click);
 //        tv_stockAP.setOnClickListener(click);
+
+        tv_check.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (callBack != null) {
+                    callBack.onCheck(entity, pos, true);
+                }
+                return true;
+            }
+        });
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -142,6 +160,7 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
         void onClick_num(View v, StkTransferOutEntry entity, int position);
 //        void onFind(StkTransferOutEntry entity, int position);
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
+        void onCheck(StkTransferOutEntry entity, int position, boolean isOnLong);
     }
 
     /*之下的方法都是为了方便操作，并不是必须的*/

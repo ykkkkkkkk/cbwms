@@ -178,9 +178,9 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="物料代码"
-                    android:visibility="gone"
                     android:textColor="#000000"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:layout_width="196dp"
@@ -191,10 +191,10 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="58dp"
+                    android:layout_width="@dimen/_72dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="调拨数"
+                    android:text="需求/调拨数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -234,11 +234,38 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_30dp"
+                android:layout_height="@dimen/_32dp"
                 android:background="@drawable/back_style_blue5">
 
+                <LinearLayout
+                    android:id="@+id/lin_addRow"
+                    android:layout_width="199dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="invisible">
+
+                    <TextView
+                        android:layout_width="@dimen/_23dp"
+                        android:layout_height="@dimen/_23dp"
+                        android:background="@drawable/ico_expan_add2"
+                        android:gravity="center"
+                        android:textColor="#000000"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/_6dp"
+                        android:gravity="center"
+                        android:text="新增行"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
                 <TextView
-                    android:layout_width="399dp"
+                    android:layout_width="200dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="合计："
@@ -247,7 +274,7 @@
 
                 <TextView
                     android:id="@+id/tv_countSum"
-                    android:layout_width="108dp"
+                    android:layout_width="122dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="0.0"
@@ -273,10 +300,10 @@
             android:id="@+id/btn_add"
             android:layout_width="0dp"
             android:layout_height="38dp"
-            android:layout_weight="0.6"
+            android:layout_weight="1"
             android:background="@drawable/btn_gray2_selector"
             android:gravity="center"
-            android:text="新增"
+            android:text="新增调拨单"
             android:textColor="@color/c_666666"
             android:textSize="16sp" />
 

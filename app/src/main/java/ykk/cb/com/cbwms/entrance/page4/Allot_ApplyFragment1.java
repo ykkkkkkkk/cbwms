@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -73,6 +74,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     TextView tvCountSum;
     @BindView(R.id.tv_stkNumber)
     TextView tvStkNumber;
+    @BindView(R.id.lin_addRow)
+    LinearLayout linAddRow;
 
     private Allot_ApplyFragment1 context = this;
     private Allot_ApplyMainActivity parent;
@@ -128,10 +131,17 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                                 m.listDatas.clear();
                                 List<StkTransferOutEntry> list = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
                                 m.listDatas.addAll(list);
-                                for(StkTransferOutEntry stkEntry : m.listDatas) {
-                                    stkEntry.setFpaezIsCombine(m.isFpaezIsCombine);
-                                    stkEntry.setCheckNext(false);
+
+                                boolean isOneOrder = true; // 是否一个调拨单
+                                String billNo = m.listDatas.get(0).getStkTransferOut().getBillNo();
+                                for(StkTransferOutEntry stkEntryFor : m.listDatas) {
+                                    stkEntryFor.setFpaezIsCombine(m.isFpaezIsCombine);
+                                    stkEntryFor.setCheckNext(false);
+                                    if(!billNo.equals(stkEntryFor.getStkTransferOut().getBillNo())) {
+                                        isOneOrder = false;
+                                    }
                                 }
+                                m.linAddRow.setVisibility(isOneOrder ? View.VISIBLE : View.INVISIBLE);
                                 // 合计总数
                                 m.tvCountSum.setText(m.countSum());
 
@@ -330,6 +340,23 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 //                    showForResult(StockPos_DialogActivity.class, SEL_STOCKP2, null);
 //                }
             }
+
+            @Override
+            public void onCheck(StkTransferOutEntry entity, int position, boolean isOnLong) {
+                int isCheck = entity.getIsCheck();
+                if(isOnLong) { // 长按事件
+                    for(int i=0; i<listDatas.size(); i++) {
+                        listDatas.get(i).setIsCheck(isCheck);
+                    }
+                } else { // 点击事件
+                    if (isCheck == 1) {
+                        entity.setIsCheck(0);
+                    } else {
+                        entity.setIsCheck(1);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+            }
         });
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
@@ -373,7 +400,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save    })
+    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save, R.id.lin_addRow    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -425,7 +452,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 run_pass(sbIds.toString());
 
                 break;
-            case R.id.btn_add: // 新增行
+            case R.id.btn_add: // 新增拣货单
                 show(Allot_ApplyAddActivity.class, null);
 
                 break;
@@ -436,6 +463,12 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 }
                 String strJson = JsonUtil.objectToString(listDatas);
                 run_modifyFqty(strJson);
+
+                break;
+            case R.id.lin_addRow: // 新增一行
+                bundle = new Bundle();
+                bundle.putSerializable("stkTransferOutEntry", listDatas.get(listDatas.size()-1));
+                showForResult(Allot_ApplyAdd2Activity.class, REFRESH, bundle);
 
                 break;
         }
@@ -620,8 +653,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 break;
             case REFRESH: // 刷新列表
                 if (resultCode == RESULT_OK) {
-                    curViewFlag = '1';
-                    run_findDatas(stkFbillNo);
+//                    curViewFlag = '1';
+//                    run_findDatas(stkFbillNo);
+                    List<StkTransferOutEntry> listStkEntry = (List<StkTransferOutEntry>) data.getSerializableExtra("obj");
+                    listDatas.addAll(listStkEntry);
+                    mAdapter.notifyDataSetChanged();
                 }
 
                 break;
@@ -757,15 +793,16 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         FormBody formBody = new FormBody.Builder()
                 .add("isValidStatus", "1")
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
-                .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单））
+                .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
                 .add("billStatus", "1") // 未审核的单据（查询调拨单）
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
-                .add("prodSeqNumberStatus", "ASC") // 按照生产顺序号来排序
-                .add("stockPosSeqStatus", "ASC") // 按照库位序号来排序
+                .add("prodSeqNumberStatus", isFpaezIsCombine ? "ASC" : "") // 按照生产顺序号来排序
+                .add("stockPosSeqStatus", isFpaezIsCombine ? "ASC" : "") // 按照库位序号来排序
                 .add("billNo", stkBillNo) // 调拨单号（查询调拨单）
                 .add("isFpaezIsCombine", isFpaezIsCombine ? "1" : "") // 是否合并拣货
+                .add("mtlSort", (!isFpaezIsCombine && outDeptNumber.length() > 0) ? "ASC" : "") // 根据物料排序
 //                .add("isAotuBringOut", "0") // 物料是否自动带出：默认0(不带出)，1带出
                 .build();
 

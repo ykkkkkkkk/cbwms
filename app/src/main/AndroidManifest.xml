@@ -156,6 +156,9 @@
             android:name=".entrance.page4.Allot_ApplyAddActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".entrance.page4.Allot_ApplyAdd2Activity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".entrance.page4.Allot_PickingListMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
@@ -257,6 +260,13 @@
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".produce.Prod_InStockPassEntryActivity"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_WorkMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_Work_SelStaffDialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
 

@@ -380,6 +380,7 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
         String mUrl = getURL("stkTransferOut/addStkEntryList");
         FormBody formBody = new FormBody.Builder()
                 .add("strStkTransferOutEntry", strStkTransferOutEntry)
+                .add("userName", user.getUsername())
                 .build();
 
         Request request = new Request.Builder()

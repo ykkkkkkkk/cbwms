@@ -345,6 +345,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             public void onCheck(StkTransferOutEntry entity, int position, boolean isOnLong) {
                 int isCheck = entity.getIsCheck();
                 if(isOnLong) { // 长按事件
+                    if (isCheck == 1) {
+                        isCheck = 0;
+                    } else {
+                        isCheck = 1;
+                    }
                     for(int i=0; i<listDatas.size(); i++) {
                         listDatas.get(i).setIsCheck(isCheck);
                     }

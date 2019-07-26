@@ -73,6 +73,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
     private User user;
+    private int businessType = 2; // 业务类型:1、材料按次 2、材料按批 3、成品
 
     // 消息处理
     private Allot_ApplyAddActivity.MyHandler mHandler = new Allot_ApplyAddActivity.MyHandler(this);
@@ -181,7 +182,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_close, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
+    @OnClick({R.id.btn_close, R.id.radio1, R.id.radio2, R.id.radio3, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
               R.id.tv_dateSel, R.id.btn_batchAdd, R.id.btn_selMtl, R.id.btn_save    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
@@ -189,6 +190,18 @@ public class Allot_ApplyAddActivity extends BaseActivity {
             case R.id.btn_close: // 关闭
                 closeHandler(mHandler);
                 context.finish();
+
+                break;
+            case R.id.radio1: // 材料按次1
+                businessType = 1;
+
+                break;
+            case R.id.radio2: // 材料按批2
+                businessType = 2;
+
+                break;
+            case R.id.radio3: // 成品3
+                businessType = 3;
 
                 break;
             case R.id.tv_deptSel: // 领料部门
@@ -305,7 +318,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 stkOut.setOwnerOutName("河南工厂");
                 stkOut.setBillStatus(2);
                 stkOut.setCloseStatus(1);
-                stkOut.setBusinessType(1);
+                stkOut.setBusinessType(businessType); // 业务类型:1、材料按次 2、材料按批 3、成品
 
                 // 单据类型 （VMI直接调拨单：ZJDB05_SYS，标准直接调拨单：ZJDB01_SYS）
                 stkOut.setFbillTypeNumber(isVMI > 0 ? "ZJDB05_SYS" : "ZJDB01_SYS");

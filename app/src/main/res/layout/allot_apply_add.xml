@@ -34,6 +34,66 @@
             android:visibility="invisible" />
     </LinearLayout>
 
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_42dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="2"
+            android:gravity="center"
+            android:text="业务类型"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="@dimen/_0.5dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="材料按次" />
+
+        <View
+            android:layout_width="@dimen/_0.5dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:checked="true"
+            android:text="材料按批" />
+
+        <View
+            android:layout_width="@dimen/_0.5dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:id="@+id/radio3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="  成    品"
+            android:visibility="gone" />
+
+        <View
+            android:layout_width="@dimen/_0.5dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone" />
+    </RadioGroup>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="38dp"

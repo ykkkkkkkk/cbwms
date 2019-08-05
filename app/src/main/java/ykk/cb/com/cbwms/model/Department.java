@@ -38,6 +38,12 @@ public class Department implements Serializable {
     private String prefix;
     //是否属于装卸部门，1属于，2不属于
     private int isload;
+    // 生码方式，1生产顺序号生码，2条码生码,3不生成
+    private int createBarcodeWay;
+
+    // 临时字段，不存表
+    private boolean check;
+
 
     public Department() {
         super();
@@ -141,13 +147,30 @@ public class Department implements Serializable {
         this.isload = isload;
     }
 
+    public int getCreateBarcodeWay() {
+        return createBarcodeWay;
+    }
+
+    public void setCreateBarcodeWay(int createBarcodeWay) {
+        this.createBarcodeWay = createBarcodeWay;
+    }
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
+    }
+
     @Override
     public String toString() {
         return "Department [id=" + id + ", fitemID=" + fitemID + ", barcode=" + barcode + ", departmentNumber="
                 + departmentNumber + ", departmentName=" + departmentName + ", departmentUseOrgId=" + departmentUseOrgId
                 + ", inStockId=" + inStockId + ", organization=" + organization + ", foundDepartment=" + foundDepartment
                 + ", dataStatus=" + dataStatus + ", isDelete=" + isDelete + ", enabled=" + enabled + ", fModifyDate="
-                + fModifyDate + ", prefix=" + prefix + ", isload=" + isload + "]";
+                + fModifyDate + ", prefix=" + prefix + ", isload=" + isload + ", createBarcodeWay=" + createBarcodeWay
+                + ", check=" + check + "]";
     }
 
 }

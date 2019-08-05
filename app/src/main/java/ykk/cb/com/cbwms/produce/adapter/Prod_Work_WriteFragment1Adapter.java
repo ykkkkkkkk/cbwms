@@ -1,11 +1,13 @@
 package ykk.cb.com.cbwms.produce.adapter;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
@@ -16,6 +18,8 @@ import ykk.cb.com.cbwms.util.treelist.TreeListViewAdapter;
 public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
 
     private OnTreeNodeCheckedChangeListener checkedChangeListener;
+    private MyCallBack callBack;
+    private DecimalFormat df = new DecimalFormat("#.####");
 
     public void setCheckedChangeListener(OnTreeNodeCheckedChangeListener checkedChangeListener) {
         this.checkedChangeListener = checkedChangeListener;
@@ -33,26 +37,24 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
         if (convertView == null) {
             switch (getItemViewType(position)) {
                 case 0:
-                    convertView = View.inflate(mContext, R.layout.prod_write_fragment1_level_item1, null);
+                    convertView = View.inflate(mContext, R.layout.prod_work_write_fragment1_level_item1, null);
                     holder = new ViewHolder(convertView);
                     convertView.setTag(holder);
                     break;
                 case 1:
-                    convertView = View.inflate(mContext, R.layout.prod_write_fragment1_level_item2, null);
+                    convertView = View.inflate(mContext, R.layout.prod_work_write_fragment1_level_item2, null);
                     holder2 = new ViewHolder2(convertView);
                     convertView.setTag(holder2);
                     break;
                 case 2:
-                    convertView = View.inflate(mContext, R.layout.prod_write_fragment1_level_item3, null);
+                    convertView = View.inflate(mContext, R.layout.prod_work_write_fragment1_level_item3, null);
                     holder3 = new ViewHolder3(convertView);
                     convertView.setTag(holder3);
                     break;
             }
-//            holder = new ViewHolder(convertView);
-//            convertView.setTag(holder);
 
         } else {
-            switch (node.getLevel()) {
+            switch (node.getMlevel()) {
                 case 0:
                     holder = (ViewHolder) convertView.getTag();
                     break;
@@ -63,18 +65,9 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
                     holder3 = (ViewHolder3) convertView.getTag();
                     break;
             }
-//            holder = (ViewHolder) convertView.getTag();
         }
 
-
-//        if (node.getIcon() == -1) {
-//            holder.ivExpand.setVisibility(View.INVISIBLE);
-//        } else {
-//            holder.ivExpand.setVisibility(View.VISIBLE);
-//            holder.ivExpand.setImageResource(node.getIcon());
-//        }
-
-        switch (node.getLevel()) {
+        switch (node.getMlevel()) {
             case 0:
 
                 holder.tv_prodNo.setText(node.getProdNo());
@@ -83,25 +76,54 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
                     holder.tv_expan.setVisibility(View.INVISIBLE);
                 } else {
                     holder.tv_expan.setVisibility(View.VISIBLE);
-    //               holder.tv_expan.setImageResource(node.getIcon());
                     holder.tv_expan.setBackgroundResource(node.getIcon());
                 }
                 
                 break;
             case 1:
+                holder2.tv_row.setText(node.getPosition2()+". ");
                 holder2.tv_mtlName.setText(node.getMtlName());
-                holder2.tv_mtlNum.setText(node.getMtlNum());
+                holder2.tv_mtlNum.setText(df.format(node.getProdQty())+"/"+node.getUnitName());
                 if (node.getIcon2() == -1) {
                     holder2.tv_expan2.setVisibility(View.INVISIBLE);
                 } else {
                     holder2.tv_expan2.setVisibility(View.VISIBLE);
-                    //               holder.tv_expan.setImageResource(node.getIcon());
                     holder2.tv_expan2.setBackgroundResource(node.getIcon2());
                 }
 
                 break;
             case 2:
-                holder3.tv_sliceName.setText(node.getSliceName());
+                holder3.tv_sliceName.setText(node.getLocationName());
+                holder3.tv_finishQty.setText(Html.fromHtml("已报:<font color='#FF0000'>"+ df.format(node.getFinishQty()) +"</font>"));
+                if(node.getWorkQty() > 0) {
+                    holder3.tv_wrokQty.setText(df.format(node.getWorkQty()));
+                } else {
+                    holder3.tv_wrokQty.setText("");
+                    holder3.tv_wrokQty.setHint("可报:"+df.format(node.getUseableQty()));
+                }
+                if(node.getFinishQty() >= node.getProdQty()) {
+                    holder3.tv_wrokQty.setEnabled(false);
+                    holder3.tv_wrokQty.setHint("已完成");
+                    holder3.tv_wrokQty.setBackgroundResource(R.drawable.back_style_gray2);
+                } else {
+                    holder3.tv_wrokQty.setEnabled(true);
+                    holder3.tv_wrokQty.setBackgroundResource(R.drawable.back_style_blue);
+                }
+
+                View.OnClickListener click = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        switch (v.getId()){
+                            case R.id.tv_wrokQty: // 数量
+                                if(callBack != null) {
+                                    callBack.onWriteNum(node, position);
+                                }
+
+                                break;
+                        }
+                    }
+                };
+                holder3.tv_wrokQty.setOnClickListener(click);
 
                 break;
         }
@@ -123,11 +145,13 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
     }
 
     class ViewHolder2 {
+        private TextView tv_row;
         private TextView tv_mtlName;
         private TextView tv_mtlNum;
         private TextView tv_expan2;
 
         public ViewHolder2(View convertView) {
+            tv_row = convertView.findViewById(R.id.tv_row);
             tv_mtlName = convertView.findViewById(R.id.tv_mtlName);
             tv_mtlNum = convertView.findViewById(R.id.tv_mtlNum);
             tv_expan2 = convertView.findViewById(R.id.tv_expan2);
@@ -136,9 +160,22 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
 
     class ViewHolder3 {
         private TextView tv_sliceName;
+        private TextView tv_finishQty;
+        private TextView tv_wrokQty;
 
         public ViewHolder3(View convertView) {
             tv_sliceName = convertView.findViewById(R.id.tv_sliceName);
+            tv_finishQty = convertView.findViewById(R.id.tv_finishQty);
+            tv_wrokQty = convertView.findViewById(R.id.tv_wrokQty);
         }
+    }
+
+
+    public void setCallBack(MyCallBack callBack) {
+        this.callBack = callBack;
+    }
+
+    public interface MyCallBack {
+        void onWriteNum(ProdNode entity, int position);
     }
 }

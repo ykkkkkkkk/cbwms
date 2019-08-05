@@ -18,6 +18,27 @@
             android:layout_height="match_parent"
             android:ems="2"
             android:gravity="center"
+            android:text="日期"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/_3dp"
+            android:ems="2"
+            android:gravity="center"
             android:text="工序"
             android:textColor="#000000"
             android:textSize="12sp" />
@@ -33,25 +54,6 @@
             android:textColor="@color/black"
             android:textSize="@dimen/_12sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:ems="2"
-            android:gravity="center"
-            android:text="日期"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_date"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
 
     </LinearLayout>
 
@@ -89,6 +91,16 @@
             android:background="@drawable/btn_gray2_selector"
             android:gravity="center"
             android:text="重置"
+            android:textColor="@color/c_515151"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btn_batchAdd"
+            android:layout_width="100dp"
+            android:layout_height="38dp"
+            android:background="@drawable/btn_gray2_selector"
+            android:gravity="center"
+            android:text="批量填充"
             android:textColor="@color/c_515151"
             android:textSize="16sp" />
 

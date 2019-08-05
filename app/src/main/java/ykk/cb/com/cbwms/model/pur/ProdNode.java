@@ -12,12 +12,12 @@ public class ProdNode<T> {
     /**
      * 当前节点id
      */
-    private String id;
+    private int id;
 
     /**
      * 父节点id
      */
-    private String pid;
+    private int pid;
 
     /**
      * 节点数据实体类
@@ -64,11 +64,33 @@ public class ProdNode<T> {
     private boolean isChecked;
 
     // 新加的测试字段
-    private String prodNo;
-    private String prodDate;
-    private String mtlName;
-    private String mtlNum;
-    private String sliceName;
+    private int mlevel; // 0：一级，1：二级，2：三级
+    private String prodNo; // 生产订单
+    private String prodDate; // 生产日期
+    private int prodEntryId; // 分录id
+    private double prodQty; // 生产订单数量
+    private int mtlId; // 物料id
+    private String mtlNumber; // 物料代码
+    private String mtlName; // 物料
+    private String unitName; // 单位名称
+    private int sliceNumber; // 片数
+    private int locationId; // 位置id
+    private String locationName; // 位置名称
+
+    // 临时字段
+    private int position2; // 第二级的行数
+    private double workQty; // 报工数
+    private double finishQty; // 已报数
+    private double useableQty; // 可报数
+
+
+    public int getMlevel() {
+        return mlevel;
+    }
+
+    public void setMlevel(int mlevel) {
+        this.mlevel = mlevel;
+    }
 
     public String getProdNo() {
         return prodNo;
@@ -94,44 +116,24 @@ public class ProdNode<T> {
         this.mtlName = mtlName;
     }
 
-    public String getMtlNum() {
-        return mtlNum;
+    public String getLocationName() {
+        return locationName;
     }
 
-    public void setMtlNum(String mtlNum) {
-        this.mtlNum = mtlNum;
-    }
-
-    public String getSliceName() {
-        return sliceName;
-    }
-
-    public void setSliceName(String sliceName) {
-        this.sliceName = sliceName;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     public ProdNode() {
     }
 
-    public ProdNode(String id, String pid, String name) {
+    public ProdNode(int id, int pid, String name) {
         this.id = id;
         this.pid = pid;
         this.name = name;
     }
 
-    public ProdNode(String id, String pid, String name, int level, String prodNo, String prodDate, String mtlName, String mtlNum, String sliceName) {
-        this.id = id;
-        this.pid = pid;
-        this.name = name;
-        this.level = level;
-        this.prodNo = prodNo;
-        this.prodDate = prodDate;
-        this.mtlName = mtlName;
-        this.mtlNum = mtlNum;
-        this.sliceName = sliceName;
-    }
-
-    public ProdNode(String id, String pid, T data, String name) {
+    public ProdNode(int id, int pid, T data, String name) {
         this.id = id;
         this.pid = pid;
         this.data = data;
@@ -189,19 +191,19 @@ public class ProdNode<T> {
     }
 
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getPid() {
+    public int getPid() {
         return pid;
     }
 
-    public void setPid(String pid) {
+    public void setPid(int pid) {
         this.pid = pid;
     }
 
@@ -300,5 +302,93 @@ public class ProdNode<T> {
 
     public void setIcon2(int icon2) {
         this.icon2 = icon2;
+    }
+
+    public int getSliceNumber() {
+        return sliceNumber;
+    }
+
+    public void setSliceNumber(int sliceNumber) {
+        this.sliceNumber = sliceNumber;
+    }
+
+    public int getProdEntryId() {
+        return prodEntryId;
+    }
+
+    public void setProdEntryId(int prodEntryId) {
+        this.prodEntryId = prodEntryId;
+    }
+
+    public double getWorkQty() {
+        return workQty;
+    }
+
+    public void setWorkQty(double workQty) {
+        this.workQty = workQty;
+    }
+
+    public double getProdQty() {
+        return prodQty;
+    }
+
+    public void setProdQty(double prodQty) {
+        this.prodQty = prodQty;
+    }
+
+    public int getMtlId() {
+        return mtlId;
+    }
+
+    public void setMtlId(int mtlId) {
+        this.mtlId = mtlId;
+    }
+
+    public String getMtlNumber() {
+        return mtlNumber;
+    }
+
+    public void setMtlNumber(String mtlNumber) {
+        this.mtlNumber = mtlNumber;
+    }
+
+    public int getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(int locationId) {
+        this.locationId = locationId;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public int getPosition2() {
+        return position2;
+    }
+
+    public void setPosition2(int position2) {
+        this.position2 = position2;
+    }
+
+    public double getFinishQty() {
+        return finishQty;
+    }
+
+    public void setFinishQty(double finishQty) {
+        this.finishQty = finishQty;
+    }
+
+    public double getUseableQty() {
+        return useableQty;
+    }
+
+    public void setUseableQty(double useableQty) {
+        this.useableQty = useableQty;
     }
 }

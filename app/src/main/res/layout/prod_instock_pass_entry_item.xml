@@ -26,12 +26,11 @@
 
     <TextView
         android:id="@+id/tv_mtlName"
-        android:layout_width="0dp"
+        android:layout_width="130dp"
         android:layout_height="@dimen/_46dp"
-        android:layout_weight="1"
         android:gravity="center|left"
         android:text="物料名称"
-        android:textColor="#000000"
+        android:textColor="@color/black"
         android:textSize="12sp" />
 
     <TextView
@@ -40,6 +39,15 @@
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="数量/单位"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_stockName"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="仓库"
         android:textColor="#000000"
         android:textSize="12sp" />
 

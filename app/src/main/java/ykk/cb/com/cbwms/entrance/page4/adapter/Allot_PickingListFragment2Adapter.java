@@ -126,6 +126,12 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
                         }
 
                         break;
+                    case R.id.tv_canStockNum: // 点击选中行
+                        if(callBack != null) {
+                            callBack.onCheckNowRow(entity);
+                        }
+
+                        break;
                     case R.id.tv_outStockAP: // 选择调出仓库，库位
                         if(callBack != null) {
                             callBack.onClick_selStock(entity, pos);
@@ -148,6 +154,7 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
 //        tv_stkNumber.setOnClickListener(click);
         tv_mtlName.setOnClickListener(click);
         tv_nums.setOnClickListener(click);
+        tv_canStockNum.setOnClickListener(click);
         tv_outStockAP.setOnClickListener(click);
         tv_delRow.setOnClickListener(click);
         tv_remark.setOnClickListener(click);
@@ -158,6 +165,24 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
             public boolean onLongClick(View v) {
                 if(callBack != null) {
                     callBack.onLongClickMtl(entity);
+                }
+                return true;
+            }
+        });
+        tv_nums.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(callBack != null) {
+                    callBack.onLongClickSelBarcode(entity);
+                }
+                return true;
+            }
+        });
+        tv_canStockNum.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(callBack != null) {
+                    callBack.onLongClickStockNum(entity);
                 }
                 return true;
             }
@@ -173,6 +198,8 @@ public class Allot_PickingListFragment2Adapter extends BaseArrayRecyclerAdapter<
         void onCheckNowRow(StkTransferOutEntry entity);
         void onLongClickMtl(StkTransferOutEntry entity);
         void onClick_num(StkTransferOutEntry entity, int position);
+        void onLongClickSelBarcode(StkTransferOutEntry entity);
+        void onLongClickStockNum(StkTransferOutEntry entity);
         void onClick_selStock(StkTransferOutEntry entity, int position);
         void onClick_del(StkTransferOutEntry entity, int position);
     }

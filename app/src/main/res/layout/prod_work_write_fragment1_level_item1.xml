@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/tv_prodNo"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_42dp"
         android:layout_marginLeft="16dp"
         android:layout_weight="1"
         android:gravity="center|left"
@@ -19,9 +19,10 @@
     <TextView
         android:id="@+id/tv_prodDate"
         android:layout_width="@dimen/_78dp"
-        android:layout_height="@dimen/_38dp"
+        android:layout_height="@dimen/_42dp"
         android:layout_marginRight="@dimen/_10dp"
         android:gravity="center"
+        android:maxLength="10"
         android:text="2019-07-23"
         android:textColor="#000000"
         android:textSize="14sp" />
@@ -31,7 +32,7 @@
         android:layout_width="@dimen/_28dp"
         android:layout_height="@dimen/_28dp"
         android:layout_marginLeft="@dimen/_2dp"
-        android:layout_marginRight="@dimen/_2dp"
+        android:layout_marginRight="@dimen/_12dp"
         android:gravity="center" />
 
 

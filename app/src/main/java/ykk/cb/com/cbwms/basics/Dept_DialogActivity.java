@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,9 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.adapter.Dept_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseDialogActivity;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
@@ -47,6 +51,10 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
     EditText etSearch;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.btn_confirm)
+    Button btnConfirm;
+
+
     private Dept_DialogActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
     private List<Department> listDatas = new ArrayList<>();
@@ -56,6 +64,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isAll; // 是否加载所以供应商
+    private boolean isCheck; // 是否多选
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -115,11 +124,22 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                Department m = listDatas.get(pos-1);
-                Intent intent = new Intent();
-                intent.putExtra("obj", m);
-                context.setResult(RESULT_OK, intent);
-                context.finish();
+                if(isCheck) {
+                    Department m = listDatas.get(pos - 1);
+                    if(m.isCheck()) {
+                        listDatas.get(pos-1).setCheck(false);
+                    } else {
+                        listDatas.get(pos-1).setCheck(true);
+                    }
+                    mAdapter.notifyDataSetChanged();
+
+                } else {
+                    Department m = listDatas.get(pos - 1);
+                    Intent intent = new Intent();
+                    intent.putExtra("obj", m);
+                    context.setResult(RESULT_OK, intent);
+                    context.finish();
+                }
             }
         });
     }
@@ -129,6 +149,8 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             isAll = bundle.getInt("isAll");
+            isCheck = bundle.getBoolean("isCheck");
+            btnConfirm.setVisibility(isCheck ? View.VISIBLE : View.GONE);
         }
 
         initLoadDatas();
@@ -136,7 +158,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
 
 
     // 监听事件
-    @OnClick({R.id.btn_close, R.id.btn_search})
+    @OnClick({R.id.btn_close, R.id.btn_search, R.id.btn_confirm})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close:
@@ -146,6 +168,27 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
                 break;
             case R.id.btn_search:
                 initLoadDatas();
+
+                break;
+            case R.id.btn_confirm: // 确认选中
+                if(listDatas.size() == 0) {
+                    Comm.showWarnDialog(context,"请查询数据！");
+                    return;
+                }
+                List<Department> listDept = new ArrayList<>();
+                for(Department department : listDatas) {
+                    if(department.isCheck()) {
+                        listDept.add(department);
+                    }
+                }
+                if(listDept.size() == 0) {
+                    Comm.showWarnDialog(context,"请至少选择一行！");
+                    return;
+                }
+                Intent intent = new Intent();
+                intent.putExtra("obj", (Serializable) listDept);
+                context.setResult(RESULT_OK, intent);
+                context.finish();
 
                 break;
         }

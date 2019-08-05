@@ -125,7 +125,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
     private Staff stockStaff; // 仓管员
-    private Department department; // 部门
+    private List<Department> listDept; // 部门
     private Supplier supplier; // 扫码的条码对应的供应商
     private Allot_PickingListFragment1Adapter mAdapter;
     private List<StkTransferOutEntry> checkDatas = new ArrayList<>();
@@ -496,6 +496,28 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             }
 
             @Override
+            public void onLongClickSelBarcode(StkTransferOutEntry entity) {
+                // 点击了保存，就只能点击审核操作，其他都屏蔽
+                if(isNULLS(k3Number).length() > 0) return;
+
+                // 启用批次和序列号
+                if(entity.getMaterial().getIsBatchManager() == 1 || entity.getMaterial().getIsSnManager() == 1) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("mtlNumber", entity.getMtlFnumber());
+                    showForResult(Allot_PickingList_FindBarcode_Dialog.class, SEL_MTL, bundle);
+                }
+            }
+
+            @Override
+            public void onLongClickStockNum(StkTransferOutEntry entity) {
+                Bundle bundle = new Bundle();
+                bundle.putInt("mtlId", entity.getMtlId());
+                bundle.putString("mtlNumber", entity.getMtlFnumber());
+                bundle.putString("mtlName", entity.getMtlFname());
+                show(InventoryNowMtlIdDialog.class, bundle);
+            }
+
+            @Override
             public void onClick_selStock(StkTransferOutEntry entity, int position) {
                 LogUtil.e("selStock", "行：" + position);
                 // 点击了保存，就只能点击审核操作，其他都屏蔽
@@ -554,21 +576,21 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 //        });
 
         // 长按选择提条码
-        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
-            @Override
-            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                // 点击了保存，就只能点击审核操作，其他都屏蔽
-                if(isNULLS(k3Number).length() > 0) return;
-
-                StkTransferOutEntry stkEntry = checkDatas.get(pos);
-                // 启用批次和序列号
-                if(stkEntry.getMaterial().getIsBatchManager() == 1 || stkEntry.getMaterial().getIsSnManager() == 1) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
-                    showForResult(Allot_PickingList_FindBarcode_Dialog.class, SEL_MTL, bundle);
-                }
-            }
-        });
+//        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
+//            @Override
+//            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+//                // 点击了保存，就只能点击审核操作，其他都屏蔽
+//                if(isNULLS(k3Number).length() > 0) return;
+//
+//                StkTransferOutEntry stkEntry = checkDatas.get(pos);
+//                // 启用批次和序列号
+//                if(stkEntry.getMaterial().getIsBatchManager() == 1 || stkEntry.getMaterial().getIsSnManager() == 1) {
+//                    Bundle bundle = new Bundle();
+//                    bundle.putString("mtlNumber", stkEntry.getMtlFnumber());
+//                    showForResult(Allot_PickingList_FindBarcode_Dialog.class, SEL_MTL, bundle);
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -595,6 +617,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
             case R.id.tv_deptSel: // 领料部门
                 bundle = new Bundle();
                 bundle.putInt("isAll", 10);
+                bundle.putBoolean("isCheck", true); // 是否多选
                 showForResult(Dept_DialogActivity.class, SEL_DEPT, bundle);
 
                 break;
@@ -1017,9 +1040,13 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         switch (requestCode) {
             case SEL_DEPT: //查询部门	返回
                 if (resultCode == RESULT_OK) {
-                    department = (Department) data.getSerializableExtra("obj");
-                    LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
-                    tvDeptSel.setText(department.getDepartmentName());
+                    listDept = (List<Department>) data.getSerializableExtra("obj");
+                    StringBuffer strDeptName = new StringBuffer();
+                    for (int i=0, size = listDept.size(); i<size; i++) {
+                        Department department = listDept.get(i);
+                        strDeptName.append(department.getDepartmentName()+(i+1 == size ? "" : "，"));
+                    }
+                    tvDeptSel.setText(strDeptName.toString());
                 }
 
                 break;
@@ -1494,7 +1521,15 @@ public class Allot_PickingListFragment1 extends BaseFragment {
         isTextChange = false;
         showLoadDialog("加载中...", false);
         String mUrl = null;
-        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
+        StringBuffer strOutDeptNumber = null;
+        if(listDept != null && listDept.size() > 0) {
+            strOutDeptNumber = new StringBuffer();
+            for (int i = 0, size = listDept.size(); i < size; i++) {
+                Department d = listDept.get(i);
+                strOutDeptNumber.append(d.getDepartmentNumber() + (i + 1 == size ? "" : ","));
+            }
+        }
+//        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
         String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
         String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
         String stkBillNo = fbillNo != null ? fbillNo : ""; // 调拨单号
@@ -1512,7 +1547,8 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
                 .add("isValidStatus", "1")
                 .add("sourceType", "6") // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单）
-                .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
+//                .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
+                .add("strOutDeptNumber", strOutDeptNumber != null ? strOutDeptNumber.toString() : "") // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", getValues(tvDateSel)) // 调出日期（查询调拨单）

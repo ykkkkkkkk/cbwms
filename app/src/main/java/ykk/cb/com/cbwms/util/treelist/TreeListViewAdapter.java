@@ -126,7 +126,7 @@ public abstract class TreeListViewAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        return mNodes.get(position).getLevel();
+        return mNodes.get(position).getMlevel();
     }
 
     @Override
@@ -154,7 +154,7 @@ public abstract class TreeListViewAdapter extends BaseAdapter {
         ProdNode node = mNodes.get(position);
         convertView = getConvertView(node, position, convertView, parent);
         // 设置内边距
-        convertView.setPadding(node.getLevel() * 50, 12, 12, 12);
+//        convertView.setPadding(node.getLevel() * 50, 12, 12, 12);
         return convertView;
     }
 
@@ -320,6 +320,45 @@ public abstract class TreeListViewAdapter extends BaseAdapter {
      * @param index
      * @param mListNodes
      */
+//    public void notifyData(int index, List<ProdNode> mListNodes) {
+//        for (int i = 0; i < mListNodes.size(); i++) {
+//            ProdNode node = mListNodes.get(i);
+//            node.getChildren().clear();
+//            node.iconExpand = iconExpand;
+//            node.iconNoExpand = iconNoExpand;
+//            node.iconExpand2 = iconExpand2;
+//            node.iconNoExpand2 = iconNoExpand2;
+//        }
+//        for (int i = 0; i < mAllNodes.size(); i++) {
+//            ProdNode node = mAllNodes.get(i);
+//            node.getChildren().clear();
+//            //node.isNewAdd = false;
+//        }
+//        if (index == -1) {
+//            mAllNodes.clear(); // 初始化数据要重置
+//            mAllNodes.addAll(mListNodes);
+//        } else {
+//            mAllNodes.addAll(index, mListNodes);
+//        }
+//        /**
+//         * 对所有的Node进行排序
+//         */
+//        mAllNodes = TreeHelper.getSortedNodes(mAllNodes, defaultExpandLevel);
+//        /**
+//         * 过滤出可见的Node
+//         */
+//        mNodes = TreeHelper.filterVisibleNode(mAllNodes);
+//        //刷新数据
+//        notifyDataSetChanged();
+//    }
+
+
+    /**
+     * 刷新数据ykk自定义
+     *
+     * @param index
+     * @param mListNodes
+     */
     public void notifyData(int index, List<ProdNode> mListNodes) {
         for (int i = 0; i < mListNodes.size(); i++) {
             ProdNode node = mListNodes.get(i);
@@ -329,15 +368,11 @@ public abstract class TreeListViewAdapter extends BaseAdapter {
             node.iconExpand2 = iconExpand2;
             node.iconNoExpand2 = iconNoExpand2;
         }
-        for (int i = 0; i < mAllNodes.size(); i++) {
-            ProdNode node = mAllNodes.get(i);
-            node.getChildren().clear();
-            //node.isNewAdd = false;
-        }
-        if (index != -1) {
-            mAllNodes.addAll(index, mListNodes);
-        } else {
+        if (index == -1) {
+            mAllNodes.clear(); // 初始化数据要重置
             mAllNodes.addAll(mListNodes);
+        } else {
+            mAllNodes.addAll(index, mListNodes);
         }
         /**
          * 对所有的Node进行排序

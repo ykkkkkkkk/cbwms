@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.basics.adapter;
 
 import android.app.Activity;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.List;
@@ -36,6 +37,13 @@ public class Dept_DialogAdapter extends BaseArrayRecyclerAdapter<Department> {
         tv_row.setText(String.valueOf(pos + 1));
         tv_fnumber.setText(entity.getDepartmentNumber());
         tv_fname.setText(entity.getDepartmentName());
+
+        View view = (View) tv_row.getParent();
+        if(entity.isCheck()) {
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
     }
 
     public void setCallBack(MyCallBack callBack) {

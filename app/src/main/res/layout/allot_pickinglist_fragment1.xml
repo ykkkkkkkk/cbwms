@@ -43,9 +43,9 @@
                 android:layout_weight="1"
                 android:background="@drawable/back_style_blue"
                 android:drawableRight="@drawable/xiala3"
-                android:gravity="center"
+                android:gravity="center|left"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_14sp" />
+                android:textSize="@dimen/_12sp" />
 
             <TextView
                 android:layout_width="wrap_content"

@@ -1,12 +1,14 @@
 package ykk.cb.com.cbwms.sales.adapter;
 
 import android.app.Activity;
+import android.view.View;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -28,7 +30,7 @@ public class Sal_OutStockPassEntryAdapter extends BaseArrayRecyclerAdapter<SalOu
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, SalOutStock entity, final int pos) {
+    public void onBindHoder(RecyclerHolder holder, final SalOutStock entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
@@ -42,6 +44,13 @@ public class Sal_OutStockPassEntryAdapter extends BaseArrayRecyclerAdapter<SalOu
         String num1 = df.format(entity.getSumQty());
         tv_numUnit.setText(num1+""+unitName);
 
+        // 点击显示全部物料名称
+        tv_mtlName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Comm.showWarnDialog(context, entity.getMtlName());
+            }
+        });
     }
 
     public void setCallBack(MyCallBack callBack) {

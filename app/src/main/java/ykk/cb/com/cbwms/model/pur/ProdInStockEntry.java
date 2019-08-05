@@ -14,6 +14,7 @@ public class ProdInStockEntry {
 	private String unitName; // 单位名称
 	private double sumQty;// 采购入库单总数量
 	private String prodNo; // 生产任务单
+	private String stockName; // 仓库
 
 	// 临时字段，不存表
 	private boolean checked; // 用于是否选中标识
@@ -100,6 +101,14 @@ public class ProdInStockEntry {
 
 	public void setChecked(boolean checked) {
 		this.checked = checked;
+	}
+
+	public String getStockName() {
+		return stockName;
+	}
+
+	public void setStockName(String stockName) {
+		this.stockName = stockName;
 	}
 
 

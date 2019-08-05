@@ -1,12 +1,14 @@
 package ykk.cb.com.cbwms.purchase.adapter;
 
 import android.app.Activity;
+import android.view.View;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.pur.PurInStockEntry;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
@@ -28,7 +30,7 @@ public class Pur_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<PurInS
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, PurInStockEntry entity, final int pos) {
+    public void onBindHoder(RecyclerHolder holder, final PurInStockEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
@@ -42,6 +44,13 @@ public class Pur_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<PurInS
         String num1 = df.format(entity.getSumQty());
         tv_numUnit.setText(num1+""+unitName);
 
+        // 点击显示全部物料名称
+        tv_mtlName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Comm.showWarnDialog(context, entity.getMtlName());
+            }
+        });
     }
 
     public void setCallBack(MyCallBack callBack) {

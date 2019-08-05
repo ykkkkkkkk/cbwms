@@ -770,6 +770,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
 
         double salOrderSumQty = sRecord2.getSalOrderSumQty();
+        Log.e("AABDDDDFSDS", salOrderSumQty+"----"+writeSumQty);
         if(salOrderSumQty > writeSumQty) {
             // 1、非整非拼，2、整单发货，3、拼单
             switch (orderDeliveryType) {

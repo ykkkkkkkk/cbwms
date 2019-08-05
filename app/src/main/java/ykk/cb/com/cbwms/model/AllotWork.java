@@ -16,6 +16,7 @@ public class AllotWork implements Serializable {
 	private String createDate; // 创建日期
 
 	// 临时字段，不加表
+	private String deptNumber;//部门代码
 	private String deptName; // 部门名称
 	private String procedureName; // 工序名称
 	private String staffName; // 员工名称
@@ -86,6 +87,14 @@ public class AllotWork implements Serializable {
 
 	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
+	}
+
+	public String getDeptNumber() {
+		return deptNumber;
+	}
+
+	public void setDeptNumber(String deptNumber) {
+		this.deptNumber = deptNumber;
 	}
 
 	public String getDeptName() {

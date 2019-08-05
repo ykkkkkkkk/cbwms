@@ -63,15 +63,15 @@ public class TreeHelper {
             ProdNode n = nodes.get(i);
             for (int j = i + 1; j < nodes.size(); j++) {
                 ProdNode m = nodes.get(j);
-                if (m.getPid() instanceof String) {
-                    if (m.getPid().equals(n.getId())) {
-                        n.getChildren().add(m);
-                        m.setParent(n);
-                    } else if (m.getId().equals(n.getPid())) {
-                        m.getChildren().add(n);
-                        n.setParent(m);
-                    }
-                } else {
+//                if (m.getPid() instanceof String) {
+//                    if (m.getPid().equals(n.getId())) {
+//                        n.getChildren().add(m);
+//                        m.setParent(n);
+//                    } else if (m.getId().equals(n.getPid())) {
+//                        m.getChildren().add(n);
+//                        n.setParent(m);
+//                    }
+//                } else {
                     if (m.getPid() == n.getId()) {
                         n.getChildren().add(m);
                         m.setParent(n);
@@ -79,7 +79,7 @@ public class TreeHelper {
                         m.getChildren().add(n);
                         n.setParent(m);
                     }
-                }
+//                }
             }
         }
         return nodes;
@@ -115,8 +115,7 @@ public class TreeHelper {
         if (node.isLeaf())
             return;
         for (int i = 0; i < node.getChildren().size(); i++) {
-            addNode(nodes, node.getChildren().get(i), defaultExpandLeval,
-                    currentLevel + 1);
+            addNode(nodes, node.getChildren().get(i), defaultExpandLeval,currentLevel + 1);
         }
     }
 

@@ -50,6 +50,9 @@ public class InventorySyncRecord implements Serializable {
 	//单位实体类
 	private Unit unit;
 
+	// 临时字段，不存表
+	private String stockName;
+
 	public InventorySyncRecord() {
 		super();
 	}
@@ -187,6 +190,14 @@ public class InventorySyncRecord implements Serializable {
 
 	public void setSyncAvbQty(double syncAvbQty) {
 		this.syncAvbQty = syncAvbQty;
+	}
+
+	public String getStockName() {
+		return stockName;
+	}
+
+	public void setStockName(String stockName) {
+		this.stockName = stockName;
 	}
 
 }

@@ -29,7 +29,6 @@ import java.util.Vector;
 import butterknife.BindView;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.PrintMainActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
@@ -74,7 +73,7 @@ public class Prod_WorkMainActivity extends BaseActivity {
     private static final int PRINTER_COMMAND_ERROR = 0x008; // 使用打印机指令错误
     private static final int CONN_PRINTER = 0x12;
 //    private Customer customer; // 客户
-    private Prod_Work_WriteFragment1 fragment1 = new Prod_Work_WriteFragment1();
+    private Prod_Work_Fragment1 fragment1 = new Prod_Work_Fragment1();
 
     @Override
     public int setLayoutResID() {
@@ -118,11 +117,11 @@ public class Prod_WorkMainActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        tabChange(viewRadio1,"生产入库--生产订单", 0);
+                        tabChange(viewRadio1,"工序汇报", 0);
 
                         break;
                     case 1:
-                        tabChange(viewRadio2,"生产入库--箱码", 1);
+                        tabChange(viewRadio2,"报工记录", 1);
 
                         break;
                 }
@@ -174,11 +173,11 @@ public class Prod_WorkMainActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab1:
-                tabChange(viewRadio1,"生产入库--生产订单", 0);
+                tabChange(viewRadio1,"工序汇报", 0);
 
                 break;
             case R.id.lin_tab2:
-                tabChange(viewRadio2,"生产入库--箱码", 1);
+                tabChange(viewRadio2,"报工记录", 1);
 
                 break;
         }

@@ -39,23 +39,22 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.AllotWork;
-import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.InventorySyncRecord;
-import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.pur.NodeData;
-import ykk.cb.com.cbwms.model.pur.ProdNode;
-import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
+import ykk.cb.com.cbwms.model.Stock;
+import ykk.cb.com.cbwms.model.StockPosition;
+import ykk.cb.com.cbwms.model.WorkRecord;
+import ykk.cb.com.cbwms.model.pur.ProdNode;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_Work_WriteFragment1Adapter;
-import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
-import ykk.cb.com.cbwms.util.treelist.OnTreeNodeCheckedChangeListener;
 import ykk.cb.com.cbwms.util.treelist.OnTreeNodeClickListener;
 
-public class Prod_Work_WriteFragment1 extends BaseFragment {
+/**
+ * 报工界面
+ */
+public class Prod_Work_Fragment1 extends BaseFragment {
 
     @BindView(R.id.tv_process)
     TextView tvProcess;
@@ -66,12 +65,13 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
     @BindView(R.id.listView)
     ListView listView;
 
-    private Prod_Work_WriteFragment1 context = this;
+    private Prod_Work_Fragment1 context = this;
     private static final int SEL_STAFF = 10;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
+    private static final int RESULT_NUM = 1;
     private ProdOrder prodOrder; // 生产订单
     private AllotWork allotWork;
-    private List<ScanningRecord2> checkDatas = new ArrayList<>();
+    private List<ProdNode> checkDatas = new ArrayList<>();
     private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = null;
@@ -81,27 +81,38 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
     private Prod_WorkMainActivity parent;
     private View curRadio;
     private DecimalFormat df = new DecimalFormat("#.####");
-    private List<ProdNode> dataList = new ArrayList<>();
     private Prod_Work_WriteFragment1Adapter mAdapter;
+    private boolean isSave; // 是否为保存之后的操作
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Prod_Work_WriteFragment1> mActivity;
+        private final WeakReference<Prod_Work_Fragment1> mActivity;
 
-        public MyHandler(Prod_Work_WriteFragment1 activity) {
-            mActivity = new WeakReference<Prod_Work_WriteFragment1>(activity);
+        public MyHandler(Prod_Work_Fragment1 activity) {
+            mActivity = new WeakReference<Prod_Work_Fragment1>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Prod_Work_WriteFragment1 m = mActivity.get();
+            Prod_Work_Fragment1 m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
                 String errMsg = null;
                 switch (msg.what) {
-                    case SUCC1:
+                    case SUCC1: // 保存成功
+                        m.isSave = true;
+                        m.curPos = -1;
+                        m.toasts("已保存数据✔");
+//                        for(int i=0; i<m.checkDatas.size(); i++) {
+//                            ProdNode node = m.checkDatas.get(i);
+//                            if(node.getMlevel() == 2 && node.getWorkQty() > 0) {
+//                                node.setWorkQty(0);
+//                            }
+//                        }
+//                        m.mAdapter.notifyData(-1, m.checkDatas);
+                        m.run_smGetDatas();
 
                         break;
                     case UNSUCC1:
@@ -113,6 +124,30 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
 
                         break;
                     case SUCC2: // 扫码成功后进入
+                        List<ProdNode> listTemp = new ArrayList<>();
+                        if(m.isSave) {
+                            m.isSave = false;
+                            listTemp.addAll(m.checkDatas);
+                        }
+                        m.checkDatas.clear();
+                        List<ProdNode> listProdNode = JsonUtil.strToList((String) msg.obj, ProdNode.class);
+                        m.checkDatas.addAll(listProdNode);
+                        int sizeTemp = listTemp.size();
+                        if(sizeTemp > 0) {
+                            // 把之前的展开关闭状态还原
+                            for (int i=0, size = m.checkDatas.size(); i<size; i++) {
+                                ProdNode node = m.checkDatas.get(i);
+                                if(i < sizeTemp) {
+                                    ProdNode node2 = listTemp.get(i);
+                                    node.setExpand(node2.isExpand());
+                                    node.setIconExpand(node2.getIconExpand());
+                                    node.setIconNoExpand(node2.getIconNoExpand());
+                                    node.setIconExpand2(node2.getIconExpand2());
+                                    node.setIconNoExpand2(node2.getIconNoExpand2());
+                                }
+                            }
+                        }
+                        m.mAdapter.notifyData(-1, m.checkDatas);
 
                         break;
                     case UNSUCC2:
@@ -129,18 +164,6 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC3: // 查询分配的工序    返回
-
-                        break;
-                    case SUCC4: // 判断是否存在返回
-                        List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
-                        for (int i = 0, len = listInventory.size(); i < len; i++) {
-                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
-                        }
-                        m.mAdapter.notifyDataSetChanged();
-
-                        break;
-                    case UNSUCC4: // 判断是否存在返回
-                        Comm.showWarnDialog(m.mContext,"查询即时库存失败！");
 
                         break;
                 }
@@ -171,7 +194,7 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
 
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.prod_write_fragment1, container, false);
+        return inflater.inflate(R.layout.prod_work_write_fragment1, container, false);
     }
 
     @Override
@@ -185,85 +208,41 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
         }
         parent = (Prod_WorkMainActivity) mContext;
 
-        getData(); // 测试数据
+//        getData(); // 测试数据
 
-        mAdapter = new Prod_Work_WriteFragment1Adapter(listView, mContext, dataList,
+        mAdapter = new Prod_Work_WriteFragment1Adapter(listView, mContext, checkDatas,
                 0, R.drawable.ico_expan_sub2, R.drawable.ico_expan_add2b, R.drawable.ico_spread_keydown, R.drawable.ico_spread_normal);
 
         listView.setAdapter(mAdapter);
 
-        //获取所有节点
-        final List<ProdNode> allNodes = mAdapter.getAllNodes();
-        for (ProdNode allNode : allNodes) {
-            //Log.e("xyh", "onCreate: " + allNode.getName());
-        }
-
-        mAdapter.setOnTreeNodeClickListener(new OnTreeNodeClickListener() {
+        // 输入数量
+        mAdapter.setCallBack(new Prod_Work_WriteFragment1Adapter.MyCallBack() {
             @Override
-            public void onClick(ProdNode node, int position) {
-                Log.e("ykk------++++++++++++++", node.getId()+"--"+node.getPid()+"--"+node.getName()+"等级："+node.getLevel());
+            public void onWriteNum(ProdNode entity, int position) {
+                curPos = parseInt(entity.getId());
+                Log.e("ykk------++++++++++++++", "positions:"+position);
+                showInputDialog("数量", String.valueOf(entity.getWorkQty()), "0.0",false, RESULT_NUM);
             }
         });
 
-        //选中状态监听
-        mAdapter.setCheckedChangeListener(new OnTreeNodeCheckedChangeListener() {
-            @Override
-            public void onCheckChange(ProdNode node, int position, boolean isChecked) {
-                //获取所有选中节点
-                List<ProdNode> selectedNode = mAdapter.getSelectedNode();
-                for (ProdNode n : selectedNode) {
-                    Log.e("xyh", "onCheckChange: " + n.getName());
-                }
-            }
-        });
-
-
-    }
-
-    /**
-     * 模拟数据，实际开发中对返回的json数据进行封装
-     */
-    private void getData() {
-        //根节点
-        ProdNode<NodeData> node = new ProdNode<>("0", "-1", "根节点1", 0, "MO037801", "2019-07-23", "", "", "");
-        dataList.add(node);
-        dataList.add(new ProdNode<>("1", "-1", "根节点2", 0,"MO037802", "2019-07-23", "", "", ""));
-        dataList.add(new ProdNode<>("2", "-1", "根节点3", 0,"MO037803", "2019-07-23", "", "", ""));
-        dataList.add(new ProdNode<>("3", "-1", "根节点3", 0,"MO037804", "2019-07-23", "", "", ""));
-
-        //根节点1的二级节点
-        dataList.add(new ProdNode<>("4", "0", "二级节点", 1,"", "", "五福金牛脚垫1", "1套", ""));
-        dataList.add(new ProdNode<>("5", "0", "二级节点", 1,"", "", "五福金牛脚垫2", "10套", ""));
-        dataList.add(new ProdNode<>("6", "0", "二级节点", 1,"", "", "五福金牛脚垫3", "20套", ""));
-
-        //根节点2的二级节点
-        dataList.add(new ProdNode<>("7", "1", "二级节点", 1,"", "", "荔枝纹直条压膜1", "1包", ""));
-        dataList.add(new ProdNode<>("8", "1", "二级节点", 1,"", "", "荔枝纹直条压膜2", "2包", ""));
-        dataList.add(new ProdNode<>("9", "1", "二级节点", 1,"", "", "荔枝纹直条压膜3", "3包", ""));
-
-        //根节点3的二级节点
-        dataList.add(new ProdNode<>("10", "2", "二级节点", 1,"", "", "星耀皮革大众CC_1", "3套", ""));
-        dataList.add(new ProdNode<>("11", "2", "二级节点", 1,"", "", "星耀皮革大众CC_2", "4套", ""));
-        dataList.add(new ProdNode<>("12", "2", "二级节点", 1,"", "", "星耀皮革大众CC_3", "5套", ""));
-
-        //三级节点
-        dataList.add(new ProdNode<>("13", "4", "三级节点", 2,"", "", "", "", "前左"));
-        dataList.add(new ProdNode<>("14", "4", "三级节点", 2,"", "", "", "", "前右"));
-        dataList.add(new ProdNode<>("15", "4", "三级节点", 2,"", "", "", "", "后左"));
-        dataList.add(new ProdNode<>("16", "4", "三级节点", 2,"", "", "", "", "后右"));
-
-        dataList.add(new ProdNode<>("17", "5", "三级节点", 2,"", "", "", "", "前左"));
-        dataList.add(new ProdNode<>("18", "5", "三级节点", 2,"", "", "", "", "前右"));
-
-        dataList.add(new ProdNode<>("19", "6", "三级节点", 2,"", "", "", "", "前左"));
-        dataList.add(new ProdNode<>("20", "6", "三级节点", 2,"", "", "", "", "前右"));
-        dataList.add(new ProdNode<>("21", "6", "三级节点", 2,"", "", "", "", "后左"));
-        dataList.add(new ProdNode<>("22", "6", "三级节点", 2,"", "", "", "", "后右"));
-        dataList.add(new ProdNode<>("23", "6", "三级节点", 2,"", "", "", "", "过桥"));
-        dataList.add(new ProdNode<>("24", "6", "三级节点", 2,"", "", "", "", "第三排"));
-
-        //四级节点
-//        dataList.add(new Node<>("21", "12", "四级节点"));
+//        mAdapter.setOnTreeNodeClickListener(new OnTreeNodeClickListener() {
+//            @Override
+//            public void onClick(ProdNode node, int position) {
+//                Log.e("ykk------++++++++++++++", node.getId()+"--"+node.getPid()+"--"+node.getName()+"等级："+node.getLevel());
+//            }
+//        });
+//
+//        //选中状态监听
+//        mAdapter.setCheckedChangeListener(new OnTreeNodeCheckedChangeListener() {
+//            @Override
+//            public void onCheckChange(ProdNode node, int position, boolean isChecked) {
+//                //获取所有选中节点
+//                List<ProdNode> selectedNode = mAdapter.getSelectedNode();
+//                for (ProdNode n : selectedNode) {
+//                    Log.e("xyh", "onCheckChange: " + n.getName());
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -280,7 +259,7 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_clone, R.id.tv_process, R.id.tv_date})
+    @OnClick({R.id.btn_batchAdd, R.id.btn_save, R.id.btn_clone, R.id.tv_process, R.id.tv_date})
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -294,11 +273,33 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
                 Comm.showDateDialog(mContext, tvDate, 0);
 
                 break;
+            case R.id.btn_batchAdd: // 批量填充
+                if (checkDatas == null || checkDatas.size() == 0) {
+                    Comm.showWarnDialog(mContext, "请先插入行！");
+                    return;
+                }
+                if(curPos == -1) {
+                    Comm.showWarnDialog(mContext, "请至少一行输入数量！");
+                    return;
+                }
+                ProdNode node = checkDatas.get(curPos);
+                int prodEntryId = node.getProdEntryId();
+                double workQty = node.getWorkQty();
+                for(int i=curPos; i<checkDatas.size(); i++) {
+                    ProdNode node2 = checkDatas.get(i);
+                    int prodEntryId2 = node2.getProdEntryId();
+                    if(prodEntryId == prodEntryId2 && node2.getUseableQty() > 0) {
+                        node2.setWorkQty(workQty);
+                    }
+                }
+                mAdapter.notifyDataSetChanged();
+
+                break;
             case R.id.btn_save: // 保存
                 if (!saveBefore()) {
                     return;
                 }
-                run_findInStockSum();
+                run_addList();
 
                 break;
             case R.id.btn_clone: // 重置
@@ -335,7 +336,7 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请选择工序，再查询！");
             return;
         }
-//        run_smGetDatas();
+        run_smGetDatas();
     }
 
     /**
@@ -352,33 +353,10 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
      */
     private boolean saveBefore() {
         if (checkDatas == null || checkDatas.size() == 0) {
-            Comm.showWarnDialog(mContext, "请先插入行！");
+            Comm.showWarnDialog(mContext, "请先查询数据！");
             return false;
         }
 
-        // 检查数据
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            Material mtl = sr2.getMtl();
-//            if (prodEntryStatus == 4 && sr2.getStockId() == 0) {
-            if (sr2.getStockId() == 0) {
-                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行，请选择（仓库）！");
-                return false;
-            }
-//            if (prodEntryStatus == 4 && sr2.getStockqty() == 0) {
-            if (sr2.getStockqty() == 0) {
-                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行（实收数）必须大于0！");
-                return false;
-            }
-            double fqty = sr2.getStockInLimith();
-            double subVal = BigdecimalUtil.sub(sr2.getFqty(), sr2.getUsableFqty());
-            double subVal2 = BigdecimalUtil.sub(fqty, subVal);
-//            if (sr2.getStockqty() > (fqty - (sr2.getFqty() - sr2.getUsableFqty()))) {
-            if (sr2.getStockqty() > subVal2) {
-                Comm.showWarnDialog(mContext,"第" + (i + 1) + "行（实收数）不能大于（应收数）"+(fqty > sr2.getFqty() ? "；最大上限为（"+df.format(fqty)+"）" : "")+"！");
-                return false;
-            }
-        }
         return true;
     }
 
@@ -408,15 +386,15 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
                 }
 
                 break;
-            case 1234: // 数量
+            case RESULT_NUM: // 数量
                 if (resultCode == Activity.RESULT_OK) {
                     Bundle bundle = data.getExtras();
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
-                        checkDatas.get(curPos).setStockqty(num);
+                        checkDatas.get(curPos).setWorkQty(num);
 //                        checkDatas.get(curPos).setFqty(num);
-                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyData(-1, checkDatas);
 
                     }
                 }
@@ -429,74 +407,44 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
     /**
      * 保存方法
      */
-    private void run_addScanningRecord() {
-        showLoadDialog("保存中...");
+    private void run_addList() {
         getUserInfo();
 
-        List<ScanningRecord> list = new ArrayList<>();
+        List<WorkRecord> list = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            ScanningRecord record = new ScanningRecord();
-            // type: 1,采购入库，2，销售出库 3、其他入库 4、其他出库 5、生产入库
-            record.setType(5);
-            record.setSourceId(sr2.getSourceId());
-            record.setSourceK3Id(sr2.getSourceK3Id());
-            record.setSourceFnumber(sr2.getSourceFnumber());
-            record.setMtlK3Id(sr2.getFitemId());
-            record.setMtlFnumber(sr2.getMtlFnumber());
-            record.setUnitFnumber(sr2.getUnitFnumber());
-            record.setStockK3Id(sr2.getStockId());
-            record.setStockFnumber(sr2.getStockFnumber());
-            record.setStockAreaId(sr2.getStockAreaId());
-            record.setStockPositionId(sr2.getStockPositionId());
-            record.setSupplierK3Id(sr2.getSupplierId());
-            record.setSupplierFnumber(sr2.getSupplierFnumber());
-            record.setReceiveOrgFnumber(sr2.getReceiveOrgFnumber());
-            record.setPurOrgFnumber(sr2.getPurOrgFnumber());
-            record.setCustomerK3Id(0);
-            record.setPoFid(sr2.getPoFid());
-            record.setEntryId(sr2.getEntryId());
-            record.setPoFbillno(sr2.getPoFbillno());
-            record.setPoFmustqty(sr2.getPoFmustqty());
-            record.setDepartmentK3Id(sr2.getEmpId());
-            record.setDepartmentFnumber(sr2.getDepartmentFnumber());
-            record.setPdaRowno((i + 1));
-            record.setBatchNo(sr2.getBatchno());
-            record.setSequenceNo(sr2.getSequenceNo());
-            record.setBarcode(sr2.getBarcode());
-            record.setFqty(sr2.getStockqty());
-            record.setFdate(Comm.getSysDate(7));
-            record.setPdaNo("");
-            record.setSalOrderId(sr2.getSalOrderId());
-            record.setSalOrderNo(sr2.getSalOrderNo());
-            record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
-            // 得到用户对象
-            record.setOperationId(user.getId());
-            record.setCreateUserId(user.getId());
-            record.setCreateUserName(user.getUsername());
-            record.setK3UserFnumber(user.getKdUserNumber());
-            record.setSourceType('4');
-//            record.setTempId(ism.getId());
-//            record.setRelationObj(JsonUtil.objectToString(ism));
-//            record.setFsrcBillTypeId("PUR_PurchaseOrder");
-//            record.setfRuleId("PUR_PurchaseOrder-STK_InStock");
-//            record.setFsTableName("T_PUR_POOrderEntry");
-            record.setIsUniqueness(sr2.getIsUniqueness());
-            record.setListBarcode(sr2.getListBarcode());
-            record.setStrBarcodes(sr2.getStrBarcodes());
-            record.setKdAccount(user.getKdAccount());
-            record.setKdAccountPassword(user.getKdAccountPassword());
+            ProdNode node = checkDatas.get(i);
+            if(node.getMlevel() == 2 && node.getWorkQty() > 0) {
+                WorkRecord workRecord = new WorkRecord();
+                workRecord.setDeptId(allotWork.getDeptId());
+                workRecord.setProdNo(node.getProdNo());
+                workRecord.setProdEntryId(node.getProdEntryId());
+                workRecord.setProdQty(node.getProdQty());
+                workRecord.setProdMtlId(node.getMtlId());
+                workRecord.setProdMtlNumber(node.getMtlNumber());
+                workRecord.setLocationId(node.getLocationId());
+                workRecord.setWorkStaffId(allotWork.getStaffId());
+                workRecord.setWorkDate(getValues(tvDate));
+                workRecord.setWorkQty(node.getWorkQty());
+                workRecord.setCreateUserId(user.getId());
+                workRecord.setPosition2(node.getPosition2());
+                workRecord.setLocationName(node.getLocationName());
 
-            list.add(record);
+                list.add(workRecord);
+            }
+        }
+        if(list.size() == 0) {
+            Comm.showWarnDialog(mContext,"请输入数量完成报工！");
+            return;
         }
 
+        showLoadDialog("保存中...");
         String mJson = JsonUtil.objectToString(list);
         RequestBody body = RequestBody.create(Consts.JSON, mJson);
         FormBody formBody = new FormBody.Builder()
                 .add("strJson", mJson)
                 .build();
 
-        String mUrl = getURL("addScanningRecord");
+        String mUrl = getURL("workRecord/addList");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
@@ -514,7 +462,7 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_addScanningRecord --> onResponse", result);
+                LogUtil.e("run_addList --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC1, result);
                     mHandler.sendMessage(msg);
@@ -531,18 +479,15 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
      */
     private void run_smGetDatas() {
         showLoadDialog("加载中...");
-        String mUrl = null;
-        String barcode = null;
-        String strCaseId = null;
+        String mUrl = getURL("prodOrder/findProdOrderByReport");
         switch (curViewFlag) {
             case '1': // 物料扫码
-                mUrl = getURL("barCodeTable/findBarcode3ByParam");
-                strCaseId = "34";
+
                 break;
         }
         FormBody formBody = new FormBody.Builder()
-                .add("strCaseId", strCaseId)
-                .add("barcode", barcode)
+                .add("deptNumber", allotWork.getDeptNumber())
+                .add("prodFdate", getValues(tvDate))
                 .build();
 
         Request request = new Request.Builder()
@@ -575,59 +520,7 @@ public class Prod_Work_WriteFragment1 extends BaseFragment {
     }
 
     /**
-     * 判断表中存在该物料
-     */
-    private void run_findInStockSum() {
-        showLoadDialog("加载中...");
-        StringBuilder strFbillno = new StringBuilder();
-        StringBuilder strEntryId = new StringBuilder();
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ScanningRecord2 sr2 = checkDatas.get(i);
-            if ((i + 1) == size) {
-                strFbillno.append(sr2.getPoFbillno());
-                strEntryId.append(sr2.getEntryId());
-            } else {
-                strFbillno.append(sr2.getPoFbillno() + ",");
-                strEntryId.append(sr2.getEntryId() + ",");
-            }
-        }
-        String mUrl = getURL("scanningRecord/findInStockSum");
-        FormBody formBody = new FormBody.Builder()
-                .add("fbillType", "3") // fbillType  1：采购订单入库，2：收料任务单入库，3：生产订单入库，4：销售订单出库，5：发货通知单出库
-                .add("strFbillno", strFbillno.toString())
-                .add("strEntryId", strEntryId.toString())
-                .build();
-
-        Request request = new Request.Builder()
-                .addHeader("cookie", getSession())
-                .url(mUrl)
-                .post(formBody)
-                .build();
-
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC3);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                ResponseBody body = response.body();
-                String result = body.string();
-                if (!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC3);
-                    return;
-                }
-                Message msg = mHandler.obtainMessage(SUCC3, result);
-                LogUtil.e("run_findInStockSum --> onResponse", result);
-                mHandler.sendMessage(msg);
-            }
-        });
-    }
-
-    /**
-     * 查询分配的的工序
+     * 查询当天分配的的工序
      */
     private void run_findAllotWorkByDate() {
         showLoadDialog("加载中...");

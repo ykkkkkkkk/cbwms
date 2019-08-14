@@ -33,16 +33,18 @@ public class Pur_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<PurInS
     public void onBindHoder(RecyclerHolder holder, final PurInStockEntry entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
+        TextView tv_fsrcBillNo = holder.obtainView(R.id.tv_fsrcBillNo);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_numUnit = holder.obtainView(R.id.tv_numUnit);
+        TextView tv_stockName = holder.obtainView(R.id.tv_stockName);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_mtlNumber.setText(entity.getMtlNumber());
+        tv_fsrcBillNo.setText(entity.getFsrcBillNo());
         tv_mtlName.setText(entity.getMtlName());
         String unitName = entity.getUnitName();
         String num1 = df.format(entity.getSumQty());
         tv_numUnit.setText(num1+""+unitName);
+        tv_stockName.setText(entity.getStockName());
 
         // 点击显示全部物料名称
         tv_mtlName.setOnClickListener(new View.OnClickListener() {

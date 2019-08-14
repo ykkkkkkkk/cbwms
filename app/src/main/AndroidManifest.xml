@@ -102,6 +102,10 @@
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
+            android:name=".basics.PublicInputDialog3"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
             android:name=".basics.Batch_DialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />

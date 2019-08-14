@@ -160,7 +160,7 @@ public class Prod_InStockPassEntryActivity extends BaseActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("Prod_OrderActivity --> onResponse", result);
+                LogUtil.e("run_okhttpDatas --> onResponse", result);
                 if(!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC1, result);
                     mHandler.sendMessage(msg);

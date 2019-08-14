@@ -56,7 +56,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
     private OkHttpClient okHttpClient = new OkHttpClient();
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
-    private String begDate; // 上页面传来的日期
+    private String begDate, endDate; // 上页面传来的日期
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -108,6 +108,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             begDate = bundle.getString("begDate","");
+            endDate = bundle.getString("endDate","");
         }
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -167,6 +168,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
         String mUrl = getURL("allotWork/findAllotWorkByDate");
         FormBody formBody = new FormBody.Builder()
                 .add("begDate", begDate)
+                .add("endDate", endDate)
                 .add("staffName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")

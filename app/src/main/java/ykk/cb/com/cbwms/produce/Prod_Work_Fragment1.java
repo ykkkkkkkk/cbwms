@@ -151,6 +151,8 @@ public class Prod_Work_Fragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC2:
+                        m.checkDatas.clear();
+                        m.mAdapter.notifyData(-1, m.checkDatas);
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！！！";
                         Comm.showWarnDialog(m.mContext, errMsg);
@@ -266,6 +268,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
             case R.id.tv_process: // 选择工序
                 bundle = new Bundle();
                 bundle.putString("begDate", getValues(tvDate));
+                bundle.putString("endDate", getValues(tvDate));
                 showForResult(Prod_Work_SelStaffDialogActivity.class, SEL_STAFF, bundle);
 
                 break;
@@ -527,6 +530,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
         String mUrl = getURL("allotWork/findAllotWorkByDate");
         FormBody formBody = new FormBody.Builder()
                 .add("begDate", Comm.getSysDate(7))
+                .add("endDate", Comm.getSysDate(7))
                 .add("staffId", String.valueOf(user.getStaffId()))
                 .build();
 

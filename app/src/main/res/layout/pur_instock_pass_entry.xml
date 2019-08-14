@@ -56,53 +56,73 @@
         android:textColor="#666666"
         android:textSize="14sp" />
 
-    <LinearLayout
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:background="#D8D8D8">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
-        <TextView
-            android:layout_width="32dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="行号"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="78dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="物料代码"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:background="#D8D8D8">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="物料名称"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+                <TextView
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="行号"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
 
-        <TextView
-            android:layout_width="88dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="数量/单位"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+                <TextView
+                    android:layout_width="78dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="源单号"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
 
-    </LinearLayout>
+                <TextView
+                    android:layout_width="130dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="物料名称"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="88dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="数量/单位"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="88dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="仓库"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/white"
-        android:scrollbars="none" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:scrollbars="none" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </LinearLayout>

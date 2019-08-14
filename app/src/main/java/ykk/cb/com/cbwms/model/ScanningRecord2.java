@@ -85,6 +85,7 @@ public class ScanningRecord2 implements Serializable {
     private boolean isCheck; // 是否选中
     /*入库上限数量*/
     private double stockInLimith;
+    private String receiveAddress; // 收货地址
 
 
     public int getID() {
@@ -693,6 +694,14 @@ public class ScanningRecord2 implements Serializable {
 
     public void setFownerIdHeadNumber(String fownerIdHeadNumber) {
         this.fownerIdHeadNumber = fownerIdHeadNumber;
+    }
+
+    public String getReceiveAddress() {
+        return receiveAddress;
+    }
+
+    public void setReceiveAddress(String receiveAddress) {
+        this.receiveAddress = receiveAddress;
     }
 
     public ScanningRecord2() {

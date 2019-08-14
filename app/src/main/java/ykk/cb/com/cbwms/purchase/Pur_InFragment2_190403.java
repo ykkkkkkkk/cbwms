@@ -1612,8 +1612,8 @@ public class Pur_InFragment2_190403 extends BaseFragment {
         for(int i=0, size=fbillNoList.size(); i<size; i++) {
             strFbillNo.append(fbillNoList.get(i)+",");
         }
+        // 减去最后一个，
         if(strFbillNo.length() > 0) {
-            // 减去最后一个，
             strFbillNo.delete(strFbillNo.length() - 1, strFbillNo.length());
         }
         FormBody formBody = new FormBody.Builder()

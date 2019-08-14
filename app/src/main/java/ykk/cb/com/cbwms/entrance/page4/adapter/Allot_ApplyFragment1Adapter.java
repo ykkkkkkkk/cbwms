@@ -76,7 +76,8 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
 //        tv_nums.setText(df.format(entity.getFqty()));
-        tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getFqty())+"</font>"));
+//        tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getFqty())+"</font>"));
+        tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getPassQty())+"</font>"));
         String outStockName = Comm.isNULLS(entity.getOutStockName());
         outStockName = outStockName.length() == 0 ? "无" : outStockName;
         String outStockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());
@@ -162,34 +163,6 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
         void onClick_selStock(View v, StkTransferOutEntry entity, int position);
         void onCheck(StkTransferOutEntry entity, int position, boolean isOnLong);
     }
-
-    /*之下的方法都是为了方便操作，并不是必须的*/
-
-    //在指定位置插入，原位置的向后移动一格
-//    public boolean addItem(int position, String msg) {
-//        if (position < datas.size() && position >= 0) {
-//            datas.add(position, msg);
-//            notifyItemInserted(position);
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    //去除指定位置的子项
-//    public boolean removeItem(int position) {
-//        if (position < datas.size() && position >= 0) {
-//            datas.remove(position);
-//            notifyItemRemoved(position);
-//            return true;
-//        }
-//        return false;
-//    }
-
-    //清空显示数据
-//    public void clearAll() {
-//        datas.clear();
-//        notifyDataSetChanged();
-//    }
 
 
 }

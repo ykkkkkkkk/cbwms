@@ -42,6 +42,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
+import ykk.cb.com.cbwms.basics.PublicInputDialog3;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
@@ -410,7 +411,16 @@ public class Allot_PickingListFragment3 extends BaseFragment {
 
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
-                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
+                if(entity.getUnitFname().equals("码")) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("hintName", "数量");
+                    bundle.putString("showInfo", showInfo);
+                    bundle.putDouble("value", entity.getTmpPickFqty());
+                    bundle.putBoolean("isCheckNext", false); // 多行同样的物料，扫码入数下一行
+                    showForResult(PublicInputDialog3.class, RESULT_NUM, bundle);
+                } else {
+                    showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
+                }
             }
 
             @Override
@@ -1052,6 +1062,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 if (resultCode == RESULT_OK) {
                     String billNo = (String) data.getSerializableExtra("obj");
                     curViewFlag = '1';
+                    stkFbillNo = billNo;
                     run_findDatas(stkFbillNo);
                 }
                 break;
@@ -1249,13 +1260,13 @@ public class Allot_PickingListFragment3 extends BaseFragment {
             return;
         }
         // 如果是合并查询，就不显示单号列表
-        if(isFpaezIsCombine) {
+//        if(isFpaezIsCombine) {
             curViewFlag = '1';
             run_findDatas(null);
-        } else {
-            curViewFlag = '2';
-            run_findDatas(null);
-        }
+//        } else {
+//            curViewFlag = '2';
+//            run_findDatas(null);
+//        }
     }
 
     /**
@@ -1292,6 +1303,7 @@ public class Allot_PickingListFragment3 extends BaseFragment {
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", getValues(tvDateSel)) // 调出日期（查询调拨单）
                 .add("billStatus", "2") // 已审核的单据（查询调拨单）
+                .add("passQtyNotNull", "1") // 只显示行审核数不为空的
                 .add("entryStatus", "1") // 未关闭的行（查询调拨单）
                 .add("deliveryWayName", "") // 发货类别
                 .add("prodSeqNumberStatus", prodSeqNumberStatus) // 按照生产顺序号来排序

@@ -104,7 +104,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     private String countSum() {
         double sum = 0.0;
         for (int i = 0; i < listDatas.size(); i++) {
-            sum = BigdecimalUtil.add(sum, listDatas.get(i).getFqty());
+//            sum = BigdecimalUtil.add(sum, listDatas.get(i).getFqty());
+            sum = BigdecimalUtil.add(sum, listDatas.get(i).getPassQty());
         }
         return String.valueOf(df.format(sum));
     }
@@ -134,9 +135,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 
                                 boolean isOneOrder = true; // 是否一个调拨单
                                 String billNo = m.listDatas.get(0).getStkTransferOut().getBillNo();
-                                for(StkTransferOutEntry stkEntryFor : m.listDatas) {
+                                for(int i=0, size=list.size();  i<size; i++) {
+                                    StkTransferOutEntry stkEntryFor = m.listDatas.get(i);
                                     stkEntryFor.setFpaezIsCombine(m.isFpaezIsCombine);
                                     stkEntryFor.setCheckNext(false);
+                                    stkEntryFor.setTmpPickFqty(stkEntryFor.getPassQty());
                                     if(!billNo.equals(stkEntryFor.getStkTransferOut().getBillNo())) {
                                         isOneOrder = false;
                                     }
@@ -301,7 +304,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             public void onClick_num(View v, StkTransferOutEntry entity, int position) {
                 Log.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getFqty()), "0.0",false, RESULT_NUM);
+                showInputDialog("数量", String.valueOf(entity.getPassQty()), "0.0",false, RESULT_NUM);
             }
 
 //            @Override
@@ -435,26 +438,44 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 //                hideKeyboard(mContext.getCurrentFocus());
                 Map<Integer,Boolean> map = new HashMap<>();
                 StringBuilder sbIds = new StringBuilder();
+                StringBuilder sbEntryInfo = new StringBuilder(); // 记录调拨单分录：id，调拨数，审核数；用，号隔开
                 for(int i=0; i<listDatas.size(); i++) {
                     StkTransferOutEntry stkEntry = listDatas.get(i);
                     int billId = stkEntry.getStkBillId();
-                    if(stkEntry.getIsCheck() == 1 && !map.containsKey(billId)) {
-                        // 判断有没有关闭的行
-                        if(stkEntry.getStkTransferOut().getCloseStatus() > 1 || stkEntry.getEntryStatus() > 1) {
-                            Comm.showWarnDialog(mContext,"第"+(i+1)+"行单据状态或者行状态是关闭的，不能审核！");
-                            return;
+                    if(stkEntry.getIsCheck() == 1) {
+                        if(!map.containsKey(billId)) {
+                            // 判断有没有关闭的行
+                            if (stkEntry.getStkTransferOut().getCloseStatus() > 1 || stkEntry.getEntryStatus() > 1) {
+                                Comm.showWarnDialog(mContext, "第" + (i + 1) + "行单据状态或者行状态是关闭的，不能审核！");
+                                return;
+                            }
+                            map.put(billId, true);
+                            sbIds.append(billId + ":");
                         }
-                        map.put(billId, true);
-                        sbIds.append(billId+":");
+                        if(stkEntry.getPassQty() >= stkEntry.getTmpPickFqty()) {
+                            sbEntryInfo.append(stkEntry.getId()+":"+stkEntry.getPassQty()+":0,");
+                        } else {
+                            double passQty = BigdecimalUtil.sub(stkEntry.getTmpPickFqty(), stkEntry.getPassQty());
+                            sbEntryInfo.append(stkEntry.getId() + ":" + stkEntry.getPassQty() + ":" + passQty + ",");
+                        }
                     }
                 }
                 if(sbIds.length() == 0) {
                     Comm.showWarnDialog(mContext,"请选中要审核的行！");
                     return;
                 }
-                // 去掉最好：
-                sbIds.delete(sbIds.length()-1, sbIds.length());
-                run_pass(sbIds.toString());
+                // 去掉最后：
+                if(sbIds.length() > 0) {
+                    sbIds.delete(sbIds.length() - 1, sbIds.length());
+                }
+                // 去掉最后，
+                if(sbEntryInfo.length() > 0) {
+                    sbEntryInfo.delete(sbEntryInfo.length() - 1, sbEntryInfo.length());
+                }
+
+                // 清空关闭的map
+                mapNeedCloseDatas.clear();
+                run_pass(sbIds.toString(), sbEntryInfo.toString());
 
                 break;
             case R.id.btn_add: // 新增拣货单
@@ -649,6 +670,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                             return;
                         }
                         listDatas.get(curPos).setFqty(num);
+                        listDatas.get(curPos).setPassQty(num);
                         mAdapter.notifyDataSetChanged();
 //                        StkTransferOutEntry stkEntry = listDatas.get(curPos);
 //                        run_modifyFqty(stkEntry.getId(), num);
@@ -796,12 +818,13 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 break;
         }
         FormBody formBody = new FormBody.Builder()
-                .add("isValidStatus", "1")
+//                .add("isValidStatus", "1")
+                .add("entryPassStatus", "0") // 只显示为0的数据
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", outDate) // 调出日期（查询调拨单）
-                .add("billStatus", "1") // 未审核的单据（查询调拨单）
+//                .add("billStatus", "1") // 未审核的单据（查询调拨单）
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
                 .add("prodSeqNumberStatus", isFpaezIsCombine ? "ASC" : "") // 按照生产顺序号来排序
                 .add("stockPosSeqStatus", isFpaezIsCombine ? "ASC" : "") // 按照库位序号来排序
@@ -943,14 +966,13 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     /**
      * 单据审核
      */
-    private void run_pass(String ids) {
+    private void run_pass(String ids, String strEntryInfo) {
         showLoadDialog("正在审核...");
-        String mUrl = getURL("stkTransferOut/billVerify");
+        String mUrl = getURL("stkTransferOut/modifyStkTransferOutStatus");
         getUserInfo();
         FormBody formBody = new FormBody.Builder()
-                .add("isAppUse", "1")
-                .add("billStatus","2")
-                .add("ids", ids)
+                .add("stkIds", ids)
+                .add("strEntryInfo", strEntryInfo)
                 .build();
 
         Request request = new Request.Builder()

@@ -95,10 +95,16 @@ public class Prod_BoxFragment1 extends BaseFragment {
     TextView tvCustSel;
     @BindView(R.id.tv_deliverSel)
     TextView tvDeliverSel;
+    @BindView(R.id.tv_singleshipment)
+    TextView tvSingleshipment;
     @BindView(R.id.tv_count)
     TextView tvCount;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.btn_del)
+    Button btnDel;
+    @BindView(R.id.btn_clone)
+    Button btnClone;
     @BindView(R.id.btn_save)
     Button btnSave;
     @BindView(R.id.btn_end)
@@ -113,9 +119,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private Prod_BoxFragment1 mFragment = this;
     private Prod_BoxMainActivity parent;
     private Activity mContext;
-    private static final int SEL_BOX = 13, SEL_NUM = 14;
+    private static final int SEL_BOX = 10, SEL_NUM = 11;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SAVE = 202, UNSAVE = 502, DELETE = 203, UNDELETE = 503, MODIFY = 204, UNMODIFY = 504, MODIFY2 = 205, UNMODIFY2 = 505, MODIFY3 = 206, UNMODIFY3 = 506, MODIFY_NUM = 207, UNMODIFY_NUM = 507, ISAUTO = 208, ISAUTO_NULL = 508, CHECK_AUTO = 209, CHECK_AUTO_NULL = 509, FIND_BOXNUM = 210, UNFIND_BOXNUM = 510;
-    private static final int SETFOCUS = 1, SAOMA = 100;
+    private static final int SETFOCUS = 1, PRINT_NUM = 2, SAOMA = 100;
     private Box box; // 箱子表
     private BoxBarCode boxBarCode; // 箱码表
     private Prod_BoxFragment1Adapter mAdapter;
@@ -269,7 +275,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         }
                         if(m.status == '2') {
                             // 去打印
-                            m.servicePrint();
+//                            m.servicePrint(1);
+                            m.showInputDialog("打印次数", "1", "0",false, PRINT_NUM);
                         }
 
                         break;
@@ -563,7 +570,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"箱子里还没有物料不能打印！");
                     return;
                 }
-                servicePrint();
+//                servicePrint(1);
+                showInputDialog("打印次数", "1", "0",false, PRINT_NUM);
 
                 break;
             case R.id.btn_clone: // 新装
@@ -602,11 +610,11 @@ public class Prod_BoxFragment1 extends BaseFragment {
     /**
      * 调用服务器来打印
      */
-    private void servicePrint() {
+    private void servicePrint(int printNum) {
         int size = checkDatas.size();
         StringBuilder json = new StringBuilder();
         String custName = getValues(tvCustSel).replace("客户：", "");
-        json.append("{\"boxCount\":\""+countBoxNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
+        json.append("{\"boxCount\":\""+countBoxNum+"\",\"printNum\":\""+printNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
         json.append("[");
         for(int i=0;i<size;i++){
             MaterialBinningRecord m = checkDatas.get(i);
@@ -792,12 +800,16 @@ public class Prod_BoxFragment1 extends BaseFragment {
         status = '0';
         combineSalOrderId = 0;
         singleshipment = 0;
+        btnDel.setVisibility(View.VISIBLE);
+        btnClone.setVisibility(View.VISIBLE);
+        btnSave.setVisibility(View.VISIBLE);
         btnEnd.setVisibility(View.GONE);
         btnPrint.setVisibility(View.GONE);
         if(isClear) {
             etBoxCode.setText("");
             boxBarCode = null;
             setFocusable(etBoxCode);
+            btnSave.setVisibility(View.VISIBLE);
         }
 //        etProdOrderCode.setText("");
         setEnables(etMtlCode, R.color.transparent,true);
@@ -808,7 +820,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
         tvStatus.setText(Html.fromHtml(""+"<font color='#000000'>状态：未开箱</font>"));
         tvBoxName.setText("");
         tvBoxSize.setText("");
+        tvDeliverSel.setText("发货类别：");
         tvCustSel.setText("客户：");
+        tvSingleshipment.setText("");
 //        setEnables(tvCustSel, R.drawable.back_style_gray3, false);
 //        setEnables(tvCustSel, R.drawable.back_style_blue, true);
 //        tvDeliverSel.setText("");
@@ -908,14 +922,14 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                return true;
 //            }
 //        });
-        btnSave.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                //调用 HTML 中的javaScript 函数
-                mWebView.loadUrl("javascript:print()");
-                return true;
-            }
-        });
+//        btnSave.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                //调用 HTML 中的javaScript 函数
+//                mWebView.loadUrl("javascript:print()");
+//                return true;
+//            }
+//        });
     }
 
     @Override
@@ -950,6 +964,17 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         mAdapter.notifyDataSetChanged();
                         isNeedSave = true; // 点击封箱时是否需要保存
 //                        run_modifyNumber2(id, number);
+                    }
+                }
+
+                break;
+            case PRINT_NUM: // 打印次数
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        int printNum = parseInt(value);
+                        servicePrint(printNum);
                     }
                 }
 
@@ -1025,13 +1050,16 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
                 tvCount.setText("数量："+df.format(sum));
                 tvCustSel.setText("客户："+mbr.getCustomer().getCustomerName());
-                tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
+                tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
+
                 // 得到是否拼单发货还是整单货非整单
                 ProdOrder prodOrder = JsonUtil.stringToObject(mbr.getRelationObj(),ProdOrder.class);
                 combineSalOrderId = boxBarCode.getCombineSalOrderId(); // 拼单主表id
                 combineSalOrderRow = boxBarCode.getCombineSalOrderRow(); // 拼单子表行数
                 combineSalOrderFqtys = boxBarCode.getCombineSalOrderFqtys();; // 拼单子表总数量
                 singleshipment = prodOrder.getSingleshipment();
+
+                tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
 
             } else {
                 tvCount.setText("数量：0");
@@ -1071,6 +1099,20 @@ public class Prod_BoxFragment1 extends BaseFragment {
             combineSalOrderId = boxBarCode.getCombineSalOrderId();
             combineSalOrderRow = boxBarCode.getCombineSalOrderRow();
             combineSalOrderFqtys = boxBarCode.getCombineSalOrderFqtys();
+            // 是否已经出库了
+            if(boxBarCode.isOutStockFlag()) {
+                btnDel.setVisibility(View.GONE);
+                btnSave.setVisibility(View.GONE);
+                btnEnd.setVisibility(View.GONE);
+                btnClone.setVisibility(View.VISIBLE);
+                btnPrint.setVisibility(View.VISIBLE);
+            } else {
+                btnDel.setVisibility(View.VISIBLE);
+                btnClone.setVisibility(View.VISIBLE);
+                btnSave.setVisibility(View.VISIBLE);
+                btnEnd.setVisibility(View.GONE);
+                btnPrint.setVisibility(View.GONE);
+            }
 
             mAdapter.notifyDataSetChanged();
         }
@@ -1081,7 +1123,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
      */
     private void getProdOrderToMbr(ProdOrder prodOrder, BarCodeTable bt) {
         int dataSize = checkDatas.size();
-        String receiveAddress = prodOrder.getReceiveAddress();
+        String receiveAddress = deleteSymbol(prodOrder.getReceiveAddress());
         if(dataSize > 0) {
             MaterialBinningRecord mbr = checkDatas.get(0);
             // 判断当前客户是否一致
@@ -1089,9 +1131,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 Comm.showWarnDialog(mContext,"当前扫描的生产订单，客户不一致，请检查！");
                 return;
             }
-            String receiveAddress2 = mbr.getReceiveAddress();
+            String receiveAddress2 = deleteSymbol(mbr.getReceiveAddress());
             if(!receiveAddress2.equals(receiveAddress)) {
                 Comm.showWarnDialog(mContext,"当前扫描的发货地址不一致，请检查！");
+                return;
             }
 //            // 判断是否相同的
 //            for(int i=0; i<checkDatas.size(); i++) {
@@ -1193,8 +1236,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
             sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
-        tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
         tvCustSel.setText("客户："+mbr.getCustomerName());
+        tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
+        tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
@@ -1210,7 +1254,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
      */
     private void getSalOrderToMbr(SalOrder salOrder, BarCodeTable bt) {
         int dataSize = checkDatas.size();
-        String receiveAddress = salOrder.getReceiveAddress();
+        String receiveAddress = deleteSymbol(salOrder.getReceiveAddress());
         if(dataSize > 0) {
             MaterialBinningRecord mbr = checkDatas.get(0);
             // 判断当前客户是否一致
@@ -1218,9 +1262,10 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 Comm.showWarnDialog(mContext,"当前扫描的生产订单，客户不一致，请检查！");
                 return;
             }
-            String receiveAddress2 = mbr.getReceiveAddress();
+            String receiveAddress2 = deleteSymbol(mbr.getReceiveAddress());
             if(!receiveAddress2.equals(receiveAddress)) {
                 Comm.showWarnDialog(mContext,"当前扫描的发货地址不一致，请检查！");
+                return;
             }
         }
         MaterialBinningRecord mbr = new MaterialBinningRecord();
@@ -1315,8 +1360,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
             sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
         }
         tvCount.setText("数量："+ df.format(sum));
-        tvDeliverSel.setText("发货类别："+mbr.getDeliveryWay());
         tvCustSel.setText("客户："+mbr.getCustomerName());
+        tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
+        tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
@@ -1325,6 +1371,21 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 查询客户开的是第几个箱子
         String custName = Comm.getRealCustName(mbr.getCustomerName());
         run_findUseBoxNum(custName);
+    }
+
+    /**
+     * 收货地址去符号（逗号，句号，空格，破折号）
+     */
+    private String deleteSymbol(String addRess) {
+        addRess = addRess.replace(",",""); // 去小写逗号
+        addRess = addRess.replace("，",""); // 去大写逗号
+        addRess = addRess.replace(".",""); // 去小写句号
+        addRess = addRess.replace("。",""); // 去大写句号
+        addRess = addRess.trim(); // 前后去空
+        addRess = addRess.replace(" ",""); // 去空格
+        addRess = addRess.replace("-",""); // 去小写破折号
+        addRess = addRess.replace("—",""); // 去大写破折号
+        return addRess;
     }
 
     /**

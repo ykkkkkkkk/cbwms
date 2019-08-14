@@ -1414,13 +1414,12 @@ public class Pur_InFragment2 extends BaseFragment {
 
         StringBuilder strFbillNo = new StringBuilder();
         for(int i=0, size=fbillNoList.size(); i<size; i++) {
-            strFbillNo.append("'" + fbillNoList.get(i) + "',");
+            strFbillNo.append(fbillNoList.get(i) + ",");
         }
-
-        // 减去前面'
-        strFbillNo.delete(0, 1);
-        // 减去最好一个'，
-        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
+        // 减去最后一个，
+        if(strFbillNo.length() > 0) {
+            strFbillNo.delete(strFbillNo.length() - 1, strFbillNo.length());
+        }
 
         FormBody formBody = new FormBody.Builder()
 //                .add("fbillNo", k3Number)

@@ -13,7 +13,7 @@ public class ProdInStockEntry {
 	private String mtlName;//物料名称
 	private String unitName; // 单位名称
 	private double sumQty;// 采购入库单总数量
-	private String prodNo; // 生产任务单
+	private String fsrcBillNo; // 源单单号
 	private String stockName; // 仓库
 
 	// 临时字段，不存表
@@ -83,21 +83,9 @@ public class ProdInStockEntry {
 		this.sumQty = sumQty;
 	}
 
-
-	public String getProdNo() {
-		return prodNo;
-	}
-
-
-	public void setProdNo(String prodNo) {
-		this.prodNo = prodNo;
-	}
-
-
 	public boolean isChecked() {
 		return checked;
 	}
-
 
 	public void setChecked(boolean checked) {
 		this.checked = checked;
@@ -111,5 +99,12 @@ public class ProdInStockEntry {
 		this.stockName = stockName;
 	}
 
+	public String getFsrcBillNo() {
+		return fsrcBillNo;
+	}
+
+	public void setFsrcBillNo(String fsrcBillNo) {
+		this.fsrcBillNo = fsrcBillNo;
+	}
 
 }

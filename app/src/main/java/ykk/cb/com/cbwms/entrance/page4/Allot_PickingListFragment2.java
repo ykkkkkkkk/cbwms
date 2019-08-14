@@ -45,6 +45,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
+import ykk.cb.com.cbwms.basics.PublicInputDialog3;
 import ykk.cb.com.cbwms.basics.Staff_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
@@ -487,7 +488,16 @@ public class Allot_PickingListFragment2 extends BaseFragment {
 
                 curPos = position;
                 String showInfo = "<font color='#666666'>物料名称：</font>" + entity.getMtlFname();
-                showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
+                if(entity.getUnitFname().equals("码")) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("hintName", "数量");
+                    bundle.putString("showInfo", showInfo);
+                    bundle.putDouble("value", entity.getTmpPickFqty());
+                    bundle.putBoolean("isCheckNext", false); // 多行同样的物料，扫码入数下一行
+                    showForResult(PublicInputDialog3.class, RESULT_NUM, bundle);
+                } else {
+                    showInputDialog("数量", showInfo, String.valueOf(entity.getTmpPickFqty()), "0.0",false, RESULT_NUM);
+                }
             }
 
             @Override
@@ -1323,7 +1333,16 @@ public class Allot_PickingListFragment2 extends BaseFragment {
 
                         curPos = i;
                         String showInfo = "<font color='#666666'>物料编码：</font>"+tmpMtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+tmpMtl.getfName()+"<br><font color='#666666'>批次：</font>"+isNULLS(bt.getBatchCode()+"<br><font color='#666666'>条码数量：</font>"+isNULLS(bt.getMaterialCalculateNumber()));
-                        showInputDialog("数量", showInfo, String.valueOf(BigdecimalUtil.sub(bt.getMaterialCalculateNumber(), sumNum)), "0.0",true, RESULT_NUM2);
+                        if(stkEntry.getUnitFname().equals("码")) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("hintName", "数量");
+                            bundle.putString("showInfo", showInfo);
+                            bundle.putDouble("value", BigdecimalUtil.sub(bt.getMaterialCalculateNumber(), sumNum));
+                            bundle.putBoolean("isCheckNext", true); // 多行同样的物料，扫码入数下一行
+                            showForResult(PublicInputDialog3.class, RESULT_NUM2, bundle);
+                        } else {
+                            showInputDialog("数量", showInfo, String.valueOf(BigdecimalUtil.sub(bt.getMaterialCalculateNumber(), sumNum)), "0.0",true, RESULT_NUM2);
+                        }
 
                     } else {
                         stkEntry.setIsUniqueness('Y');
@@ -1545,6 +1564,7 @@ public class Allot_PickingListFragment2 extends BaseFragment {
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
                 .add("outDate", getValues(tvDateSel)) // 调出日期（查询调拨单）
                 .add("billStatus", "2") // 已审核的单据（查询调拨单）
+                .add("passQtyNotNull", "1") // 只显示行审核数不为空的
                 .add("entryStatus", "1") // 未关闭的行（查询调拨单）
                 .add("deliveryWayName", getValues(tvDeliveryWay)) // 发货类别
                 .add("prodSeqNumberStatus", prodSeqNumberStatus) // 按照生产顺序号来排序

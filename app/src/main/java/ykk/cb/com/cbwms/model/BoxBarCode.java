@@ -34,6 +34,7 @@ public class BoxBarCode implements Serializable {
 	private int combineSalOrderId; // 拼单主表id
 	private int combineSalOrderRow; // 拼单子表行数
 	private double combineSalOrderFqtys; // 拼单子表总数量
+	private boolean outStockFlag; // true：箱码已出库，false：未出库
 
 	public BoxBarCode() {
 		super();
@@ -132,5 +133,13 @@ public class BoxBarCode implements Serializable {
 	public void setCombineSalOrderFqtys(double combineSalOrderFqtys) {
 		this.combineSalOrderFqtys = combineSalOrderFqtys;
 	}
-	
+
+	public boolean isOutStockFlag() {
+		return outStockFlag;
+	}
+
+
+	public void setOutStockFlag(boolean outStockFlag) {
+		this.outStockFlag = outStockFlag;
+	}
 }

@@ -10,6 +10,8 @@ public class PurInStockEntry {
 	private String mtlName;//物料名称
 	private String unitName; // 单位名称
 	private double sumQty;// 采购入库单总数量
+	private String fsrcBillNo; // 源单单号
+	private String stockName; // 仓库
 
 	// 临时字段，不存表
 	private boolean isCheck; // 用于是否选中标识
@@ -108,5 +110,20 @@ public class PurInStockEntry {
 		this.isCheck = isCheck;
 	}
 
+	public String getStockName() {
+		return stockName;
+	}
+
+	public void setStockName(String stockName) {
+		this.stockName = stockName;
+	}
+
+	public String getFsrcBillNo() {
+		return fsrcBillNo;
+	}
+
+	public void setFsrcBillNo(String fsrcBillNo) {
+		this.fsrcBillNo = fsrcBillNo;
+	}
 
 }

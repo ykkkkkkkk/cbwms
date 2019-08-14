@@ -50,7 +50,7 @@ public class Allot_PickingListFragment3Adapter extends BaseArrayRecyclerAdapter<
         Material mtl = entity.getMaterial();
         tv_row.setText(String.valueOf(pos + 1));
         tv_stkNumber.setText(entity.getStkTransferOut().getBillNo());
-        tv_orderNo.setText(String.valueOf(entity.getOrderNo()));
+        tv_orderNo.setText(Comm.isNULLS(entity.getOrderNo()));
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号

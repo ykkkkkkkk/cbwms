@@ -1,4 +1,4 @@
-package ykk.cb.com.cbwms.produce.adapter;
+package ykk.cb.com.cbwms.entrance.page4.adapter;
 
 import android.app.Activity;
 import android.view.View;
@@ -8,51 +8,60 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.model.pur.ProdInStockEntry;
+import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Prod_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<ProdInStockEntry> {
+public class Allot_ApplyFragment2Adapter_190810 extends BaseArrayRecyclerAdapter<StkTransferOut> {
     private DecimalFormat df = new DecimalFormat("#.######");
     private Activity context;
     private MyCallBack callBack;
-    private List<ProdInStockEntry> datas;
 
-    public Prod_InStockPassEntryAdapter(Activity context, List<ProdInStockEntry> datas) {
+    public Allot_ApplyFragment2Adapter_190810(Activity context, List<StkTransferOut> datas) {
         super(datas);
         this.context = context;
-        this.datas = datas;
     }
 
     @Override
     public int bindView(int viewtype) {
-        return R.layout.prod_instock_pass_entry_item;
+        return R.layout.allot_apply_fragment2_item_190810;
     }
 
     @Override
-    public void onBindHoder(RecyclerHolder holder, final ProdInStockEntry entity, final int pos) {
+    public void onBindHoder(RecyclerHolder holder, final StkTransferOut entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
-        TextView tv_fsrcBillNo = holder.obtainView(R.id.tv_fsrcBillNo);
-        TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
-        TextView tv_numUnit = holder.obtainView(R.id.tv_numUnit);
-        TextView tv_stockName = holder.obtainView(R.id.tv_stockName);
+        TextView tv_check = holder.obtainView(R.id.tv_check);
+        TextView tv_sourceNo = holder.obtainView(R.id.tv_sourceNo);
+        TextView tv_nums = holder.obtainView(R.id.tv_nums);
+
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
-        tv_fsrcBillNo.setText(entity.getFsrcBillNo());
-        tv_mtlName.setText(entity.getMtlName());
-        String unitName = entity.getUnitName();
-        String num1 = df.format(entity.getSumQty());
-        tv_numUnit.setText(num1+""+unitName);
-        tv_stockName.setText(entity.getStockName());
+        tv_sourceNo.setText(entity.getBillNo());
+        tv_nums.setText(df.format(entity.getEntrySumQty()));
 
-        // 点击显示全部物料名称
-        tv_mtlName.setOnClickListener(new View.OnClickListener() {
+        View view = (View) tv_check.getParent();
+        if(entity.getIsCheck() == 1) {
+            tv_check.setBackgroundResource(R.drawable.check_true);
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
+            tv_check.setBackgroundResource(R.drawable.check_false);
+            view.setBackgroundResource(R.drawable.back_style_check1_false);
+        }
+
+        View.OnClickListener click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Comm.showWarnDialog(context, entity.getMtlName());
+                switch (v.getId()) {
+                    case R.id.tv_check: // 选中
+                        if (callBack != null) {
+                            callBack.onCheck(v, entity, pos);
+                        }
+
+                        break;
+                }
             }
-        });
+        };
+        tv_check.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -60,13 +69,8 @@ public class Prod_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<ProdI
     }
 
     public interface MyCallBack {
+        void onCheck(View v, StkTransferOut entity, int position);
     }
-
-
-
-
-
-
 
     /*之下的方法都是为了方便操作，并不是必须的*/
 
@@ -89,6 +93,7 @@ public class Prod_InStockPassEntryAdapter extends BaseArrayRecyclerAdapter<ProdI
 //        }
 //        return false;
 //    }
+
     //清空显示数据
 //    public void clearAll() {
 //        datas.clear();

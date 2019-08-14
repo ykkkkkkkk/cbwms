@@ -311,7 +311,7 @@
                     android:layout_below="@+id/tvImg10"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/_3dp"
-                    android:text="入库审核"
+                    android:text="生产审核"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_18sp" />
 

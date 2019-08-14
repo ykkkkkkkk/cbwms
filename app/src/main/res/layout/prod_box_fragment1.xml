@@ -228,14 +228,33 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_deliverSel"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:text="发货类别："
-        android:textColor="@color/black"
-        android:textSize="@dimen/_14sp" />
+        android:layout_marginRight="8dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_deliverSel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="发货类别："
+            android:layout_marginRight="@dimen/_6dp"
+            android:textColor="@color/c_666666"
+            android:textSize="@dimen/_14sp" />
+
+        <TextView
+            android:id="@+id/tv_singleshipment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/c_FF0000"
+            android:textStyle="bold"
+            android:textSize="@dimen/_14sp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_custSel"
@@ -291,9 +310,9 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="物料代码"
-                    android:visibility="gone"
                     android:textColor="#000000"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:layout_width="196dp"

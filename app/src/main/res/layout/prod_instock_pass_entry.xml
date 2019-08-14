@@ -58,6 +58,7 @@
 
     <HorizontalScrollView
         android:layout_width="match_parent"
+        android:scrollbars="none"
         android:layout_height="match_parent">
 
         <LinearLayout
@@ -82,7 +83,7 @@
                     android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="生产订单号"
+                    android:text="源单号"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 

@@ -305,9 +305,9 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
         entry.setUnitFumber(mtl.getUnit().getUnitNumber());
         entry.setUnitFname(mtl.getUnit().getUnitName());
         entry.setFqty(temp.getFqty());
-        entry.setPickFqty(0);
         entry.setNeedFqty(temp.getFqty());
         entry.setApplicationQty(temp.getFqty());
+        entry.setPickFqty(0);
         entry.setEntryStatus(1);
         entry.setEntrySrc("2");
         entry.setCreateCodeStatus(1);

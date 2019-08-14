@@ -48,7 +48,7 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 /**
- * 扫箱码 出库
+ * 运单审核
  */
 public class Sal_OutPassFragment1 extends BaseFragment {
 
@@ -499,15 +499,13 @@ public class Sal_OutPassFragment1 extends BaseFragment {
             SalOutStock s = listOk.get(i);
             String fbillNo = s.getFbillno();
             if (strFbillNo.indexOf(fbillNo) == -1) {
-                strFbillNo.append("'" + fbillNo + "',");
+                strFbillNo.append(fbillNo + ",");
             }
         }
-
-        // 减去前面'
-        strFbillNo.delete(0, 1);
-        // 减去最好一个'，
-        strFbillNo.delete(strFbillNo.length() - 2, strFbillNo.length());
-
+        // 减去最后一个，
+        if(strFbillNo.length() > 0) {
+            strFbillNo.delete(strFbillNo.length() - 1, strFbillNo.length());
+        }
         run_submitAndPass(strFbillNo.toString());
     }
 

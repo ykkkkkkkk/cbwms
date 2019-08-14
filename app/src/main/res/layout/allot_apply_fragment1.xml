@@ -305,7 +305,7 @@
             android:gravity="center"
             android:text="新增调拨单"
             android:textColor="@color/c_666666"
-            android:textSize="16sp" />
+            android:textSize="@dimen/_14sp" />
 
         <Button
             android:id="@+id/btn_save"
@@ -316,7 +316,7 @@
             android:gravity="center"
             android:text="保存"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/_16sp" />
 
         <Button
             android:id="@+id/btn_pass"
@@ -325,9 +325,9 @@
             android:layout_weight="1"
             android:background="@drawable/btn_purple2_selector"
             android:gravity="center"
-            android:text="审核"
+            android:text="审核行"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/_16sp" />
 
     </LinearLayout>
 

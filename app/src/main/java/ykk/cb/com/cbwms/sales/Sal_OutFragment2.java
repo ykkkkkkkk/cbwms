@@ -797,9 +797,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     Comm.showWarnDialog(mContext,"拼单缺少物料或配件,或者未扫完箱码!");
                     break;
             }
-            return;
+        } else {
+            run_findStatus();
         }
-        run_findStatus();
     }
 
     @Override
@@ -1137,6 +1137,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderId(salOrder.getfId());
                 sr2.setSalOrderNo(salOrder.getFbillno());
                 sr2.setSalOrderNoEntryId(salOrder.getEntryId());
+                sr2.setReceiveAddress(salOrder.getReceiveAddress());
 
             } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
@@ -1148,6 +1149,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderId(prodOrder.getSalOrderId());
                 sr2.setSalOrderNo(prodOrder.getSalOrderNo());
                 sr2.setSalOrderNoEntryId(prodOrder.getSalOrderEntryId());
+                sr2.setReceiveAddress(prodOrder.getReceiveAddress());
                 if(checkDatas.size() == 0) { // 这里是为了箱子是整单，订单在数据库更新为非整单，然后就按照非整单判断
                     singleshipment = prodOrder.getSingleshipment() ;
                 }
@@ -1376,6 +1378,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             record.setSalOrderId(sr2.getSalOrderId());
             record.setSalOrderNo(sr2.getSalOrderNo());
             record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
+            record.setReceiveAddress(sr2.getReceiveAddress());
 
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());

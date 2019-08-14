@@ -149,6 +149,7 @@ public class StkTransferOutEntry implements Serializable {
     private int createCodeStatus;
     /* 原因 */
     private String cause;
+    private double passQty; // 调拨申请审核记录的数量
     //++++++++++++++++++++++++++++
 
     // 临时字段
@@ -757,5 +758,13 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setCheckNext(boolean checkNext) {
         this.checkNext = checkNext;
+    }
+
+    public double getPassQty() {
+        return passQty;
+    }
+
+    public void setPassQty(double passQty) {
+        this.passQty = passQty;
     }
 }

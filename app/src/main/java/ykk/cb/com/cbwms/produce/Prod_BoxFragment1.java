@@ -241,6 +241,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                             m.checkDatas.clear();
                         }
                         m.mAdapter.notifyDataSetChanged();
+                        m.tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+m.df.format(m.countSaoMaSum())+"</font>"));
 
                         break;
                     case UNDELETE: // 删除 失败
@@ -791,6 +792,19 @@ public class Prod_BoxFragment1 extends BaseFragment {
     }
 
     /**
+     * 统计扫码总数
+     * @return
+     */
+    private double countSaoMaSum() {
+        double sum = 0;
+        for (int i = 0, size = checkDatas.size(); i < size; i++) {
+//                          sum = BigdecimalUtil.add(sum, checkDatas.get(i).getUsableFqty());
+            sum = BigdecimalUtil.add(sum, checkDatas.get(i).getNumber());
+        }
+        return sum;
+    }
+
+    /**
      * 重置
      */
     private void reset(boolean isClear) {
@@ -827,7 +841,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //        setEnables(tvCustSel, R.drawable.back_style_blue, true);
 //        tvDeliverSel.setText("");
 //        setEnables(tvDeliverSel, R.drawable.back_style_blue, true);
-        tvCount.setText("数量：0");
+        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>0</font>"));
 
         curViewFlag = '1';
 
@@ -964,6 +978,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         mAdapter.notifyDataSetChanged();
                         isNeedSave = true; // 点击封箱时是否需要保存
 //                        run_modifyNumber2(id, number);
+                        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
                     }
                 }
 
@@ -1044,11 +1059,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     }
                 }
                 checkDatas.addAll(listMbr);
-                double sum = 0;
-                for(int i = 0, size = checkDatas.size(); i<size; i++) {
-                    sum = BigdecimalUtil.add(sum, checkDatas.get(i).getUsableFqty());
-                }
-                tvCount.setText("数量："+df.format(sum));
+                tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
                 tvCustSel.setText("客户："+mbr.getCustomer().getCustomerName());
                 tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
 
@@ -1062,7 +1073,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
 
             } else {
-                tvCount.setText("数量：0");
+                tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>0</font>"));
             }
             btnEnd.setText("封箱");
             btnEnd.setVisibility(View.GONE);
@@ -1104,17 +1115,20 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 btnDel.setVisibility(View.GONE);
                 btnSave.setVisibility(View.GONE);
                 btnEnd.setVisibility(View.GONE);
-                btnClone.setVisibility(View.VISIBLE);
+                btnClone.setVisibility(View.GONE);
                 btnPrint.setVisibility(View.VISIBLE);
-            } else {
-                btnDel.setVisibility(View.VISIBLE);
-                btnClone.setVisibility(View.VISIBLE);
-                btnSave.setVisibility(View.VISIBLE);
-                btnEnd.setVisibility(View.GONE);
-                btnPrint.setVisibility(View.GONE);
             }
 
             mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * 清空之前的扫码痕迹
+     */
+    private void setSmCheckFalse() {
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            checkDatas.get(i).setCurSaoMa(false);
         }
     }
 
@@ -1230,12 +1244,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
         checkDatas.add(mbr);
 
-        // 汇总数量
-        double sum = 0;
-        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
-        }
-        tvCount.setText("数量："+ df.format(sum));
+        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
         tvCustSel.setText("客户："+mbr.getCustomerName());
         tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
         tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
@@ -1247,6 +1256,17 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 查询客户开的是第几个箱子
         String custName = Comm.getRealCustName(mbr.getCustomerName());
         run_findUseBoxNum(custName);
+
+        setSmCheckFalse();
+        final int curPosition = checkDatas.size()-1;
+        checkDatas.get(curPosition).setCurSaoMa(true);
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(curPosition);
+            }
+        });
     }
 
     /**
@@ -1354,12 +1374,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 
         checkDatas.add(mbr);
 
-        // 汇总数量
-        double sum = 0;
-        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
-        }
-        tvCount.setText("数量："+ df.format(sum));
+        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
         tvCustSel.setText("客户："+mbr.getCustomerName());
         tvDeliverSel.setText(Html.fromHtml("发货类别：<font color='#000000'>"+mbr.getDeliveryWay()+"</font>"));
         tvSingleshipment.setText(singleshipment == 1 ? "整单":"非整单");
@@ -1371,6 +1386,17 @@ public class Prod_BoxFragment1 extends BaseFragment {
         // 查询客户开的是第几个箱子
         String custName = Comm.getRealCustName(mbr.getCustomerName());
         run_findUseBoxNum(custName);
+
+        setSmCheckFalse();
+        final int curPosition = checkDatas.size()-1;
+        checkDatas.get(curPosition).setCurSaoMa(true);
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(curPosition);
+            }
+        });
     }
 
     /**
@@ -1462,12 +1488,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             checkDatas.add(mbr);
         }
 
-        // 汇总数量
-        double sum = 0;
-        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
-        }
-        tvCount.setText("数量："+ df.format(sum));
+        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
@@ -1513,12 +1534,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
             }
         }
 
-        // 汇总数量
-        double sum = 0;
-        for(int j = 0, sizeJ = checkDatas.size(); j<sizeJ; j++) {
-            sum = BigdecimalUtil.add(sum, checkDatas.get(j).getUsableFqty());
-        }
-        tvCount.setText("数量："+ df.format(sum));
+        tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
         tvStatus.setText(Html.fromHtml("状态：<font color='#008800'>已开箱</font>"));
         setFocusable(etMtlCode);
         mAdapter.notifyDataSetChanged();
@@ -1555,10 +1571,12 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private void getMtlAfter(Material tmpMtl, BarCodeTable bt) {
         int size = checkDatas.size();
         boolean isFlag = false; // 是否存在该订单
+        int curPosition = -1;
         for (int i = 0; i < size; i++) {
             MaterialBinningRecord mbr = checkDatas.get(i);
             // 如果扫码相同
             if (bt.getEntryId() == mbr.getEntryId()) {
+                curPosition = i;
                 isFlag = true;
 
 //                double fqty = 1;
@@ -1651,6 +1669,19 @@ public class Prod_BoxFragment1 extends BaseFragment {
         }
         isNeedSave = true; // 点击封箱时是否需要保存
         setFocusable(etMtlCode);
+
+        if(curPosition > -1) {
+            setSmCheckFalse();
+            final int finalCurPosition = curPosition;
+            checkDatas.get(finalCurPosition).setCurSaoMa(true);
+            // 滑到当前扫码行
+            recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    recyclerView.smoothScrollToPosition(finalCurPosition);
+                }
+            });
+        }
     }
 
     /**
@@ -1790,6 +1821,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 checkDatas.clear();
             }
             mAdapter.notifyDataSetChanged();
+            tvCount.setText(Html.fromHtml("数量：<font color='#FF2200'>"+df.format(countSaoMaSum())+"</font>"));
 
             return;
         } else {
@@ -1806,7 +1838,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 }
             }
         }
-        // 删除最好一个，
+        // 删除最后一个，
         strMbrId.delete(strMbrId.length()-1, strMbrId.length());
 
         showLoadDialog("加载中...");

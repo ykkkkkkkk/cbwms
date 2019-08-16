@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -50,6 +51,12 @@ import ykk.cb.com.cbwms.util.LogUtil;
  */
 public class Allot_ApplyAddActivity extends BaseActivity {
 
+    @BindView(R.id.radio1)
+    RadioButton radio1;
+    @BindView(R.id.radio2)
+    RadioButton radio2;
+    @BindView(R.id.radio3)
+    RadioButton radio3;
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
     @BindView(R.id.tv_inStockSel)
@@ -179,7 +186,33 @@ public class Allot_ApplyAddActivity extends BaseActivity {
     @Override
     public void initData() {
         getUserInfo();
+        bundle();
         tvDateSel.setText(Comm.getSysDate(7));
+    }
+
+    private void bundle() {
+        Bundle bundle = context.getIntent().getExtras();
+        if(bundle != null) {
+            businessType = bundle.getInt("businessType");
+            switch (businessType) {
+                case 1:
+                    radio1.setChecked(true);
+                    radio2.setEnabled(false);
+                    radio3.setEnabled(false);
+                    break;
+                case 2:
+                    radio2.setChecked(true);
+                    radio1.setEnabled(false);
+                    radio3.setEnabled(false);
+                    break;
+                case 3:
+                    radio3.setChecked(true);
+                    radio1.setEnabled(false);
+                    radio2.setEnabled(false);
+                    break;
+            }
+
+        }
     }
 
     @OnClick({R.id.btn_close, R.id.radio1, R.id.radio2, R.id.radio3, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel,
@@ -211,13 +244,11 @@ public class Allot_ApplyAddActivity extends BaseActivity {
 
                 break;
             case R.id.tv_inStockSel: // 调入仓库
-                bundle = new Bundle();
-                showForResult(Stock_DialogActivity.class, SEL_IN_STOCK, bundle);
+                showForResult(Stock_DialogActivity.class, SEL_IN_STOCK, null);
 
                 break;
             case R.id.tv_outStockSel: // 调出仓库
-                bundle = new Bundle();
-                showForResult(Stock_DialogActivity.class, SEL_OUT_STOCK, bundle);
+                showForResult(Stock_DialogActivity.class, SEL_OUT_STOCK, null);
 
                 break;
             case R.id.tv_dateSel: // 日期
@@ -246,7 +277,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 break;
             case R.id.btn_selMtl: // 选择物料
                 bundle = new Bundle();
-                bundle.putString("fNumberIsOneAndTwo", "1");
+//                bundle.putString("fNumberIsOneAndTwo", "1");
                 bundle.putInt("returnType", 2); // 选择多行数据返回
                 showForResult(Material_ListActivity.class, SEL_MTL2, bundle);
 
@@ -316,8 +347,8 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                 stkOut.setOwnerOutId(100508);
                 stkOut.setOwnerOutNumber("HN02");
                 stkOut.setOwnerOutName("河南工厂");
-                stkOut.setBillStatus(2);
-                stkOut.setCloseStatus(1);
+                stkOut.setBillStatus(2); // 单据状态:1、为新建 2、审核
+                stkOut.setCloseStatus(1); // 关闭状态:1、正常   2、自动关闭  3、手动关闭
                 stkOut.setBusinessType(businessType); // 业务类型:1、材料按次 2、材料按批 3、成品
 
                 // 单据类型 （VMI直接调拨单：ZJDB05_SYS，标准直接调拨单：ZJDB01_SYS）
@@ -360,6 +391,8 @@ public class Allot_ApplyAddActivity extends BaseActivity {
         entry.setApplicationQty(temp.getFqty());
         entry.setPickFqty(0);
         entry.setEntryStatus(1);
+        entry.setPassQty(0);
+        entry.setEntryPassStatus(1); // 行审核 （ 0：未审，1：审核 ）
         entry.setEntrySrc("2");
         entry.setCreateCodeStatus(1);
         entry.setCause(temp.getCause());

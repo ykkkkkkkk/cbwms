@@ -431,6 +431,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 workRecord.setCreateUserId(user.getId());
                 workRecord.setPosition2(node.getPosition2());
                 workRecord.setLocationName(node.getLocationName());
+                workRecord.setProcessId(allotWork.getProcedureId());
 
                 list.add(workRecord);
             }

@@ -236,6 +236,38 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="@dimen/_30dp"
+        android:background="@drawable/back_style_blue5">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center|right"
+            android:text="扫码合计："
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_countSum"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_marginLeft="@dimen/_12dp"
+            android:text="0"
+            android:textColor="@color/c_FF4400"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="@dimen/_38dp"
         android:orientation="horizontal">
 

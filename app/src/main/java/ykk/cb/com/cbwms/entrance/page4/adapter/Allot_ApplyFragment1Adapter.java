@@ -60,13 +60,13 @@ public class Allot_ApplyFragment1Adapter extends BaseArrayRecyclerAdapter<StkTra
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
-        if (mtl.getIsSnManager() == 1) {
-            tv_nums.setEnabled(false);
-            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
-        } else {
-            tv_nums.setEnabled(true);
-            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
-        }
+//        if (mtl.getIsSnManager() == 1) {
+//            tv_nums.setEnabled(false);
+//            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
+//        } else {
+//            tv_nums.setEnabled(true);
+//            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
+//        }
         View view = (View) tv_check.getParent();
         if(entity.getIsCheck() == 1) {
             tv_check.setBackgroundResource(R.drawable.check_true);

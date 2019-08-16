@@ -100,6 +100,9 @@ public class SalOrder implements Serializable{
     private String mtlCartype;
     /*线路*/
     private String custRoute;
+    /*对应k3单据里生产顺序号字段*/
+    private String productionseq;
+
 
     public SalOrder() {
         super();
@@ -527,6 +530,14 @@ public class SalOrder implements Serializable{
 
     public void setUsableFqty(double usableFqty) {
         this.usableFqty = usableFqty;
+    }
+
+    public String getProductionseq() {
+        return productionseq;
+    }
+
+    public void setProductionseq(String productionseq) {
+        this.productionseq = productionseq;
     }
 
 }

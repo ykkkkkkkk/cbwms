@@ -49,16 +49,18 @@ public class Sal_OutPassFragment1Adapter extends BaseArrayRecyclerAdapter<SalOut
         // 是否显示选中列
 //        boolean isShow = entity.getIsMoreOrder() == 1;
 //        tv_check.setVisibility(isShow ? View.VISIBLE : View.GONE);
-        boolean isSm = entity.isSm();
-        tv_curCarriageNo.setText(isSm ? entity.getCurCarriageNo() : "");
+        boolean isSaoMa = entity.isSaoMa();
+        tv_curCarriageNo.setText(isSaoMa ? entity.getCurCarriageNo() : "");
 
-        boolean isCheck = entity.isCheck();
-        View view = (View) tv_check.getParent();
-        if(isCheck) {
+        if(entity.isCheck()) {
             tv_check.setBackgroundResource(R.drawable.check_true);
-            view.setBackgroundResource(R.drawable.back_style_check1_true);
         } else {
             tv_check.setBackgroundResource(R.drawable.check_false);
+        }
+        View view = (View) tv_check.getParent();
+        if(entity.isCurSaoMa()) {
+            view.setBackgroundResource(R.drawable.back_style_check1_true);
+        } else {
             view.setBackgroundResource(R.drawable.back_style_check1_false);
         }
     }

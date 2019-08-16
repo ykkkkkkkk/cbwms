@@ -207,7 +207,7 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
                 break;
             case R.id.btn_selMtl: // 选择物料
                 bundle = new Bundle();
-                bundle.putString("fNumberIsOneAndTwo", "1");
+//                bundle.putString("fNumberIsOneAndTwo", "1");
                 bundle.putInt("returnType", 2); // 选择多行数据返回
                 showForResult(Material_ListActivity.class, SEL_MTL2, bundle);
 
@@ -309,6 +309,8 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
         entry.setApplicationQty(temp.getFqty());
         entry.setPickFqty(0);
         entry.setEntryStatus(1);
+        entry.setPassQty(0);
+        entry.setEntryPassStatus(1); // 行审核 （ 0：未审，1：审核 ）
         entry.setEntrySrc("2");
         entry.setCreateCodeStatus(1);
         entry.setCause(temp.getCause());

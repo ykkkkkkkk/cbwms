@@ -117,6 +117,8 @@ public class MaterialBinningRecord implements Serializable {
     private double salOrderSumQty; // 箱子对应的销售订单的总数量
     private int salOrderAutoMtlSum; // 箱子对应的销售订单配件的总行数
     private int countBoxNum; // 客户的第几个箱子
+    private boolean curSaoMa; // 当前扫码行
+    private String unitName; // 物料单位名称
 
 
     public MaterialBinningRecord() {
@@ -489,6 +491,22 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setIsUniqueness(char isUniqueness) {
         this.isUniqueness = isUniqueness;
+    }
+
+    public boolean isCurSaoMa() {
+        return curSaoMa;
+    }
+
+    public void setCurSaoMa(boolean curSaoMa) {
+        this.curSaoMa = curSaoMa;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
 }

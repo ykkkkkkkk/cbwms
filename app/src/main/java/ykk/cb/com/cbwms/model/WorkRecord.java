@@ -19,6 +19,9 @@ public class WorkRecord implements Serializable {
 	private double workQty; // 报工数量
 	private int createUserId; // 创建人
 	private String createDate; // 创建日期
+	private int checkId;//审核人id
+	private String checkDate;//审核时间
+	private int processId;//工序id
 
 	// 临时字段，不存表
 	private int position2; // 第二级的行号
@@ -27,6 +30,8 @@ public class WorkRecord implements Serializable {
 	private String locationName;//位置名称
 	private String workStaffName;//报工人名称
 	private String createName;//创建人
+	private String checkName;//审核人
+	private String processName;
 
 	public WorkRecord() {
 		super();
@@ -183,5 +188,46 @@ public class WorkRecord implements Serializable {
 	public void setCreateName(String createName) {
 		this.createName = createName;
 	}
+
+	public int getCheckId() {
+		return checkId;
+	}
+
+	public void setCheckId(int checkId) {
+		this.checkId = checkId;
+	}
+
+	public int getProcessId() {
+		return processId;
+	}
+
+	public void setProcessId(int processId) {
+		this.processId = processId;
+	}
+
+	public String getProcessName() {
+		return processName;
+	}
+
+	public void setProcessName(String processName) {
+		this.processName = processName;
+	}
+
+	public String getCheckDate() {
+		return checkDate;
+	}
+
+	public void setCheckDate(String checkDate) {
+		this.checkDate = checkDate;
+	}
+
+	public String getCheckName() {
+		return checkName;
+	}
+
+	public void setCheckName(String checkName) {
+		this.checkName = checkName;
+	}
+
 
 }

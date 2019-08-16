@@ -69,4 +69,20 @@
         android:layout_height="@dimen/_1dp"
         android:background="@color/white" />
 
+    <Button
+        android:id="@+id/btn5"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:background="@drawable/btn_blue2_selector"
+        android:gravity="center"
+        android:text="新增调拨单"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_2dp"
+        android:background="@color/white" />
+
 </LinearLayout>

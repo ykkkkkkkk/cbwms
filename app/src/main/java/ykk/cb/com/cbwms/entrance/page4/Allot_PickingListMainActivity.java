@@ -196,36 +196,56 @@ public class Allot_PickingListMainActivity extends BaseActivity {
         Button btn2 = (Button) popView.findViewById(R.id.btn2);
         Button btn3 = (Button) popView.findViewById(R.id.btn3);
         Button btn4 = (Button) popView.findViewById(R.id.btn4);
+        Button btn5 = (Button) popView.findViewById(R.id.btn5);
         btn2.setVisibility(View.GONE);
         btn4.setVisibility(View.GONE);
+        btn5.setVisibility(View.VISIBLE);
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.btn1: // 整单关闭
-                        menuStatus = 1;
-                        break;
-                    case R.id.btn2: // 反整单关闭
-                        menuStatus = 2;
-                        break;
-                    case R.id.btn3: // 行关闭
-                        menuStatus = 3;
-                        break;
-                    case R.id.btn4: // 反行关闭
-                        menuStatus = 4;
-                        break;
-                }
-                switch (pageId) {
-                    case 0:
-                        fragment1.closeBefer();
-                        break;
-                    case 1:
-                        fragment2.closeBefer();
-                        break;
-                    case 2:
-                        fragment3.closeBefer();
-                        break;
+                int vId = v.getId();
+                if(vId == R.id.btn5) { // 新增调拨单
+                    Bundle bundle = new Bundle();
+                    switch (pageId) {
+                        case 0:
+                            bundle.putInt("businessType", 1); // 业务类型: 1、材料按次
+                            break;
+                        case 1:
+                            bundle.putInt("businessType", 2); // 业务类型: 2、材料按批
+                            break;
+                        case 2:
+                            bundle.putInt("businessType", 3); // 业务类型: 3、成品
+                            break;
+                    }
+                    show(Allot_ApplyAddActivity.class, bundle);
+
+                } else if(v.getId() == R.id.btn5) {
+                    switch (vId) {
+                        case R.id.btn1: // 整单关闭
+                            menuStatus = 1;
+                            break;
+                        case R.id.btn2: // 反整单关闭
+                            menuStatus = 2;
+                            break;
+                        case R.id.btn3: // 行关闭
+                            menuStatus = 3;
+                            break;
+                        case R.id.btn4: // 反行关闭
+                            menuStatus = 4;
+                            break;
+                    }
+                    switch (pageId) {
+                        case 0:
+                            fragment1.closeBefer();
+                            break;
+                        case 1:
+                            fragment2.closeBefer();
+                            break;
+                        case 2:
+                            fragment3.closeBefer();
+                            break;
+                    }
                 }
 
                 popWindowA.dismiss();
@@ -235,6 +255,7 @@ public class Allot_PickingListMainActivity extends BaseActivity {
         btn2.setOnClickListener(click);
         btn3.setOnClickListener(click);
         btn4.setOnClickListener(click);
+        btn5.setOnClickListener(click);
 
         // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
         popWindowA = new PopupWindow(popView, 200,

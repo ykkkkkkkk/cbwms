@@ -150,6 +150,7 @@ public class StkTransferOutEntry implements Serializable {
     /* 原因 */
     private String cause;
     private double passQty; // 调拨申请审核记录的数量
+    private int entryPassStatus; // 行审核 （ 0：未审，1：审核 ）
     //++++++++++++++++++++++++++++
 
     // 临时字段
@@ -163,6 +164,7 @@ public class StkTransferOutEntry implements Serializable {
     private int stockPosSeq; // 库位序号
     private boolean fpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
     private boolean checkNext; // 是否下一个物料入数
+    private double alikeMtlSum; // 相同物料总数
 
     public StkTransferOutEntry() {
         super();
@@ -766,5 +768,21 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setPassQty(double passQty) {
         this.passQty = passQty;
+    }
+
+    public int getEntryPassStatus() {
+        return entryPassStatus;
+    }
+
+    public void setEntryPassStatus(int entryPassStatus) {
+        this.entryPassStatus = entryPassStatus;
+    }
+
+    public double getAlikeMtlSum() {
+        return alikeMtlSum;
+    }
+
+    public void setAlikeMtlSum(double alikeMtlSum) {
+        this.alikeMtlSum = alikeMtlSum;
     }
 }

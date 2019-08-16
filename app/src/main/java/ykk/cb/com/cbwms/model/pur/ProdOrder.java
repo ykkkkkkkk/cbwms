@@ -136,6 +136,12 @@ public class ProdOrder implements Serializable {
     private int isBatchManager;
     /*入库上限数量*/
     private double stockInLimith;
+    /*对应k3单据里另外一个生产顺序号字段*/
+    private String productionseq;
+    /*k3里设置的物料计价方式类别*/
+    private String mtlWageType;
+    /*k3里设置的物料片数*/
+    private int mtlPiece;
 
     // 临时字段，不加表
     private int isCheck; // 新加的是否选中
@@ -719,6 +725,30 @@ public class ProdOrder implements Serializable {
 
     public void setStockInLimith(double stockInLimith) {
         this.stockInLimith = stockInLimith;
+    }
+
+    public String getProductionseq() {
+        return productionseq;
+    }
+
+    public void setProductionseq(String productionseq) {
+        this.productionseq = productionseq;
+    }
+
+    public String getMtlWageType() {
+        return mtlWageType;
+    }
+
+    public void setMtlWageType(String mtlWageType) {
+        this.mtlWageType = mtlWageType;
+    }
+
+    public int getMtlPiece() {
+        return mtlPiece;
+    }
+
+    public void setMtlPiece(int mtlPiece) {
+        this.mtlPiece = mtlPiece;
     }
 
 }

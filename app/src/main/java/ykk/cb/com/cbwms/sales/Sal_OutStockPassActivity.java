@@ -324,6 +324,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
         showLoadDialog("加载中...");
         String mUrl = getURL("salOutStock/findSalOutStockList");
         FormBody formBody = new FormBody.Builder()
+                .add("fdocumentStatus", "1")
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

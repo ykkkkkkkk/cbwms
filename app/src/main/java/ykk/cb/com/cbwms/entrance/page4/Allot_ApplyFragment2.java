@@ -145,6 +145,9 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                                         isOneOrder = false;
                                     }
                                 }
+                                // 计算相同物料的总数量
+                                m.countAlikeMtlSum();
+
 //                                m.linAddRow.setVisibility(isOneOrder ? View.VISIBLE : View.INVISIBLE);
                                 // 合计总数
                                 m.tvCountSum.setText(m.countSum());
@@ -221,6 +224,30 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                         break;
                 }
             }
+        }
+    }
+
+    /**
+     *  计算相同物料的总数
+     */
+    private void countAlikeMtlSum() {
+        int size = listDatas.size();
+        Map<String, Double> mapMtl = new HashMap<>();
+        for(int i=0; i<size; i++) {
+            StkTransferOutEntry stkEntry = listDatas.get(i);
+            String mtlNumber = stkEntry.getMtlFnumber();
+            double passQty = stkEntry.getPassQty();
+            if(!mapMtl.containsKey(mtlNumber)) {
+                mapMtl.put(mtlNumber, passQty);
+            } else {
+                double fqty = mapMtl.get(mtlNumber);
+                mapMtl.put(mtlNumber, passQty + fqty );
+            }
+        }
+
+        for(int i=0; i<size; i++) {
+            StkTransferOutEntry stkEntry = listDatas.get(i);
+            stkEntry.setAlikeMtlSum(mapMtl.get(stkEntry.getMtlFnumber()));
         }
     }
 
@@ -453,8 +480,8 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                             map.put(billId, true);
                             sbIds.append(billId + ":");
                         }
-                        if(stkEntry.getTmpPickFqty() == stkEntry.getPassQty()) {
-                            sbEntryInfo.append(stkEntry.getId()+":"+stkEntry.getPassQty()+":"+stkEntry.getPassQty()+",");
+                        if(stkEntry.getTmpPickFqty() >= stkEntry.getPassQty()) {
+                            sbEntryInfo.append(stkEntry.getId()+":"+stkEntry.getPassQty()+":0,");
                         } else {
                             double passQty = BigdecimalUtil.sub(stkEntry.getTmpPickFqty(), stkEntry.getPassQty());
                             sbEntryInfo.append(stkEntry.getId() + ":" + stkEntry.getPassQty() + ":" + passQty + ",");

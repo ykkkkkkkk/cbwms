@@ -239,10 +239,10 @@
         <TextView
             android:id="@+id/tv_deliverSel"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="发货类别："
             android:layout_marginRight="@dimen/_6dp"
+            android:layout_weight="1"
+            android:text="发货类别："
             android:textColor="@color/c_666666"
             android:textSize="@dimen/_14sp" />
 
@@ -251,8 +251,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/c_FF0000"
-            android:textStyle="bold"
-            android:textSize="@dimen/_14sp" />
+            android:textSize="@dimen/_14sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
@@ -403,14 +403,15 @@
 
         <Button
             android:id="@+id/btn_print"
-            android:layout_width="56dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@drawable/btn_gray2_selector"
             android:ems="2"
             android:gravity="center"
-            android:text="打印\n清单"
-            android:textColor="@color/c_666666"
-            android:textSize="12sp"
+            android:text="打印"
+            android:textColor="@color/c_515151"
+            android:textSize="16sp"
             android:visibility="gone" />
 
     </LinearLayout>

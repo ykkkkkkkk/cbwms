@@ -347,14 +347,20 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             @Override
             public void onCheck(StkTransferOutEntry entity, int position, boolean isOnLong) {
                 int isCheck = entity.getIsCheck();
+                int entryStatus = entity.getEntryStatus();
                 if(isOnLong) { // 长按事件
-                    if (isCheck == 1) {
-                        isCheck = 0;
-                    } else {
-                        isCheck = 1;
-                    }
+//                    if (isCheck == 1) {
+//                        isCheck = 0;
+//                    } else {
+//                        isCheck = 1;
+//                    }
                     for(int i=0; i<listDatas.size(); i++) {
-                        listDatas.get(i).setIsCheck(isCheck);
+                        StkTransferOutEntry stkEntry = listDatas.get(i);
+                        if(stkEntry.getEntryStatus() == entryStatus) {
+                            stkEntry.setIsCheck(isCheck);
+                        } else {
+                            stkEntry.setIsCheck(0);
+                        }
                     }
                 } else { // 点击事件
                     if (isCheck == 1) {

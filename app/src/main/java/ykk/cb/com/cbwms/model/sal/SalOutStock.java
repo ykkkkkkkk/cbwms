@@ -27,8 +27,9 @@ public class SalOutStock implements Serializable {
     // 临时字段，不存表
     private int isMoreOrder; // 本次查询是否有多个出库单
     private String curCarriageNo; // 当前扫描的运单号
-    private boolean isCheck; // 用于是否选中标识
-    private boolean isSm; // 用于标识是否扫码
+    private boolean check; // 用于是否选中标识
+    private boolean saoMa; // 用于标识是否扫码
+    private boolean curSaoMa; // 当前扫码行
 
     public SalOutStock() {
         super();
@@ -122,14 +123,6 @@ public class SalOutStock implements Serializable {
         this.isMoreOrder = isMoreOrder;
     }
 
-    public boolean isCheck() {
-        return isCheck;
-    }
-
-    public void setCheck(boolean isCheck) {
-        this.isCheck = isCheck;
-    }
-
     public String getFdocumentStatus() {
         return fdocumentStatus;
     }
@@ -170,14 +163,6 @@ public class SalOutStock implements Serializable {
         this.curCarriageNo = curCarriageNo;
     }
 
-    public boolean isSm() {
-        return isSm;
-    }
-
-    public void setSm(boolean isSm) {
-        this.isSm = isSm;
-    }
-
     public String getOrderEntryReezeStatus() {
         return orderEntryReezeStatus;
     }
@@ -216,6 +201,30 @@ public class SalOutStock implements Serializable {
 
     public void setBillDate(String billDate) {
         this.billDate = billDate;
+    }
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
+    }
+
+    public boolean isSaoMa() {
+        return saoMa;
+    }
+
+    public void setSaoMa(boolean saoMa) {
+        this.saoMa = saoMa;
+    }
+
+    public boolean isCurSaoMa() {
+        return curSaoMa;
+    }
+
+    public void setCurSaoMa(boolean curSaoMa) {
+        this.curSaoMa = curSaoMa;
     }
 
 }

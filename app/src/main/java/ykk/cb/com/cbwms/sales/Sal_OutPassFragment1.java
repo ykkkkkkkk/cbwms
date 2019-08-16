@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -58,6 +59,8 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     EditText etCode;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    @BindView(R.id.tv_countSum)
+    TextView tvCountSum;
 
     private Sal_OutPassFragment1 context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SAOMA = 100, SETFOCUS = 101;
@@ -73,7 +76,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     private boolean isTextChange; // 是否进入TextChange事件
 
     // 消息处理
-    private Sal_OutPassFragment1.MyHandler mHandler = new Sal_OutPassFragment1.MyHandler(this);
+    private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
         private final WeakReference<Sal_OutPassFragment1> mActivity;
@@ -139,13 +142,11 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                         } else m.barcode = etName;
                         m.setTexts(m.etCode, m.barcode);
-                        m.isTextChange = false;
                         // 判断当前行是否有相同的运单号
                         if (!m.carriageNoExistRow()) {
                             // 执行查询方法
                             m.run_smGetDatas(m.barcode);
                         }
-                        m.mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
 
                         break;
                 }
@@ -236,7 +237,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+            mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
         }
     }
 
@@ -271,7 +272,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                 break;
             case R.id.btn_del: // 删除行
                 if (checkDatas.size() == 0) {
-                    Comm.showWarnDialog(mContext, "请扫码运单号！");
+                    Comm.showWarnDialog(mContext, "请扫描运单号！");
                     return;
                 }
                 boolean isCheck = false;
@@ -280,6 +281,11 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                     if (sOut.isCheck()) {
                         isCheck = true;
                         checkDatas.remove(i);
+
+                        int smNum = parseInt(getValues(tvCountSum));
+                        if(smNum > 0) {
+                            tvCountSum.setText(String.valueOf(smNum-1));
+                        }
                     }
                 }
                 if(!isCheck) {
@@ -287,7 +293,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
                     return;
                 }
                 mAdapter.notifyDataSetChanged();
-                mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+                mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
 
                 break;
             case R.id.btn_scan: // 调用摄像头扫描
@@ -312,7 +318,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         };
         etCode.setOnClickListener(click);
 
-        // 箱码
+        // 运单号
         etCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -338,6 +344,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         barcode = null;
         etCode.setText("");
         checkDatas.clear();
+        tvCountSum.setText("0");
         if(listTmp != null ) {
             checkDatas.addAll(listTmp);
             // 保存单号，不重复
@@ -361,7 +368,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
             }
         }
         mAdapter.notifyDataSetChanged();
-        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
     }
 
 
@@ -415,19 +422,37 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         if (checkDatas.size() == 0) return false;
         int size = checkDatas.size();
         boolean isBool = false;
+        setSmCheckFalse();
         for (int i = 0; i < size; i++) {
             SalOutStock sOut = checkDatas.get(i);
             if (barcode != null && barcode.equals(sOut.getCurCarriageNo().toUpperCase())) {
-                if (sOut.isSm()) {
+                sOut.setCurSaoMa(true); // 行选中
+                if (sOut.isSaoMa()) {
                     Comm.showWarnDialog(mContext, "该运单号已经扫过了！");
                 } else {
-                    sOut.setSm(true);
+                    sOut.setSaoMa(true);
+                    tvCountSum.setText(String.valueOf(parseInt(getValues(tvCountSum))+1));
                 }
                 isBool = true;
                 break;
             }
         }
         mAdapter.notifyDataSetChanged();
+        isTextChange = false;
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                int position = -1;
+                for(int i=0, size = checkDatas.size(); i<size; i++ ) {
+                    if(checkDatas.get(i).isCurSaoMa()) {
+                        position = i;
+                        break;
+                    }
+                }
+                if(position > -1) recyclerView.smoothScrollToPosition(position);
+            }
+        });
 
         return isBool;
     }
@@ -443,19 +468,46 @@ public class Sal_OutPassFragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext,"该条码已审核！");
             return;
         }
+        setSmCheckFalse(); // 清空之前的扫码痕迹
         int size = list.size();
         for (int i = 0; i < size; i++) {
             SalOutStock sOut = list.get(i);
             String carriageNo = sOut.getfCarriageNO();
             if (barcode != null && barcode.equals(sOut.getCurCarriageNo().toUpperCase())) {
-                sOut.setSm(true);
+                sOut.setSaoMa(true);
+                sOut.setCurSaoMa(true); // 行选中
             }
             sOut.setfCarriageNO(carriageNo.replace("/", "<br>"));
         }
         checkDatas.addAll(list);
         mAdapter.notifyDataSetChanged();
+        tvCountSum.setText(String.valueOf(parseInt(getValues(tvCountSum))+1));
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                int position = -1;
+                for(int i=0, size = checkDatas.size(); i<size; i++ ) {
+                    if(checkDatas.get(i).isCurSaoMa()) {
+                        position = i;
+                        break;
+                    }
+                }
+                if(position > -1) recyclerView.smoothScrollToPosition(position);
+            }
+        });
 
-        mHandler.sendEmptyMessageDelayed(SETFOCUS, 300);
+
+        mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
+    }
+
+    /**
+     * 清空之前的扫码痕迹
+     */
+    private void setSmCheckFalse() {
+        for(int i=0, size=checkDatas.size(); i<size; i++) {
+            checkDatas.get(i).setCurSaoMa(false);
+        }
     }
 
     /**
@@ -475,7 +527,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         for(int i=0; i<size; i++) {
             SalOutStock sOut = checkDatas.get(i);
             String fbillNo = sOut.getFbillno();
-            if(!sOut.isSm() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
+            if(!sOut.isSaoMa() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
                 mapFbillNos.put(fbillNo, true);
             }
         }
@@ -484,7 +536,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
         for(int i=0; i<size; i++) {
             SalOutStock sOut = checkDatas.get(i);
             String fbillNo = sOut.getFbillno();
-            if(sOut.isSm() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
+            if(sOut.isSaoMa() && !mapFbillNos.containsKey(fbillNo)) { // 未扫完，未存对象的出库单号
                 listOk.add(sOut);
             }
         }
@@ -567,7 +619,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                 break;
         }
-        mHandler.sendEmptyMessageDelayed(SETFOCUS,300);
+        mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
     }
 
     /**

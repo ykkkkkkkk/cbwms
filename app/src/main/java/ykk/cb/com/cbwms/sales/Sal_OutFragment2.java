@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,6 +126,10 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     EditText etExpressNo;
     @BindView(R.id.lin_top)
     LinearLayout linTop;
+    @BindView(R.id.tv_boxSize)
+    TextView tvBoxSize;
+    @BindView(R.id.tv_countSum)
+    TextView tvCountSum;
 
     private Sal_OutFragment2 context = this;
     private static final int SEL_ORDER = 10, SEL_DEPT = 11, SEL_ORG = 12, SEL_ORG2 = 13, SEL_EXPRESS = 14, SEL_STOCK2 = 15, SEL_STOCKP2 = 16, SEL_STAFF = 17;
@@ -156,6 +161,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private boolean isTextChange; // 是否进入TextChange事件
     private boolean isFold; // 是否折叠
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
+    private DecimalFormat df = new DecimalFormat("#.####");
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -262,6 +268,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                 m.getSourceAfter2(listMbr);
                                 // 把这个箱码保存到map中
                                 m.mapBox.put(m.boxBarcode, true);
+                                // 显示合计信息
+                                m.tvBoxSize.setText(String.valueOf(m.mapBox.size()));
+                                m.tvCountSum.setText(m.countSum());
 
                                 break;
                         }
@@ -770,7 +779,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         }
 
         double salOrderSumQty = sRecord2.getSalOrderSumQty();
-        Log.e("AABDDDDFSDS", salOrderSumQty+"----"+writeSumQty);
+        LogUtil.e("AABDDDDFSDS", salOrderSumQty+"----"+writeSumQty);
         if(salOrderSumQty > writeSumQty) {
             // 1、非整非拼，2、整单发货，3、拼单
             switch (orderDeliveryType) {
@@ -862,6 +871,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         orderDeliveryType = '0';
         mapBox.clear();
         curPos = -1;
+        tvBoxSize.setText(String.valueOf(mapBox.size()));
+        tvCountSum.setText(countSum());
     }
 
     private void resetSon() {
@@ -888,6 +899,17 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private void resetSon2() {
         etBoxCode.setText("");
         boxBarcode = null;
+    }
+
+    /**
+     * 计算实发总数
+     */
+    private String countSum() {
+        double sum = 0.0;
+        for (int i = 0; i < checkDatas.size(); i++) {
+            sum = BigdecimalUtil.add(sum, checkDatas.get(i).getStockqty());
+        }
+        return df.format(sum);
     }
 
     @Override
@@ -1138,6 +1160,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderNo(salOrder.getFbillno());
                 sr2.setSalOrderNoEntryId(salOrder.getEntryId());
                 sr2.setReceiveAddress(salOrder.getReceiveAddress());
+                sr2.setFproductionSeq("");
 
             } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
@@ -1153,6 +1176,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 if(checkDatas.size() == 0) { // 这里是为了箱子是整单，订单在数据库更新为非整单，然后就按照非整单判断
                     singleshipment = prodOrder.getSingleshipment() ;
                 }
+                sr2.setFproductionSeq(prodOrder.getProductionseq());
             }
             sr2.setCaseId(mbr.getCaseId());
             // 物料默认的仓库库位
@@ -1379,6 +1403,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             record.setSalOrderNo(sr2.getSalOrderNo());
             record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
             record.setReceiveAddress(sr2.getReceiveAddress());
+            record.setFproductionSeq(sr2.getFproductionSeq());
 
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());

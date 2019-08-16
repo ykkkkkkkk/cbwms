@@ -32,6 +32,7 @@ public class Sal_OutFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRe
     public void onBindHoder(RecyclerHolder holder, final ScanningRecord2 entity, final int pos) {
         // 初始化id
         TextView tv_row = holder.obtainView(R.id.tv_row);
+        TextView tv_salNo = holder.obtainView(R.id.tv_salNo);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_batch_seqNo = holder.obtainView(R.id.tv_batch_seqNo);
@@ -39,6 +40,7 @@ public class Sal_OutFragment2Adapter extends BaseArrayRecyclerAdapter<ScanningRe
         TextView tv_stockAP = holder.obtainView(R.id.tv_stockAP);
         // 赋值
         tv_row.setText(String.valueOf(pos + 1));
+        tv_salNo.setText(entity.getSalOrderNo());
         tv_mtlNumber.setText(entity.getMtl().getfNumber());
         tv_mtlName.setText(entity.getMtl().getfName());
         // 是否启用序列号

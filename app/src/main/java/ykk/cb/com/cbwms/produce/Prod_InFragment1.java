@@ -1137,6 +1137,15 @@ public class Prod_InFragment1 extends BaseFragment {
         tvSmCountNum.setText(String.valueOf(parseInt(getValues(tvSmCountNum))+1));
         // 合计总数
         tvCountSum.setText(String.valueOf(countSum()));
+
+        final int curPosition = checkDatas.size()-1;
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(curPosition);
+            }
+        });
     }
 
     private void setCheckFalse() {
@@ -1256,6 +1265,15 @@ public class Prod_InFragment1 extends BaseFragment {
         setCheckFalse();
         checkDatas.get(position).setCheck(true);
         mAdapter.notifyDataSetChanged();
+
+        final int curPosition = position;
+        // 滑到当前扫码行
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                recyclerView.smoothScrollToPosition(curPosition);
+            }
+        });
 
         setFocusable(etMtlCode);
         // 条码格式

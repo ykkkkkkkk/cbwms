@@ -38,9 +38,11 @@ public class Allot_ApplyFragment2Adapter extends BaseArrayRecyclerAdapter<StkTra
         TextView tv_prodSeqNumber = holder.obtainView(R.id.tv_prodSeqNumber);
         TextView tv_check = holder.obtainView(R.id.tv_check);
         TextView tv_sourceNo = holder.obtainView(R.id.tv_sourceNo);
+        TextView tv_salNo = holder.obtainView(R.id.tv_salNo);
         TextView tv_mtlNumber = holder.obtainView(R.id.tv_mtlNumber);
         TextView tv_mtlName = holder.obtainView(R.id.tv_mtlName);
         TextView tv_nums = holder.obtainView(R.id.tv_nums);
+        TextView tv_alikeMtlSum = holder.obtainView(R.id.tv_alikeMtlSum);
         TextView tv_outStockAP = holder.obtainView(R.id.tv_outStockAP);
         TextView tv_inStockAP = holder.obtainView(R.id.tv_inStockAP);
         TextView tv_rowStatus = holder.obtainView(R.id.tv_rowStatus);
@@ -56,16 +58,17 @@ public class Allot_ApplyFragment2Adapter extends BaseArrayRecyclerAdapter<StkTra
         } else {
             tv_sourceNo.setText(stkOut.getBillNo());
         }
+        tv_salNo.setText(Comm.isNULLS(entity.getOrderNo()));
         tv_mtlNumber.setText(entity.getMtlFnumber());
         tv_mtlName.setText(entity.getMtlFname());
         // 是否启用序列号
-        if (mtl.getIsSnManager() == 1) {
-            tv_nums.setEnabled(false);
-            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
-        } else {
-            tv_nums.setEnabled(true);
-            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
-        }
+//        if (mtl.getIsSnManager() == 1) {
+//            tv_nums.setEnabled(false);
+//            tv_nums.setBackgroundResource(R.drawable.back_style_gray3b);
+//        } else {
+//            tv_nums.setEnabled(true);
+//            tv_nums.setBackgroundResource(R.drawable.back_style_blue2);
+//        }
         View view = (View) tv_check.getParent();
         if(entity.getIsCheck() == 1) {
             tv_check.setBackgroundResource(R.drawable.check_true);
@@ -77,6 +80,7 @@ public class Allot_ApplyFragment2Adapter extends BaseArrayRecyclerAdapter<StkTra
 //        tv_nums.setText(df.format(entity.getFqty()));
 //        tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getFqty())+"</font>"));
         tv_nums.setText(Html.fromHtml(df.format(entity.getNeedFqty())+"<br><font color='#009900'>"+df.format(entity.getPassQty())+"</font>"));
+        tv_alikeMtlSum.setText(df.format(entity.getAlikeMtlSum()));
         String outStockName = Comm.isNULLS(entity.getOutStockName());
         outStockName = outStockName.length() == 0 ? "无" : outStockName;
         String outStockPNumber = Comm.isNULLS(entity.getOutStockPositionNumber());

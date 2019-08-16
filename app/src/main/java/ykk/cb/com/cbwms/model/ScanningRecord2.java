@@ -68,6 +68,7 @@ public class ScanningRecord2 implements Serializable {
     private String fbusinessTypeNumber; // 采购入库单据业务类型编码
     private String fownerTypeIdHead; // ORG_Organizations:库存组织 、BD_Supplier:供应商、 BD_Customer:客户
     private String fownerIdHeadNumber; // 货主
+    private String fproductionSeq; // 对应k3单据里生产顺序号字段
 
     // 临时变量
     private int salOrderId; // 关联的销售订单id
@@ -703,6 +704,15 @@ public class ScanningRecord2 implements Serializable {
     public void setReceiveAddress(String receiveAddress) {
         this.receiveAddress = receiveAddress;
     }
+
+    public String getFproductionSeq() {
+        return fproductionSeq;
+    }
+
+    public void setFproductionSeq(String fproductionSeq) {
+        this.fproductionSeq = fproductionSeq;
+    }
+
 
     public ScanningRecord2() {
         super();

@@ -34,6 +34,8 @@ public class ProdOrder implements Serializable {
     private int salOrderId; // 销售订单号
     private String salOrderNo; // 销售订单号
     private int salOrderEntryId;//销售订单分录entryId
+    private String salOrderDate; // 销售日期
+    private String salEntryNote; // 销售订单分录备注
     /*销售订单摘要*/
     private String salRemarks;
     /*销售订单分录的订单数量*/
@@ -130,6 +132,8 @@ public class ProdOrder implements Serializable {
     private String mtlCartype;
     /*线路*/
     private String custRoute;
+    /* 类别  */
+    private String category;
     /*生码数量*/
     private double createCodeQty;
     /* 是否启用批号管理，0代表不启用，1代表启用 (用于在前端显示值，方便前端操作)*/
@@ -749,6 +753,30 @@ public class ProdOrder implements Serializable {
 
     public void setMtlPiece(int mtlPiece) {
         this.mtlPiece = mtlPiece;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getSalOrderDate() {
+        return salOrderDate;
+    }
+
+    public void setSalOrderDate(String salOrderDate) {
+        this.salOrderDate = salOrderDate;
+    }
+
+    public String getSalEntryNote() {
+        return salEntryNote;
+    }
+
+    public void setSalEntryNote(String salEntryNote) {
+        this.salEntryNote = salEntryNote;
     }
 
 }

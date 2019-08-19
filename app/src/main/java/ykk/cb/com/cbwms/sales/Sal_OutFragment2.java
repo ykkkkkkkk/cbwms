@@ -1161,6 +1161,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderNoEntryId(salOrder.getEntryId());
                 sr2.setReceiveAddress(salOrder.getReceiveAddress());
                 sr2.setFproductionSeq("");
+                sr2.setSalOrderDate(salOrder.getSalDate());
+                sr2.setSalEntryNote(salOrder.getSalEntryNote());
 
             } else { // 生产订单
                 sr2.setPoFid(prodOrder.getSalOrderId());
@@ -1177,6 +1179,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                     singleshipment = prodOrder.getSingleshipment() ;
                 }
                 sr2.setFproductionSeq(prodOrder.getProductionseq());
+                sr2.setSalOrderDate(prodOrder.getSalOrderDate());
+                sr2.setSalEntryNote(prodOrder.getSalEntryNote());
             }
             sr2.setCaseId(mbr.getCaseId());
             // 物料默认的仓库库位
@@ -1404,6 +1408,8 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             record.setSalOrderEntryId(sr2.getSalOrderNoEntryId());
             record.setReceiveAddress(sr2.getReceiveAddress());
             record.setFproductionSeq(sr2.getFproductionSeq());
+            record.setSalOrderDate(sr2.getSalOrderDate());
+            record.setSalEntryNote(sr2.getSalEntryNote());
 
             if (department != null) {
                 record.setDepartmentK3Id(department.getFitemID());

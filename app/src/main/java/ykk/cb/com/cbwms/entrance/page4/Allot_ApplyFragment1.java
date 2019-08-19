@@ -500,7 +500,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             case R.id.lin_addRow: // 新增一行
                 bundle = new Bundle();
                 bundle.putSerializable("stkTransferOutEntry", listDatas.get(listDatas.size()-1));
-                showForResult(Allot_ApplyAdd2Activity.class, REFRESH, bundle);
+                showForResult(Allot_ApplyAddEntryActivity.class, REFRESH, bundle);
 
                 break;
         }

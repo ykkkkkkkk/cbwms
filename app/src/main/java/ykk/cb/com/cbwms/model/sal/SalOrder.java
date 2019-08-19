@@ -102,6 +102,7 @@ public class SalOrder implements Serializable{
     private String custRoute;
     /*对应k3单据里生产顺序号字段*/
     private String productionseq;
+    private String salEntryNote; // 销售订单分录备注
 
 
     public SalOrder() {
@@ -538,6 +539,14 @@ public class SalOrder implements Serializable{
 
     public void setProductionseq(String productionseq) {
         this.productionseq = productionseq;
+    }
+
+    public String getSalEntryNote() {
+        return salEntryNote;
+    }
+
+    public void setSalEntryNote(String salEntryNote) {
+        this.salEntryNote = salEntryNote;
     }
 
 }

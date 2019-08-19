@@ -67,6 +67,8 @@ public class ScanningRecord implements Serializable {
     private String fownerIdHeadNumber; // 货主
     private String receiveAddress; // 收货地址
     private String fproductionSeq; // 对应k3单据里生产顺序号字段
+    private String salOrderDate; // 销售订单日期
+    private String salEntryNote; // 销售订单分录备注
 
     // 临时变量
     private List<String> listBarcode; // 记录每行中扫的条码barcode
@@ -658,6 +660,22 @@ public class ScanningRecord implements Serializable {
 
     public void setFproductionSeq(String fproductionSeq) {
         this.fproductionSeq = fproductionSeq;
+    }
+
+    public String getSalOrderDate() {
+        return salOrderDate;
+    }
+
+    public void setSalOrderDate(String salOrderDate) {
+        this.salOrderDate = salOrderDate;
+    }
+
+    public String getSalEntryNote() {
+        return salEntryNote;
+    }
+
+    public void setSalEntryNote(String salEntryNote) {
+        this.salEntryNote = salEntryNote;
     }
 
 

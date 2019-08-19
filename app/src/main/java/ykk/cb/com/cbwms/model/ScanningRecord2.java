@@ -69,6 +69,8 @@ public class ScanningRecord2 implements Serializable {
     private String fownerTypeIdHead; // ORG_Organizations:库存组织 、BD_Supplier:供应商、 BD_Customer:客户
     private String fownerIdHeadNumber; // 货主
     private String fproductionSeq; // 对应k3单据里生产顺序号字段
+    private String salOrderDate; // 销售订单日期
+    private String salEntryNote; // 销售订单分录备注
 
     // 临时变量
     private int salOrderId; // 关联的销售订单id
@@ -711,6 +713,22 @@ public class ScanningRecord2 implements Serializable {
 
     public void setFproductionSeq(String fproductionSeq) {
         this.fproductionSeq = fproductionSeq;
+    }
+
+    public String getSalOrderDate() {
+        return salOrderDate;
+    }
+
+    public void setSalOrderDate(String salOrderDate) {
+        this.salOrderDate = salOrderDate;
+    }
+
+    public String getSalEntryNote() {
+        return salEntryNote;
+    }
+
+    public void setSalEntryNote(String salEntryNote) {
+        this.salEntryNote = salEntryNote;
     }
 
 

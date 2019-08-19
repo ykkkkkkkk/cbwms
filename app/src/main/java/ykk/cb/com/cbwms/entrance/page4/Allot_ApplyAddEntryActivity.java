@@ -9,7 +9,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -30,17 +29,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
-import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.basics.Material_ListActivity;
-import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddAdapter;
-import ykk.cb.com.cbwms.model.Department;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddEntryAdapter;
+import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddEntryAdapter;
 import ykk.cb.com.cbwms.model.Material;
-import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutTemp;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -49,18 +44,18 @@ import ykk.cb.com.cbwms.util.LogUtil;
 /**
  * 新增申请单界面
  */
-public class Allot_ApplyAdd2Activity extends BaseActivity {
+public class Allot_ApplyAddEntryActivity extends BaseActivity {
 
     @BindView(R.id.tv_stkBillNo)
     TextView tvStkBillNo;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
-    private Allot_ApplyAdd2Activity context = this;
+    private Allot_ApplyAddEntryActivity context = this;
     private static final int SEL_MTL = 11, SEL_MTL2 = 12, SEL_CAUSE = 13;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502;
     private static final int RESULT_NUM = 1;
-    private Allot_ApplyAddAdapter mAdapter;
+    private Allot_ApplyAddEntryAdapter mAdapter;
     private List<StkTransferOutTemp> listDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = new OkHttpClient();
@@ -68,16 +63,16 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
     private StkTransferOutEntry stkTransferOutEntry;
 
     // 消息处理
-    private Allot_ApplyAdd2Activity.MyHandler mHandler = new Allot_ApplyAdd2Activity.MyHandler(this);
+    private Allot_ApplyAddEntryActivity.MyHandler mHandler = new Allot_ApplyAddEntryActivity.MyHandler(this);
     private static class MyHandler extends Handler {
-        private final WeakReference<Allot_ApplyAdd2Activity> mActivity;
+        private final WeakReference<Allot_ApplyAddEntryActivity> mActivity;
 
-        public MyHandler(Allot_ApplyAdd2Activity activity) {
-            mActivity = new WeakReference<Allot_ApplyAdd2Activity>(activity);
+        public MyHandler(Allot_ApplyAddEntryActivity activity) {
+            mActivity = new WeakReference<Allot_ApplyAddEntryActivity>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Allot_ApplyAdd2Activity m = mActivity.get();
+            Allot_ApplyAddEntryActivity m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
@@ -114,7 +109,7 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
 
     @Override
     public int setLayoutResID() {
-        return R.layout.allot_apply_add2;
+        return R.layout.allot_apply_add_entry;
     }
 
     @Override
@@ -127,10 +122,10 @@ public class Allot_ApplyAdd2Activity extends BaseActivity {
 
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new Allot_ApplyAddAdapter(context, listDatas);
+        mAdapter = new Allot_ApplyAddEntryAdapter(context, listDatas);
         recyclerView.setAdapter(mAdapter);
 
-        mAdapter.setCallBack(new Allot_ApplyAddAdapter.MyCallBack() {
+        mAdapter.setCallBack(new Allot_ApplyAddEntryAdapter.MyCallBack() {
             @Override
             public void selMtl(StkTransferOutTemp entity, int position) {
                 curPos = position;

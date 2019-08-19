@@ -259,8 +259,7 @@
                 android:layout_height="@dimen/_60dp"
                 android:layout_centerHorizontal="true"
                 android:scaleType="fitXY"
-                android:src="@drawable/aa_ico3a_4"
-                android:visibility="invisible" />
+                android:src="@drawable/aa_ico4a_9" />
 
             <TextView
                 android:id="@+id/tvMenu6"
@@ -269,10 +268,9 @@
                 android:layout_below="@+id/imgView6"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="调拨拣货"
+                android:text="直接调拨"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_18sp"
-                android:visibility="invisible" />
+                android:textSize="@dimen/_18sp" />
 
         </RelativeLayout>
 

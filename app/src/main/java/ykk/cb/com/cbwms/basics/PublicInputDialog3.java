@@ -55,7 +55,6 @@ public class PublicInputDialog3 extends BaseDialogActivity {
 //    private TextView tv_hintName, tvClear, tv_tmp;
 //    private EditText etInput;
     private static final int SHOW_INPUT = 100;
-    private String inputType = "0";
     private boolean isFlag, isFlag2 = true; //
     private DecimalFormat df = new DecimalFormat("#.######");
 
@@ -202,11 +201,11 @@ public class PublicInputDialog3 extends BaseDialogActivity {
             case R.id.btn_confirm: // 确定按钮
                 hideKeyboard(getCurrentFocus());
                 String inputName = getValues(etInput2).trim();
-                double val = parseDouble(inputName);
-                if (val == 0) {
-                    toasts("请输入合法数据！");
-                    return;
-                }
+//                double val = parseDouble(inputName);
+//                if (val == 0) {
+//                    toasts("请输入合法数据！");
+//                    return;
+//                }
 
                 Intent intent = new Intent();
                 intent.putExtra("resultValue", inputName);

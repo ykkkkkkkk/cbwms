@@ -160,7 +160,10 @@
             android:name=".entrance.page4.Allot_ApplyAddActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
-            android:name=".entrance.page4.Allot_ApplyAdd2Activity"
+            android:name=".entrance.page4.Allot_ApplyAddEntryActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.Allot_ApplyAddSaoMaActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".entrance.page4.Allot_PickingListMainActivity"

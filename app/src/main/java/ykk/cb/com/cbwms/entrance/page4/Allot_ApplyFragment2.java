@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -41,7 +40,6 @@ import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment2Adapter;
 import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyFragment2Adapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Stock;
@@ -480,7 +478,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                             map.put(billId, true);
                             sbIds.append(billId + ":");
                         }
-                        if(stkEntry.getTmpPickFqty() >= stkEntry.getPassQty()) {
+                        if(stkEntry.getPassQty() >= stkEntry.getTmpPickFqty()) {
                             sbEntryInfo.append(stkEntry.getId()+":"+stkEntry.getPassQty()+":0,");
                         } else {
                             double passQty = BigdecimalUtil.sub(stkEntry.getTmpPickFqty(), stkEntry.getPassQty());
@@ -522,7 +520,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
             case R.id.lin_addRow: // 新增一行
                 bundle = new Bundle();
                 bundle.putSerializable("stkTransferOutEntry", listDatas.get(listDatas.size()-1));
-                showForResult(Allot_ApplyAdd2Activity.class, REFRESH, bundle);
+                showForResult(Allot_ApplyAddEntryActivity.class, REFRESH, bundle);
 
                 break;
         }

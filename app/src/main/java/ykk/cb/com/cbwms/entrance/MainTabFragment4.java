@@ -9,6 +9,7 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
+import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyAddSaoMaActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyMainActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_K3SearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyActivity;
@@ -47,7 +48,8 @@ public class MainTabFragment4 extends BaseFragment {
             case R.id.relative5: // 调拨拣货
                 show(Allot_PickingListMainActivity.class, null);
                 break;
-            case R.id.relative6:
+            case R.id.relative6: // 下推直接调拨
+                show(Allot_ApplyAddSaoMaActivity.class, null);
                 break;
             case R.id.relative7:
                 break;

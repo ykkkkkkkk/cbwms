@@ -320,6 +320,9 @@
             android:name=".sales.Sal_OutStockPassEntryActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".sales.Sal_BoxMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 扫一扫界面 -->

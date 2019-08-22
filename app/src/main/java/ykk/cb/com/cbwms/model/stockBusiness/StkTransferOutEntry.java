@@ -151,6 +151,7 @@ public class StkTransferOutEntry implements Serializable {
     private String cause;
     private double passQty; // 调拨申请审核记录的数量
     private int entryPassStatus; // 行审核 （ 0：未审，1：审核 ）
+    private int parentId; // 上级id(保存本表的id)
     //++++++++++++++++++++++++++++
 
     // 临时字段
@@ -784,5 +785,13 @@ public class StkTransferOutEntry implements Serializable {
 
     public void setAlikeMtlSum(double alikeMtlSum) {
         this.alikeMtlSum = alikeMtlSum;
+    }
+
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
     }
 }

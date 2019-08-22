@@ -20,7 +20,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="销售出库--销售订单"
+            android:text="销售装箱"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
@@ -45,17 +45,12 @@
         android:textColor="@color/c_666666"
         android:textSize="12sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_1dp"
-        android:background="@color/c_eaeaea" />
-
     <LinearLayout
-        android:id="@+id/lin_tabs"
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <LinearLayout
             android:id="@+id/lin_tab1"
@@ -75,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="销售订单"
+                android:text="生产装箱"
                 android:textColor="@android:color/black"
                 android:textSize="14sp" />
 
@@ -99,32 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="发货通知单"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/lin_tab3"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <View
-                android:id="@+id/viewRadio3"
-                android:layout_width="@dimen/_30dp"
-                android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_off2" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="发货通知单"
+                android:text="装箱编辑"
                 android:textColor="@android:color/black"
                 android:textSize="14sp" />
 
@@ -136,5 +106,6 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 
 </LinearLayout>

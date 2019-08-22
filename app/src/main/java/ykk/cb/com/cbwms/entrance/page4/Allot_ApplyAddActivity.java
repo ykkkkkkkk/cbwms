@@ -38,7 +38,6 @@ import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Stock;
-import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
@@ -409,7 +408,9 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                     department = (Department) data.getSerializableExtra("obj");
                     LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
                     tvDeptSel.setText(department.getDepartmentName());
-                    run_findStockNumberByDeptNumber(department.getDepartmentNumber());
+                    if(department.getInStockId() > 0) {
+                        run_findStockByStockId(department.getInStockId());
+                    }
                 }
 
                 break;
@@ -524,10 +525,12 @@ public class Allot_ApplyAddActivity extends BaseActivity {
     /**
      * 根据领料部门查询调入仓库
      */
-    private void run_findStockNumberByDeptNumber(String deptNumber) {
-        String mUrl = getURL("stock/findStockNumberByDeptNumber");
+    private void run_findStockByStockId(int stockId) {
+        //        String mUrl = getURL("stock/findStockNumberByDeptNumber"); // Oracle 数据库
+        String mUrl = getURL("stock/findStockByStockId"); // SqlServer 数据库
         FormBody formBody = new FormBody.Builder()
-                .add("deptNumber", deptNumber)
+                .add("fStockid", String.valueOf(stockId))
+//                .add("deptNumber", deptNumber)
                 .build();
 
         Request request = new Request.Builder()
@@ -547,7 +550,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_findStockNumberByDeptNumber --> onResponse", result);
+                LogUtil.e("run_findStockByStockId --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC2, result);
                     mHandler.sendMessage(msg);

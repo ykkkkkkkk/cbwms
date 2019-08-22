@@ -21,7 +21,7 @@ public class Department implements Serializable {
     //K3部门使用组织id
     private String departmentUseOrgId;
     //调入仓库
-    private Integer inStockId;
+    private int inStockId;
     //使用组织实体类
     private Organization organization;
     //K3创建组织编码
@@ -131,11 +131,11 @@ public class Department implements Serializable {
         this.prefix = prefix;
     }
 
-    public Integer getInStockId() {
+    public int getInStockId() {
         return inStockId;
     }
 
-    public void setInStockId(Integer inStockId) {
+    public void setInStockId(int inStockId) {
         this.inStockId = inStockId;
     }
 

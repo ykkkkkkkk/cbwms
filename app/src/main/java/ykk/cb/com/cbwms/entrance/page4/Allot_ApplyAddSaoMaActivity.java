@@ -22,7 +22,6 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,7 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.basics.Material_ListActivity;
+import ykk.cb.com.cbwms.basics.PublicInputDialog3;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
 import ykk.cb.com.cbwms.basics.Supplier_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
@@ -51,11 +51,10 @@ import ykk.cb.com.cbwms.model.PickingList;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.pur.PurOrder;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOut;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutEntry;
 import ykk.cb.com.cbwms.model.stockBusiness.StkTransferOutTemp;
-import ykk.cb.com.cbwms.purchase.Pur_SelOrder2Activity;
+import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
@@ -104,7 +103,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
 
     private Allot_ApplyAddSaoMaActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14, SEL_MTL2 = 15, SEL_CAUSE = 16, SEL_SUPPLIER = 17;
-    private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502, SUCC3 = 203, UNSUCC3 = 503, SUCC4 = 204, UNSUCC4 = 504, PASS = 205, UNPASS = 505;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502, SUCC3 = 203, UNSUCC3 = 503, PASS = 204, UNPASS = 504, FIND_INSTOCK = 205, UNFIND_INSTOCK = 505, FIND_SUPP = 206, UNFIND_SUPP = 506;
     private static final int RESULT_NUM = 1, SAOMA = 2, SETFOCUS = 3;
     private Stock inStock, outStock; // 仓库
     private Department department; // 部门
@@ -161,36 +160,26 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         Comm.showWarnDialog(m.context, errMsg);
 
                         break;
-                    case SUCC2: // 查询部门的调入仓库 成功
-                        m.inStock = JsonUtil.strToObject((String)msg.obj, Stock.class);
-                        m.tvInStockSel.setText(m.inStock.getfName());
-
-                        break;
-                    case UNSUCC2: // 查询部门的调入仓库 失败
-                        m.inStock = null;
-                        m.tvInStockSel.setText("");
-
-                        break;
-                    case SUCC3: // 扫码条码结果
+                    case SUCC2: // 扫码条码结果
                         List<Material> listMtl = JsonUtil.strToList((String) msg.obj, Material.class);
                         m.isChange = true;
                         m.getMtlAfter(listMtl);
 
                         break;
-                    case UNSUCC3: // 判断是否存在返回
+                    case UNSUCC2: // 判断是否存在返回
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到条码！！！";
                         Comm.showWarnDialog(m.context, errMsg);
 
                         break;
-                    case SUCC4: // 调拨单下推k3 成功
+                    case SUCC3: // 调拨单下推k3 成功
                         m.k3Number = JsonUtil.strToString((String) msg.obj);
                         Comm.showWarnDialog(m.context, "保存成功，请点击“审核按钮”！");
                         m.btnToK3.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
 
                         break;
-                    case UNSUCC4: // 调拨单下推k3 失败
+                    case UNSUCC3: // 调拨单下推k3 失败
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器繁忙，请稍后再试！！！";
                         Comm.showWarnDialog(m.context, errMsg);
@@ -205,6 +194,26 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器繁忙，请稍后再试！！！";
                         Comm.showWarnDialog(m.context, errMsg);
+
+                        break;
+                    case FIND_INSTOCK: // 查询部门的调入仓库 成功
+                        m.inStock = JsonUtil.strToObject((String)msg.obj, Stock.class);
+                        m.tvInStockSel.setText(m.inStock.getfName());
+
+                        break;
+                    case UNFIND_INSTOCK: // 查询部门的调入仓库 失败
+                        m.inStock = null;
+                        m.tvInStockSel.setText("");
+
+                        break;
+                    case FIND_SUPP: // 查询调出仓库对应的供应商 成功
+                        m.supplier = JsonUtil.strToObject((String)msg.obj, Supplier.class);
+                        m.tvSupplierSel.setText(m.supplier.getfName());
+
+                        break;
+                    case UNFIND_SUPP: // 查询调出仓库对应的供应商 失败
+                        m.supplier = null;
+                        m.tvSupplierSel.setText("");
 
                         break;
                     case SETFOCUS: // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -268,7 +277,18 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 if(isNULLS(k3Number).length() > 0) return;
 
                 curPos = position;
-                showInputDialog("数量", String.valueOf(entity.getFqty()), "0.0", RESULT_NUM);
+                Material mtl = entity.getMtl();
+                String showInfo = "<font color='#666666'>物料编码：</font>"+mtl.getfNumber()+"<br><font color='#666666'>物料名称：</font>"+mtl.getfName()+"<br>";
+                if(mtl.getUnit().getUnitName().equals("码")) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("hintName", "数量");
+                    bundle.putString("showInfo", showInfo);
+                    bundle.putDouble("value", entity.getFqty());
+                    bundle.putBoolean("isCheckNext", false); // 多行同样的物料，扫码入数下一行
+                    showForResult(PublicInputDialog3.class, RESULT_NUM, bundle);
+                } else {
+                    showInputDialog("数量", showInfo, String.valueOf(entity.getFqty()), "0.0", RESULT_NUM);
+                }
             }
 
             @Override
@@ -632,7 +652,10 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                     department = (Department) data.getSerializableExtra("obj");
                     LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
                     tvDeptSel.setText(department.getDepartmentName());
-                    run_findStockNumberByDeptNumber(department.getDepartmentNumber());
+                    // 查询对应调入仓库
+                    if(department.getInStockId() > 0) {
+                        run_findStockByStockId(department.getInStockId());
+                    }
                 }
 
                 break;
@@ -651,6 +674,11 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                     isVMI = outStock.getIsVMI();
                     if(isVMI > 0) {
                         linSupperSel.setVisibility(View.VISIBLE);
+                        // 查询对应供应商
+                        if(isNULLS(outStock.getSupFnumber()).length() > 0) {
+                            run_findSupplierByNo(outStock.getSupFnumber());
+                        }
+
                     } else {
                         linSupperSel.setVisibility(View.GONE);
                         supplier = null;
@@ -777,10 +805,12 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
     /**
      * 根据领料部门查询调入仓库
      */
-    private void run_findStockNumberByDeptNumber(String deptNumber) {
-        String mUrl = getURL("stock/findStockNumberByDeptNumber");
+    private void run_findStockByStockId(int stockId) {
+//        String mUrl = getURL("stock/findStockNumberByDeptNumber"); // Oracle 数据库
+        String mUrl = getURL("stock/findStockByStockId"); // SqlServer 数据库
         FormBody formBody = new FormBody.Builder()
-                .add("deptNumber", deptNumber)
+                .add("fStockid", String.valueOf(stockId))
+//                .add("deptNumber", deptNumber)
                 .build();
 
         Request request = new Request.Builder()
@@ -793,20 +823,60 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC2);
+                mHandler.sendEmptyMessage(UNFIND_INSTOCK);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_findStockNumberByDeptNumber --> onResponse", result);
+                LogUtil.e("run_findStockByStockId --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
-                    mHandler.sendMessage(msg);
+//                    Message msg = mHandler.obtainMessage(UNFIND_INSTOCK, result);
+//                    mHandler.sendMessage(msg);
+                    mHandler.sendEmptyMessage(UNFIND_INSTOCK);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC2, result);
+                Message msg = mHandler.obtainMessage(FIND_INSTOCK, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 根据调出仓库查询对应供应商
+     */
+    private void run_findSupplierByNo(String supNumber) {
+        String mUrl = getURL("supplier/findSupplierByNo");
+        FormBody formBody = new FormBody.Builder()
+                .add("supNumber", supNumber)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNFIND_SUPP);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findSupplierByNo --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+//                    Message msg = mHandler.obtainMessage(UNFIND_SUPP, result);
+//                    mHandler.sendMessage(msg);
+                    mHandler.sendEmptyMessage(UNFIND_SUPP);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(FIND_SUPP, result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -837,7 +907,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC3);
+                mHandler.sendEmptyMessage(UNSUCC2);
             }
 
             @Override
@@ -846,11 +916,11 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 String result = body.string();
                 LogUtil.e("run_smGetDatas --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC3, result);
+                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC3, result);
+                Message msg = mHandler.obtainMessage(SUCC2, result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -874,6 +944,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
             int size = listDatas.size();
             boolean addRow = true;
             int curPosition = 0;
+            double barcodeQty = mtl.getBarcodeQty();
             for (int i = 0; i < size; i++) {
                 StkTransferOutTemp sr = listDatas.get(i);
                 // 有相同的，就不新增了
@@ -887,13 +958,13 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 // 新增一行
                 StkTransferOutTemp stkTemp = new StkTransferOutTemp();
                 stkTemp.setMtl(mtl);
-                stkTemp.setFqty(1);
+                stkTemp.setFqty(barcodeQty > 0 ? barcodeQty : 1);
                 listDatas.add(stkTemp);
 
             } else {
                 // 已有相同物料行，就叠加数量
                 double fqty = listDatas.get(curPosition).getFqty();
-                listDatas.get(curPosition).setFqty(fqty + 1);
+                listDatas.get(curPosition).setFqty(fqty + (barcodeQty > 0 ? barcodeQty : 1));
             }
         }
 
@@ -952,7 +1023,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC4);
+                mHandler.sendEmptyMessage(UNSUCC3);
             }
 
             @Override
@@ -961,11 +1032,11 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 String result = body.string();
                 LogUtil.e("run_toK3 --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    Message msg = mHandler.obtainMessage(UNSUCC3, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC4, result);
+                Message msg = mHandler.obtainMessage(SUCC3, result);
                 mHandler.sendMessage(msg);
             }
         });

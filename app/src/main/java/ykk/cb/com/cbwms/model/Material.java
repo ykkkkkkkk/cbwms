@@ -203,6 +203,7 @@ public class Material implements Serializable {
 
     // 临时字段，不存表
     private int isCheck; // 是否选中
+    private double barcodeQty; // 条码数量
 
     /**
      * 构造方法
@@ -1012,6 +1013,14 @@ public class Material implements Serializable {
 
     public void setIsCheck(int isCheck) {
         this.isCheck = isCheck;
+    }
+
+    public double getBarcodeQty() {
+        return barcodeQty;
+    }
+
+    public void setBarcodeQty(double barcodeQty) {
+        this.barcodeQty = barcodeQty;
     }
 
 }

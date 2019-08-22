@@ -76,12 +76,14 @@ public class Allot_ApplyFragment1 extends BaseFragment {
     TextView tvStkNumber;
     @BindView(R.id.lin_addRow)
     LinearLayout linAddRow;
+    @BindView(R.id.lin_againApple)
+    LinearLayout linAgainApple;
 
     private Allot_ApplyFragment1 context = this;
     private Allot_ApplyMainActivity parent;
     private Activity mContext;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_STOCK2 = 14, SEL_STOCKP2 = 15, SEL_BILLNO = 16;
-    private static final int SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, MODIFY = 205, UNMODIFY = 505;
+    private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502, PASS = 203, UNPASS = 503, CLOSE = 204, UNCLOSE = 504, MODIFY = 205, UNMODIFY = 505;
     private static final int RESULT_NUM = 1, REFRESH = 2;
     private Stock inStock, outStock, stock2; // 仓库
     private StockPosition stockP2; // 库位
@@ -126,7 +128,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 
                 String errMsg = null;
                 switch (msg.what) {
-                    case SUCC2: // 调拨单
+                    case SUCC1: // 调拨单
                         switch (m.curViewFlag) {
                             case '1': // 调拨单
                                 m.listDatas.clear();
@@ -145,6 +147,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                                     }
                                 }
                                 m.linAddRow.setVisibility(isOneOrder ? View.VISIBLE : View.INVISIBLE);
+                                m.linAgainApple.setVisibility(isOneOrder ? View.VISIBLE : View.INVISIBLE);
                                 // 合计总数
                                 m.tvCountSum.setText(m.countSum());
 
@@ -169,11 +172,23 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         }
 
                         break;
-                    case UNSUCC2:
+                    case UNSUCC1:
                         m.listDatas.clear();
                         m.mAdapter.notifyDataSetChanged();
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.isNULLS(errMsg).length() == 0) errMsg = "当前时间段没有调拨单！！！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case SUCC2: // 再次申请 成功
+                        List<StkTransferOutEntry> listStkEntry = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
+                        m.listDatas.addAll(listStkEntry);
+                        m.mAdapter.notifyDataSetChanged();
+
+                        break;
+                    case UNSUCC2: // 再次申请 失败
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if(m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没有找到未完成的调拨单！！！";
                         Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
@@ -414,7 +429,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         tvDateSel.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save, R.id.lin_addRow    })
+    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save, R.id.lin_addRow, R.id.lin_againApple    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -501,6 +516,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 bundle = new Bundle();
                 bundle.putSerializable("stkTransferOutEntry", listDatas.get(listDatas.size()-1));
                 showForResult(Allot_ApplyAddEntryActivity.class, REFRESH, bundle);
+
+                break;
+            case R.id.lin_againApple: // 再次申请
+                String strStkTransferOutEntry = JsonUtil.objectToString(listDatas.get(0));
+                run_findUnFinishList(strStkTransferOutEntry);
 
                 break;
         }
@@ -850,7 +870,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC2);
+                mHandler.sendEmptyMessage(UNSUCC1);
             }
 
             @Override
@@ -859,11 +879,11 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                 String result = body.string();
                 LogUtil.e("run_findDatas --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
+                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
                     mHandler.sendMessage(msg);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC2, result);
+                Message msg = mHandler.obtainMessage(SUCC1, result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1005,6 +1025,55 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(PASS, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 再次申请
+     */
+    private void run_findUnFinishList(String strStkTransferOutEntry) {
+        showLoadDialog("正在审核...");
+        String mUrl = getURL("stkTransferOut/findUnFinishList");
+        getUserInfo();
+
+        String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
+        String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
+        String outDate = getValues(tvDateSel); // 调出日期
+        FormBody formBody = new FormBody.Builder()
+                .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
+                .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
+                .add("outDate", outDate) // 调出日期（查询调拨单）
+                .add("businessType", "1") // 业务类型:1、材料按次 2、材料按批 3、成品
+                .add("isValidStatus", "1")
+                .add("strStkTransferOutEntry", strStkTransferOutEntry) // 调拨单对象
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC2);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_pass --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC2, result);
                 mHandler.sendMessage(msg);
             }
         });

@@ -35,9 +35,6 @@ import ykk.cb.com.cbwms.basics.PrintMainActivity;
 import ykk.cb.com.cbwms.comm.BaseActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
-import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.model.sal.DeliOrder;
-import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.MyViewPager;
 import ykk.cb.com.cbwms.util.adapter.BaseFragmentAdapter;
 import ykk.cb.com.cbwms.util.blueTooth.BluetoothDeviceListDialog;
@@ -98,7 +95,7 @@ public class Sal_OutMainActivity extends BaseActivity {
 //            customer = (Customer) bundle.getSerializable("customer");
 //        }
 
-        curRadio = viewRadio2;
+        curRadio = viewRadio1;
         List<Fragment> listFragment = new ArrayList<Fragment>();
 //        Bundle bundle2 = new Bundle();
 //        bundle2.putSerializable("customer", customer);
@@ -106,16 +103,18 @@ public class Sal_OutMainActivity extends BaseActivity {
 //        fragment2.setArguments(bundle2); // 传参数
 //        Sal_OutFragment1 fragment1 = new Sal_OutFragment1();
         Sal_OutFragment2 fragment2 = new Sal_OutFragment2();
+        Sal_OutFragment2B fragment2A = new Sal_OutFragment2B();
 //        Sal_OutFragment3 fragment3 = new Sal_OutFragment3();
 
 //        listFragment.add(fragment1);
         listFragment.add(fragment2);
+        listFragment.add(fragment2A);
 //        listFragment.add(fragment3);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //ViewPager显示第一个Fragment
-        viewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(0);
 
         //ViewPager页面切换监听
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -132,7 +131,7 @@ public class Sal_OutMainActivity extends BaseActivity {
 
                         break;
                     case 1:
-                        tabChange(viewRadio2, "销售出库--箱码", 1);
+                        tabChange(viewRadio2, "销售出库--发货通知单", 1);
 
                         break;
                     case 2:
@@ -192,7 +191,7 @@ public class Sal_OutMainActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab2:
-                tabChange(viewRadio2, "销售出库--箱码", 1);
+                tabChange(viewRadio2, "销售出库--发货通知单", 1);
 
                 break;
             case R.id.lin_tab3:

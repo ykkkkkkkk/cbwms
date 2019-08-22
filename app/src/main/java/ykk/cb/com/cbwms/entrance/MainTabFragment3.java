@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import butterknife.OnClick;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
+import ykk.cb.com.cbwms.sales.Sal_BoxMainActivity;
 import ykk.cb.com.cbwms.sales.Sal_OrderSearchActivity;
 import ykk.cb.com.cbwms.sales.Sal_OutMainActivity;
 import ykk.cb.com.cbwms.sales.Sal_OutPassMainActivity;
@@ -39,8 +40,8 @@ public class MainTabFragment3 extends BaseFragment {
                 show(Sal_OutStockPassActivity.class, null);
 
                 break;
-            case R.id.relative4: // 拣货单
-                show(Sal_PickingListActivity.class, null);
+            case R.id.relative4: // 销售装箱
+                show(Sal_BoxMainActivity.class, null);
 
                 break;
             case R.id.relative5: // 复核单

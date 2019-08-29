@@ -12,83 +12,27 @@
         android:inputType="none" />
 
     <LinearLayout
-        android:id="@+id/lin_tabs"
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:id="@+id/lin_tab1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/viewRadio1"
-                android:layout_width="@dimen/_30dp"
-                android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_on" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="无源单"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/lin_tab2"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/viewRadio2"
-                android:layout_width="@dimen/_30dp"
-                android:layout_height="@dimen/_30dp"
-                android:background="@drawable/check_off2" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="有源单"
-                android:textColor="@android:color/black"
-                android:textSize="14sp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
+        android:id="@+id/lin_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/lin_div2"
             android:layout_width="match_parent"
             android:layout_height="38dp"
+            android:layout_marginBottom="@dimen/_6dp"
             android:layout_marginLeft="@dimen/_6dp"
             android:layout_marginRight="@dimen/_6dp"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="gone">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:ems="2"
                 android:gravity="center"
-                android:text="生产车间"
+                android:text="班组"
                 android:textColor="#000000"
                 android:textSize="12sp" />
 
@@ -101,34 +45,32 @@
                 android:drawableRight="@drawable/xiala3"
                 android:gravity="center"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_14sp" />
+                android:textSize="@dimen/_12sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="3dp"
+                android:layout_marginLeft="@dimen/_3dp"
                 android:ems="2"
                 android:gravity="center"
-                android:text="来源单"
+                android:text="日期"
                 android:textColor="#000000"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tv_sourceNo"
+                android:id="@+id/tv_dateSel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/back_style_blue"
                 android:drawableRight="@drawable/xiala3"
-                android:inputType="none"
-                android:paddingLeft="2dp"
+                android:gravity="center"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_12sp" />
+                android:textSize="@dimen/_14sp" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/lin_div1"
             android:layout_width="match_parent"
             android:layout_height="38dp"
             android:layout_marginLeft="@dimen/_6dp"
@@ -141,43 +83,48 @@
                 android:layout_height="match_parent"
                 android:ems="2"
                 android:gravity="center"
-                android:text="物料条码"
+                android:text="生产订单"
                 android:textColor="#000000"
                 android:textSize="12sp" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/back_style_blue"
-                android:gravity="center"
-                android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/et_mtlCode"
+                android:id="@+id/et_prodNo"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/transparent"
-                android:hint="请在此扫描物料条码"
+                android:background="@drawable/back_style_blue"
                 android:inputType="none"
-                android:paddingLeft="2dp"
+                android:padding="@dimen/_2dp"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_12sp" />
+                android:textSize="@dimen/_14sp" />
 
-                <Button
-                    android:id="@+id/btn_scan"
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:background="@drawable/btn_scan_selector" />
-            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/_3dp"
+                android:ems="2"
+                android:gravity="center"
+                android:text="物料"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_mtls"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/back_style_blue"
+                android:inputType="none"
+                android:padding="@dimen/_2dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="38dp"
-            android:layout_margin="6dp"
+            android:layout_margin="@dimen/_6dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -186,102 +133,34 @@
                 android:layout_height="match_parent"
                 android:ems="2"
                 android:gravity="center"
-                android:text="入库组织"
+                android:text="员工"
                 android:textColor="#000000"
                 android:textSize="12sp" />
 
-
-            <TextView
-                android:id="@+id/tv_inOrg"
+            <EditText
+                android:id="@+id/et_staff"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/back_style_blue"
-                android:drawableRight="@drawable/xiala3"
-                android:gravity="center"
-                android:text="河南工厂"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="3dp"
-                android:ems="2"
-                android:gravity="center"
-                android:text="生产组织"
-                android:textColor="#000000"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tv_prodOrg"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/back_style_blue"
-                android:drawableRight="@drawable/xiala3"
-                android:gravity="center"
-                android:text="河南工厂"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_14sp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:layout_marginBottom="@dimen/_6dp"
-            android:layout_marginLeft="@dimen/_6dp"
-            android:layout_marginRight="@dimen/_6dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:ems="2"
-                android:gravity="center"
-                android:text="仓管员"
-                android:textColor="#000000"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tv_prodMan"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/back_style_blue"
-                android:drawableRight="@drawable/xiala3"
-                android:gravity="center"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="3dp"
-                android:ems="2"
-                android:gravity="center"
-                android:text="车间"
-                android:textColor="#000000"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tv_deptName"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/back_style_blue"
-                android:drawableRight="@drawable/xiala3"
+                android:padding="@dimen/_2dp"
                 android:inputType="none"
-                android:paddingLeft="2dp"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_12sp" />
-
+                android:textSize="@dimen/_14sp" />
 
         </LinearLayout>
+
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:gravity="center"
+        android:text="长按行替换物料"
+        android:textColor="@color/c_FF4400"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
     <HorizontalScrollView
         android:layout_width="wrap_content"
@@ -312,9 +191,16 @@
                     android:layout_width="76dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="物料代码"
-                    android:visibility="gone"
-                    android:textColor="#000000"
+                    android:text="班组"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="76dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="生产订单"
+                    android:textColor="@color/black"
                     android:textSize="12sp" />
 
                 <TextView
@@ -326,27 +212,26 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="72dp"
+                    android:layout_width="58dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="应收/实收数"
+                    android:text="生产数"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tv_canStockNum"
-                    android:layout_width="72dp"
+                    android:layout_width="56dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="当前库存"
-                    android:textColor="#0206ff"
+                    android:text="位置"
+                    android:textColor="@color/black"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="120dp"
+                    android:layout_width="58dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="仓库/库位"
+                    android:text="报工人"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
@@ -354,77 +239,34 @@
                     android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="批号/序列号"
+                    android:text="报工/审核数"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+
+                <TextView
+                    android:layout_width="76dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="报工日期"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 
                 <TextView
-                    android:layout_width="@dimen/_46dp"
+                    android:layout_width="76dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="删除行"
+                    android:text="工序"
                     android:textColor="#000000"
-                    android:textSize="@dimen/_12sp" />
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
+                android:id="@+id/xRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/white"
-                android:scrollbars="none" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_30dp"
-                android:background="@drawable/back_style_blue5">
-
-                <TextView
-                    android:layout_width="86dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center|right"
-                    android:text="条码个数："
-                    android:textColor="#000000"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tv_smCountNum"
-                    android:layout_width="67dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center|left"
-                    android:text="0"
-                    android:textColor="@color/c_FF4400"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="58dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="合计："
-                    android:textColor="#000000"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/tv_countSum"
-                    android:layout_width="106dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="0.0"
-                    android:textColor="@color/c_FF4400"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="299dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="仓库\n库位"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:visibility="invisible" />
-
-            </LinearLayout>
+                android:layout_height="match_parent"
+                android:overScrollMode="never" />
 
         </LinearLayout>
     </HorizontalScrollView>
@@ -436,57 +278,25 @@
 
         <Button
             android:id="@+id/btn_clone"
-            android:layout_width="100dp"
-            android:layout_height="38dp"
-            android:background="@drawable/btn_gray2_selector"
-            android:gravity="center"
-            android:text="重置"
-            android:textColor="@color/c_515151"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/btn_batchAdd"
-            android:layout_width="100dp"
-            android:layout_height="38dp"
-            android:background="@drawable/btn_gray2_selector"
-            android:gravity="center"
-            android:text="批量填充"
-            android:textColor="@color/c_515151"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/btn_save"
             android:layout_width="0dp"
             android:layout_height="38dp"
             android:layout_weight="1"
-            android:background="@drawable/btn_blue2_selector"
+            android:background="@drawable/btn_gray2_selector"
             android:gravity="center"
-            android:text="保存"
-            android:textColor="@color/white"
+            android:text="清空条件"
+            android:textColor="@color/c_666666"
             android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/btn_print"
-            android:layout_width="100dp"
-            android:layout_height="38dp"
-            android:background="@drawable/btn_purple2_selector"
-            android:gravity="center"
-            android:text="打印"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:visibility="gone" />
 
         <Button
             android:id="@+id/btn_pass"
             android:layout_width="0dp"
             android:layout_height="38dp"
-            android:layout_weight="1"
-            android:background="@drawable/btn_blue2_selector"
+            android:layout_weight="2"
+            android:background="@drawable/btn_purple2_selector"
             android:gravity="center"
             android:text="审核"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:visibility="gone" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 

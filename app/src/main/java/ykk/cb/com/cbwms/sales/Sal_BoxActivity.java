@@ -534,11 +534,21 @@ public class Sal_BoxActivity extends BaseActivity {
                             if(strMtlBarcode_del.equals(mtlCode)) {
                                 strMtlBarcode_del = mtlCode;
                             } else {
-                                String tmp = mtlCode.replaceFirst(strMtlBarcode_del, "");
-                                strMtlBarcode_del = tmp.replace("\n", "");
+                                try {
+                                    String tmp = mtlCode.replaceFirst(strMtlBarcode_del, "");
+                                    strMtlBarcode_del = tmp.replace("\n", "");
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    strMtlBarcode_del = mtlCode;
+                                }
                             }
                         } else {
-                            strMtlBarcode_del = mtlCode.replace("\n", "");
+                            try {
+                                strMtlBarcode_del = mtlCode.replace("\n", "");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                strMtlBarcode_del = mtlCode;
+                            }
                         }
                         curViewFlag = '3';
                         // 执行查询方法
@@ -598,8 +608,13 @@ public class Sal_BoxActivity extends BaseActivity {
                                     if (strBoxBarcode.equals(boxCode)) {
                                         strBoxBarcode = boxCode;
                                     } else {
-                                        String tmp = boxCode.replaceFirst(strBoxBarcode, "");
-                                        strBoxBarcode = tmp.replace("\n", "");
+                                        try {
+                                            String tmp = boxCode.replaceFirst(strBoxBarcode, "");
+                                            strBoxBarcode = tmp.replace("\n", "");
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            strBoxBarcode = boxCode;
+                                        }
                                     }
                                 } else {
                                     strBoxBarcode = boxCode.replace("\n", "");

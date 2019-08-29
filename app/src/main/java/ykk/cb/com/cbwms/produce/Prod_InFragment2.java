@@ -55,6 +55,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
@@ -161,8 +162,12 @@ public class Prod_InFragment2 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        String errMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -198,7 +203,7 @@ public class Prod_InFragment2 extends BaseFragment {
                         break;
                     case UNSUCC2:
                         m.mHandler.sendEmptyMessageDelayed(CODE20, 200);
-                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        String errMsg = JsonUtil.strToString((String) msg.obj);
                         if(m.isNULLS(errMsg).length() == 0) {
                             errMsg = "很抱歉，没有找到数据！";
                         }

@@ -181,29 +181,13 @@ public class Prod_ProcessSearchActivity extends BaseActivity implements XRecycle
                         String etName = null;
                         switch (m.smFlag) {
                             case '1': // 生产订单物料   返回
-                                etName = m.getValues(m.etMtlCode);
-                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                                    if (m.mtlBarcode.equals(etName)) {
-                                        m.mtlBarcode = etName;
-                                    } else
-                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                                } else m.mtlBarcode = etName;
-                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                m.mtlBarcode = m.getValues(m.etMtlCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.mtlBarcode);
 
                                 break;
                             case '2': // 生产订单   返回
-                                etName = m.getValues(m.etSourceCode);
-                                if (m.sourceBarcode != null && m.sourceBarcode.length() > 0) {
-                                    if (m.sourceBarcode.equals(etName)) {
-                                        m.sourceBarcode = etName;
-                                    } else
-                                        m.sourceBarcode = etName.replaceFirst(m.sourceBarcode, "");
-
-                                } else m.sourceBarcode = etName;
-                                m.setTexts(m.etSourceCode, m.sourceBarcode);
+                                m.sourceBarcode = m.getValues(m.etSourceCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.sourceBarcode);
 

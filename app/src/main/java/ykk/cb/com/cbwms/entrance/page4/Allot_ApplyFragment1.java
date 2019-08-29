@@ -184,6 +184,8 @@ public class Allot_ApplyFragment1 extends BaseFragment {
                         List<StkTransferOutEntry> listStkEntry = JsonUtil.strToList((String) msg.obj, StkTransferOutEntry.class);
                         m.listDatas.addAll(listStkEntry);
                         m.mAdapter.notifyDataSetChanged();
+                        // 合计总数
+                        m.tvCountSum.setText(m.countSum());
 
                         break;
                     case UNSUCC2: // 再次申请 失败
@@ -519,6 +521,10 @@ public class Allot_ApplyFragment1 extends BaseFragment {
 
                 break;
             case R.id.lin_againApple: // 再次申请
+                if(getValues(tvDeptSel).length() == 0) {
+                    Comm.showWarnDialog(mContext,"请选择领料部门！");
+                    return;
+                }
                 String strStkTransferOutEntry = JsonUtil.objectToString(listDatas.get(0));
                 run_findUnFinishList(strStkTransferOutEntry);
 
@@ -1034,7 +1040,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
      * 再次申请
      */
     private void run_findUnFinishList(String strStkTransferOutEntry) {
-        showLoadDialog("正在审核...");
+        showLoadDialog("正在处理...");
         String mUrl = getURL("stkTransferOut/findUnFinishList");
         getUserInfo();
 
@@ -1067,7 +1073,7 @@ public class Allot_ApplyFragment1 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_pass --> onResponse", result);
+                LogUtil.e("run_findUnFinishList --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC2, result);
                     mHandler.sendMessage(msg);

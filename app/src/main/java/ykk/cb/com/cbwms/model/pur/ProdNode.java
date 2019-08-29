@@ -82,6 +82,7 @@ public class ProdNode<T> {
     private double workQty; // 报工数
     private double finishQty; // 已报数
     private double useableQty; // 可报数
+    private String mtlPriceTypeId; // 物料计价工资类别id
 
 
     public int getMlevel() {
@@ -391,4 +392,13 @@ public class ProdNode<T> {
     public void setUseableQty(double useableQty) {
         this.useableQty = useableQty;
     }
+
+    public String getMtlPriceTypeId() {
+        return mtlPriceTypeId;
+    }
+
+    public void setMtlPriceTypeId(String mtlPriceTypeId) {
+        this.mtlPriceTypeId = mtlPriceTypeId;
+    }
+
 }

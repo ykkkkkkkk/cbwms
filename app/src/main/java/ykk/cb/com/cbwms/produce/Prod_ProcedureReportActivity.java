@@ -165,15 +165,7 @@ public class Prod_ProcedureReportActivity extends BaseActivity {
 
                         break;
                     case SAOMA: // 扫码之后
-                        String etName = m.getValues(m.etMtlCode);
-                        if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                            if (m.mtlBarcode.equals(etName)) {
-                                m.mtlBarcode = etName;
-                            } else
-                                m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                        } else m.mtlBarcode = etName;
-                        m.setTexts(m.etMtlCode, m.mtlBarcode);
+                        m.mtlBarcode = m.getValues(m.etMtlCode);
                         // 执行查询方法
                         m.run_itemList();
 

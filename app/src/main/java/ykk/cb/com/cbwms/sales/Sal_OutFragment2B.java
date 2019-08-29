@@ -60,6 +60,7 @@ import ykk.cb.com.cbwms.model.ExpressCompany;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ScanningRecordTok3;
@@ -222,8 +223,12 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -327,15 +332,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 装箱单
-                                etName = m.getValues(m.etBoxCode);
-                                if (m.boxBarcode != null && m.boxBarcode.length() > 0) {
-                                    if (m.boxBarcode.equals(etName)) {
-                                        m.boxBarcode = etName;
-                                    } else
-                                        m.boxBarcode = etName.replaceFirst(m.boxBarcode, "");
-
-                                } else m.boxBarcode = etName;
-                                m.setTexts(m.etBoxCode, m.boxBarcode);
+                                m.boxBarcode = m.getValues(m.etBoxCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.boxBarcode);
 

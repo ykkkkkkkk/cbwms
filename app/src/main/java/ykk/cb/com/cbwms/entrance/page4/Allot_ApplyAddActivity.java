@@ -472,6 +472,7 @@ public class Allot_ApplyAddActivity extends BaseActivity {
                     for(Material mtl : listMtl) {
                         StkTransferOutTemp stkTemp = new StkTransferOutTemp();
                         stkTemp.setMtl(mtl);
+                        stkTemp.setCause("正常发料");
                         stkTempList.add(stkTemp);
                     }
                     listDatas.addAll(stkTempList);

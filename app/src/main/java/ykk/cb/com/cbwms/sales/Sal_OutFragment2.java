@@ -61,6 +61,7 @@ import ykk.cb.com.cbwms.model.ExpressCompany;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.MaterialBinningRecord;
 import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ScanningRecordTok3;
@@ -162,6 +163,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private boolean isFold; // 是否折叠
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
     private DecimalFormat df = new DecimalFormat("#.####");
+    private boolean isHintFlag;
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -220,8 +222,12 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -325,7 +331,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                             strError2 = "服务器繁忙哦！";
                         }
                         // 如果是这个，就提示是否要保存
-                        if(strError2.equals("此订单有入库未装箱或者有装箱未扫描，是否继续出库？")) {
+                        if(!m.isHintFlag && strError2.equals("此订单有入库未装箱或者有装箱未扫描，是否继续出库？")) {
                             AlertDialog.Builder build = new AlertDialog.Builder(m.mContext);
                             build.setIcon(R.drawable.caution);
                             build.setTitle("系统提示");
@@ -352,15 +358,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 装箱单
-                                etName = m.getValues(m.etBoxCode);
-                                if (m.boxBarcode != null && m.boxBarcode.length() > 0) {
-                                    if (m.boxBarcode.equals(etName)) {
-                                        m.boxBarcode = etName;
-                                    } else
-                                        m.boxBarcode = etName.replaceFirst(m.boxBarcode, "");
-
-                                } else m.boxBarcode = etName;
-                                m.setTexts(m.etBoxCode, m.boxBarcode);
+                                m.boxBarcode = m.getValues(m.etBoxCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.boxBarcode);
 
@@ -695,6 +693,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
      * 选择保存之前的判断
      */
     private void saveBefore() {
+        isHintFlag = false;
 //        if (checkDatas == null || checkDatas.size() == 0) {
 //            Comm.showWarnDialog(mContext,"请先插入行！");
 //            return false;
@@ -722,9 +721,15 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         int autoMtlSum = sRecord2.getSalOrderAutoMtlSum();
         int autoMtlSumTemp = 0;
         double writeSumQty = 0; //
+        double orderSumQty = 0; // 销售计算的总数量
+        List<String> listSalOrderNo = new ArrayList<>();
         for(int i=0; i<checkDatas.size(); i++) {
             ScanningRecord2 sr2 = checkDatas.get(i);
             writeSumQty = BigdecimalUtil.add(writeSumQty, sr2.getStockqty());
+            if(!listSalOrderNo.contains(sr2.getSalOrderNo())) {
+                listSalOrderNo.add(sr2.getSalOrderNo());
+                orderSumQty = BigdecimalUtil.add(orderSumQty, sr2.getSalOrderSumQty());
+            }
             if(sr2.getMtl().getIsAotuBringOut() == 1) autoMtlSumTemp += 1;
         }
 //        if(autoMtlSum > autoMtlSumTemp) {
@@ -778,12 +783,13 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 //            }
         }
 
-        double salOrderSumQty = sRecord2.getSalOrderSumQty();
-        LogUtil.e("AABDDDDFSDS", salOrderSumQty+"----"+writeSumQty);
-        if(salOrderSumQty > writeSumQty) {
+//        double salOrderSumQty = sRecord2.getSalOrderSumQty();
+//        LogUtil.e("AABDDDDFSDS", salOrderSumQty+"----"+writeSumQty);
+        if(orderSumQty != writeSumQty) {
             // 1、非整非拼，2、整单发货，3、拼单
             switch (orderDeliveryType) {
                 case '1':
+                    isHintFlag = true;
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);
                     build.setTitle("系统提示");
@@ -1144,7 +1150,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
             ScanningRecord2 sr2 = new ScanningRecord2();
 
             sr2.setSourceId(boxBarCode.getId());
-            sr2.setSourceK3Id(prodOrder.getfId());
+            sr2.setSourceK3Id(prodOrder.getSalOrderId());
             sr2.setSourceFnumber(prodOrder.getSalOrderNo());
             sr2.setFitemId(mtl.getfMaterialId());
             sr2.setMtl(mtl);
@@ -1456,9 +1462,9 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
 
         String mUrl = null;
         // 非整单，拼单就用循环传多个单的
-        if(orderDeliveryType == '1' || orderDeliveryType == '3')
+//        if(orderDeliveryType == '1' || orderDeliveryType == '3')
             mUrl = getURL("addScanningRecord2");
-        else mUrl = getURL("addScanningRecord");
+//        else mUrl = getURL("addScanningRecord");
 
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())

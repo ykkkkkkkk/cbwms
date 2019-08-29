@@ -492,6 +492,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
         FormBody formBody = new FormBody.Builder()
                 .add("deptNumber", allotWork.getDeptNumber())
                 .add("prodFdate", getValues(tvDate))
+                .add("processId", String.valueOf(allotWork.getProcedureId()))
                 .build();
 
         Request request = new Request.Builder()

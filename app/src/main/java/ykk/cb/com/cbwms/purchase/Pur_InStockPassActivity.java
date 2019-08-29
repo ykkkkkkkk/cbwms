@@ -110,7 +110,7 @@ public class Pur_InStockPassActivity extends BaseActivity implements XRecyclerVi
                         m.initLoadDatas();
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) {
-                            errMsg = "服务器超时，请稍候再试！";
+                            errMsg = "服务器繁忙，请稍候再试！";
                         }
                         Comm.showWarnDialog(m.context, errMsg);
 

@@ -1,20 +1,19 @@
 package ykk.cb.com.cbwms.produce;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -31,54 +30,54 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.AllotWork;
+import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.WorkRecord;
-import ykk.cb.com.cbwms.model.pur.ProdNode;
-import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.produce.adapter.Prod_Work_WriteFragment1Adapter;
+import ykk.cb.com.cbwms.produce.adapter.Prod_Wrok_Fragment2Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
-import ykk.cb.com.cbwms.util.treelist.OnTreeNodeClickListener;
+import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
+import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 /**
  * 报工查询界面
  */
-public class Prod_Work_Fragment2 extends BaseFragment {
+public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.LoadingListener {
 
-    @BindView(R.id.tv_process)
-    TextView tvProcess;
-    @BindView(R.id.tv_date)
-    TextView tvDate;
-    @BindView(R.id.tv_staffName)
-    TextView tvStaffName;
-    @BindView(R.id.listView)
-    ListView listView;
+    @BindView(R.id.tv_deptSel)
+    TextView tvDeptSel;
+    @BindView(R.id.tv_dateSel)
+    TextView tvDateSel;
+    @BindView(R.id.et_prodNo)
+    EditText etProdNo;
+    @BindView(R.id.et_mtls)
+    EditText etMtls;
+    @BindView(R.id.et_staff)
+    EditText etStaff;
+    @BindView(R.id.xRecyclerView)
+    XRecyclerView xRecyclerView;
 
     private Prod_Work_Fragment2 context = this;
-    private static final int SEL_STAFF = 10;
+    private static final int SEL_STAFF = 10, SEL_DEPT = 11;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
     private static final int RESULT_NUM = 1;
-    private ProdOrder prodOrder; // 生产订单
-    private AllotWork allotWork;
-    private List<ProdNode> checkDatas = new ArrayList<>();
-    private char curViewFlag = '1'; // 1：仓库，2：库位， 3：车间， 4：物料 ，箱码
+    private Department department;
+    private List<WorkRecord> listDatas = new ArrayList<>();
+    private Prod_Wrok_Fragment2Adapter mAdapter;
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = null;
     private User user;
-    private char defaultStockVal; // 默认仓库的值
     private Activity mContext;
     private Prod_WorkMainActivity parent;
-    private View curRadio;
     private DecimalFormat df = new DecimalFormat("#.####");
-    private Prod_Work_WriteFragment1Adapter mAdapter;
+    private int limit = 1;
+    private boolean isRefresh, isLoadMore, isNextPage;
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -97,46 +96,39 @@ public class Prod_Work_Fragment2 extends BaseFragment {
 
                 String errMsg = null;
                 switch (msg.what) {
-                    case SUCC1: // 保存成功
-                        m.toasts("已保存数据✔");
-                        for(int i=0; i<m.checkDatas.size(); i++) {
-                            ProdNode node = m.checkDatas.get(i);
-                            if(node.getMlevel() == 2 && node.getWorkQty() > 0) {
-                                node.setWorkQty(0);
-                            }
+                    case SUCC1: // 查询成功
+                        List<WorkRecord> list = JsonUtil.strToList2((String) msg.obj, WorkRecord.class);
+                        for(WorkRecord wr : list) {
+                            wr.setCheckQty(wr.getWorkQty());
                         }
-                        m.mAdapter.notifyData(-1, m.checkDatas);
+                        m.listDatas.addAll(list);
+                        m.mAdapter.notifyDataSetChanged();
 
-                        break;
-                    case UNSUCC1:
-                        errMsg = JsonUtil.strToString((String) msg.obj);
-                        if (m.isNULLS(errMsg).length() == 0) {
-                            errMsg = "服务器忙，请重试！";
+                        if (m.isRefresh) {
+                            m.xRecyclerView.refreshComplete(true);
+                        } else if (m.isLoadMore) {
+                            m.xRecyclerView.loadMoreComplete(true);
                         }
-                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
 
                         break;
-                    case SUCC2: // 扫码成功后进入
-                        m.checkDatas.clear();
-                        List<ProdNode> listProdNode = JsonUtil.strToList((String) msg.obj, ProdNode.class);
-                        m.checkDatas.addAll(listProdNode);
-                        m.mAdapter.notifyData(-1, m.checkDatas);
-
-                        break;
-                    case UNSUCC2:
+                    case UNSUCC1: // 查询失败
+                        m.mAdapter.notifyDataSetChanged();
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！！！";
                         Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
-                    case SUCC3: // 查询分配的工序  返回
-                        List<AllotWork> list = JsonUtil.strToList((String) msg.obj, AllotWork.class);
-                        m.allotWork = list.get(0);
-                        m.tvProcess.setText(m.allotWork.getProcedureName());
-                        m.tvStaffName.setText(Html.fromHtml("部门：<font color='#000000'>"+m.allotWork.getDeptName()+"</font>，员工：<font color='#FF4400'>"+m.allotWork.getStaffName()+"</font>"));
+                    case SUCC2: // 审核成功后进入
+                        m.toasts("审核成功");
+                        m.initLoadDatas();
 
                         break;
-                    case UNSUCC3: // 查询分配的工序    返回
+                    case UNSUCC2: // 审核失败
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器忙，请重试！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
                 }
@@ -167,7 +159,7 @@ public class Prod_Work_Fragment2 extends BaseFragment {
 
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.prod_work_write_fragment1, container, false);
+        return inflater.inflate(R.layout.prod_work_search_fragment2, container, false);
     }
 
     @Override
@@ -181,48 +173,41 @@ public class Prod_Work_Fragment2 extends BaseFragment {
         }
         parent = (Prod_WorkMainActivity) mContext;
 
-//        getData(); // 测试数据
+        xRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        xRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mAdapter = new Prod_Wrok_Fragment2Adapter(mContext, listDatas);
+        xRecyclerView.setAdapter(mAdapter);
+        xRecyclerView.setLoadingListener(context);
 
-        mAdapter = new Prod_Work_WriteFragment1Adapter(listView, mContext, checkDatas,
-                0, R.drawable.ico_expan_sub2, R.drawable.ico_expan_add2b, R.drawable.ico_spread_keydown, R.drawable.ico_spread_normal);
+        xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
-        listView.setAdapter(mAdapter);
-
-        // 输入数量
-        mAdapter.setCallBack(new Prod_Work_WriteFragment1Adapter.MyCallBack() {
+        mAdapter.setCallBack(new Prod_Wrok_Fragment2Adapter.MyCallBack() {
             @Override
-            public void onWriteNum(ProdNode entity, int position) {
-                curPos = parseInt(entity.getId());
-                Log.e("ykk------++++++++++++++", "positions:"+position);
-                showInputDialog("数量", String.valueOf(entity.getWorkQty()), "0.0",false, RESULT_NUM);
+            public void onClick_num(WorkRecord entity, int position) {
+                LogUtil.e("num", "行：" + position);
+                curPos = position;
+                showInputDialog("审核数", String.valueOf(entity.getCheckQty()), "0.0",false, RESULT_NUM);
             }
         });
-
-        mAdapter.setOnTreeNodeClickListener(new OnTreeNodeClickListener() {
+        mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onClick(ProdNode node, int position) {
-                Log.e("ykk------++++++++++++++", node.getId()+"--"+node.getPid()+"--"+node.getName()+"等级："+node.getLevel());
+            public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                WorkRecord wr = listDatas.get(pos-1);
+                if(wr.isCheckRow()) {
+                    wr.setCheckRow(false);
+                } else {
+                    wr.setCheckRow(true);
+                }
+                mAdapter.notifyDataSetChanged();
             }
         });
-//
-//        //选中状态监听
-//        mAdapter.setCheckedChangeListener(new OnTreeNodeCheckedChangeListener() {
-//            @Override
-//            public void onCheckChange(ProdNode node, int position, boolean isChecked) {
-//                //获取所有选中节点
-//                List<ProdNode> selectedNode = mAdapter.getSelectedNode();
-//                for (ProdNode n : selectedNode) {
-//                    Log.e("xyh", "onCheckChange: " + n.getName());
-//                }
-//            }
-//        });
     }
 
     @Override
     public void initData() {
         getUserInfo();
-        tvDate.setText(Comm.getSysDate(7));
-        run_findAllotWorkByDate();
+        tvDateSel.setText(Comm.getSysDate(7));
     }
 
     @Override
@@ -232,83 +217,75 @@ public class Prod_Work_Fragment2 extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.btn_save, R.id.btn_clone, R.id.tv_process, R.id.tv_date})
+    @OnClick({R.id.tv_deptSel, R.id.tv_dateSel, R.id.btn_clone, R.id.btn_pass })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
-            case R.id.tv_process: // 选择工序
+            case R.id.tv_deptSel: // 班组
                 bundle = new Bundle();
-                bundle.putString("begDate", getValues(tvDate));
-                showForResult(Prod_Work_SelStaffDialogActivity.class, SEL_STAFF, bundle);
+                bundle.putInt("isAll", 24);
+                showForResult(Dept_DialogActivity.class, SEL_DEPT, bundle);
 
                 break;
-            case R.id.tv_date: // 选择日期
-                Comm.showDateDialog(mContext, tvDate, 0);
-
-                break;
-            case R.id.btn_save: // 保存
-                if (!saveBefore()) {
-                    return;
-                }
-                run_addList();
+            case R.id.tv_dateSel: // 选择日期
+                Comm.showDateDialog(mContext, tvDateSel, 0);
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
-                if (checkDatas != null && checkDatas.size() > 0) {
-                    AlertDialog.Builder build = new AlertDialog.Builder(mContext);
-                    build.setIcon(R.drawable.caution);
-                    build.setTitle("系统提示");
-                    build.setMessage("您有未保存的数据，继续重置吗？");
-                    build.setPositiveButton("是", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            reset();
-                        }
-                    });
-                    build.setNegativeButton("否", null);
-                    build.setCancelable(false);
-                    build.show();
-                    return;
-                } else {
-                    reset();
-                }
+                reset();
+
+                break;
+            case R.id.btn_pass: // 审核
+                passBefore();
 
                 break;
         }
     }
+
+    private void reset () {
+        tvDateSel.setText(Comm.getSysDate(7));
+        etProdNo.setText("");
+        etMtls.setText("");
+        etStaff.setText("");
+        tvDeptSel.setText("");
+        department = null;
+    }
+
 
     /**
      * 查询方法
      */
     public void findFun() {
-        String process = getValues(tvProcess);
-        if(process.length() == 0) {
-            Comm.showWarnDialog(mContext, "请选择工序，再查询！");
+        initLoadDatas();
+    }
+
+    private void initLoadDatas() {
+        limit = 1;
+        listDatas.clear();
+        run_okhttpDatas();
+    }
+
+    /**
+     * 选择审核之前的判断
+     */
+    private void passBefore() {
+        if (listDatas == null || listDatas.size() == 0) {
+            Comm.showWarnDialog(mContext, "请先查询数据！");
             return;
         }
-        run_smGetDatas();
-    }
-
-    /**
-     * 选中之后改变样式
-     */
-    private void tabSelected(View v) {
-        curRadio.setBackgroundResource(R.drawable.check_off2);
-        v.setBackgroundResource(R.drawable.check_on);
-        curRadio = v;
-    }
-
-    /**
-     * 选择保存之前的判断
-     */
-    private boolean saveBefore() {
-        if (checkDatas == null || checkDatas.size() == 0) {
-            Comm.showWarnDialog(mContext, "请先查询数据！");
-            return false;
+        StringBuffer strIds = new StringBuffer();
+        for(WorkRecord wr : listDatas) {
+            if(wr.isCheckRow()) {
+                strIds.append(wr.getId() + ":" + wr.getCheckQty() + ",");
+            }
         }
-
-        return true;
+        if(strIds.length() == 0) {
+            Comm.showWarnDialog(mContext,"请选择审核的行！");
+            return;
+        }
+        // 删除最后的，
+        strIds.delete(strIds.length()-1, strIds.length());
+        run_checked(strIds.toString());
     }
 
     @Override
@@ -316,24 +293,22 @@ public class Prod_Work_Fragment2 extends BaseFragment {
 
     }
 
-    private void reset() {
-        parent.isChange = false;
-        run_findAllotWorkByDate();
-        curPos = -1;
-        checkDatas.clear();
-        mAdapter.notifyDataSetChanged();
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case SEL_STAFF: //查询部门	返回
+            case SEL_DEPT: //查询部门	返回
                 if (resultCode == Activity.RESULT_OK) {
-                    allotWork = (AllotWork) data.getSerializableExtra("obj");
-                    tvProcess.setText(allotWork.getProcedureName());
-//                    tvStaffName.setText(Html.fromHtml("员工：<font color='#FF4400'>"+allotWork.getStaffName()+"</font>"));
-                    tvStaffName.setText(Html.fromHtml("部门：<font color='#000000'>"+allotWork.getDeptName()+"</font>，员工：<font color='#FF4400'>"+allotWork.getStaffName()+"</font>"));
+                    department = (Department) data.getSerializableExtra("obj");
+                    LogUtil.e("onActivityResult --> SEL_DEPT", department.getDepartmentName());
+                    tvDeptSel.setText(department.getDepartmentName());
+                }
+
+                break;
+            case SEL_STAFF: //查询员工	返回
+                if (resultCode == Activity.RESULT_OK) {
+//                    allotWork = (AllotWork) data.getSerializableExtra("obj");
                 }
 
                 break;
@@ -343,10 +318,12 @@ public class Prod_Work_Fragment2 extends BaseFragment {
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
-                        checkDatas.get(curPos).setWorkQty(num);
-//                        checkDatas.get(curPos).setFqty(num);
-                        mAdapter.notifyData(-1, checkDatas);
-
+                        if(num > listDatas.get(curPos).getWorkQty()) {
+                            Comm.showWarnDialog(mContext,"审核数不能大于报工数！");
+                            return;
+                        }
+                        listDatas.get(curPos).setCheckQty(num);
+                        mAdapter.notifyDataSetChanged();
                     }
                 }
 
@@ -355,54 +332,46 @@ public class Prod_Work_Fragment2 extends BaseFragment {
     }
 
 
+    @Override
+    public void onRefresh() {
+        isRefresh = true;
+        isLoadMore = false;
+        initLoadDatas();
+    }
+
+    @Override
+    public void onLoadMore() {
+        isRefresh = false;
+        isLoadMore = true;
+        limit += 1;
+        run_okhttpDatas();
+    }
+
     /**
-     * 保存方法
+     * 通过okhttp加载数据
      */
-    private void run_addList() {
-        getUserInfo();
-
-        List<WorkRecord> list = new ArrayList<>();
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ProdNode node = checkDatas.get(i);
-            if(node.getMlevel() == 2 && node.getWorkQty() > 0) {
-                WorkRecord workRecord = new WorkRecord();
-                workRecord.setDeptId(allotWork.getDeptId());
-                workRecord.setProdNo(node.getProdNo());
-                workRecord.setProdEntryId(node.getProdEntryId());
-                workRecord.setProdQty(node.getProdQty());
-                workRecord.setProdMtlId(node.getMtlId());
-                workRecord.setProdMtlNumber(node.getMtlNumber());
-                workRecord.setLocationId(node.getLocationId());
-                workRecord.setWorkStaffId(allotWork.getStaffId());
-                workRecord.setWorkDate(getValues(tvDate));
-                workRecord.setWorkQty(node.getWorkQty());
-                workRecord.setCreateUserId(user.getId());
-                workRecord.setPosition2(node.getPosition2());
-
-                list.add(workRecord);
-            }
-        }
-        if(list.size() == 0) {
-            Comm.showWarnDialog(mContext,"请输入数量完成报工！");
-            return;
-        }
-
-        showLoadDialog("保存中...");
-        String mJson = JsonUtil.objectToString(list);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
+    private void run_okhttpDatas() {
+        showLoadDialog("加载中...");
+        String mUrl = getURL("workRecord/findWorkRecordByPage");
         FormBody formBody = new FormBody.Builder()
-                .add("strJson", mJson)
+                .add("deptNumber", department != null ? department.getDepartmentNumber() : "") // 班组
+                .add("prodNo", getValues(etProdNo).trim()) // 生产订单
+                .add("itemNumberOrName", getValues(etMtls).trim()) // 物料
+                .add("workStaffName", getValues(etStaff).trim()) // 报工人
+                .add("workDate", getValues(tvDateSel)) // 报工日期
+                .add("checkStatus", "1") // 查询未审核的
+                .add("limit", String.valueOf(limit))
+                .add("pageSize", "30")
                 .build();
 
-        String mUrl = getURL("workRecord/addList");
         Request request = new Request.Builder()
                 .addHeader("cookie", getSession())
                 .url(mUrl)
                 .post(formBody)
-//                .post(body)
                 .build();
 
-        okHttpClient.newCall(request).enqueue(new Callback() {
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 mHandler.sendEmptyMessage(UNSUCC1);
@@ -412,32 +381,27 @@ public class Prod_Work_Fragment2 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_addList --> onResponse", result);
-                if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC1, result);
-                    mHandler.sendMessage(msg);
+                if(!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNSUCC1);
                     return;
                 }
+                isNextPage = JsonUtil.isNextPage(result, limit);
+
                 Message msg = mHandler.obtainMessage(SUCC1, result);
+                Log.e("run_okhttpDatas --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
     }
 
     /**
-     * 扫码查询对应的方法
+     * 审核
      */
-    private void run_smGetDatas() {
-        showLoadDialog("加载中...");
-        String mUrl = getURL("prodOrder/findProdOrderByReport");;
-        switch (curViewFlag) {
-            case '1': // 物料扫码
-
-                break;
-        }
+    private void run_checked(String jsonArr) {
+        showLoadDialog("审核中...");
+        String mUrl = getURL("workRecord/checked");
         FormBody formBody = new FormBody.Builder()
-                .add("deptNumber", allotWork.getDeptNumber())
-                .add("prodFdate", getValues(tvDate))
+                .add("jsonArr", jsonArr)
                 .build();
 
         Request request = new Request.Builder()
@@ -457,52 +421,13 @@ public class Prod_Work_Fragment2 extends BaseFragment {
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_smGetDatas --> onResponse", result);
-                if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC2, result);
-                    mHandler.sendMessage(msg);
-                    return;
-                }
-                Message msg = mHandler.obtainMessage(SUCC2, result);
-                mHandler.sendMessage(msg);
-            }
-        });
-    }
-
-    /**
-     * 查询当天分配的的工序
-     */
-    private void run_findAllotWorkByDate() {
-        showLoadDialog("加载中...");
-        String mUrl = getURL("allotWork/findAllotWorkByDate");
-        FormBody formBody = new FormBody.Builder()
-                .add("begDate", Comm.getSysDate(7))
-                .add("staffId", String.valueOf(user.getStaffId()))
-                .build();
-
-        Request request = new Request.Builder()
-                .addHeader("cookie", getSession())
-                .url(mUrl)
-                .post(formBody)
-                .build();
-
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC3);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                ResponseBody body = response.body();
-                String result = body.string();
                 if(!JsonUtil.isSuccess(result)) {
-                    mHandler.sendEmptyMessage(UNSUCC3);
+                    mHandler.sendEmptyMessage(UNSUCC2);
                     return;
                 }
-                Message msg = mHandler.obtainMessage(SUCC3, result);
-                Log.e("run_findAllotWorkByDate --> onResponse", result);
+
+                Message msg = mHandler.obtainMessage(SUCC2, result);
+                Log.e("run_checked --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

@@ -160,15 +160,7 @@ public class Prod_BoxFragment2 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        String etName = m.getValues(m.etBoxCode);
-                        if (m.strBoxBarcode != null && m.strBoxBarcode.length() > 0) {
-                            if (m.strBoxBarcode.equals(etName)) {
-                                m.strBoxBarcode = etName;
-                            } else
-                                m.strBoxBarcode = etName.replaceFirst(m.strBoxBarcode, "");
-
-                        } else m.strBoxBarcode = etName;
-                        m.setTexts(m.etBoxCode, m.strBoxBarcode);
+                        m.strBoxBarcode = m.getValues(m.etBoxCode);
                         // 执行查询方法
                         m.run_smGetDatas(m.strBoxBarcode);
 

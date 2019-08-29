@@ -55,6 +55,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
 import ykk.cb.com.cbwms.model.Procedure;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
@@ -161,8 +162,12 @@ public class Prod_StartFragment1 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -314,15 +319,7 @@ public class Prod_StartFragment1 extends BaseFragment {
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 生产订单物料
-                                etName = m.getValues(m.etMtlCode);
-                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                                    if (m.mtlBarcode.equals(etName)) {
-                                        m.mtlBarcode = etName;
-                                    } else
-                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                                } else m.mtlBarcode = etName;
-                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                m.mtlBarcode = m.getValues(m.etMtlCode);
                                 // 执行查询方法
                                 m.run_smGetDatas();
 

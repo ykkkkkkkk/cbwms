@@ -48,6 +48,7 @@ import ykk.cb.com.cbwms.entrance.page4.adapter.Allot_ApplyAddSaoMaAdapter;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.PickingList;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.Supplier;
 import ykk.cb.com.cbwms.model.User;
@@ -104,7 +105,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
     private Allot_ApplyAddSaoMaActivity context = this;
     private static final int SEL_DEPT = 11, SEL_IN_STOCK = 12, SEL_OUT_STOCK = 13, SEL_MTL = 14, SEL_MTL2 = 15, SEL_CAUSE = 16, SEL_SUPPLIER = 17;
     private static final int SUCC1 = 201, UNSUCC1 = 501, SUCC2 = 202, UNSUCC2 = 502, SUCC3 = 203, UNSUCC3 = 503, PASS = 204, UNPASS = 504, FIND_INSTOCK = 205, UNFIND_INSTOCK = 505, FIND_SUPP = 206, UNFIND_SUPP = 506;
-    private static final int RESULT_NUM = 1, SAOMA = 2, SETFOCUS = 3;
+    private static final int RESULT_NUM = 1, RESULT_NUM2 = 2, SAOMA = 3, SETFOCUS = 4;
     private Stock inStock, outStock; // 仓库
     private Department department; // 部门
     private Supplier supplier; // VMI供应商
@@ -121,6 +122,8 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
     private List<StkTransferOutEntry> checkDatas = new ArrayList<>(); // 记录保存后返回的信息
     private String k3Number; // 记录传递到k3返回的单号
     private int isVMI; // 是否为VMI的单
+    private StringBuffer strBarcode_Qty = new StringBuffer();
+    private List<Material> curListMtl;
 
 
     // 消息处理
@@ -150,6 +153,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         m.btnToK3.setVisibility(View.VISIBLE);
                         m.etMtlCode.setEnabled(false);
                         m.btnScan.setVisibility(View.INVISIBLE);
+                        m.strBarcode_Qty.setLength(0);
 //                        m.toasts("保存成功✔");
                         m.run_toK3();
 
@@ -162,8 +166,24 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         break;
                     case SUCC2: // 扫码条码结果
                         List<Material> listMtl = JsonUtil.strToList((String) msg.obj, Material.class);
-                        m.isChange = true;
-                        m.getMtlAfter(listMtl);
+                        Material mtl = listMtl.get(0);
+                        if(mtl.getBarcodeQty() <= 1) {
+                            m.getMtlAfter(listMtl, mtl.getBarcode());
+
+                        } else {
+                            m.curListMtl = listMtl;
+                            String showInfo = "<font color='#666666'>物料编码：</font>" + mtl.getfNumber() + "<br><font color='#666666'>物料名称：</font>" + mtl.getfName();
+                            if(mtl.getUnit().getUnitName().equals("码")) {
+                                Bundle bundle = new Bundle();
+                                bundle.putString("hintName", "数量");
+                                bundle.putString("showInfo", showInfo);
+                                bundle.putDouble("value", mtl.getBarcodeQty());
+                                m.showForResult(PublicInputDialog3.class, RESULT_NUM2, bundle);
+
+                            } else {
+                                m.showInputDialog("数量", showInfo, String.valueOf(mtl.getBarcodeQty()), "0.0", RESULT_NUM2);
+                            }
+                        }
 
                         break;
                     case UNSUCC2: // 判断是否存在返回
@@ -191,9 +211,12 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String) msg.obj);
-                        if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器繁忙，请稍后再试！！！";
-                        Comm.showWarnDialog(m.context, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.context, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.context, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case FIND_INSTOCK: // 查询部门的调入仓库 成功
@@ -222,15 +245,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
 
                         break;
                     case SAOMA: // 扫码之后
-                        String etName = m.getValues(m.etMtlCode);
-                        if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                            if (m.mtlBarcode.equals(etName)) {
-                                m.mtlBarcode = etName;
-                            } else
-                                m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                        } else m.mtlBarcode = etName;
-                        m.setTexts(m.etMtlCode, m.mtlBarcode);
+                        m.mtlBarcode = m.getValues(m.etMtlCode);
                         // 执行查询方法
                         m.run_smGetDatas(m.mtlBarcode);
 
@@ -567,6 +582,8 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         btnSave.setVisibility(View.VISIBLE);
         btnToK3.setVisibility(View.GONE);
         btnPass.setVisibility(View.GONE);
+        strBarcode_Qty.setLength(0);
+
         mAdapter.notifyDataSetChanged();
         mHandler.sendEmptyMessageDelayed(SETFOCUS, 200);
     }
@@ -712,6 +729,18 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 }
 
                 break;
+            case RESULT_NUM2: // 数量2
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        String value = bundle.getString("resultValue", "");
+                        double num = parseDouble(value);
+                        curListMtl.get(0).setBarcodeQty(num);
+                        getMtlAfter(curListMtl, curListMtl.get(0).getBarcode());
+                    }
+                }
+
+                break;
             case SEL_CAUSE: // 原因   返回
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
@@ -743,7 +772,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
 //                    listDatas.addAll(stkTempList);
 //                    mAdapter.notifyDataSetChanged();
                     mtlBarcode = null;
-                    getMtlAfter(listMtl);
+                    getMtlAfter(listMtl, null);
                     isChange = true;
                 }
 
@@ -771,6 +800,9 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         FormBody formBody = new FormBody.Builder()
                 .add("strStkTransferOut", strStkTransferOut)
                 .add("strStkTransferOutEntry", strStkTransferOutEntry)
+                .add("strBarcode_Qty", strBarcode_Qty.toString())
+                .add("userId", String.valueOf(user.getId()))
+                .add("userName", user.getUsername())
                 .build();
 
         Request request = new Request.Builder()
@@ -929,13 +961,19 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
     /**
      * 来源订单 判断数据
      */
-    private void getMtlAfter(List<Material> listMtl) {
-        if (mtlBarcode != null) {
-            if (listBarcode.contains(mtlBarcode)) {
+    private void getMtlAfter(List<Material> listMtl, String barcode) {
+        isChange = true;
+        if (barcode != null) {
+            if (listBarcode.contains(barcode)) {
                 Comm.showWarnDialog(context, "条码已经使用！");
                 return;
             } else {
-                listBarcode.add(mtlBarcode); // 记录条码
+                listBarcode.add(barcode); // 记录条码
+                if(strBarcode_Qty.length() == 0) {
+                    strBarcode_Qty.append(listMtl.get(0).getfNumber()+":"+barcode+":"+listMtl.get(0).getBarcodeQty());
+                } else {
+                    strBarcode_Qty.append(","+ listMtl.get(0).getfNumber()+":"+barcode+":"+listMtl.get(0).getBarcodeQty());
+                }
             }
         }
         // 循环判断业务
@@ -959,6 +997,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 StkTransferOutTemp stkTemp = new StkTransferOutTemp();
                 stkTemp.setMtl(mtl);
                 stkTemp.setFqty(barcodeQty > 0 ? barcodeQty : 1);
+                stkTemp.setCause("正常发料");
                 listDatas.add(stkTemp);
 
             } else {

@@ -114,15 +114,7 @@ public class PrintFragment2 extends BaseFragment implements IFragmentKeyeventLis
 
                         break;
                     case SAOMA: // 扫码之后
-                        String etName = m.getValues(m.etCode);
-                        if (m.barcode != null && m.barcode.length() > 0) {
-                            if (m.barcode.equals(etName)) {
-                                m.barcode = etName;
-                            } else
-                                m.barcode = etName.replaceFirst(m.barcode, "");
-
-                        } else m.barcode = etName;
-                        m.setTexts(m.etCode, m.barcode);
+                        m.barcode = m.getValues(m.etCode);
                         // 执行查询方法
                         m.run_print();
 

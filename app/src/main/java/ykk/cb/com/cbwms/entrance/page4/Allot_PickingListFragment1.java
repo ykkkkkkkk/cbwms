@@ -58,6 +58,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.InventorySyncRecord;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.PickingList;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.Staff;
 import ykk.cb.com.cbwms.model.Stock;
 import ykk.cb.com.cbwms.model.StockPosition;
@@ -201,8 +202,12 @@ public class Allot_PickingListFragment1 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        errMsg = JsonUtil.strToString((String) msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 调拨单
@@ -287,15 +292,7 @@ public class Allot_PickingListFragment1 extends BaseFragment {
                             Comm.showWarnDialog(m.mContext, "请查询调拨单！");
                             return;
                         }
-                        String etName = m.getValues(m.etMtlCode);
-                        if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                            if (m.mtlBarcode.equals(etName)) {
-                                m.mtlBarcode = etName;
-                            } else
-                                m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                        } else m.mtlBarcode = etName;
-                        m.setTexts(m.etMtlCode, m.mtlBarcode);
+                        m.mtlBarcode = m.getValues(m.etMtlCode);
                         // 执行查询方法
                         m.run_smGetDatas(m.mtlBarcode);
 

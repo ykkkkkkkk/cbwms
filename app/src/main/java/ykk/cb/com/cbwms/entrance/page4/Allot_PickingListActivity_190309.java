@@ -216,29 +216,13 @@ public class Allot_PickingListActivity_190309 extends BaseActivity {
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 调拨单
-                                etName = m.getValues(m.etSourceCode);
-                                if (m.sourceBarcode != null && m.sourceBarcode.length() > 0) {
-                                    if (m.sourceBarcode.equals(etName)) {
-                                        m.sourceBarcode = etName;
-                                    } else
-                                        m.sourceBarcode = etName.replaceFirst(m.sourceBarcode, "");
-
-                                } else m.sourceBarcode = etName;
-                                m.setTexts(m.etSourceCode, m.sourceBarcode);
+                                m.sourceBarcode = m.getValues(m.etSourceCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.sourceBarcode);
 
                                 break;
                             case '2': // 物料
-                                etName = m.getValues(m.etMtlCode);
-                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                                    if (m.mtlBarcode.equals(etName)) {
-                                        m.mtlBarcode = etName;
-                                    } else
-                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                                } else m.mtlBarcode = etName;
-                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                m.mtlBarcode = m.getValues(m.etMtlCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.mtlBarcode);
 

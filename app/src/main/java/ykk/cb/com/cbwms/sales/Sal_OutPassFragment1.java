@@ -40,6 +40,7 @@ import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.sal.SalOutStock;
 import ykk.cb.com.cbwms.sales.adapter.Sal_OutPassFragment1Adapter;
@@ -108,11 +109,43 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                         break;
                     case UNSUCC1:
-                        errMsg = JsonUtil.strToString((String) msg.obj);
-                        if (m.isNULLS(errMsg).length() == 0) {
-                            errMsg = "服务器超时，请稍候再试！";
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                            return;
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
                         }
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        String obj = Comm.isNULLS(returnMsg.getRetObj()); // 用Map 记录销售出库单号
+                        if(obj.length() > 0) {
+                            Map<String, Boolean> mapSalOutNo = JsonUtil.stringToObject(obj, Map.class);
+                            List<SalOutStock> listTmp = new ArrayList<>();
+                            // 去掉已审核的单据
+                            for (int i = 0; i < m.checkDatas.size(); i++) {
+                                String fbillNo = m.checkDatas.get(i).getFbillno();
+                                if(!mapSalOutNo.containsKey(fbillNo)) {
+//                                    m.checkDatas.remove(i);
+                                    listTmp.add(m.checkDatas.get(i));
+                                }
+                            }
+                            m.checkDatas.clear();
+                            m.checkDatas.addAll(listTmp);
+                        }
+                        if(m.mapFbillNos.size() > 0) {
+                            int size2 = m.checkDatas.size();
+                            // 记录未扫完的出库单行
+                            List<SalOutStock> listOk2 = new ArrayList<>();
+                            for(int i=0; i<size2; i++) {
+                                SalOutStock sOut = m.checkDatas.get(i);
+                                String fbillNo = sOut.getFbillno();
+                                if(m.mapFbillNos.containsKey(fbillNo)) { // 未扫完的出库单号
+                                    listOk2.add(sOut);
+                                }
+                            }
+                            m.reset(listOk2);
+                        } else {
+                            m.mAdapter.notifyDataSetChanged();
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -134,14 +167,7 @@ public class Sal_OutPassFragment1 extends BaseFragment {
 
                         break;
                     case SAOMA: // 扫码之后
-                        String etName = m.getValues(m.etCode);
-                        if (m.barcode != null && m.barcode.length() > 0) {
-                            if(m.barcode.equals(etName)) {
-                                m.barcode = etName;
-                            } else m.barcode = etName.replaceFirst(m.barcode, "");
-
-                        } else m.barcode = etName;
-                        m.setTexts(m.etCode, m.barcode);
+                        m.barcode = m.getValues(m.etCode);
                         // 判断当前行是否有相同的运单号
                         if (!m.carriageNoExistRow()) {
                             // 执行查询方法

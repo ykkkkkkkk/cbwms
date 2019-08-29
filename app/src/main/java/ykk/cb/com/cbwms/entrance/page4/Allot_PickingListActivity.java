@@ -330,29 +330,13 @@ public class Allot_PickingListActivity extends BaseActivity {
                             Comm.showWarnDialog(m.context, "请查询调拨单！");
                             return;
                         }
-                        String etName = m.getValues(m.etMtlCode);
-                        if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                            if (m.mtlBarcode.equals(etName)) {
-                                m.mtlBarcode = etName;
-                            } else
-                                m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                        } else m.mtlBarcode = etName;
-                        m.setTexts(m.etMtlCode, m.mtlBarcode);
+                        m.mtlBarcode = m.getValues(m.etMtlCode);
                         // 执行查询方法
                         m.run_smGetDatas(m.mtlBarcode);
 
                         break;
                     case SAOMA2: // 扫码之后
-                        String etName2 = m.getValues(m.etMtlCode2);
-                        if (m.mtlBarcode2 != null && m.mtlBarcode2.length() > 0) {
-                            if (m.mtlBarcode2.equals(etName2)) {
-                                m.mtlBarcode2 = etName2;
-                            } else
-                                m.mtlBarcode2 = etName2.replaceFirst(m.mtlBarcode2, "");
-
-                        } else m.mtlBarcode2 = etName2;
-                        m.setTexts(m.etMtlCode2, m.mtlBarcode2);
+                        m.mtlBarcode2 = m.getValues(m.etMtlCode2);
                         // 执行查询方法
                         m.run_smGetDatas(m.mtlBarcode2);
 

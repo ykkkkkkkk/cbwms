@@ -51,6 +51,7 @@ import ykk.cb.com.cbwms.model.BarCodeTable;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.model.Organization;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.Stock;
@@ -173,8 +174,12 @@ public class Pur_InFragment1 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        String errMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, errMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入
@@ -251,15 +256,7 @@ public class Pur_InFragment1 extends BaseFragment {
                                     m.mHandler.sendEmptyMessageDelayed(SETFOCUS,200);
                                     return;
                                 }
-                                etName = m.getValues(m.etMtlNo);
-                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                                    if (m.mtlBarcode.equals(etName)) {
-                                        m.mtlBarcode = etName;
-                                    } else
-                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                                } else m.mtlBarcode = etName;
-                                m.setTexts(m.etMtlNo, m.mtlBarcode);
+                                m.mtlBarcode = m.getValues(m.etMtlNo);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.mtlBarcode);
 

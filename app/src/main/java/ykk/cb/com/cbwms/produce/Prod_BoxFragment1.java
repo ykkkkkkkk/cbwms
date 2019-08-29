@@ -355,15 +355,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                         String etName = null;
                         switch (m.curViewFlag) {
                             case '1': // 箱码扫码   返回
-                                etName = m.getValues(m.etBoxCode);
-                                if (m.strBoxBarcode != null && m.strBoxBarcode.length() > 0) {
-                                    if (m.strBoxBarcode.equals(etName)) {
-                                        m.strBoxBarcode = etName;
-                                    } else
-                                        m.strBoxBarcode = etName.replaceFirst(m.strBoxBarcode, "");
-
-                                } else m.strBoxBarcode = etName;
-                                m.setTexts(m.etBoxCode, m.strBoxBarcode);
+                                m.strBoxBarcode = m.getValues(m.etBoxCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.strBoxBarcode);
 
@@ -378,15 +370,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                                     Comm.showWarnDialog(m.mContext,"请扫码箱码！");
                                     return;
                                 }
-                                etName = m.getValues(m.etMtlCode);
-                                if (m.mtlBarcode != null && m.mtlBarcode.length() > 0) {
-                                    if (m.mtlBarcode.equals(etName)) {
-                                        m.mtlBarcode = etName;
-                                    } else
-                                        m.mtlBarcode = etName.replaceFirst(m.mtlBarcode, "");
-
-                                } else m.mtlBarcode = etName;
-                                m.setTexts(m.etMtlCode, m.mtlBarcode);
+                                m.mtlBarcode = m.getValues(m.etMtlCode);
                                 // 执行查询方法
                                 m.run_smGetDatas(m.mtlBarcode);
 

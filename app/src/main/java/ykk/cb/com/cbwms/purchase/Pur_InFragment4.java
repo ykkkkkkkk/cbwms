@@ -51,6 +51,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.DisburdenMission;
 import ykk.cb.com.cbwms.model.DisburdenMissionEntry;
 import ykk.cb.com.cbwms.model.Material;
+import ykk.cb.com.cbwms.model.ReturnMsg;
 import ykk.cb.com.cbwms.model.ScanningRecord;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.ShrinkOrder;
@@ -156,8 +157,12 @@ public class Pur_InFragment4 extends BaseFragment {
 
                         break;
                     case UNPASS: // 审核失败 返回
-                        String strMsg = JsonUtil.strToString((String)msg.obj);
-                        Comm.showWarnDialog(m.mContext, strMsg);
+                        ReturnMsg returnMsg = JsonUtil.strToObject((String) msg.obj, ReturnMsg.class);
+                        if (returnMsg == null) {
+                            Comm.showWarnDialog(m.mContext, "服务器繁忙，请稍候再试！");
+                        } else {
+                            Comm.showWarnDialog(m.mContext, returnMsg.getRetMsg());
+                        }
 
                         break;
                     case SUCC2: // 扫码成功后进入

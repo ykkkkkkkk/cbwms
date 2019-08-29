@@ -74,6 +74,8 @@ public class Prod_WorkMainActivity extends BaseActivity {
     private static final int CONN_PRINTER = 0x12;
 //    private Customer customer; // 客户
     private Prod_Work_Fragment1 fragment1 = new Prod_Work_Fragment1();
+    private Prod_Work_Fragment2 fragment2 = new Prod_Work_Fragment2();
+    private int pageId; // 页面id
 
     @Override
     public int setLayoutResID() {
@@ -87,24 +89,22 @@ public class Prod_WorkMainActivity extends BaseActivity {
 //            customer = (Customer) bundle.getSerializable("customer");
 //        }
 
-        curRadio = viewRadio2;
+        curRadio = viewRadio1;
         List<Fragment> listFragment = new ArrayList<Fragment>();
 //        Bundle bundle2 = new Bundle();
 //        bundle2.putSerializable("customer", customer);
 //        fragment1.setArguments(bundle2); // 传参数
 //        fragment2.setArguments(bundle2); // 传参数
-//        Prod_Work_WriteFragment1 fragment1 = new Prod_Work_WriteFragment1();
-//        Prod_InFragment2 fragment2 = new Prod_InFragment2();
 
         listFragment.add(fragment1);
-//        listFragment.add(fragment2);
+        listFragment.add(fragment2);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //设置ViewPage缓存界面数，默认为1
 //        viewPager.setOffscreenPageLimit(1);
         //ViewPager显示第一个Fragment
-        viewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(0);
 
         //ViewPager页面切换监听
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -121,7 +121,7 @@ public class Prod_WorkMainActivity extends BaseActivity {
 
                         break;
                     case 1:
-                        tabChange(viewRadio2,"报工记录", 1);
+                        tabChange(viewRadio2,"报工查询", 1);
 
                         break;
                 }
@@ -168,8 +168,15 @@ public class Prod_WorkMainActivity extends BaseActivity {
                 }
 
                 break;
-            case R.id.btn_search: // 打印
-                fragment1.findFun();
+            case R.id.btn_search: // 查询
+                switch (pageId) {
+                    case 0:
+                        fragment1.findFun();
+                        break;
+                    case 1:
+                        fragment2.findFun();
+                        break;
+                }
 
                 break;
             case R.id.lin_tab1:
@@ -177,7 +184,7 @@ public class Prod_WorkMainActivity extends BaseActivity {
 
                 break;
             case R.id.lin_tab2:
-                tabChange(viewRadio2,"报工记录", 1);
+                tabChange(viewRadio2,"报工查询", 1);
 
                 break;
         }
@@ -193,6 +200,7 @@ public class Prod_WorkMainActivity extends BaseActivity {
     }
 
     private void tabChange(View view, String str, int page) {
+        pageId = page;
         tabSelected(view);
         tvTitle.setText(str);
         viewPager.setCurrentItem(page, false);

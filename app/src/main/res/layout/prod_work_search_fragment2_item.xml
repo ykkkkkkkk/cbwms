@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
@@ -17,14 +16,22 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_mtlNo"
+        android:id="@+id/tv_deptName"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
-        android:gravity="center|left"
-        android:text="物料代码"
-        android:visibility="gone"
-        android:textColor="#000000"
-        android:textSize="@dimen/_12sp" />
+        android:gravity="center"
+        android:text="班组"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_prodNo"
+        android:layout_width="76dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="生产订单"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_mtlName"
@@ -33,53 +40,63 @@
         android:gravity="center|left"
         android:text="物料名称"
         android:textColor="#000000"
-        android:textSize="@dimen/_12sp" />
+        android:textSize="12sp" />
 
+    <TextView
+        android:id="@+id/tv_prodQty"
+        android:layout_width="58dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="生产数"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_postion"
+        android:layout_width="56dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="位置"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_staffName"
+        android:layout_width="58dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="报工人"
+        android:textColor="#000000"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_nums"
-        android:layout_width="72dp"
-        android:layout_height="@dimen/_46dp"
-        android:background="@drawable/back_style_blue2"
-        android:gravity="center"
-        android:text="应收数\n实收数"
-        android:textColor="#000000"
-        android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/tv_canStockNum"
-        android:layout_width="72dp"
-        android:layout_height="@dimen/_46dp"
-        android:gravity="center"
-        android:text="即时库存"
-        android:textColor="#000000"
-        android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/tv_stockAP"
-        android:layout_width="120dp"
-        android:layout_height="@dimen/_46dp"
-        android:gravity="center"
-        android:background="@drawable/back_style_blue2"
-        android:hint="请选择仓库"
-        android:textColor="#000000"
-        android:textSize="@dimen/_12sp" />
-
-    <TextView
-        android:id="@+id/tv_batch_seqNo"
         android:layout_width="78dp"
         android:layout_height="@dimen/_46dp"
+        android:background="@drawable/back_style_blue2"
         android:gravity="center"
-        android:text="批号\n序列号"
+        android:text="报工/审核数"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="76dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="报工日期"
         android:textColor="#000000"
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_delRow"
-        android:layout_width="@dimen/_46dp"
+        android:id="@+id/tv_process"
+        android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
-        android:background="@drawable/ico_del2"
-        android:gravity="center" />
+        android:gravity="center"
+        android:text="工序"
+        android:textColor="#000000"
+        android:textSize="12sp" />
 
 
 </LinearLayout>

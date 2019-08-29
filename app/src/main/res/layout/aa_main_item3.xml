@@ -187,7 +187,7 @@
                 android:layout_below="@+id/imgView4"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/_3dp"
-                android:text="销售装箱"
+                android:text="座垫装箱"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_18sp" />
 

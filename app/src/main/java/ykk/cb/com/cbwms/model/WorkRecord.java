@@ -6,6 +6,7 @@ import java.io.Serializable;
  * 报工记录
  */
 public class WorkRecord implements Serializable {
+
 	private int id;
 	private int deptId; // 班组
 	private String prodNo; // 生产订单单号
@@ -22,6 +23,8 @@ public class WorkRecord implements Serializable {
 	private int checkId;//审核人id
 	private String checkDate;//审核时间
 	private int processId;//工序id
+	private int checkStatus;//审核状态,1:未审核，2:已审核
+	private double checkQty; // 审核数量
 
 	// 临时字段，不存表
 	private int position2; // 第二级的行号
@@ -32,6 +35,7 @@ public class WorkRecord implements Serializable {
 	private String createName;//创建人
 	private String checkName;//审核人
 	private String processName;
+	private boolean checkRow; // 是否选中行
 
 	public WorkRecord() {
 		super();
@@ -43,6 +47,46 @@ public class WorkRecord implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getCheckId() {
+		return checkId;
+	}
+
+	public void setCheckId(int checkId) {
+		this.checkId = checkId;
+	}
+
+	public int getProcessId() {
+		return processId;
+	}
+
+	public void setProcessId(int processId) {
+		this.processId = processId;
+	}
+
+	public String getProcessName() {
+		return processName;
+	}
+
+	public void setProcessName(String processName) {
+		this.processName = processName;
+	}
+
+	public String getCheckDate() {
+		return checkDate;
+	}
+
+	public void setCheckDate(String checkDate) {
+		this.checkDate = checkDate;
+	}
+
+	public String getCheckName() {
+		return checkName;
+	}
+
+	public void setCheckName(String checkName) {
+		this.checkName = checkName;
 	}
 
 	public int getDeptId() {
@@ -189,45 +233,28 @@ public class WorkRecord implements Serializable {
 		this.createName = createName;
 	}
 
-	public int getCheckId() {
-		return checkId;
+	public int getCheckStatus() {
+		return checkStatus;
 	}
 
-	public void setCheckId(int checkId) {
-		this.checkId = checkId;
+	public void setCheckStatus(int checkStatus) {
+		this.checkStatus = checkStatus;
 	}
 
-	public int getProcessId() {
-		return processId;
+	public double getCheckQty() {
+		return checkQty;
 	}
 
-	public void setProcessId(int processId) {
-		this.processId = processId;
+	public void setCheckQty(double checkQty) {
+		this.checkQty = checkQty;
 	}
 
-	public String getProcessName() {
-		return processName;
+	public boolean isCheckRow() {
+		return checkRow;
 	}
 
-	public void setProcessName(String processName) {
-		this.processName = processName;
+	public void setCheckRow(boolean checkRow) {
+		this.checkRow = checkRow;
 	}
-
-	public String getCheckDate() {
-		return checkDate;
-	}
-
-	public void setCheckDate(String checkDate) {
-		this.checkDate = checkDate;
-	}
-
-	public String getCheckName() {
-		return checkName;
-	}
-
-	public void setCheckName(String checkName) {
-		this.checkName = checkName;
-	}
-
 
 }

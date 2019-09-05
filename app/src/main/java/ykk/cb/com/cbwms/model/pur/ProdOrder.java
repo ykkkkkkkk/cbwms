@@ -146,6 +146,7 @@ public class ProdOrder implements Serializable {
     private String mtlWageType;
     /*k3里设置的物料片数*/
     private int mtlPiece;
+    private String fplanStartDate; // 计划开工时间
 
     // 临时字段，不加表
     private int isCheck; // 新加的是否选中
@@ -777,6 +778,14 @@ public class ProdOrder implements Serializable {
 
     public void setSalEntryNote(String salEntryNote) {
         this.salEntryNote = salEntryNote;
+    }
+
+    public String getFplanStartDate() {
+        return fplanStartDate;
+    }
+
+    public void setFplanStartDate(String fplanStartDate) {
+        this.fplanStartDate = fplanStartDate;
     }
 
 }

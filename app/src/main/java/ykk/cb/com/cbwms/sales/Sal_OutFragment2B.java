@@ -161,6 +161,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
     private boolean isTextChange; // 是否进入TextChange事件
     private boolean isFold; // 是否折叠
     private DecimalFormat df = new DecimalFormat("#.####");
+    private String receiveAddress; // 收货地址
 
     // 消息处理
     private Sal_OutFragment2B.MyHandler mHandler = new Sal_OutFragment2B.MyHandler(this);
@@ -192,6 +193,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
                         m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
+                        m.receiveAddress = null;
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
 
                         break;
@@ -241,6 +243,12 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
                                     Comm.showWarnDialog(m.mContext,"一个箱子只能扫一次！");
                                     return;
                                 }
+                                // 判断地址是否一致
+                                if(m.checkDatas.size() > 0 && m.receiveAddress != null && !m.receiveAddress.equals(m.checkDatas.get(0).getReceiveAddress())) {
+                                    Comm.showWarnDialog(m.mContext,"扫描的箱码地址不一致，请扫码相同地址箱子！");
+                                    return;
+                                }
+                                // 判断是否相同客户
                                 if(m.isAlikeCust(mbr)) return;
 
                                 m.getBarCodeTableBefore(false);
@@ -845,6 +853,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
         curPos = -1;
         tvBoxSize.setText(String.valueOf(mapBox.size()));
         tvCountSum.setText(countSum());
+        receiveAddress = null;
     }
 
     private void resetSon() {
@@ -1129,6 +1138,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
             sr2.setFproductionSeq("");
             sr2.setSalOrderDate(deliOrder.getSalOrderDate());
             sr2.setSalEntryNote(deliOrder.getSalEntryNote());
+            receiveAddress = sr2.getReceiveAddress(); // 记录下，用于判断地址不一致
 
             sr2.setCaseId(mbr.getCaseId());
             // 物料默认的仓库库位

@@ -57,6 +57,38 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/lin_div2"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginBottom="@dimen/_6dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="5"
+            android:gravity="center"
+            android:text="生产顺序号"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/et_prodSeq"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:inputType="none"
+            android:padding="@dimen/_2dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12sp" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tv_staffName"
         android:layout_width="wrap_content"

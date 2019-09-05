@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -69,7 +70,6 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
 
         switch (node.getMlevel()) {
             case 0:
-
                 holder.tv_prodNo.setText(node.getProdNo());
                 holder.tv_prodDate.setText(node.getProdDate());
                 if (node.getIcon() == -1) {

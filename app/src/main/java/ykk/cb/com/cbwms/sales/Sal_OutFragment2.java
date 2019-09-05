@@ -164,6 +164,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
     private int singleshipment; // 销售订单是否整单发货，0代表非整单发货，1代表整单发货
     private DecimalFormat df = new DecimalFormat("#.####");
     private boolean isHintFlag;
+    private String receiveAddress; // 收货地址
 
     // 消息处理
     private Sal_OutFragment2.MyHandler mHandler = new Sal_OutFragment2.MyHandler(this);
@@ -195,6 +196,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                         m.btnBatchAdd.setVisibility(View.GONE);
                         m.btnSave.setVisibility(View.GONE);
                         m.btnPass.setVisibility(View.VISIBLE);
+                        m.receiveAddress = null;
                         Comm.showWarnDialog(m.mContext,"保存成功，请点击“审核按钮”！");
 
                         break;
@@ -243,7 +245,12 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                     Comm.showWarnDialog(m.mContext,"一个箱子只能扫一次！");
                                     return;
                                 }
-
+                                // 判断地址是否一致
+                                if(m.checkDatas.size() > 0 && m.receiveAddress != null && !m.receiveAddress.equals(m.checkDatas.get(0).getReceiveAddress())) {
+                                    Comm.showWarnDialog(m.mContext,"扫描的箱码地址不一致，请扫码相同地址箱子！");
+                                    return;
+                                }
+                                // 判断是否相同客户
                                 if(m.isAlikeCust(mbr)) return;
 //                                if(m.caseId > 0 && m.caseId != mbr.getCaseId()) {
                                 if(m.caseId > 0 && !(m.caseId == 34 || m.caseId == 38)) {
@@ -331,20 +338,25 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                             strError2 = "服务器繁忙哦！";
                         }
                         // 如果是这个，就提示是否要保存
-                        if(!m.isHintFlag && strError2.equals("此订单有入库未装箱或者有装箱未扫描，是否继续出库？")) {
-                            AlertDialog.Builder build = new AlertDialog.Builder(m.mContext);
-                            build.setIcon(R.drawable.caution);
-                            build.setTitle("系统提示");
-                            build.setMessage(strError2);
-                            build.setPositiveButton("是", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    m.run_findInStockSum();
-                                }
-                            });
-                            build.setNegativeButton("否", null);
-                            build.setCancelable(false);
-                            build.show();
+                        if(strError2.equals("此订单有入库未装箱或者有装箱未扫描，是否继续出库？")) {
+                            if(!m.isHintFlag) {
+                                AlertDialog.Builder build = new AlertDialog.Builder(m.mContext);
+                                build.setIcon(R.drawable.caution);
+                                build.setTitle("系统提示");
+                                build.setMessage(strError2);
+                                build.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        m.run_findInStockSum();
+                                    }
+                                });
+                                build.setNegativeButton("否", null);
+                                build.setCancelable(false);
+                                build.show();
+
+                            } else {
+                                m.run_findInStockSum();
+                            }
 
                         } else Comm.showWarnDialog(m.mContext,strError2);
 
@@ -879,6 +891,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
         curPos = -1;
         tvBoxSize.setText(String.valueOf(mapBox.size()));
         tvCountSum.setText(countSum());
+        receiveAddress = null;
     }
 
     private void resetSon() {
@@ -1188,6 +1201,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                 sr2.setSalOrderDate(prodOrder.getSalOrderDate());
                 sr2.setSalEntryNote(prodOrder.getSalEntryNote());
             }
+            receiveAddress = sr2.getReceiveAddress(); // 记录下，用于判断地址不一致
             sr2.setCaseId(mbr.getCaseId());
             // 物料默认的仓库库位
             Stock stock = mtl.getStock();

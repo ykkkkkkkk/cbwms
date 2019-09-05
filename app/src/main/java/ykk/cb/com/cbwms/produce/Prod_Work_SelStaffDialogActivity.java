@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -48,6 +49,9 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
     EditText etSearch;
     @BindView(R.id.btn_search)
     Button btnSearch;
+    @BindView(R.id.lin_search)
+    LinearLayout linSearch;
+
 
     private Prod_Work_SelStaffDialogActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 501;
@@ -57,6 +61,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String begDate, endDate; // 上页面传来的日期
+    private int staffId; // 上页面传来的员工id
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -109,6 +114,10 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
         if(bundle != null) {
             begDate = bundle.getString("begDate","");
             endDate = bundle.getString("endDate","");
+            staffId = bundle.getInt("staffId",0);
+            if(staffId > 0) {
+                linSearch.setVisibility(View.GONE);
+            }
         }
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -169,6 +178,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
         FormBody formBody = new FormBody.Builder()
                 .add("begDate", begDate)
                 .add("endDate", endDate)
+                .add("staffId", staffId > 0 ? String.valueOf(staffId) : "")
                 .add("staffName", getValues(etSearch).trim())
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")

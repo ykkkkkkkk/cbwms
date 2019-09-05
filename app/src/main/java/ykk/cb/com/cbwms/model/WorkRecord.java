@@ -25,6 +25,8 @@ public class WorkRecord implements Serializable {
 	private int processId;//工序id
 	private int checkStatus;//审核状态,1:未审核，2:已审核
 	private double checkQty; // 审核数量
+	private int processflowId; // 工艺路线分录id
+	private String reportType; // 工序汇报类型 A：按位置汇报 B：按套汇报
 
 	// 临时字段，不存表
 	private int position2; // 第二级的行号
@@ -36,6 +38,8 @@ public class WorkRecord implements Serializable {
 	private String checkName;//审核人
 	private String processName;
 	private boolean checkRow; // 是否选中行
+	private String procedureNumber; // 工序编号
+	private String ftName; // 流转性
 
 	public WorkRecord() {
 		super();
@@ -255,6 +259,38 @@ public class WorkRecord implements Serializable {
 
 	public void setCheckRow(boolean checkRow) {
 		this.checkRow = checkRow;
+	}
+
+	public String getReportType() {
+		return reportType;
+	}
+
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
+
+	public int getProcessflowId() {
+		return processflowId;
+	}
+
+	public void setProcessflowId(int ProcessflowId) {
+		this.processflowId = ProcessflowId;
+	}
+
+	public String getProcedureNumber() {
+		return procedureNumber;
+	}
+
+	public void setProcedureNumber(String procedureNumber) {
+		this.procedureNumber = procedureNumber;
+	}
+
+	public String getFtName() {
+		return ftName;
+	}
+
+	public void setFtName(String ftName) {
+		this.ftName = ftName;
 	}
 
 }

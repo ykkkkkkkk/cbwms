@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -62,6 +63,8 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     EditText etStaff;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
+    @BindView(R.id.btn_pass)
+    Button btnPass;
 
     private Prod_Work_Fragment2 context = this;
     private static final int SEL_STAFF = 10, SEL_DEPT = 11;
@@ -78,6 +81,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     private DecimalFormat df = new DecimalFormat("#.####");
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private String checkStatus = "1"; // 1：未审核，2：已审核
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -185,6 +189,9 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         mAdapter.setCallBack(new Prod_Wrok_Fragment2Adapter.MyCallBack() {
             @Override
             public void onClick_num(WorkRecord entity, int position) {
+                // 已审核的不能操作
+                if(entity.getCheckStatus() == 2) return;
+
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
                 showInputDialog("审核数", String.valueOf(entity.getCheckQty()), "0.0",false, RESULT_NUM);
@@ -194,6 +201,9 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 WorkRecord wr = listDatas.get(pos-1);
+                // 已审核的不能操作
+                if(wr.getCheckStatus() == 2) return;
+
                 if(wr.isCheckRow()) {
                     wr.setCheckRow(false);
                 } else {
@@ -217,7 +227,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         }
     }
 
-    @OnClick({R.id.tv_deptSel, R.id.tv_dateSel, R.id.btn_clone, R.id.btn_pass })
+    @OnClick({R.id.tv_deptSel, R.id.tv_dateSel, R.id.radio1, R.id.radio2, R.id.btn_clone, R.id.btn_pass })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -229,6 +239,16 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 break;
             case R.id.tv_dateSel: // 选择日期
                 Comm.showDateDialog(mContext, tvDateSel, 0);
+
+                break;
+            case R.id.radio1: // 未审核
+                checkStatus = "1";
+                btnPass.setVisibility(View.VISIBLE);
+
+                break;
+            case R.id.radio2: // 已审核
+                checkStatus = "2";
+                btnPass.setVisibility(View.GONE);
 
                 break;
             case R.id.btn_clone: // 重置
@@ -359,7 +379,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 .add("itemNumberOrName", getValues(etMtls).trim()) // 物料
                 .add("workStaffName", getValues(etStaff).trim()) // 报工人
                 .add("workDate", getValues(tvDateSel)) // 报工日期
-                .add("checkStatus", "1") // 查询未审核的
+                .add("checkStatus", checkStatus) // 查询未审核的
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();

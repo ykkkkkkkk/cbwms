@@ -143,10 +143,50 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@drawable/back_style_blue"
-                android:padding="@dimen/_2dp"
                 android:inputType="none"
+                android:padding="@dimen/_2dp"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/_3dp"
+                android:ems="2"
+                android:gravity="center"
+                android:text="审核状态"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+
+            <RadioGroup
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/back_style_blue"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="未审" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <RadioButton
+                    android:id="@+id/radio2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/_3dp"
+                    android:text="已审" />
+
+
+            </RadioGroup>
 
         </LinearLayout>
 

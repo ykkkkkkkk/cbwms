@@ -20,6 +20,7 @@ public class AllotWork implements Serializable {
 	private String deptName; // 部门名称
 	private String procedureName; // 工序名称
 	private String staffName; // 员工名称
+	private String procedureNumber; // 工序编号
 
 	public AllotWork() {
 		super();
@@ -121,13 +122,12 @@ public class AllotWork implements Serializable {
 		this.staffName = staffName;
 	}
 
-	@Override
-	public String toString() {
-		return "AllotWork [id=" + id + ", deptId=" + deptId + ", procedureId=" + procedureId + ", staffId=" + staffId
-				+ ", begDate=" + begDate + ", endDate=" + endDate + ", creater=" + creater + ", createDate="
-				+ createDate + ", deptName=" + deptName + ", procedureName=" + procedureName + ", staffName="
-				+ staffName + "]";
+	public String getProcedureNumber() {
+		return procedureNumber;
 	}
 
+	public void setProcedureNumber(String procedureNumber) {
+		this.procedureNumber = procedureNumber;
+	}
 
 }

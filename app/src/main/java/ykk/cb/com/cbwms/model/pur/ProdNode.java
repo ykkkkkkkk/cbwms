@@ -83,6 +83,10 @@ public class ProdNode<T> {
     private double finishQty; // 已报数
     private double useableQty; // 可报数
     private String mtlPriceTypeId; // 物料计价工资类别id
+    private boolean deleteFlag; // 删除标识
+    private String reportType; // 工序汇报类型 A：按位置汇报 B：按套汇报
+    private int processflowId; // 工艺路线分录id
+    public String ftName; // 流转性
 
 
     public int getMlevel() {
@@ -399,6 +403,38 @@ public class ProdNode<T> {
 
     public void setMtlPriceTypeId(String mtlPriceTypeId) {
         this.mtlPriceTypeId = mtlPriceTypeId;
+    }
+
+    public boolean isDeleteFlag() {
+        return deleteFlag;
+    }
+
+    public void setDeleteFlag(boolean deleteFlag) {
+        this.deleteFlag = deleteFlag;
+    }
+
+    public String getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
+
+    public int getProcessflowId() {
+        return processflowId;
+    }
+
+    public void setProcessflowId(int processflowId) {
+        this.processflowId = processflowId;
+    }
+
+    public String getFtName() {
+        return ftName;
+    }
+
+    public void setFtName(String ftName) {
+        this.ftName = ftName;
     }
 
 }

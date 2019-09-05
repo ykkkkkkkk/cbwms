@@ -69,6 +69,7 @@ public class ScanningRecord implements Serializable {
     private String fproductionSeq; // 对应k3单据里生产顺序号字段
     private String salOrderDate; // 销售订单日期
     private String salEntryNote; // 销售订单分录备注
+    private String fplanStartDate; // 计划开工时间
 
     // 临时变量
     private List<String> listBarcode; // 记录每行中扫的条码barcode
@@ -676,6 +677,14 @@ public class ScanningRecord implements Serializable {
 
     public void setSalEntryNote(String salEntryNote) {
         this.salEntryNote = salEntryNote;
+    }
+
+    public String getFplanStartDate() {
+        return fplanStartDate;
+    }
+
+    public void setFplanStartDate(String fplanStartDate) {
+        this.fplanStartDate = fplanStartDate;
     }
 
 

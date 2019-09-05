@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -39,9 +40,6 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.AllotWork;
-import ykk.cb.com.cbwms.model.ScanningRecord2;
-import ykk.cb.com.cbwms.model.Stock;
-import ykk.cb.com.cbwms.model.StockPosition;
 import ykk.cb.com.cbwms.model.WorkRecord;
 import ykk.cb.com.cbwms.model.pur.ProdNode;
 import ykk.cb.com.cbwms.model.User;
@@ -49,7 +47,6 @@ import ykk.cb.com.cbwms.model.pur.ProdOrder;
 import ykk.cb.com.cbwms.produce.adapter.Prod_Work_WriteFragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
-import ykk.cb.com.cbwms.util.treelist.OnTreeNodeClickListener;
 
 /**
  * 报工界面
@@ -62,6 +59,8 @@ public class Prod_Work_Fragment1 extends BaseFragment {
     TextView tvDate;
     @BindView(R.id.tv_staffName)
     TextView tvStaffName;
+    @BindView(R.id.et_prodSeq)
+    EditText etProdSeq;
     @BindView(R.id.listView)
     ListView listView;
 
@@ -210,8 +209,6 @@ public class Prod_Work_Fragment1 extends BaseFragment {
         }
         parent = (Prod_WorkMainActivity) mContext;
 
-//        getData(); // 测试数据
-
         mAdapter = new Prod_Work_WriteFragment1Adapter(listView, mContext, checkDatas,
                 0, R.drawable.ico_expan_sub2, R.drawable.ico_expan_add2b, R.drawable.ico_spread_keydown, R.drawable.ico_spread_normal);
 
@@ -269,6 +266,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 bundle = new Bundle();
                 bundle.putString("begDate", getValues(tvDate));
                 bundle.putString("endDate", getValues(tvDate));
+//                bundle.putInt("staffId", user.getStaffId());
                 showForResult(Prod_Work_SelStaffDialogActivity.class, SEL_STAFF, bundle);
 
                 break;
@@ -370,6 +368,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
 
     private void reset() {
         parent.isChange = false;
+        etProdSeq.setText("");
         run_findAllotWorkByDate();
         curPos = -1;
         checkDatas.clear();
@@ -395,8 +394,18 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                     if (bundle != null) {
                         String value = bundle.getString("resultValue", "");
                         double num = parseDouble(value);
-                        checkDatas.get(curPos).setWorkQty(num);
-//                        checkDatas.get(curPos).setFqty(num);
+                        ProdNode node = checkDatas.get(curPos);
+                        // 工序汇报类型 A：按位置汇报 B：按套汇报
+                        if(node.getReportType().equals("A")) {
+                            node.setWorkQty(num);
+                        } else {
+                            int pid = node.getPid();
+                            for(ProdNode nodeFor : checkDatas) {
+                                if(nodeFor.getMlevel() == 2 && nodeFor.getPid() == pid) {
+                                    nodeFor.setWorkQty(num);
+                                }
+                            }
+                        }
                         mAdapter.notifyData(-1, checkDatas);
 
                     }
@@ -416,7 +425,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
         List<WorkRecord> list = new ArrayList<>();
         for (int i = 0, size = checkDatas.size(); i < size; i++) {
             ProdNode node = checkDatas.get(i);
-            if(node.getMlevel() == 2 && node.getWorkQty() > 0) {
+            if( node.getMlevel() == 2 && node.getWorkQty() > 0) {
                 WorkRecord workRecord = new WorkRecord();
                 workRecord.setDeptId(allotWork.getDeptId());
                 workRecord.setProdNo(node.getProdNo());
@@ -432,6 +441,10 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 workRecord.setPosition2(node.getPosition2());
                 workRecord.setLocationName(node.getLocationName());
                 workRecord.setProcessId(allotWork.getProcedureId());
+                workRecord.setReportType(node.getReportType());
+                workRecord.setProcessflowId(node.getProcessflowId());
+                workRecord.setFtName(node.getFtName());
+                workRecord.setProcedureNumber(allotWork.getProcedureNumber());
 
                 list.add(workRecord);
             }
@@ -493,6 +506,8 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 .add("deptNumber", allotWork.getDeptNumber())
                 .add("prodFdate", getValues(tvDate))
                 .add("processId", String.valueOf(allotWork.getProcedureId()))
+                .add("procedureNumber", allotWork.getProcedureNumber())
+                .add("prodSeqNumber", getValues(etProdSeq).trim())
                 .build();
 
         Request request = new Request.Builder()

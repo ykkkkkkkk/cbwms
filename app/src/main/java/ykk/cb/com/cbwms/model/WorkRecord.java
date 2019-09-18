@@ -1,6 +1,7 @@
 package ykk.cb.com.cbwms.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 报工记录
@@ -40,6 +41,10 @@ public class WorkRecord implements Serializable {
 	private boolean checkRow; // 是否选中行
 	private String procedureNumber; // 工序编号
 	private String ftName; // 流转性
+	private double stockInLimith; // 入库上限数量
+	private int topProcedureNumber; // 上个工序编号
+	private List<MaterialProcessflowSon> listAutoReportProcess; // 上个工序，自动汇报的工序列表
+	private double inStockQty; // 入库总数量
 
 	public WorkRecord() {
 		super();
@@ -291,6 +296,38 @@ public class WorkRecord implements Serializable {
 
 	public void setFtName(String ftName) {
 		this.ftName = ftName;
+	}
+
+	public double getStockInLimith() {
+		return stockInLimith;
+	}
+
+	public void setStockInLimith(double stockInLimith) {
+		this.stockInLimith = stockInLimith;
+	}
+
+	public List<MaterialProcessflowSon> getListAutoReportProcess() {
+		return listAutoReportProcess;
+	}
+
+	public void setListAutoReportProcess(List<MaterialProcessflowSon> listAutoReportProcess) {
+		this.listAutoReportProcess = listAutoReportProcess;
+	}
+
+	public int getTopProcedureNumber() {
+		return topProcedureNumber;
+	}
+
+	public void setTopProcedureNumber(int topProcedureNumber) {
+		this.topProcedureNumber = topProcedureNumber;
+	}
+
+	public double getInStockQty() {
+		return inStockQty;
+	}
+
+	public void setInStockQty(double inStockQty) {
+		this.inStockQty = inStockQty;
 	}
 
 }

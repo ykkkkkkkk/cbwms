@@ -205,7 +205,7 @@ public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity impleme
                     mHandler.sendEmptyMessage(UNSUCC1);
                     return;
                 }
-                isNextPage = JsonUtil.isNextPage(result, limit);
+//                isNextPage = JsonUtil.isNextPage(result, limit);
 
                 Message msg = mHandler.obtainMessage(SUCC1, result);
                 Log.e("run_okhttpDatas --> onResponse", result);

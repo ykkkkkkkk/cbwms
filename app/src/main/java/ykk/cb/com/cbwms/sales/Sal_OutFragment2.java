@@ -246,7 +246,7 @@ public class Sal_OutFragment2 extends BaseFragment implements IFragmentExec {
                                     return;
                                 }
                                 // 判断地址是否一致
-                                if(m.checkDatas.size() > 0 && m.receiveAddress != null && !m.receiveAddress.equals(m.checkDatas.get(0).getReceiveAddress())) {
+                                if(m.receiveAddress != null && !m.receiveAddress.equals(mbr.getReceiveAddress())) {
                                     Comm.showWarnDialog(m.mContext,"扫描的箱码地址不一致，请扫码相同地址箱子！");
                                     return;
                                 }

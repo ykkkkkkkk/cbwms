@@ -206,7 +206,7 @@ public abstract class TreeListViewAdapter extends BaseAdapter {
      * @param node
      * @param checked
      */
-    public <T> void setChildChecked(ProdNode<T> node, boolean checked) {
+    public <T> void setChildChecked(ProdNode node, boolean checked) {
         if (!node.isLeaf()) {
             node.setChecked(checked);
             for (ProdNode childrenNode : node.getChildren()) {

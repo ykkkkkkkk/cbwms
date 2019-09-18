@@ -9,7 +9,7 @@
         android:id="@+id/lin_div1"
         android:layout_width="match_parent"
         android:layout_height="38dp"
-        android:layout_margin="@dimen/_6dp"
+        android:layout_marginBottom="@dimen/_6dp"
         android:gravity="center"
         android:orientation="horizontal">
 

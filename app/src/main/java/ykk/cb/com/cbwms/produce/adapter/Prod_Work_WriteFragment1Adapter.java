@@ -83,7 +83,8 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
             case 1:
                 holder2.tv_row.setText(node.getPosition2()+". ");
                 holder2.tv_mtlName.setText(node.getMtlName());
-                holder2.tv_mtlNum.setText(df.format(node.getProdQty())+"/"+node.getUnitName());
+                holder2.tv_mtlNum.setText(Html.fromHtml(node.getProdEntryFinish()+"/<font color='#FF6347'>"+df.format(node.getProdQty())+node.getUnitName()+"</font><br><font><small>"+node.getProductionSeq()+"</small></font>"));
+
                 if (node.getIcon2() == -1) {
                     holder2.tv_expan2.setVisibility(View.INVISIBLE);
                 } else {

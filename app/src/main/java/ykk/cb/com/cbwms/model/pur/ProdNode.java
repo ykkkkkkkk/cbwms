@@ -3,12 +3,14 @@ package ykk.cb.com.cbwms.model.pur;
 import java.util.ArrayList;
 import java.util.List;
 
+import ykk.cb.com.cbwms.model.MaterialProcessflowSon;
+
 /**
  * 节点实体类
  * Created by xiaoyehai on 2018/7/11 0011.
  */
 
-public class ProdNode<T> {
+public class ProdNode {
     /**
      * 当前节点id
      */
@@ -18,11 +20,6 @@ public class ProdNode<T> {
      * 父节点id
      */
     private int pid;
-
-    /**
-     * 节点数据实体类
-     */
-    private T data;
 
     /**
      * 设置开启 关闭的图片
@@ -68,7 +65,11 @@ public class ProdNode<T> {
     private String prodNo; // 生产订单
     private String prodDate; // 生产日期
     private int prodEntryId; // 分录id
+    private String prodEntryFinish; // 分录完成情况
     private double prodQty; // 生产订单数量
+    private String productionSeq; // 生产顺序号
+    private double stockInLimith; // 入库上限数量
+    private double inStockQty; // 入库总数量
     private int mtlId; // 物料id
     private String mtlNumber; // 物料代码
     private String mtlName; // 物料
@@ -87,6 +88,8 @@ public class ProdNode<T> {
     private String reportType; // 工序汇报类型 A：按位置汇报 B：按套汇报
     private int processflowId; // 工艺路线分录id
     public String ftName; // 流转性
+    private int topProcedureNumber; // 上个工序编号
+    private List<MaterialProcessflowSon> listAutoReportProcess; // 上个工序，自动汇报的工序列表
 
 
     public int getMlevel() {
@@ -135,13 +138,6 @@ public class ProdNode<T> {
     public ProdNode(int id, int pid, String name) {
         this.id = id;
         this.pid = pid;
-        this.name = name;
-    }
-
-    public ProdNode(int id, int pid, T data, String name) {
-        this.id = id;
-        this.pid = pid;
-        this.data = data;
         this.name = name;
     }
 
@@ -210,14 +206,6 @@ public class ProdNode<T> {
 
     public void setPid(int pid) {
         this.pid = pid;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
     }
 
     public int getIconExpand() {
@@ -435,6 +423,54 @@ public class ProdNode<T> {
 
     public void setFtName(String ftName) {
         this.ftName = ftName;
+    }
+
+    public String getProductionSeq() {
+        return productionSeq;
+    }
+
+    public void setProductionSeq(String productionSeq) {
+        this.productionSeq = productionSeq;
+    }
+
+    public String getProdEntryFinish() {
+        return prodEntryFinish;
+    }
+
+    public void setProdEntryFinish(String prodEntryFinish) {
+        this.prodEntryFinish = prodEntryFinish;
+    }
+
+    public double getStockInLimith() {
+        return stockInLimith;
+    }
+
+    public void setStockInLimith(double stockInLimith) {
+        this.stockInLimith = stockInLimith;
+    }
+
+    public List<MaterialProcessflowSon> getListAutoReportProcess() {
+        return listAutoReportProcess;
+    }
+
+    public void setListAutoReportProcess(List<MaterialProcessflowSon> listAutoReportProcess) {
+        this.listAutoReportProcess = listAutoReportProcess;
+    }
+
+    public int getTopProcedureNumber() {
+        return topProcedureNumber;
+    }
+
+    public void setTopProcedureNumber(int topProcedureNumber) {
+        this.topProcedureNumber = topProcedureNumber;
+    }
+
+    public double getInStockQty() {
+        return inStockQty;
+    }
+
+    public void setInStockQty(double inStockQty) {
+        this.inStockQty = inStockQty;
     }
 
 }

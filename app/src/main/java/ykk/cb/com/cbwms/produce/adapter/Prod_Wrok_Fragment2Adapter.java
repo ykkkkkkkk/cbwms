@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import ykk.cb.com.cbwms.R;
+import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.WorkRecord;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
@@ -19,11 +20,13 @@ public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRec
     private Activity context;
     private MyCallBack callBack;
     private List<WorkRecord> datas;
+    private String workDirector;
 
-    public Prod_Wrok_Fragment2Adapter(Activity context, List<WorkRecord> datas) {
+    public Prod_Wrok_Fragment2Adapter(Activity context, List<WorkRecord> datas, String workDirector) {
         super(datas);
         this.context = context;
         this.datas = datas;
+        this.workDirector = workDirector;
     }
 
     @Override
@@ -57,6 +60,14 @@ public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRec
         tv_date.setText(entity.getWorkDate());
         tv_process.setText(entity.getProcessName());
 
+        if(Comm.isNULLS(workDirector).equals("B")) { // 车间主管
+            tv_staffName.setBackgroundResource(R.drawable.back_style_blue2);
+            tv_staffName.setEnabled(true);
+        } else {
+            tv_staffName.setBackgroundResource(R.color.transparent);
+            tv_staffName.setEnabled(false);
+        }
+        // 选中行改变背景
         View view = (View) tv_row.getParent();
         if(entity.isCheckRow()) {
             view.setBackgroundResource(R.drawable.back_style_check1_true);
@@ -74,10 +85,17 @@ public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRec
                         }
 
                         break;
+                    case R.id.tv_staffName: // 员工
+                        if(callBack != null) {
+                            callBack.onClick_selStaff(entity, pos);
+                        }
+
+                        break;
                 }
             }
         };
         tv_nums.setOnClickListener(click);
+        tv_staffName.setOnClickListener(click);
     }
 
     public void setCallBack(MyCallBack callBack) {
@@ -86,6 +104,7 @@ public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRec
 
     public interface MyCallBack {
         void onClick_num(WorkRecord entity, int position);
+        void onClick_selStaff(WorkRecord entity, int position);
     }
 
 }

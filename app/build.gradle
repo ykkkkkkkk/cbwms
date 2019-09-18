@@ -13,8 +13,8 @@ android {
         applicationId "ykk.cb.com.cbwms"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 108
-        versionName "2.0.8"
+        versionCode 109
+        versionName "2.0.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {

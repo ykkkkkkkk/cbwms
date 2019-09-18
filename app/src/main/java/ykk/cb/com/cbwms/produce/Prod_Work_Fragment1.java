@@ -445,6 +445,10 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 workRecord.setProcessflowId(node.getProcessflowId());
                 workRecord.setFtName(node.getFtName());
                 workRecord.setProcedureNumber(allotWork.getProcedureNumber());
+                workRecord.setStockInLimith(node.getStockInLimith());
+                workRecord.setListAutoReportProcess(node.getListAutoReportProcess());
+                workRecord.setTopProcedureNumber(node.getTopProcedureNumber());
+                workRecord.setInStockQty(node.getInStockQty());
 
                 list.add(workRecord);
             }
@@ -508,6 +512,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
                 .add("processId", String.valueOf(allotWork.getProcedureId()))
                 .add("procedureNumber", allotWork.getProcedureNumber())
                 .add("prodSeqNumber", getValues(etProdSeq).trim())
+                .add("reportWay", "B") // 工序汇报方式  A:自动汇报  B:手工汇报
                 .build();
 
         Request request = new Request.Builder()

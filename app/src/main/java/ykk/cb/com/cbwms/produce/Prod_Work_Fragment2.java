@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,7 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.AllotWork;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.WorkRecord;
@@ -63,6 +65,8 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     EditText etStaff;
     @BindView(R.id.xRecyclerView)
     XRecyclerView xRecyclerView;
+    @BindView(R.id.btn_save)
+    Button btnSave;
     @BindView(R.id.btn_pass)
     Button btnPass;
 
@@ -82,6 +86,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
     private String checkStatus = "1"; // 1：未审核，2：已审核
+    private boolean isSave; // 是否改变了数据，需要保存
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -124,12 +129,28 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                         Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
-                    case SUCC2: // 审核成功后进入
-                        m.toasts("审核成功");
+                    case SUCC2: // 保存成功后进入
+                        m.toasts("保存成功");
+                        m.isSave = false;
                         m.initLoadDatas();
 
                         break;
-                    case UNSUCC2: // 审核失败
+                    case UNSUCC2: // 保存失败
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器忙，请重试！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case SUCC3: // 审核成功后进入
+                        m.toasts("审核成功");
+                        if(m.isSave) {
+                            m.saveBefore();
+                        } else {
+                            m.initLoadDatas();
+                        }
+
+                        break;
+                    case UNSUCC3: // 审核失败
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器忙，请重试！";
                         Comm.showWarnDialog(m.mContext, errMsg);
@@ -176,10 +197,11 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                     .build();
         }
         parent = (Prod_WorkMainActivity) mContext;
+        getUserInfo();
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mAdapter = new Prod_Wrok_Fragment2Adapter(mContext, listDatas);
+        mAdapter = new Prod_Wrok_Fragment2Adapter(mContext, listDatas, user.getWorkDirector());
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
@@ -190,11 +212,23 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
             @Override
             public void onClick_num(WorkRecord entity, int position) {
                 // 已审核的不能操作
-                if(entity.getCheckStatus() == 2) return;
+                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || entity.getCheckStatus() == 2) return;
 
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
                 showInputDialog("审核数", String.valueOf(entity.getCheckQty()), "0.0",false, RESULT_NUM);
+            }
+
+            @Override
+            public void onClick_selStaff(WorkRecord wr, int position) {
+                // 已审核的不能操作
+                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || wr.getCheckStatus() == 2) return;
+
+                curPos = position;
+                Bundle bundle = new Bundle();
+                bundle.putString("begDate", getValues(tvDateSel));
+                bundle.putString("endDate", getValues(tvDateSel));
+                showForResult(Prod_Work_SelStaffDialogActivity.class, SEL_STAFF, bundle);
             }
         });
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
@@ -202,7 +236,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
                 WorkRecord wr = listDatas.get(pos-1);
                 // 已审核的不能操作
-                if(wr.getCheckStatus() == 2) return;
+                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || wr.getCheckStatus() == 2) return;
 
                 if(wr.isCheckRow()) {
                     wr.setCheckRow(false);
@@ -216,8 +250,18 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
 
     @Override
     public void initData() {
-        getUserInfo();
         tvDateSel.setText(Comm.getSysDate(7));
+        if(user != null && user.getWorkDirector().equals("B")) {
+            btnSave.setVisibility(View.VISIBLE);
+            btnPass.setVisibility(View.VISIBLE);
+            tvDeptSel.setText(user.getDepartment().getDepartmentName());
+            department = user.getDepartment();
+
+        } else {
+            etStaff.setText(user.getStaff().getName());
+            etStaff.setEnabled(false);
+        }
+        tvDeptSel.setEnabled(false);
     }
 
     @Override
@@ -227,7 +271,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         }
     }
 
-    @OnClick({R.id.tv_deptSel, R.id.tv_dateSel, R.id.radio1, R.id.radio2, R.id.btn_clone, R.id.btn_pass })
+    @OnClick({R.id.tv_deptSel, R.id.tv_dateSel, R.id.radio1, R.id.radio2, R.id.btn_clone, R.id.btn_save, R.id.btn_pass })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -243,16 +287,22 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 break;
             case R.id.radio1: // 未审核
                 checkStatus = "1";
+                btnSave.setVisibility(View.VISIBLE);
                 btnPass.setVisibility(View.VISIBLE);
 
                 break;
             case R.id.radio2: // 已审核
                 checkStatus = "2";
+                btnSave.setVisibility(View.GONE);
                 btnPass.setVisibility(View.GONE);
 
                 break;
             case R.id.btn_clone: // 重置
                 reset();
+
+                break;
+            case R.id.btn_save: // 保存
+                saveBefore();
 
                 break;
             case R.id.btn_pass: // 审核
@@ -269,6 +319,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         etStaff.setText("");
         tvDeptSel.setText("");
         department = null;
+        isSave = false;
     }
 
 
@@ -283,6 +334,22 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         limit = 1;
         listDatas.clear();
         run_okhttpDatas();
+    }
+
+    /**
+     * 选择保存之前的判断
+     */
+    private void saveBefore() {
+        if (listDatas == null || listDatas.size() == 0) {
+            Comm.showWarnDialog(mContext,"请先查询数据！");
+            return;
+        }
+        if(isSave) {
+            String strJson = JsonUtil.objectToString(listDatas);
+            run_modifyWorkRecordList(strJson);
+        } else {
+            Comm.showWarnDialog(mContext,"请修改数据，然后保存！");
+        }
     }
 
     /**
@@ -326,9 +393,13 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 }
 
                 break;
-            case SEL_STAFF: //查询员工	返回
+            case SEL_STAFF: //查询员工返回
                 if (resultCode == Activity.RESULT_OK) {
-//                    allotWork = (AllotWork) data.getSerializableExtra("obj");
+                    AllotWork allotWork = (AllotWork) data.getSerializableExtra("obj");
+                    listDatas.get(curPos).setWorkStaffId(allotWork.getStaffId());
+                    listDatas.get(curPos).setWorkStaffName(allotWork.getStaffName());
+                    mAdapter.notifyDataSetChanged();
+                    isSave = true;
                 }
 
                 break;
@@ -344,6 +415,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                         }
                         listDatas.get(curPos).setCheckQty(num);
                         mAdapter.notifyDataSetChanged();
+                        isSave = true;
                     }
                 }
 
@@ -374,6 +446,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         showLoadDialog("加载中...");
         String mUrl = getURL("workRecord/findWorkRecordByPage");
         FormBody formBody = new FormBody.Builder()
+                .add("isValidData", "1") // 报工数大于0
                 .add("deptNumber", department != null ? department.getDepartmentNumber() : "") // 班组
                 .add("prodNo", getValues(etProdNo).trim()) // 生产订单
                 .add("itemNumberOrName", getValues(etMtls).trim()) // 物料
@@ -415,13 +488,13 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     }
 
     /**
-     * 审核
+     * 保存
      */
-    private void run_checked(String jsonArr) {
-        showLoadDialog("审核中...");
-        String mUrl = getURL("workRecord/checked");
+    private void run_modifyWorkRecordList(String strJson) {
+        showLoadDialog("保存中...");
+        String mUrl = getURL("workRecord/modifyWorkRecordList");
         FormBody formBody = new FormBody.Builder()
-                .add("jsonArr", jsonArr)
+                .add("strJson", strJson)
                 .build();
 
         Request request = new Request.Builder()
@@ -441,12 +514,51 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                if(!JsonUtil.isSuccess(result)) {
+                if (!JsonUtil.isSuccess(result)) {
                     mHandler.sendEmptyMessage(UNSUCC2);
                     return;
                 }
 
                 Message msg = mHandler.obtainMessage(SUCC2, result);
+                Log.e("run_modifyWorkRecordList --> onResponse", result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 审核
+     */
+    private void run_checked(String jsonArr) {
+        showLoadDialog("审核中...");
+        String mUrl = getURL("workRecord/checked");
+        FormBody formBody = new FormBody.Builder()
+                .add("jsonArr", jsonArr)
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC3);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                if(!JsonUtil.isSuccess(result)) {
+                    mHandler.sendEmptyMessage(UNSUCC3);
+                    return;
+                }
+
+                Message msg = mHandler.obtainMessage(SUCC3, result);
                 Log.e("run_checked --> onResponse", result);
                 mHandler.sendMessage(msg);
             }

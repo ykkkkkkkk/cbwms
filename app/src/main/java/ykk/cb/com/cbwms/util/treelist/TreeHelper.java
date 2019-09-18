@@ -104,7 +104,7 @@ public class TreeHelper {
      * 把一个节点上的所有的内容都挂上去
      * 通过递归的方式，把一个节点上的所有的子节点等都按顺序放入
      */
-    private static <T> void addNode(List<ProdNode> nodes, ProdNode<T> node,
+    private static <T> void addNode(List<ProdNode> nodes, ProdNode node,
                                     int defaultExpandLeval, int currentLevel) {
         nodes.add(node);
 

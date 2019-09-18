@@ -28,11 +28,11 @@
 
     <TextView
         android:id="@+id/tv_mtlNum"
-        android:layout_width="@dimen/_78dp"
+        android:layout_width="88dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="100套"
-        android:textColor="@color/c_515151"
+        android:textColor="@color/black"
         android:textSize="@dimen/_12sp" />
 
     <TextView
@@ -40,7 +40,7 @@
         android:layout_width="@dimen/_22dp"
         android:layout_height="@dimen/_22dp"
         android:layout_marginLeft="@dimen/_2dp"
-        android:layout_marginRight="@dimen/_18dp"
+        android:layout_marginRight="@dimen/_10dp"
         android:gravity="center" />
 
 </LinearLayout>

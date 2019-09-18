@@ -65,8 +65,10 @@ public class Allot_ApplyFragment2 extends BaseFragment {
     TextView tvInStockSel;
     @BindView(R.id.tv_outStockSel)
     TextView tvOutStockSel;
-    @BindView(R.id.tv_dateSel)
-    TextView tvDateSel;
+    @BindView(R.id.tv_begDate)
+    TextView tvBegDate;
+    @BindView(R.id.tv_endDate)
+    TextView tvEndDate;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.tv_countSum)
@@ -431,10 +433,11 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                     .build();
         }
         getUserInfo();
-        tvDateSel.setText(Comm.getSysDate(7));
+        tvBegDate.setText(Comm.getSysDate(7));
+        tvEndDate.setText(Comm.getSysDate(7));
     }
 
-    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_dateSel, R.id.btn_add, R.id.btn_save, R.id.lin_addRow    })
+    @OnClick({R.id.btn_pass, R.id.tv_deptSel, R.id.tv_inStockSel, R.id.tv_outStockSel, R.id.tv_begDate, R.id.tv_endDate, R.id.btn_add, R.id.btn_save, R.id.lin_addRow    })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -456,7 +459,11 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                 showForResult(Stock_DialogActivity.class, SEL_OUT_STOCK, bundle);
 
                 break;
-            case R.id.tv_dateSel: // 日期
+            case R.id.tv_begDate: // 开始日期
+                Comm.showDateDialog(mContext, view, 0);
+
+                break;
+            case R.id.tv_endDate: // 结束日期
                 Comm.showDateDialog(mContext, view, 0);
 
                 break;
@@ -792,7 +799,8 @@ public class Allot_ApplyFragment2 extends BaseFragment {
         String outDeptNumber = department != null ? department.getDepartmentNumber() : ""; // 领料部门
         String inStockNumber = inStock != null ? inStock.getfNumber() : ""; // 调入仓库
         String outStockNumber = outStock != null ? outStock.getfNumber() : ""; // 调出仓库
-        String outDate = getValues(tvDateSel); // 调出日期
+        String outBegDate = getValues(tvBegDate); // 调出开始日期
+        String outEndDate = getValues(tvEndDate); // 调出结束日期
         String stkBillNo = fbillNo != null ? fbillNo : ""; // 调拨单号
         switch (curViewFlag) {
             case '1': // 调拨单
@@ -810,7 +818,9 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                 .add("outDeptNumber", outDeptNumber) // 领料部门（查询调拨单）
                 .add("inStockNumber", inStockNumber) // 调入仓库（查询调拨单）
                 .add("outStockNumber", outStockNumber) // 调出仓库（查询调拨单）
-                .add("outDate", outDate) // 调出日期（查询调拨单）
+//                .add("outDate", outDate) // 调出日期（查询调拨单）
+                .add("outBegDate", outBegDate) // 调出开始日期（查询调拨单）
+                .add("outEndDate", outEndDate) // 调出结束日期（查询调拨单）
 //                .add("billStatus", "1") // 未审核的单据（查询调拨单）
                 .add("businessType", businessType) // 业务类型:1、材料按次 2、材料按批 3、成品
                 .add("prodSeqNumberStatus", isFpaezIsCombine ? "ASC" : "") // 按照生产顺序号来排序

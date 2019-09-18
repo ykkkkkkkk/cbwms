@@ -35,6 +35,9 @@ public class User implements Serializable {
 
     private Staff staff;
 
+    /*是否车间主管 A代表不是，B代表是*/
+    private String workDirector;
+
     public User() {
         super();
     }
@@ -225,5 +228,13 @@ public class User implements Serializable {
 
     public void setStaff(Staff staff) {
         this.staff = staff;
+    }
+
+    public String getWorkDirector() {
+        return workDirector;
+    }
+
+    public void setWorkDirector(String workDirector) {
+        this.workDirector = workDirector;
     }
 }

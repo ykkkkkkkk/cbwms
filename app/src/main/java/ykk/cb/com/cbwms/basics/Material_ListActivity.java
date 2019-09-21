@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -54,7 +55,7 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
 
     private Material_ListActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private Material_ListAdapter mAdapter;
     private List<Material> listDatas = new ArrayList<>();
     private int limit = 1;
@@ -111,6 +112,14 @@ public class Material_ListActivity extends BaseDialogActivity implements XRecycl
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             fNumberIsOneAndTwo = bundle.getString("fNumberIsOneAndTwo", "");

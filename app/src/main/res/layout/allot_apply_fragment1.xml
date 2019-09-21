@@ -358,7 +358,7 @@
             android:id="@+id/btn_add"
             android:layout_width="0dp"
             android:layout_height="38dp"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:background="@drawable/btn_gray2_selector"
             android:gravity="center"
             android:text="新增调拨单"

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -56,7 +57,7 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
     private static final int SUCC1 = 200, UNSUCC1 = 500, REPLACE = 201, UNREPLACE = 501;
     private Allot_ApplyReplaceMaterialAdapter mAdapter;
     private List<Material> listDatas = new ArrayList<>();
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
@@ -125,6 +126,14 @@ public class Allot_ApplyReplaceMaterialActivity extends BaseActivity implements 
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Allot_ApplyReplaceMaterialAdapter(context, listDatas);

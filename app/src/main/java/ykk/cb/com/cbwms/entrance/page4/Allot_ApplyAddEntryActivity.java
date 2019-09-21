@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -58,7 +59,7 @@ public class Allot_ApplyAddEntryActivity extends BaseActivity {
     private Allot_ApplyAddEntryAdapter mAdapter;
     private List<StkTransferOutTemp> listDatas = new ArrayList<>();
     private int curPos = -1; // 当前行
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private User user;
     private StkTransferOutEntry stkTransferOutEntry;
 
@@ -114,6 +115,14 @@ public class Allot_ApplyAddEntryActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         Bundle bundle = context.getIntent().getExtras();
         if(bundle != null) {
             stkTransferOutEntry = (StkTransferOutEntry) bundle.getSerializable("stkTransferOutEntry");

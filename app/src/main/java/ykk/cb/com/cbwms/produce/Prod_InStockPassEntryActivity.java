@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -46,7 +47,7 @@ public class Prod_InStockPassEntryActivity extends BaseActivity {
 
     private Prod_InStockPassEntryActivity context = this;
     private static final int SUCC1 = 200, UNSUCC1 = 500;
-    private OkHttpClient okHttpClient = new OkHttpClient();
+    private OkHttpClient okHttpClient = null;
     private Prod_InStockPassEntryAdapter mAdapter;
     private List<ProdInStockEntry> listDatas = new ArrayList<>();
     private String fbillno; // 生产入库单号
@@ -95,6 +96,14 @@ public class Prod_InStockPassEntryActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        if (okHttpClient == null) {
+            okHttpClient = new OkHttpClient.Builder()
+//                .connectTimeout(10, TimeUnit.SECONDS) // 设置连接超时时间（默认为10秒）
+                    .writeTimeout(300, TimeUnit.SECONDS) // 设置写的超时时间
+                    .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
+                    .build();
+        }
+
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         mAdapter = new Prod_InStockPassEntryAdapter(context, listDatas);

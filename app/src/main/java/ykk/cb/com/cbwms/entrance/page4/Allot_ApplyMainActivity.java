@@ -110,7 +110,7 @@ public class Allot_ApplyMainActivity extends BaseActivity {
                         tabSelected(radio1, View.VISIBLE, position);
                         break;
                     case 1:
-                        tabSelected(radio2, View.INVISIBLE, position);
+                        tabSelected(radio2, View.VISIBLE, position);
                         break;
                 }
             }
@@ -152,7 +152,7 @@ public class Allot_ApplyMainActivity extends BaseActivity {
 
                 break;
             case R.id.radio2: // 成品
-                tabSelected(radio2, View.INVISIBLE, 1);
+                tabSelected(radio2, View.VISIBLE, 1);
 
                 break;
         }
@@ -199,7 +199,14 @@ public class Allot_ApplyMainActivity extends BaseActivity {
                         menuStatus = 4;
                         break;
                 }
-                fragment1.closeBefer(menuStatus);
+                switch (pageId) {
+                    case 0:
+                        fragment1.closeBefer(menuStatus);
+                        break;
+                    case 1:
+                        fragment2.closeBefer(menuStatus);
+                        break;
+                }
                 popWindowA.dismiss();
             }
         };

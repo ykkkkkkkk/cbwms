@@ -91,6 +91,7 @@ public class Allot_ApplyFragment2Adapter extends BaseArrayRecyclerAdapter<StkTra
             tv_row.setTextColor(Color.parseColor("#FF2200"));
             tv_prodSeqNumber.setTextColor(Color.parseColor("#FF2200"));
             tv_sourceNo.setTextColor(Color.parseColor("#FF2200"));
+            tv_salNo.setTextColor(Color.parseColor("#FF2200"));
             tv_mtlNumber.setTextColor(Color.parseColor("#FF2200"));
             tv_mtlName.setTextColor(Color.parseColor("#FF2200"));
 //            tv_nums.setTextColor(Color.parseColor("#FF2200"));
@@ -101,6 +102,7 @@ public class Allot_ApplyFragment2Adapter extends BaseArrayRecyclerAdapter<StkTra
             tv_row.setTextColor(Color.parseColor("#000000"));
             tv_prodSeqNumber.setTextColor(Color.parseColor("#000000"));
             tv_sourceNo.setTextColor(Color.parseColor("#000000"));
+            tv_salNo.setTextColor(Color.parseColor("#000000"));
             tv_mtlNumber.setTextColor(Color.parseColor("#000000"));
             tv_mtlName.setTextColor(Color.parseColor("#000000"));
 //            tv_nums.setTextColor(Color.parseColor("#000000"));

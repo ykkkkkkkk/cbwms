@@ -100,7 +100,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
     private char curViewFlag = '1'; // 1：调拨单，2：调拨单号列表
     private String stkFbillNo; // 调拨单号
     private boolean isFpaezIsCombine; // 合并拣货（是否显示单号列表来查询调拨单）
-//    private Map<Integer, String> mapNeedCloseDatas = new HashMap<>(); // 记录需要关闭的数据
+    private Map<Integer, String> mapNeedCloseDatas = new HashMap<>(); // 记录需要关闭的数据
 
     private String countSum() {
         double sum = 0.0;
@@ -153,12 +153,12 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                                 m.tvCountSum.setText(m.countSum());
 
                                 // 判断是否要执行关闭功能
-//                                if(m.mapNeedCloseDatas.size() > 0) {
-//                                    m.closeFun_while();
-//
-//                                } else {
+                                if(m.mapNeedCloseDatas.size() > 0) {
+                                    m.closeFun_while();
+
+                                } else {
                                     m.mAdapter.notifyDataSetChanged();
-//                                }
+                                }
 
 
                                 break;
@@ -195,13 +195,13 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                         break;
                     case CLOSE: //  关闭 成功 返回
 //                        m.toasts("操作成功✔");
-//                        if(m.mapNeedCloseDatas.size() > 0) {
-//                            m.closeFun_while();
-//
-//                        } else {
+                        if(m.mapNeedCloseDatas.size() > 0) {
+                            m.closeFun_while();
+
+                        } else {
                             m.curViewFlag = '1';
                             m.run_findDatas(m.stkFbillNo);
-//                        }
+                        }
 
                         break;
                     case UNCLOSE: // 关闭  失败 返回
@@ -254,34 +254,34 @@ public class Allot_ApplyFragment2 extends BaseFragment {
     /**
      * 循环关闭功能
      */
-//    private void closeFun_while() {
-//        // 这里只要执行一次就行，剩下的循环在关闭成功之后执行
-//        int key = 0;
-//        String ids = null;
-//        if(mapNeedCloseDatas.containsKey(1)) { // 整单关闭
-//            key = 1;
-//            ids = mapNeedCloseDatas.get(1);
-//            mapNeedCloseDatas.remove(1);
-//
-//        } else if(mapNeedCloseDatas.containsKey(2)) { // 反整单关闭
-//            key = 2;
-//            ids = mapNeedCloseDatas.get(2);
-//            mapNeedCloseDatas.remove(2);
-//
-//        } else if(mapNeedCloseDatas.containsKey(3)) { // 行关闭
-//            key = 3;
-//            ids = mapNeedCloseDatas.get(3);
-//            mapNeedCloseDatas.remove(3);
-//
-//        } else if(mapNeedCloseDatas.containsKey(4)) { // 反行关闭
-//            key = 4;
-//            ids = mapNeedCloseDatas.get(4);
-//            mapNeedCloseDatas.remove(4);
-//        }
-//        if(key > 0) {
-//            run_close(key, ids);
-//        }
-//    }
+    private void closeFun_while() {
+        // 这里只要执行一次就行，剩下的循环在关闭成功之后执行
+        int key = 0;
+        String ids = null;
+        if(mapNeedCloseDatas.containsKey(1)) { // 整单关闭
+            key = 1;
+            ids = mapNeedCloseDatas.get(1);
+            mapNeedCloseDatas.remove(1);
+
+        } else if(mapNeedCloseDatas.containsKey(2)) { // 反整单关闭
+            key = 2;
+            ids = mapNeedCloseDatas.get(2);
+            mapNeedCloseDatas.remove(2);
+
+        } else if(mapNeedCloseDatas.containsKey(3)) { // 行关闭
+            key = 3;
+            ids = mapNeedCloseDatas.get(3);
+            mapNeedCloseDatas.remove(3);
+
+        } else if(mapNeedCloseDatas.containsKey(4)) { // 反行关闭
+            key = 4;
+            ids = mapNeedCloseDatas.get(4);
+            mapNeedCloseDatas.remove(4);
+        }
+        if(key > 0) {
+            run_close(key, ids);
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -507,7 +507,7 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                 }
 
                 // 清空关闭的map
-//                mapNeedCloseDatas.clear();
+                mapNeedCloseDatas.clear();
                 run_pass(sbIds.toString(), sbEntryInfo.toString());
 
                 break;
@@ -520,8 +520,13 @@ public class Allot_ApplyFragment2 extends BaseFragment {
                     Comm.showWarnDialog(mContext,"请先查询数据！");
                     return;
                 }
-                String strJson = JsonUtil.objectToString(listDatas);
-                run_modifyFqty(strJson);
+//                String strJson = JsonUtil.objectToString(listDatas);
+//                run_modifyFqty(strJson);
+                if(mapNeedCloseDatas.size() > 0) {
+                    closeFun_while();
+                } else {
+                    Comm.showWarnDialog(mContext,"请先进行关闭操作，然后保存！");
+                }
 
                 break;
             case R.id.lin_addRow: // 新增一行
@@ -579,34 +584,34 @@ public class Allot_ApplyFragment2 extends BaseFragment {
         }
 
         // 存入到map中，点击保存再一起提交数据
-//        if (mapNeedCloseDatas.containsKey(menuStatus)) {
-//            String strIds = mapNeedCloseDatas.get(menuStatus);
-//            String[] idsArr = strIds.split(":");
-//            // 重复的id不插入
-//            for(int tmpId : listIds) {
-//                boolean isBool = false; // 是否有相同的id
-//                for(String tmpId2 : idsArr) {
-//                    int idsInt = parseInt(tmpId2); // 判断选择的是否有一样的id，不一样才添加到Map
-//                    if(idsInt == tmpId) {
-//                        isBool = true;
-//                        break;
-//                    }
-//                }
-//                if(!isBool) {
-//                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
-//                }
-//            }
-//        } else { // 不存在map中，就直接put
-//            for(int tmpId : listIds) {
-//                if (mapNeedCloseDatas.containsKey(menuStatus)) {
-//                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
-//                } else {
-//                    mapNeedCloseDatas.put(menuStatus, String.valueOf(tmpId));
-//                }
-//            }
-//        }
+        if (mapNeedCloseDatas.containsKey(menuStatus)) {
+            String strIds = mapNeedCloseDatas.get(menuStatus);
+            String[] idsArr = strIds.split(":");
+            // 重复的id不插入
+            for(int tmpId : listIds) {
+                boolean isBool = false; // 是否有相同的id
+                for(String tmpId2 : idsArr) {
+                    int idsInt = parseInt(tmpId2); // 判断选择的是否有一样的id，不一样才添加到Map
+                    if(idsInt == tmpId) {
+                        isBool = true;
+                        break;
+                    }
+                }
+                if(!isBool) {
+                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
+                }
+            }
+        } else { // 不存在map中，就直接put
+            for(int tmpId : listIds) {
+                if (mapNeedCloseDatas.containsKey(menuStatus)) {
+                    mapNeedCloseDatas.put(menuStatus, mapNeedCloseDatas.get(menuStatus) + ":" + tmpId);
+                } else {
+                    mapNeedCloseDatas.put(menuStatus, String.valueOf(tmpId));
+                }
+            }
+        }
 
-//        Log.e("mapNeedCloseDatas打印", mapNeedCloseDatas.toString());
+        Log.e("mapNeedCloseDatas打印", mapNeedCloseDatas.toString());
         // 清空选中
         for(StkTransferOutEntry entry : listDatas) {
             entry.setIsCheck(0);

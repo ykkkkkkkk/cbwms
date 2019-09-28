@@ -14,7 +14,7 @@ import ykk.cb.com.cbwms.model.ScanningRecord2;
 import ykk.cb.com.cbwms.model.WorkRecord;
 import ykk.cb.com.cbwms.util.basehelper.BaseArrayRecyclerAdapter;
 
-public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRecord> {
+public class Prod_Work_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRecord> {
 
     private DecimalFormat df = new DecimalFormat("#.####");
     private Activity context;
@@ -22,7 +22,7 @@ public class Prod_Wrok_Fragment2Adapter extends BaseArrayRecyclerAdapter<WorkRec
     private List<WorkRecord> datas;
     private String workDirector;
 
-    public Prod_Wrok_Fragment2Adapter(Activity context, List<WorkRecord> datas, String workDirector) {
+    public Prod_Work_Fragment2Adapter(Activity context, List<WorkRecord> datas, String workDirector) {
         super(datas);
         this.context = context;
         this.datas = datas;

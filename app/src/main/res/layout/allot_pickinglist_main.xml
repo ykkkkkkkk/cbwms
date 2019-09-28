@@ -39,8 +39,8 @@ android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_searchIco"
-            android:layout_width="@dimen/_36dp"
-            android:layout_height="@dimen/_36dp"
+            android:layout_width="@dimen/_35dp"
+            android:layout_height="@dimen/_35dp"
             android:background="@drawable/ico_search"
             android:gravity="center" />
 

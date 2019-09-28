@@ -39,7 +39,7 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 /**
- * 选择供应商dialog
+ * 选择部门dialog
  */
 public class Dept_DialogActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
 
@@ -65,6 +65,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isAll; // 是否加载所以供应商
     private boolean isCheck; // 是否多选
+    private String inStockDate; // 入库日期
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -150,6 +151,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
         if(bundle != null) {
             isAll = bundle.getInt("isAll");
             isCheck = bundle.getBoolean("isCheck");
+            inStockDate = bundle.getString("inStockDate", "");
             btnConfirm.setVisibility(isCheck ? View.VISIBLE : View.GONE);
         }
 
@@ -209,6 +211,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
         FormBody formBody = new FormBody.Builder()
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("isAll", String.valueOf(isAll))
+                .add("inStockDate", inStockDate != null ? inStockDate : "") // 生产入库日期
                 .add("columnName","Department_Number") // 排序的字段
                 .add("sortWay","ASC") // 升序降序
                 .add("limit", String.valueOf(limit))

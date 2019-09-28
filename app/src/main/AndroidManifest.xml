@@ -277,6 +277,12 @@
             android:name=".produce.Prod_WorkMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
+            android:name=".produce.Prod_Work2MainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_Work2SearchMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
             android:name=".produce.Prod_Work_SelStaffDialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />

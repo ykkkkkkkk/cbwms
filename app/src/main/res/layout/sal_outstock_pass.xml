@@ -32,7 +32,49 @@
             android:ems="2"
             android:text="刷新"
             android:textColor="#ffffff"
+            android:textSize="@dimen/_16sp"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_margin="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="4"
+            android:gravity="center"
+            android:text="出库单号"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/et_salOutNo"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:inputType="none"
+            android:maxLength="20"
+            android:padding="@dimen/_3dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_14sp" />
+
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="88dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/_10dp"
+            android:background="@drawable/btn_blue_selector"
+            android:text="查询"
+            android:textColor="#ffffff"
             android:textSize="@dimen/_16sp" />
+
     </LinearLayout>
 
     <TextView
@@ -42,7 +84,7 @@
         android:padding="@dimen/_3dp"
         android:text="点击单据号查询明细"
         android:textColor="@color/c_FF4400"
-        android:textSize="12sp" />
+        android:textSize="@dimen/_10sp" />
 
 
     <HorizontalScrollView

@@ -37,7 +37,7 @@ import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 
 /**
- * 选择组织dialog
+ * 选择员工dialog
  */
 public class Prod_Work_SelStaffDialogActivity extends BaseDialogActivity implements XRecyclerView.LoadingListener {
 

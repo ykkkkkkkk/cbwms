@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -44,6 +45,8 @@ import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
  */
 public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerView.LoadingListener {
 
+    @BindView(R.id.et_salOutNo)
+    EditText etSalOutNo;
     @BindView(R.id.btn_close)
     Button btnClose;
     @BindView(R.id.btn_pass)
@@ -178,7 +181,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
         }
 
         bundle();
-        initLoadDatas();
+//        initLoadDatas();
     }
 
     private void bundle() {
@@ -187,7 +190,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
         }
     }
 
-    @OnClick({R.id.btn_close, R.id.btn_pass, R.id.btn_refresh})
+    @OnClick({R.id.btn_close, R.id.btn_pass, R.id.btn_refresh, R.id.btn_search })
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_close: // 关闭
@@ -200,6 +203,10 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
 
                 break;
             case R.id.btn_refresh: // 刷新
+                initLoadDatas();
+
+                break;
+            case R.id.btn_search: // 查询
                 initLoadDatas();
 
                 break;
@@ -324,6 +331,7 @@ public class Sal_OutStockPassActivity extends BaseActivity implements XRecyclerV
         showLoadDialog("加载中...");
         String mUrl = getURL("salOutStock/findSalOutStockList");
         FormBody formBody = new FormBody.Builder()
+                .add("salOutNo", getValues(etSalOutNo).trim())
                 .add("fdocumentStatus", "1")
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")

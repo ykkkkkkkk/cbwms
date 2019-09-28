@@ -16,7 +16,7 @@ import ykk.cb.com.cbwms.model.pur.ProdNode;
 import ykk.cb.com.cbwms.util.treelist.OnTreeNodeCheckedChangeListener;
 import ykk.cb.com.cbwms.util.treelist.TreeListViewAdapter;
 
-public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
+public class Prod_Work_Fragment1Adapter extends TreeListViewAdapter {
 
     private OnTreeNodeCheckedChangeListener checkedChangeListener;
     private MyCallBack callBack;
@@ -26,7 +26,7 @@ public class Prod_Work_WriteFragment1Adapter extends TreeListViewAdapter {
         this.checkedChangeListener = checkedChangeListener;
     }
 
-    public Prod_Work_WriteFragment1Adapter(ListView listView, Context context, List<ProdNode> datas, int defaultExpandLevel, int iconExpand, int iconNoExpand, int iconExpand2, int iconNoExpand2) {
+    public Prod_Work_Fragment1Adapter(ListView listView, Context context, List<ProdNode> datas, int defaultExpandLevel, int iconExpand, int iconNoExpand, int iconExpand2, int iconNoExpand2) {
         super(listView, context, datas, defaultExpandLevel, iconExpand, iconNoExpand, iconExpand2, iconNoExpand2);
     }
 

@@ -40,8 +40,9 @@ import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.AllotWork;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.User;
-import ykk.cb.com.cbwms.model.WorkRecord;
-import ykk.cb.com.cbwms.produce.adapter.Prod_Work_Fragment2Adapter;
+import ykk.cb.com.cbwms.model.WorkRecordNew;
+import ykk.cb.com.cbwms.produce.adapter.Prod_Work2_SearchFragment1Adapter;
+import ykk.cb.com.cbwms.produce.adapter.Prod_Work2_SearchFragment3Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
@@ -50,16 +51,12 @@ import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 /**
  * 报工查询界面
  */
-public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.LoadingListener {
+public class Prod_Work2_Search_Fragment3 extends BaseFragment implements XRecyclerView.LoadingListener {
 
     @BindView(R.id.tv_deptSel)
     TextView tvDeptSel;
     @BindView(R.id.tv_dateSel)
     TextView tvDateSel;
-    @BindView(R.id.et_prodNo)
-    EditText etProdNo;
-    @BindView(R.id.et_mtls)
-    EditText etMtls;
     @BindView(R.id.et_staff)
     EditText etStaff;
     @BindView(R.id.xRecyclerView)
@@ -69,45 +66,46 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     @BindView(R.id.btn_pass)
     Button btnPass;
 
-    private Prod_Work_Fragment2 context = this;
+    private Prod_Work2_Search_Fragment3 context = this;
     private static final int SEL_STAFF = 10, SEL_DEPT = 11;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
     private static final int RESULT_NUM = 1;
     private Department department;
-    private List<WorkRecord> listDatas = new ArrayList<>();
-    private Prod_Work_Fragment2Adapter mAdapter;
+    private List<WorkRecordNew> listDatas = new ArrayList<>();
+    private Prod_Work2_SearchFragment3Adapter mAdapter;
     private int curPos = -1; // 当前行
     private OkHttpClient okHttpClient = null;
     private User user;
     private Activity mContext;
-    private Prod_WorkMainActivity parent;
+    private Prod_Work2SearchMainActivity parent;
     private DecimalFormat df = new DecimalFormat("#.####");
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
-    private String checkStatus = "1"; // 1：未审核，2：已审核
+    private String passStatus = "1"; // 1：未审核，2：已审核
     private boolean isSave; // 是否改变了数据，需要保存
+    private boolean isCheckAll; // 是否全选
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
 
     private static class MyHandler extends Handler {
-        private final WeakReference<Prod_Work_Fragment2> mActivity;
+        private final WeakReference<Prod_Work2_Search_Fragment3> mActivity;
 
-        public MyHandler(Prod_Work_Fragment2 activity) {
-            mActivity = new WeakReference<Prod_Work_Fragment2>(activity);
+        public MyHandler(Prod_Work2_Search_Fragment3 activity) {
+            mActivity = new WeakReference<Prod_Work2_Search_Fragment3>(activity);
         }
 
         public void handleMessage(Message msg) {
-            Prod_Work_Fragment2 m = mActivity.get();
+            Prod_Work2_Search_Fragment3 m = mActivity.get();
             if (m != null) {
                 m.hideLoadDialog();
 
                 String errMsg = null;
                 switch (msg.what) {
                     case SUCC1: // 查询成功
-                        List<WorkRecord> list = JsonUtil.strToList2((String) msg.obj, WorkRecord.class);
-                        for(WorkRecord wr : list) {
-                            wr.setCheckQty(wr.getWorkQty());
+                        List<WorkRecordNew> list = JsonUtil.strToList2((String) msg.obj, WorkRecordNew.class);
+                        for(WorkRecordNew wr : list) {
+                            wr.setPassQty(wr.getWorkQty());
                         }
                         m.listDatas.addAll(list);
                         m.mAdapter.notifyDataSetChanged();
@@ -183,7 +181,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
 
     @Override
     public View setLayoutResID(LayoutInflater inflater, ViewGroup container) {
-        return inflater.inflate(R.layout.prod_work_search_fragment2, container, false);
+        return inflater.inflate(R.layout.prod_work2_search_fragment3, container, false);
     }
 
     @Override
@@ -195,33 +193,33 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                     .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
                     .build();
         }
-        parent = (Prod_WorkMainActivity) mContext;
+        parent = (Prod_Work2SearchMainActivity) mContext;
         getUserInfo();
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         xRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        mAdapter = new Prod_Work_Fragment2Adapter(mContext, listDatas, user.getWorkDirector());
+        mAdapter = new Prod_Work2_SearchFragment3Adapter(mContext, listDatas, user.getWorkDirector());
         xRecyclerView.setAdapter(mAdapter);
         xRecyclerView.setLoadingListener(context);
 
         xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
         xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
 
-        mAdapter.setCallBack(new Prod_Work_Fragment2Adapter.MyCallBack() {
+        mAdapter.setCallBack(new Prod_Work2_SearchFragment3Adapter.MyCallBack() {
             @Override
-            public void onClick_num(WorkRecord entity, int position) {
+            public void onClick_num(WorkRecordNew entity, int position) {
                 // 已审核的不能操作
-                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || entity.getCheckStatus() == 2) return;
+                if(!user.getWorkDirector().equals("B") || passStatus.equals("2") || entity.getPassStatus() == 2) return;
 
                 LogUtil.e("num", "行：" + position);
                 curPos = position;
-                showInputDialog("审核数", String.valueOf(entity.getCheckQty()), "0.0",false, RESULT_NUM);
+                showInputDialog("审核数", String.valueOf(entity.getPassQty()), "0.0",false, RESULT_NUM);
             }
 
             @Override
-            public void onClick_selStaff(WorkRecord wr, int position) {
+            public void onClick_selStaff(WorkRecordNew wr, int position) {
                 // 已审核的不能操作
-                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || wr.getCheckStatus() == 2) return;
+                if(!user.getWorkDirector().equals("B") || passStatus.equals("2") || wr.getPassStatus() == 2) return;
 
                 curPos = position;
                 Bundle bundle = new Bundle();
@@ -233,9 +231,9 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
-                WorkRecord wr = listDatas.get(pos-1);
+                WorkRecordNew wr = listDatas.get(pos-1);
                 // 已审核的不能操作
-                if(!user.getWorkDirector().equals("B") || checkStatus.equals("2") || wr.getCheckStatus() == 2) return;
+                if(!user.getWorkDirector().equals("B") || passStatus.equals("2") || wr.getPassStatus() == 2) return;
 
                 if(wr.isCheckRow()) {
                     wr.setCheckRow(false);
@@ -245,13 +243,35 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 mAdapter.notifyDataSetChanged();
             }
         });
+        mAdapter.setOnItemLongClickListener(new BaseRecyclerAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                WorkRecordNew wr = listDatas.get(pos-1);
+                // 已审核的不能操作
+                if(!user.getWorkDirector().equals("B") || passStatus.equals("2") || wr.getPassStatus() == 2) return;
+
+                if(isCheckAll) {
+                    for(WorkRecordNew wrFor : listDatas) {
+                        wrFor.setCheckRow(false);
+                    }
+                    isCheckAll = false;
+                } else {
+                    for(WorkRecordNew wrFor : listDatas) {
+                        wrFor.setCheckRow(true);
+                    }
+                    isCheckAll = true;
+                }
+
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     public void initData() {
         tvDateSel.setText(Comm.getSysDate(7));
         if(user != null && user.getWorkDirector().equals("B")) {
-            btnSave.setVisibility(View.VISIBLE);
+//            btnSave.setVisibility(View.VISIBLE);
             btnPass.setVisibility(View.VISIBLE);
             tvDeptSel.setText(user.getDepartment().getDepartmentName());
             department = user.getDepartment();
@@ -285,14 +305,14 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
 
                 break;
             case R.id.radio1: // 未审核
-                checkStatus = "1";
-                btnSave.setVisibility(View.VISIBLE);
+                passStatus = "1";
+//                btnSave.setVisibility(View.VISIBLE);
                 btnPass.setVisibility(View.VISIBLE);
 
                 break;
             case R.id.radio2: // 已审核
-                checkStatus = "2";
-                btnSave.setVisibility(View.GONE);
+                passStatus = "2";
+//                btnSave.setVisibility(View.GONE);
                 btnPass.setVisibility(View.GONE);
 
                 break;
@@ -313,8 +333,6 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
 
     private void reset () {
         tvDateSel.setText(Comm.getSysDate(7));
-        etProdNo.setText("");
-        etMtls.setText("");
         etStaff.setText("");
         tvDeptSel.setText("");
         department = null;
@@ -345,7 +363,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
         }
         if(isSave) {
             String strJson = JsonUtil.objectToString(listDatas);
-            run_modifyWorkRecordList(strJson);
+            run_modifyWorkRecordNewList(strJson);
         } else {
             Comm.showWarnDialog(mContext,"请修改数据，然后保存！");
         }
@@ -360,9 +378,9 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
             return;
         }
         StringBuffer strIds = new StringBuffer();
-        for(WorkRecord wr : listDatas) {
+        for(WorkRecordNew wr : listDatas) {
             if(wr.isCheckRow()) {
-                strIds.append(wr.getId() + ":" + wr.getCheckQty() + ",");
+                strIds.append(wr.getId() + ":" + wr.getPassQty() + ",");
             }
         }
         if(strIds.length() == 0) {
@@ -412,7 +430,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                             Comm.showWarnDialog(mContext,"审核数不能大于报工数！");
                             return;
                         }
-                        listDatas.get(curPos).setCheckQty(num);
+                        listDatas.get(curPos).setPassQty(num);
                         mAdapter.notifyDataSetChanged();
                         isSave = true;
                     }
@@ -443,15 +461,12 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
      */
     private void run_okhttpDatas() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("workRecord/findWorkRecordByPage");
+        String mUrl = getURL("workRecordNew/findWorkRecordNewByPage3");
         FormBody formBody = new FormBody.Builder()
-                .add("isValidData", "1") // 报工数大于0
                 .add("deptNumber", department != null ? department.getDepartmentNumber() : "") // 班组
-                .add("prodNo", getValues(etProdNo).trim()) // 生产订单
-                .add("itemNumberOrName", getValues(etMtls).trim()) // 物料
                 .add("workStaffName", getValues(etStaff).trim()) // 报工人
                 .add("workDate", getValues(tvDateSel)) // 报工日期
-                .add("checkStatus", checkStatus) // 查询未审核的
+                .add("passStatus", passStatus) // 查询未审核的
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")
                 .build();
@@ -489,9 +504,9 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
     /**
      * 保存
      */
-    private void run_modifyWorkRecordList(String strJson) {
+    private void run_modifyWorkRecordNewList(String strJson) {
         showLoadDialog("保存中...");
-        String mUrl = getURL("workRecord/modifyWorkRecordList");
+        String mUrl = getURL("workRecordNew/modifyWorkRecordNewList");
         FormBody formBody = new FormBody.Builder()
                 .add("strJson", strJson)
                 .build();
@@ -519,7 +534,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
                 }
 
                 Message msg = mHandler.obtainMessage(SUCC2, result);
-                Log.e("run_modifyWorkRecordList --> onResponse", result);
+                Log.e("run_modifyWorkRecordNewList --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -530,7 +545,7 @@ public class Prod_Work_Fragment2 extends BaseFragment implements XRecyclerView.L
      */
     private void run_checked(String jsonArr) {
         showLoadDialog("审核中...");
-        String mUrl = getURL("workRecord/checked");
+        String mUrl = getURL("workRecordNew/checked");
         FormBody formBody = new FormBody.Builder()
                 .add("jsonArr", jsonArr)
                 .build();

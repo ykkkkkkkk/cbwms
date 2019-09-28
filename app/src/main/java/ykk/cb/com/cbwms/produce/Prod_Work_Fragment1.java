@@ -44,7 +44,7 @@ import ykk.cb.com.cbwms.model.WorkRecord;
 import ykk.cb.com.cbwms.model.pur.ProdNode;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.pur.ProdOrder;
-import ykk.cb.com.cbwms.produce.adapter.Prod_Work_WriteFragment1Adapter;
+import ykk.cb.com.cbwms.produce.adapter.Prod_Work_Fragment1Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
 
@@ -80,7 +80,7 @@ public class Prod_Work_Fragment1 extends BaseFragment {
     private Prod_WorkMainActivity parent;
     private View curRadio;
     private DecimalFormat df = new DecimalFormat("#.####");
-    private Prod_Work_WriteFragment1Adapter mAdapter;
+    private Prod_Work_Fragment1Adapter mAdapter;
     private boolean isSave; // 是否为保存之后的操作
 
     // 消息处理
@@ -209,13 +209,13 @@ public class Prod_Work_Fragment1 extends BaseFragment {
         }
         parent = (Prod_WorkMainActivity) mContext;
 
-        mAdapter = new Prod_Work_WriteFragment1Adapter(listView, mContext, checkDatas,
+        mAdapter = new Prod_Work_Fragment1Adapter(listView, mContext, checkDatas,
                 0, R.drawable.ico_expan_sub2, R.drawable.ico_expan_add2b, R.drawable.ico_spread_keydown, R.drawable.ico_spread_normal);
 
         listView.setAdapter(mAdapter);
 
         // 输入数量
-        mAdapter.setCallBack(new Prod_Work_WriteFragment1Adapter.MyCallBack() {
+        mAdapter.setCallBack(new Prod_Work_Fragment1Adapter.MyCallBack() {
             @Override
             public void onWriteNum(ProdNode entity, int position) {
                 curPos = parseInt(entity.getId());

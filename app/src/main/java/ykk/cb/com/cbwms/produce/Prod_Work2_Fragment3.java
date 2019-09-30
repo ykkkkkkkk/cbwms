@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -44,6 +45,7 @@ import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.Procedure;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.WageType;
+import ykk.cb.com.cbwms.model.WorkByTimeManager;
 import ykk.cb.com.cbwms.model.WorkRecordNew;
 import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
@@ -76,10 +78,16 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
     TextView tvFinishTime2;
     @BindView(R.id.tv_finishTime3)
     TextView tvFinishTime3;
+    @BindView(R.id.tv_wtmName)
+    TextView tvWtmName;
+    @BindView(R.id.et_remark)
+    EditText etRemark;
+
+
 
     private Prod_Work2_Fragment3 context = this;
     private static final int SEL_DEPT = 10;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504, SUCC5 = 205, UNSUCC5 = 505;
     private static final int RESULT_NUM = 1, RESULT_NUM2 = 2;
     private Department department;
     private OkHttpClient okHttpClient = null;
@@ -89,6 +97,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
     private DecimalFormat df = new DecimalFormat("#.####");
     private int wageTypeId; // 工资类型id
     private int procedureId; //  工序id
+    private int workByTimeManagerId; // 计时项目id
     private boolean isButtonClick; // 是否点击按钮
 
 
@@ -114,6 +123,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                         m.tvWrite.setText("");
                         m.tvWrite2.setText("");
                         m.tvSum.setText("");
+                        m.etRemark.setText("");
                         m.run_findWrokRecordSumTime();
 
                         break;
@@ -175,6 +185,24 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     case UNSUCC4: // 查询工序    失败
 
                         break;
+                    case SUCC5: // 查询计时项目     成功
+                        m.popDatasC = JsonUtil.strToList((String) msg.obj, WorkByTimeManager.class);
+                        if(!m.isButtonClick) {
+                            // 默认显示第一个
+                            WorkByTimeManager wtm = m.popDatasC.get(0);
+                            m.workByTimeManagerId = wtm.getId();
+                            m.tvWtmName.setText(wtm.getWorkName()+"（"+m.df.format(wtm.getUnitPrice())+"元/小时）");
+
+                        } else {
+                            m.popupWindow_C();
+                            m.popWindowC.showAsDropDown(m.tvWtmName);
+                        }
+                        m.isButtonClick = false;
+
+                        break;
+                    case UNSUCC5: // 查询计时项目    失败
+
+                        break;
                 }
             }
         }
@@ -230,6 +258,9 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         if(popDatasA == null) {
             run_findWageTypeList(); // 查询工资类型列表
         }
+        if(popDatasC == null) {
+            run_findWorkByTimeManagerByParam(); // 查询计时项目
+        }
     }
 
     @Override
@@ -239,7 +270,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         }
     }
 
-    @OnClick({ R.id.btn_save, R.id.tv_process, R.id.tv_wageType, R.id.tv_date, R.id.tv_deptSel, R.id.tv_write, R.id.tv_write2 })
+    @OnClick({ R.id.btn_save, R.id.tv_process, R.id.tv_wageType, R.id.tv_wtmName, R.id.tv_date, R.id.tv_deptSel, R.id.tv_write, R.id.tv_write2 })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -262,6 +293,17 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     isButtonClick = false;
                     popupWindow_B();
                     popWindowB.showAsDropDown(tvProcess);
+                }
+
+                break;
+            case R.id.tv_wtmName: // 计时项目
+                if(popDatasC == null || popDatasC.size() == 0) {
+                    isButtonClick = true;
+                    run_findWorkByTimeManagerByParam();
+                } else {
+                    isButtonClick = false;
+                    popupWindow_C();
+                    popWindowC.showAsDropDown(tvWtmName);
                 }
 
                 break;
@@ -305,18 +347,23 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
      */
     private boolean saveBefore() {
         if(getValues(tvDeptSel).length() == 0) {
-            Comm.showWarnDialog(mContext, "请选择部门，再查询！");
+            Comm.showWarnDialog(mContext, "请选择部门！");
             return false;
         }
         String process = getValues(tvProcess);
         if(process.length() == 0) {
-            Comm.showWarnDialog(mContext, "请选择工序，再查询！");
+            Comm.showWarnDialog(mContext, "请选择工序！");
             return false;
         }
         if(wageTypeId == 0) {
-            Comm.showWarnDialog(mContext, "请选择工资类型，在查询！");
+            Comm.showWarnDialog(mContext, "请选择工资类型！");
             return false;
         }
+        if(workByTimeManagerId == 0) {
+            Comm.showWarnDialog(mContext, "请选择计时项目！");
+            return false;
+        }
+
         if(getValues(tvWrite).length() == 0 && getValues(tvWrite2).length() == 0) {
             Comm.showWarnDialog(mContext,"请输入对应的框输入计时时间！");
             return false;
@@ -380,7 +427,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
      * 创建PopupWindow 【查询计件类别】
      */
     private PopupWindow popWindowA;
-    private Prod_Work2_Fragment3.ListAdapter adapterA;
+    private ListAdapter adapterA;
     private List<WageType> popDatasA;
     private void popupWindow_A() {
         if (null != popWindowA) {// 不为空就隐藏
@@ -454,14 +501,14 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            Prod_Work2_Fragment3.ListAdapter.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new Prod_Work2_Fragment3.ListAdapter.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
                 v.setTag(holder);
-            }else holder = (Prod_Work2_Fragment3.ListAdapter.ViewHolder) v.getTag();
+            }else holder = (ViewHolder) v.getTag();
 
             holder.tv_name.setText(datas.get(position).getWtName());
 
@@ -478,7 +525,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
      * 创建PopupWindowB 【查询工序列表】
      */
     private PopupWindow popWindowB;
-    private Prod_Work2_Fragment3.ListAdapter2 adapterB;
+    private ListAdapter2 adapterB;
     private List<Procedure> popDatasB;
     private void popupWindow_B() {
         if (null != popWindowB) {// 不为空就隐藏
@@ -493,7 +540,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         if (adapterB != null) {
             adapterB.notifyDataSetChanged();
         } else {
-            adapterB = new Prod_Work2_Fragment3.ListAdapter2(mContext, popDatasB);
+            adapterB = new ListAdapter2(mContext, popDatasB);
             listView.setAdapter(adapterB);
 
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -560,14 +607,14 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            Prod_Work2_Fragment3.ListAdapter2.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new Prod_Work2_Fragment3.ListAdapter2.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
                 v.setTag(holder);
-            }else holder = (Prod_Work2_Fragment3.ListAdapter2.ViewHolder) v.getTag();
+            }else holder = (ViewHolder) v.getTag();
 
             holder.tv_name.setText(datas.get(position).getProcedureName());
 
@@ -580,6 +627,111 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         }
     }
 
+    /**
+     * 创建PopupWindowB 【查询计时项目】
+     */
+    private PopupWindow popWindowC;
+    private ListAdapter3 adapterC;
+    private List<WorkByTimeManager> popDatasC;
+    private void popupWindow_C() {
+        if (null != popWindowC) {// 不为空就隐藏
+            popWindowC.dismiss();
+            return;
+        }
+//        btnSave.setVisibility(View.GONE);
+        // 获取自定义布局文件popupwindow_left.xml的视图
+        View popView = getLayoutInflater().inflate(R.layout.popup_list, null);
+        final ListView listView = (ListView) popView.findViewById(R.id.listView);
+
+        if (adapterC != null) {
+            adapterC.notifyDataSetChanged();
+        } else {
+            adapterC = new ListAdapter3(mContext, popDatasC);
+            listView.setAdapter(adapterC);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    WorkByTimeManager wtm = popDatasC.get(position);
+                    workByTimeManagerId = wtm.getId();
+                    tvWtmName.setText(wtm.getWorkName()+"（"+df.format(wtm.getUnitPrice())+"元/小时）");
+
+                    popWindowC.dismiss();
+                }
+            });
+        }
+
+        // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
+        popWindowC = new PopupWindow(popView, tvWtmName.getWidth(),
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        // 设置动画效果
+        // popWindow4.setAnimationStyle(R.style.AnimationFade);
+        popWindowC.setBackgroundDrawable(new BitmapDrawable());
+        popWindowC.setOutsideTouchable(true);
+        popWindowC.setFocusable(true);
+//        popWindowB.setOnDismissListener(new PopupWindow.OnDismissListener() {
+//            @Override
+//            public void onDismiss() {
+//                btnSave.setVisibility(View.VISIBLE);
+//            }
+//        });
+    }
+    /**
+     * 计时项目 适配器
+     */
+    private class ListAdapter3 extends BaseAdapter {
+
+        private Activity activity;
+        private List<WorkByTimeManager> datas;
+
+        public ListAdapter3(Activity activity, List<WorkByTimeManager> datas) {
+            this.activity = activity;
+            this.datas = datas;
+        }
+
+        @Override
+        public int getCount() {
+            if(datas == null) {
+                return 0;
+            }
+            return datas.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            if(datas == null) {
+                return null;
+            }
+            return datas.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View v, ViewGroup parent) {
+            ViewHolder holder = null;
+            if(v == null) {
+                holder = new ViewHolder();
+                v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
+                holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
+
+                v.setTag(holder);
+            }else holder = (ViewHolder) v.getTag();
+
+            WorkByTimeManager wtm = datas.get(position);
+            holder.tv_name.setText(wtm.getWorkName()+"（"+df.format(wtm.getUnitPrice())+"元/小时）");
+
+            return v;
+        }
+
+        class ViewHolder{//listView中显示的组件
+            TextView tv_name;
+
+        }
+    }
 
     /**
      * 保存方法
@@ -604,6 +756,8 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         workRecordNew.setProcessId(procedureId);
         workRecordNew.setReportType("C"); // 工序汇报类型	 A：按位置汇报， B：按套汇报，C:个人计时
         workRecordNew.setInStockQty(0);
+        workRecordNew.setWorkByTimeManagerId(workByTimeManagerId);
+        workRecordNew.setRemark(getValues(etRemark).trim());
 
         showLoadDialog("保存中...");
         String mJson = JsonUtil.objectToString(workRecordNew);
@@ -756,6 +910,44 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC4, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 查询计时项目
+     */
+    private void run_findWorkByTimeManagerByParam() {
+        String mUrl = getURL("workRecordNew/findWorkByTimeManagerByParam");
+        FormBody formBody = new FormBody.Builder()
+//                .add("billDateBegin", "2019-05-10")
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC5);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findWorkByTimeManagerByParam --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC5, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC5, result);
                 mHandler.sendMessage(msg);
             }
         });

@@ -16,17 +16,17 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_deptName"
+        android:id="@+id/tv_date"
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="班组"
+        android:text="日期"
         android:textColor="@color/black"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_mtlPriceType"
-        android:layout_width="78dp"
+        android:layout_width="98dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="计价类型"
@@ -34,46 +34,26 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_postion"
-        android:layout_width="56dp"
+        android:id="@+id/tv_price"
+        android:layout_width="@dimen/_68dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="位置"
-        android:textColor="@color/black"
+        android:text="单价"
+        android:textColor="@color/c_FF4400"
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_staffName"
-        android:layout_width="58dp"
+        android:id="@+id/tv_money"
+        android:layout_width="@dimen/_78dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="报工人"
-        android:textColor="#000000"
-        android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/tv_nums"
-        android:layout_width="78dp"
-        android:layout_height="@dimen/_46dp"
-        android:background="@drawable/back_style_blue2"
-        android:gravity="center"
-        android:text="报工/审核数"
-        android:textColor="#000000"
-        android:textSize="12sp" />
-
-
-    <TextView
-        android:id="@+id/tv_date"
-        android:layout_width="76dp"
-        android:layout_height="@dimen/_46dp"
-        android:gravity="center"
-        android:text="报工日期"
-        android:textColor="#000000"
+        android:text="金额"
+        android:textColor="@color/c_FF2200"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_process"
-        android:layout_width="76dp"
+        android:layout_width="@dimen/_68dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="工序"
@@ -81,12 +61,21 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_createDate"
-        android:layout_width="76dp"
+        android:id="@+id/tv_location"
+        android:layout_width="@dimen/_58dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="创建日期"
-        android:maxLength="16"
+        android:text="位置"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+
+    <TextView
+        android:id="@+id/tv_nums"
+        android:layout_width="@dimen/_78dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="数量"
         android:textColor="#000000"
         android:textSize="12sp" />
 

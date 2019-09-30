@@ -47,9 +47,9 @@ import static ykk.cb.com.cbwms.util.blueTooth.Constant.MESSAGE_UPDATE_PARAMETER;
 import static ykk.cb.com.cbwms.util.blueTooth.DeviceConnFactoryManager.CONN_STATE_FAILED;
 
 /**
- * 新的汇报查询，在用的
+ * 我的工资
  */
-public class Prod_Work2MainActivity extends BaseActivity {
+public class Prod_WageMainActivity extends BaseActivity {
 
     @BindView(R.id.viewRadio1)
     View viewRadio1;
@@ -66,8 +66,8 @@ public class Prod_Work2MainActivity extends BaseActivity {
     @BindView(R.id.tv_connState)
     TextView tvConnState;
 
-    private static final String TAG = "Prod_Work2MainActivity";
-    private Prod_Work2MainActivity context = this;
+    private static final String TAG = "Prod_WageMainActivity";
+    private Prod_WageMainActivity context = this;
     private View curRadio;
     public boolean isChange; // 返回的时候是否需要判断数据是否保存了
     private List<ScanningRecord2> scanningRecord2List = new ArrayList<>();
@@ -80,14 +80,14 @@ public class Prod_Work2MainActivity extends BaseActivity {
     private static final int PRINTER_COMMAND_ERROR = 0x008; // 使用打印机指令错误
     private static final int CONN_PRINTER = 0x12;
 //    private Customer customer; // 客户
-    private Prod_Work2_Fragment1 fragment1 = new Prod_Work2_Fragment1();
-    private Prod_Work2_Fragment2 fragment2 = new Prod_Work2_Fragment2();
-    private Prod_Work2_Fragment3 fragment3 = new Prod_Work2_Fragment3();
+    private Prod_Wage_Search_Fragment1 fragment1 = new Prod_Wage_Search_Fragment1();
+    private Prod_Wage_Search_Fragment2 fragment2 = new Prod_Wage_Search_Fragment2();
+//    private Prod_Work2_Fragment3 fragment3 = new Prod_Work2_Fragment3();
     private int pageId; // 页面id
 
     @Override
     public int setLayoutResID() {
-        return R.layout.prod_work2_main;
+        return R.layout.prod_wage_search_main;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class Prod_Work2MainActivity extends BaseActivity {
 
         listFragment.add(fragment1);
         listFragment.add(fragment2);
-        listFragment.add(fragment3);
+//        listFragment.add(fragment3);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
@@ -126,15 +126,15 @@ public class Prod_Work2MainActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
-                        tabChange(viewRadio1,"位置报工", 0);
+                        tabChange(viewRadio1,"个人计件", 0);
 
                         break;
                     case 1:
-                        tabChange(viewRadio2,"按套报工", 1);
+                        tabChange(viewRadio2,"个人计时", 1);
 
                         break;
                     case 2:
-                        tabChange(viewRadio3,"个人计时", 2);
+                        tabChange(viewRadio3,"集体计件", 2);
 
                         break;
                 }
@@ -189,22 +189,22 @@ public class Prod_Work2MainActivity extends BaseActivity {
                     case 1:
                         fragment2.findFun();
                         break;
-                    case 2:
-                        fragment3.findFun();
-                        break;
+//                    case 2:
+//                        fragment3.findFun();
+//                        break;
                 }
 
                 break;
             case R.id.lin_tab1:
-                tabChange(viewRadio1,"位置报工", 0);
+                tabChange(viewRadio1,"个人计件", 0);
 
                 break;
             case R.id.lin_tab2:
-                tabChange(viewRadio2,"按套报工", 1);
+                tabChange(viewRadio2,"个人计时", 1);
 
                 break;
             case R.id.lin_tab3:
-                tabChange(viewRadio3,"个人计时", 2);
+                tabChange(viewRadio3,"集体计件", 2);
 
                 break;
         }
@@ -222,7 +222,7 @@ public class Prod_Work2MainActivity extends BaseActivity {
     private void tabChange(View view, String str, int page) {
         pageId = page;
         tabSelected(view);
-        tvSearchIco.setVisibility(page == 2 ? View.GONE : View.VISIBLE);
+//        tvSearchIco.setVisibility(page == 2 ? View.GONE : View.VISIBLE);
 //        tvTitle.setText(str);
         viewPager.setCurrentItem(page, false);
     }

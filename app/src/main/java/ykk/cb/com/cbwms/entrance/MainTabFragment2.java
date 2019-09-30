@@ -20,6 +20,7 @@ import ykk.cb.com.cbwms.produce.Prod_OrderSearchActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcedureReportActivity;
 import ykk.cb.com.cbwms.produce.Prod_ProcessSearchActivity;
 import ykk.cb.com.cbwms.produce.Prod_StartMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_WageMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_Work2MainActivity;
 import ykk.cb.com.cbwms.produce.Prod_Work2SearchMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_WorkMainActivity;
@@ -34,7 +35,8 @@ public class MainTabFragment2 extends BaseFragment {
         return inflater.inflate(R.layout.aa_main_item2, container, false);
     }
 
-    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7, R.id.relative8, R.id.relative9, R.id.relative10, R.id.relative11 })
+    @OnClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7, R.id.relative8,
+              R.id.relative9, R.id.relative10, R.id.relative11, R.id.relative12 })
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.relative1: // 生产装箱
@@ -84,10 +86,14 @@ public class MainTabFragment2 extends BaseFragment {
                 show(Prod_Work2SearchMainActivity.class,null);
 
                 break;
+            case R.id.relative12: // 我的工资
+                show(Prod_WageMainActivity.class,null);
+
+                break;
         }
     }
 
-    @OnLongClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7, R.id.relative8, R.id.relative9, R.id.relative10, R.id.relative11 })
+    @OnLongClick({R.id.relative1, R.id.relative2, R.id.relative3, R.id.relative4, R.id.relative5, R.id.relative6, R.id.relative7, R.id.relative8, R.id.relative9, R.id.relative10, R.id.relative11, R.id.relative12 })
     public boolean onViewLongClicked(View view) {
         switch (view.getId()) {
 //            case R.id.relative1: // 生产装箱
@@ -104,7 +110,7 @@ public class MainTabFragment2 extends BaseFragment {
 //                break;
             case R.id.relative4: // 工序汇报
 //                show(Prod_ProcedureReportActivity.class,null);
-                show(Prod_WorkMainActivity.class,null);
+//                show(Prod_WorkMainActivity.class,null);
 
                 break;
 //            case R.id.relative5: // 生产开工

@@ -744,6 +744,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
         String mUrl = getURL("prodInStock/findWageTypeQtyList");
         FormBody formBody = new FormBody.Builder()
                 .add("deptNumber", department.getDepartmentNumber())
+                .add("pieceWageStatus", department.getPieceWageStatus()) // 计件工资是否按入库数   A:是,B:否
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("processId", String.valueOf(procedureId))

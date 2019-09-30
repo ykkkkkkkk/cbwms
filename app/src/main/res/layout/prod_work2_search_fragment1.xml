@@ -164,7 +164,7 @@
             <LinearLayout
                 android:id="@+id/lin_rowTitle"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_33dp"
+                android:layout_height="@dimen/_25dp"
                 android:background="#D8D8D8">
 
                 <TextView
@@ -187,7 +187,7 @@
                     android:layout_width="78dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="物料类型"
+                    android:text="计价类型"
                     android:textColor="@color/black"
                     android:textSize="12sp" />
 

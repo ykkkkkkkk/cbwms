@@ -26,6 +26,8 @@ public class WorkRecordNew implements Serializable {
 	private int passStatus; //审核状态,1:未审核，2:已审核
 	private double passQty; // 审核数量
 	private String reportType; // 工序汇报类型	A：按位置汇报， B：按套汇报，C:个人计时
+	private int workByTimeManagerId; // workByTimeManager 表的id
+	private String remark; // 备注
 
 	// 临时字段，不存表
 	private String deptName;//班组名称
@@ -36,6 +38,9 @@ public class WorkRecordNew implements Serializable {
 	private String processName;
 	private boolean checkRow; // 是否选中行
 	private double inStockQty; // 入库总数量
+	private double price; // 单价
+	private double money; //金额
+	private String wageTypeName; // 工资类型名称
 
 	public WorkRecordNew() {
 		super();
@@ -263,6 +268,46 @@ public class WorkRecordNew implements Serializable {
 
 	public void setPassName(String passName) {
 		this.passName = passName;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public double getMoney() {
+		return money;
+	}
+
+	public void setMoney(double money) {
+		this.money = money;
+	}
+
+	public String getWageTypeName() {
+		return wageTypeName;
+	}
+
+	public void setWageTypeName(String wageTypeName) {
+		this.wageTypeName = wageTypeName;
+	}
+
+	public int getWorkByTimeManagerId() {
+		return workByTimeManagerId;
+	}
+
+	public void setWorkByTimeManagerId(int workByTimeManagerId) {
+		this.workByTimeManagerId = workByTimeManagerId;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 

@@ -128,6 +128,8 @@ public class Prod_Work2_Fragment2 extends BaseFragment {
 
                         break;
                     case UNSUCC2:
+                        m.checkDatas.clear();
+                        m.mAdapter.notifyDataSetChanged();
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！！！";
                         Comm.showWarnDialog(m.mContext, errMsg);
@@ -470,14 +472,14 @@ public class Prod_Work2_Fragment2 extends BaseFragment {
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            ListAdapter.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new ListAdapter.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
                 v.setTag(holder);
-            }else holder = (ListAdapter.ViewHolder) v.getTag();
+            }else holder = (ViewHolder) v.getTag();
 
             holder.tv_name.setText(datas.get(position).getWtName());
 
@@ -575,14 +577,14 @@ public class Prod_Work2_Fragment2 extends BaseFragment {
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            ListAdapter2.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new ListAdapter2.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
                 v.setTag(holder);
-            }else holder = (ListAdapter2.ViewHolder) v.getTag();
+            }else holder = (ViewHolder) v.getTag();
 
             holder.tv_name.setText(datas.get(position).getProcedureName());
 
@@ -675,6 +677,7 @@ public class Prod_Work2_Fragment2 extends BaseFragment {
         String mUrl = getURL("prodInStock/findWageTypeQtyList2");
         FormBody formBody = new FormBody.Builder()
                 .add("deptNumber", department.getDepartmentNumber())
+                .add("pieceWageStatus", department.getPieceWageStatus()) // 计件工资是否按入库数   A:是,B:否
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("processId", String.valueOf(procedureId))

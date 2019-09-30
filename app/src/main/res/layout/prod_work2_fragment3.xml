@@ -138,6 +138,35 @@
             android:layout_height="match_parent"
             android:ems="4"
             android:gravity="center"
+            android:text="计时项目"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_wtmName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_margin="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="4"
+            android:gravity="center"
             android:text="部门帮忙"
             android:textColor="#000000"
             android:textSize="14sp" />
@@ -219,6 +248,36 @@
             android:layout_weight="0.6"
             android:background="@drawable/back_style_gray2"
             android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_margin="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="4"
+            android:gravity="center"
+            android:text="备注"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/et_remark"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:inputType="none"
+            android:maxLength="200"
+            android:padding="@dimen/_2dp"
             android:textColor="@color/black"
             android:textSize="@dimen/_16sp" />
 

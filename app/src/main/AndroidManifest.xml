@@ -286,6 +286,9 @@
             android:name=".produce.Prod_Work_SelStaffDialogActivity"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_WageMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 销售模块 -->

@@ -40,6 +40,8 @@ public class Department implements Serializable {
     private int isload;
     // 生码方式，1生产顺序号生码，2条码生码,3不生成
     private int createBarcodeWay;
+    //计件工资是否按入库数   A:是,B:否
+    private String pieceWageStatus;
 
     // 临时字段，不存表
     private boolean check;
@@ -161,6 +163,14 @@ public class Department implements Serializable {
 
     public void setCheck(boolean check) {
         this.check = check;
+    }
+
+    public String getPieceWageStatus() {
+        return pieceWageStatus;
+    }
+
+    public void setPieceWageStatus(String pieceWageStatus) {
+        this.pieceWageStatus = pieceWageStatus;
     }
 
     @Override

@@ -25,20 +25,20 @@
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_mtlPriceType"
+        android:id="@+id/tv_deptHelpTime"
         android:layout_width="78dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="计价类型"
+        android:text="部门帮忙"
         android:textColor="@color/black"
         android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tv_postion"
-        android:layout_width="56dp"
+        android:id="@+id/tv_deptTime"
+        android:layout_width="78dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
-        android:text="位置"
+        android:text="本部计时"
         android:textColor="@color/black"
         android:textSize="12sp" />
 
@@ -50,17 +50,6 @@
         android:text="报工人"
         android:textColor="#000000"
         android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/tv_nums"
-        android:layout_width="78dp"
-        android:layout_height="@dimen/_46dp"
-        android:background="@drawable/back_style_blue2"
-        android:gravity="center"
-        android:text="报工/审核数"
-        android:textColor="#000000"
-        android:textSize="12sp" />
-
 
     <TextView
         android:id="@+id/tv_date"

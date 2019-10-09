@@ -35,9 +35,13 @@ public class Procedure implements Serializable {
 	/*用于设置单价*/
 	private Double price;
 	private ProcessflowEntry pfEntry;
+	//工序条码
+	private String barCode;
 
 	// 临时字段，不存表
 	private int materialId;
+	private String mtlPriceTypeId; // 物料单价类型id
+	private String mtlPriceTypeName; // 物料单价类型Name
 
 	public Procedure() {
 		super();
@@ -161,4 +165,27 @@ public class Procedure implements Serializable {
 		this.materialId = materialId;
 	}
 
+	public String getBarCode() {
+		return barCode;
+	}
+
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
+	}
+
+	public String getMtlPriceTypeId() {
+		return mtlPriceTypeId;
+	}
+
+	public void setMtlPriceTypeId(String mtlPriceTypeId) {
+		this.mtlPriceTypeId = mtlPriceTypeId;
+	}
+
+	public String getMtlPriceTypeName() {
+		return mtlPriceTypeName;
+	}
+
+	public void setMtlPriceTypeName(String mtlPriceTypeName) {
+		this.mtlPriceTypeName = mtlPriceTypeName;
+	}
 }

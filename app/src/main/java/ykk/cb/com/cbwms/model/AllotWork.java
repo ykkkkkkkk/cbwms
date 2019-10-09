@@ -14,6 +14,8 @@ public class AllotWork implements Serializable {
 	private String endDate; // 离岗日期
 	private String creater; // 创建人
 	private String createDate; // 创建日期
+	private double mastery;//熟练程度
+	private int parentDeptId; // 上级部门
 
 	// 临时字段，不加表
 	private String deptNumber;//部门代码
@@ -128,6 +130,22 @@ public class AllotWork implements Serializable {
 
 	public void setProcedureNumber(String procedureNumber) {
 		this.procedureNumber = procedureNumber;
+	}
+
+	public double getMastery() {
+		return mastery;
+	}
+
+	public void setMastery(double mastery) {
+		this.mastery = mastery;
+	}
+
+	public int getParentDeptId() {
+		return parentDeptId;
+	}
+
+	public void setParentDeptId(int parentDeptId) {
+		this.parentDeptId = parentDeptId;
 	}
 
 }

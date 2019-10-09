@@ -309,12 +309,14 @@ public class Prod_Work2_Search_Fragment2 extends BaseFragment implements XRecycl
                 passStatus = "1";
                 btnSave.setVisibility(View.VISIBLE);
                 btnPass.setVisibility(View.VISIBLE);
+                initLoadDatas();
 
                 break;
             case R.id.radio2: // 已审核
                 passStatus = "2";
                 btnSave.setVisibility(View.GONE);
                 btnPass.setVisibility(View.GONE);
+                initLoadDatas();
 
                 break;
             case R.id.btn_clone: // 重置
@@ -465,7 +467,8 @@ public class Prod_Work2_Search_Fragment2 extends BaseFragment implements XRecycl
         String mUrl = getURL("workRecordNew/findWorkRecordNewByPage2");
         FormBody formBody = new FormBody.Builder()
                 .add("isValidData", "1") // 报工数大于0
-                .add("deptNumber", department != null ? department.getDepartmentNumber() : "") // 班组
+                //                .add("deptNumber", department != null ? department.getDepartmentNumber() : "") // 班组
+                .add("parentDeptId", department != null ? String.valueOf(department.getFitemID()) : "") // 班组id
                 .add("workStaffName", getValues(etStaff).trim()) // 报工人
                 .add("workDate", getValues(tvDateSel)) // 报工日期
                 .add("passStatus", passStatus) // 查询未审核的

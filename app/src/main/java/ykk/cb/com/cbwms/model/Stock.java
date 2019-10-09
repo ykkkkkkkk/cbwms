@@ -56,6 +56,8 @@ public class Stock implements Serializable {
     private int isVMI;
     /* 合并拣货（字段 F_PAEZ_IsCombine） */
     private boolean fpaezIsCombine;
+    /* 是否过渡仓库，Y:是，N：否  */
+    private char isTransition;
 
     public Stock() {
         super();
@@ -259,6 +261,14 @@ public class Stock implements Serializable {
 
     public void setFpaezIsCombine(boolean fpaezIsCombine) {
         this.fpaezIsCombine = fpaezIsCombine;
+    }
+
+    public char getIsTransition() {
+        return isTransition;
+    }
+
+    public void setIsTransition(char isTransition) {
+        this.isTransition = isTransition;
     }
 
 

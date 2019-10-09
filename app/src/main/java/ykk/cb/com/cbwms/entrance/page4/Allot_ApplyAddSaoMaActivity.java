@@ -127,7 +127,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
 
 
     // 消息处理
-    private Allot_ApplyAddSaoMaActivity.MyHandler mHandler = new Allot_ApplyAddSaoMaActivity.MyHandler(this);
+    private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
         private final WeakReference<Allot_ApplyAddSaoMaActivity> mActivity;
 

@@ -44,6 +44,7 @@ import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.Procedure;
 import ykk.cb.com.cbwms.model.User;
+import ykk.cb.com.cbwms.model.WageType;
 import ykk.cb.com.cbwms.model.WorkRecordNew;
 import ykk.cb.com.cbwms.produce.adapter.Prod_Wage_SearchFragment1Adapter;
 import ykk.cb.com.cbwms.util.BigdecimalUtil;
@@ -60,6 +61,8 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
     TextView tvDateBeg;
     @BindView(R.id.tv_dateEnd)
     TextView tvDateEnd;
+    @BindView(R.id.tv_wageType)
+    TextView tvWageType;
     @BindView(R.id.tv_process)
     TextView tvProcess;
     @BindView(R.id.tv_mtlPriceType)
@@ -79,7 +82,7 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
 
 
     private Prod_Wage_Search_Fragment1 context = this;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 202, UNSUCC2 = 502, SUCC3 = 204, UNSUCC3 = 504;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 202, UNSUCC2 = 502, SUCC3 = 203, UNSUCC3 = 503, SUCC4 = 204, UNSUCC4=504;
     private static final int RESULT_NUM = 1;
     private List<WorkRecordNew> listDatas = new ArrayList<>();
     private Prod_Wage_SearchFragment1Adapter mAdapter;
@@ -88,9 +91,10 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
     private User user;
     private Activity mContext;
     private Prod_WageMainActivity parent;
-    private DecimalFormat df = new DecimalFormat("#.####");
+    private DecimalFormat df = new DecimalFormat("#.##");
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
+    private int wageTypeId; // 工资类型id
     private int procedureId; //  工序id
     private String mtlPriceTypeId; // 物料计价类型id
     private String passStatus = "2"; // 1：未审核，2：已审核
@@ -187,6 +191,23 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
                     case UNSUCC3: // 查询工序    失败
 
                         break;
+                    case SUCC4: // 查询工资类型  返回
+                        if(m.popDatasC == null) {
+                            m.popDatasC = new ArrayList<>();
+
+                            WageType wt= new WageType();
+                            wt.setWtName("全部");
+                            m.popDatasC.add(wt);
+                        }
+                        List<WageType> listWageType = JsonUtil.strToList((String) msg.obj, WageType.class);
+                        m.popDatasC.addAll(listWageType);
+                        m.popupWindow_C();
+                        m.popWindowC.showAsDropDown(m.tvWageType);
+
+                        break;
+                    case UNSUCC4: // 查询工资类型    返回
+
+                        break;
                 }
             }
         }
@@ -253,7 +274,7 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
         }
     }
 
-    @OnClick({R.id.tv_dateBeg, R.id.tv_dateEnd, R.id.tv_process, R.id.tv_mtlPriceType, R.id.radio1, R.id.radio2 })
+    @OnClick({R.id.tv_dateBeg, R.id.tv_dateEnd, R.id.tv_wageType, R.id.tv_process, R.id.tv_mtlPriceType, R.id.radio1, R.id.radio2 })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -263,6 +284,15 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
                 break;
             case R.id.tv_dateEnd: // 结束日期
                 Comm.showDateDialog(mContext, tvDateEnd, 0);
+
+                break;
+            case R.id.tv_wageType: // 查询工资类型
+                if(popDatasC == null || popDatasC.size() == 0) {
+                    run_findWageTypeList();
+                } else {
+                    popupWindow_C();
+                    popWindowC.showAsDropDown(tvWageType);
+                }
 
                 break;
             case R.id.tv_process: // 选择工序
@@ -396,9 +426,9 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            ListAdapter.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new ListAdapter.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
@@ -442,7 +472,7 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     WorkRecordNew pd = popDatasB.get(position);
-                    procedureId = pd.getId();
+                    procedureId = pd.getProcessId();
                     tvProcess.setText(pd.getProcessName());
                     initLoadDatas();
 
@@ -502,14 +532,14 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
 
         @Override
         public View getView(int position, View v, ViewGroup parent) {
-            ListAdapter2.ViewHolder holder = null;
+            ViewHolder holder = null;
             if(v == null) {
-                holder = new ListAdapter2.ViewHolder();
+                holder = new ViewHolder();
                 v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
                 holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
 
                 v.setTag(holder);
-            }else holder = (ListAdapter2.ViewHolder) v.getTag();
+            }else holder = (ViewHolder) v.getTag();
 
             holder.tv_name.setText(datas.get(position).getProcessName());
 
@@ -518,7 +548,104 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
 
         class ViewHolder{//listView中显示的组件
             TextView tv_name;
+        }
+    }
 
+    /**
+     * 创建PopupWindow 【查询工资类型】
+     */
+    private PopupWindow popWindowC;
+    private ListAdapter3 adapterC;
+    private List<WageType> popDatasC;
+    private void popupWindow_C() {
+        if (null != popWindowC) {// 不为空就隐藏
+            popWindowC.dismiss();
+            return;
+        }
+        // 获取自定义布局文件popupwindow_left.xml的视图
+        View popView = getLayoutInflater().inflate(R.layout.popup_list, null);
+        final ListView listView = (ListView) popView.findViewById(R.id.listView);
+
+        if (adapterC != null) {
+            adapterC.notifyDataSetChanged();
+        } else {
+            adapterC = new ListAdapter3(mContext, popDatasC);
+            listView.setAdapter(adapterC);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    WageType wt = popDatasC.get(position);
+                    wageTypeId = wt.getId();
+                    tvWageType.setText(wt.getWtName());
+                    initLoadDatas();
+
+                    popWindowC.dismiss();
+                }
+            });
+        }
+
+        // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
+        popWindowC = new PopupWindow(popView, tvWageType.getWidth(),
+                ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        // 设置动画效果
+        // popWindow4.setAnimationStyle(R.style.AnimationFade);
+        popWindowC.setBackgroundDrawable(new BitmapDrawable());
+        popWindowC.setOutsideTouchable(true);
+        popWindowC.setFocusable(true);
+    }
+    /**
+     * 计件类别 适配器
+     */
+    private class ListAdapter3 extends BaseAdapter {
+
+        private Activity activity;
+        private List<WageType> datas;
+
+        public ListAdapter3(Activity activity, List<WageType> datas) {
+            this.activity = activity;
+            this.datas = datas;
+        }
+
+        @Override
+        public int getCount() {
+            if(datas == null) {
+                return 0;
+            }
+            return datas.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            if(datas == null) {
+                return null;
+            }
+            return datas.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View v, ViewGroup parent) {
+            ViewHolder holder = null;
+            if(v == null) {
+                holder = new ViewHolder();
+                v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
+                holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
+
+                v.setTag(holder);
+            }else holder = (ViewHolder) v.getTag();
+
+            holder.tv_name.setText(datas.get(position).getWtName());
+
+            return v;
+        }
+
+        class ViewHolder{//listView中显示的组件
+            TextView tv_name;
         }
     }
 
@@ -569,7 +696,8 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
         showLoadDialog("加载中...");
         String mUrl = getURL("workRecordNew/findWageList");
         FormBody formBody = new FormBody.Builder()
-                .add("wageTypeName", "个人计件")
+                .add("wageTypeName", wageTypeId > 0 ? getValues(tvWageType) : "")
+                .add("wageTypeId", wageTypeId > 0 ? String.valueOf(wageTypeId) : "")
                 .add("mtlPriceTypeId", mtlPriceTypeId != null ? mtlPriceTypeId : "")
                 .add("processId", procedureId > 0 ? String.valueOf(procedureId) : "")
                 .add("workStaffId", String.valueOf(user.getStaffId()))
@@ -616,7 +744,7 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
     private void run_findMtlPriceTypeList() {
         String mUrl = getURL("workRecordNew/findMtlPriceTypeList");
         FormBody formBody = new FormBody.Builder()
-                .add("wageTypeName", "个人计件")
+                .add("wageTypeName", wageTypeId > 0 ? getValues(tvWageType) : "")
                 .add("mtlPriceTypeId", mtlPriceTypeId != null ? mtlPriceTypeId : "")
                 .add("processId", procedureId > 0 ? String.valueOf(procedureId) : "")
                 .add("workStaffId", String.valueOf(user.getStaffId()))
@@ -642,7 +770,7 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
             public void onResponse(Call call, Response response) throws IOException {
                 ResponseBody body = response.body();
                 String result = body.string();
-                LogUtil.e("run_findWageTypeList --> onResponse", result);
+                LogUtil.e("findMtlPriceTypeList --> onResponse", result);
                 if (!JsonUtil.isSuccess(result)) {
                     Message msg = mHandler.obtainMessage(UNSUCC2, result);
                     mHandler.sendMessage(msg);
@@ -687,6 +815,45 @@ public class Prod_Wage_Search_Fragment1 extends BaseFragment implements XRecycle
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC3, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+
+    /**
+     * 查询工资类型
+     */
+    private void run_findWageTypeList() {
+        showLoadDialog("加载中...");
+        String mUrl = getURL("wageType/findListByParam");
+        FormBody formBody = new FormBody.Builder()
+//                .add("billDateBegin", "2019-05-10")
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC4);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findWageTypeList --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC4, result);
                 mHandler.sendMessage(msg);
             }
         });

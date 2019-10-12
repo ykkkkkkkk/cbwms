@@ -184,7 +184,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                         m.isButtonClick = false;
 
                         break;
-                    case UNSUCC3: // 查询分配的工序    返回
+                    case UNSUCC3: // 查询工资类型    返回
 
                         break;
                     case SUCC4: // 查询物料单价类型列表和工序     成功
@@ -341,7 +341,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                     return;
                 }
 //                if(parseInt(user.getStaffId()) == 0 ) {
-//                    Comm.showWarnDialog(mContext,"请在PC端维护员工信息！");
+//                    Comm.showWarnDialog(mContext,"请在PC端维护(用户与工序组合)信息！");
 //                    return;
 //                }
 //                if(popDatasB == null || popDatasB.size() == 0) {
@@ -600,10 +600,9 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
 
         class ViewHolder{//listView中显示的组件
             TextView tv_name;
-
         }
-
     }
+
     /**
      * 创建PopupWindowB 【查询工序列表】
      */
@@ -1030,6 +1029,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("reportType","A") // 工序汇报类型 A：按位置汇报 B：按套汇报
+                .add("staffId", String.valueOf(user.getStaffId()))
                 .build();
 
         Request request = new Request.Builder()

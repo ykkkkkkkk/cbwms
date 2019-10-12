@@ -948,6 +948,7 @@ public class Prod_Work2_Fragment2 extends BaseFragment {
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("reportType","B") // 工序汇报类型 A：按位置汇报 B：按套汇报
+                .add("staffId", String.valueOf(user.getStaffId()))
                 .build();
 
         Request request = new Request.Builder()

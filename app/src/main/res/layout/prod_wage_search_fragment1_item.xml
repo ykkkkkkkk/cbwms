@@ -20,7 +20,17 @@
         android:layout_width="76dp"
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
+        android:maxLength="10"
         android:text="日期"
+        android:textColor="@color/black"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_wageType"
+        android:layout_width="68dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="工资类型"
         android:textColor="@color/black"
         android:textSize="12sp" />
 
@@ -76,6 +86,24 @@
         android:layout_height="@dimen/_46dp"
         android:gravity="center"
         android:text="数量"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_deptHelpTime"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="部门帮忙"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_deptTime"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="本部计时"
         android:textColor="#000000"
         android:textSize="12sp" />
 

@@ -16,6 +16,7 @@
         android:layout_height="38dp"
         android:layout_marginLeft="@dimen/_6dp"
         android:layout_marginRight="@dimen/_6dp"
+        android:layout_marginTop="@dimen/_3dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -75,6 +76,61 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:ems="2"
+            android:gravity="center"
+            android:text="工资类型"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_wageType"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
+            android:text="全部"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/_3dp"
+            android:ems="2"
+            android:gravity="center"
+            android:text="计价类型"
+            android:textColor="#000000"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_mtlPriceType"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
+            android:text="全部"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginBottom="@dimen/_2dp"
+        android:layout_marginLeft="@dimen/_6dp"
+        android:layout_marginRight="@dimen/_6dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
 
             android:ems="2"
             android:gravity="center"
@@ -100,43 +156,14 @@
             android:layout_marginLeft="@dimen/_3dp"
             android:ems="2"
             android:gravity="center"
-            android:text="计价类型"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_mtlPriceType"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
-            android:text="全部"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_marginBottom="@dimen/_2dp"
-        android:layout_marginLeft="@dimen/_6dp"
-        android:layout_marginRight="@dimen/_6dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:ems="2"
-            android:gravity="center"
             android:text="工资状态"
             android:textColor="#000000"
             android:textSize="12sp" />
 
         <RadioGroup
-            android:layout_width="200dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@drawable/back_style_blue"
             android:gravity="center"
             android:orientation="horizontal">
@@ -146,12 +173,12 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:background="@drawable/back_check_green_left_true"
                 android:button="@null"
                 android:checked="true"
-                android:textColor="@color/white"
-                android:background="@drawable/back_check_green_left_true"
                 android:gravity="center"
-                android:text="已确认" />
+                android:text="已确认"
+                android:textColor="@color/white" />
 
 
             <RadioButton
@@ -161,11 +188,12 @@
                 android:layout_weight="1"
                 android:button="@null"
                 android:gravity="center"
-                android:textColor="@color/c_666666"
-                android:text="待确认" />
+                android:text="待确认"
+                android:textColor="@color/c_666666" />
 
 
         </RadioGroup>
+
 
     </LinearLayout>
 
@@ -198,6 +226,14 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="日期"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="68dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="工资类型"
                     android:textColor="@color/black"
                     android:textSize="12sp" />
 
@@ -246,6 +282,22 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="数量"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="88dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="部门帮忙"
+                    android:textColor="#000000"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="88dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="本部计时"
                     android:textColor="#000000"
                     android:textSize="12sp" />
 

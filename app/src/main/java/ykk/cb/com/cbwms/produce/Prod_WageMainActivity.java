@@ -81,7 +81,7 @@ public class Prod_WageMainActivity extends BaseActivity {
     private static final int CONN_PRINTER = 0x12;
 //    private Customer customer; // 客户
     private Prod_Wage_Search_Fragment1 fragment1 = new Prod_Wage_Search_Fragment1();
-    private Prod_Wage_Search_Fragment2 fragment2 = new Prod_Wage_Search_Fragment2();
+//    private Prod_Wage_Search_Fragment2 fragment2 = new Prod_Wage_Search_Fragment2();
 //    private Prod_Work2_Fragment3 fragment3 = new Prod_Work2_Fragment3();
     private int pageId; // 页面id
 
@@ -105,13 +105,13 @@ public class Prod_WageMainActivity extends BaseActivity {
 //        fragment2.setArguments(bundle2); // 传参数
 
         listFragment.add(fragment1);
-        listFragment.add(fragment2);
+//        listFragment.add(fragment2);
 //        listFragment.add(fragment3);
 //        viewPager.setScanScroll(false); // 禁止左右滑动
         //ViewPager设置适配器
         viewPager.setAdapter(new BaseFragmentAdapter(getSupportFragmentManager(), listFragment));
         //设置ViewPage缓存界面数，默认为1
-        viewPager.setOffscreenPageLimit(3);
+//        viewPager.setOffscreenPageLimit(3);
         //ViewPager显示第一个Fragment
         viewPager.setCurrentItem(0);
 
@@ -187,7 +187,7 @@ public class Prod_WageMainActivity extends BaseActivity {
                         fragment1.findFun();
                         break;
                     case 1:
-                        fragment2.findFun();
+//                        fragment2.findFun();
                         break;
 //                    case 2:
 //                        fragment3.findFun();

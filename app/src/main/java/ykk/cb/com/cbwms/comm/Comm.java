@@ -378,4 +378,19 @@ public class Comm {
 		else return s;
 	}
 
+	/**
+	 * 比UUID还牛的随机生成数
+	 * 10位随机数，当前时间	组成
+	 */
+	public static String randomUUID() {
+		// 生产10位随机验证码
+		StringBuffer code = new StringBuffer();
+		Random rand = new Random();// 随机生成类
+		for (int i = 0; i < 10; i++) {
+			code.append(rand.nextInt(10));
+		}
+		rand = null;
+		return System.currentTimeMillis()+"-"+code.toString();
+	}
+
 }

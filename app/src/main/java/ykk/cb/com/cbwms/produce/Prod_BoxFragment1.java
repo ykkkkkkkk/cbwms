@@ -139,6 +139,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
     private boolean isNeedSave, isPass; // 点击封箱的时候需要保存
     private int countBoxNum = 0; // 记录箱数
     private JSKit js;
+    private String timesTamp; // 时间戳
 
     // 消息处理
     private Prod_BoxFragment1.MyHandler mHandler = new Prod_BoxFragment1.MyHandler(this);
@@ -206,6 +207,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
 //                        }
 //                        m.tvCount.setText("数量："+m.df.format(sum));
                         m.mAdapter.notifyDataSetChanged();
+                        m.timesTamp = m.user.getId()+"-"+Comm.randomUUID();
 //                        m.btnSave.setVisibility(View.GONE);
                         if (m.isNeedSave && m.isPass) {
                             m.isNeedSave = false;
@@ -467,6 +469,8 @@ public class Prod_BoxFragment1 extends BaseFragment {
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
 
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
+
         //实例化js对象
         js = new JSKit();
         // 初始化WebView 页面
@@ -627,6 +631,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                 mbr.setCountBoxNum(countBoxNum);
                 list.add(mbr);
             }
+            mbr.setTimestamp(timesTamp);
         }
         if(sumFqty == 0) {
             Comm.showWarnDialog(mContext,"请至少扫描一个物料条码！");
@@ -789,6 +794,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
      * 重置
      */
     private void reset(boolean isClear) {
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
         countBoxNum = 0;
         isNeedSave = false;
         isPass = false;
@@ -1768,7 +1774,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SAVE, result);
-                Log.e("run_save --> onResponse", result);
+                LogUtil.e("run_save --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1854,7 +1860,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(DELETE, result);
-                Log.e("run_delete --> onResponse", result);
+                LogUtil.e("run_delete --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1899,7 +1905,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(MODIFY, result);
-                Log.e("run_modifyStatus --> onResponse", result);
+                LogUtil.e("run_modifyStatus --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1940,7 +1946,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(MODIFY3, result);
-                Log.e("run_modifyBoxIdByBarcode --> onResponse", result);
+                LogUtil.e("run_modifyBoxIdByBarcode --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });
@@ -1984,7 +1990,7 @@ public class Prod_BoxFragment1 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(MODIFY_NUM, number);
-                Log.e("run_modifyNumber2 --> onResponse", result);
+                LogUtil.e("run_modifyNumber2 --> onResponse", result);
                 mHandler.sendMessage(msg);
             }
         });

@@ -106,6 +106,8 @@ public class MaterialBinningRecord implements Serializable {
     private int salOrderNoEntryId;
     /* 单据发货类型 （1、非整非拼，2、整单发货，3、拼单） */
     private char orderDeliveryType;
+    /* 时间戳 */
+    private String timestamp;
 
     // 临时字段
     private List<String> listBarcode; // 记录每行中扫的条码barcode
@@ -507,6 +509,14 @@ public class MaterialBinningRecord implements Serializable {
 
     public void setUnitName(String unitName) {
         this.unitName = unitName;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
 }

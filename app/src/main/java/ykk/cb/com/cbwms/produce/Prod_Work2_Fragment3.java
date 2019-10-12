@@ -56,8 +56,6 @@ import ykk.cb.com.cbwms.util.LogUtil;
  */
 public class Prod_Work2_Fragment3 extends BaseFragment {
 
-    @BindView(R.id.tv_process)
-    TextView tvProcess;
     @BindView(R.id.tv_wageType)
     TextView tvWageType;
     @BindView(R.id.tv_date)
@@ -96,7 +94,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
     private Prod_Work2MainActivity parent;
     private DecimalFormat df = new DecimalFormat("#.####");
     private int wageTypeId; // 工资类型id
-    private int procedureId; //  工序id
     private int workByTimeManagerId; // 计时项目id
     private boolean isButtonClick; // 是否点击按钮
 
@@ -176,15 +173,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     case UNSUCC3: // 查询分配的工序    返回
 
                         break;
-                    case SUCC4: // 查询工序     成功
-                        m.popDatasB = JsonUtil.strToList((String) msg.obj, Procedure.class);
-                        m.popupWindow_B();
-                        m.popWindowB.showAsDropDown(m.tvProcess);
-
-                        break;
-                    case UNSUCC4: // 查询工序    失败
-
-                        break;
                     case SUCC5: // 查询计时项目     成功
                         m.popDatasC = JsonUtil.strToList((String) msg.obj, WorkByTimeManager.class);
                         if(!m.isButtonClick) {
@@ -192,6 +180,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                             WorkByTimeManager wtm = m.popDatasC.get(0);
                             m.workByTimeManagerId = wtm.getId();
                             m.tvWtmName.setText(wtm.getWorkName()+"（"+m.df.format(wtm.getUnitPrice())+"元/小时）");
+                            m.run_findWrokRecordSumTime();
 
                         } else {
                             m.popupWindow_C();
@@ -270,7 +259,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         }
     }
 
-    @OnClick({ R.id.btn_save, R.id.tv_process, R.id.tv_wageType, R.id.tv_wtmName, R.id.tv_date, R.id.tv_deptSel, R.id.tv_write, R.id.tv_write2 })
+    @OnClick({ R.id.btn_save, R.id.tv_wageType, R.id.tv_wtmName, R.id.tv_date, R.id.tv_deptSel, R.id.tv_write, R.id.tv_write2 })
     public void onViewClicked(View view) {
         Bundle bundle = null;
         switch (view.getId()) {
@@ -282,17 +271,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     isButtonClick = false;
                     popupWindow_A();
                     popWindowA.showAsDropDown(tvWageType);
-                }
-
-                break;
-            case R.id.tv_process: // 选择工序
-                if(popDatasB == null || popDatasB.size() == 0) {
-                    isButtonClick = true;
-                    run_findProcedureList();
-                } else {
-                    isButtonClick = false;
-                    popupWindow_B();
-                    popWindowB.showAsDropDown(tvProcess);
                 }
 
                 break;
@@ -348,11 +326,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
     private boolean saveBefore() {
         if(getValues(tvDeptSel).length() == 0) {
             Comm.showWarnDialog(mContext, "请选择部门！");
-            return false;
-        }
-        String process = getValues(tvProcess);
-        if(process.length() == 0) {
-            Comm.showWarnDialog(mContext, "请选择工序！");
             return false;
         }
         if(wageTypeId == 0) {
@@ -521,111 +494,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         }
 
     }
-    /**
-     * 创建PopupWindowB 【查询工序列表】
-     */
-    private PopupWindow popWindowB;
-    private ListAdapter2 adapterB;
-    private List<Procedure> popDatasB;
-    private void popupWindow_B() {
-        if (null != popWindowB) {// 不为空就隐藏
-            popWindowB.dismiss();
-            return;
-        }
-//        btnSave.setVisibility(View.GONE);
-        // 获取自定义布局文件popupwindow_left.xml的视图
-        View popView = getLayoutInflater().inflate(R.layout.popup_list, null);
-        final ListView listView = (ListView) popView.findViewById(R.id.listView);
-
-        if (adapterB != null) {
-            adapterB.notifyDataSetChanged();
-        } else {
-            adapterB = new ListAdapter2(mContext, popDatasB);
-            listView.setAdapter(adapterB);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Procedure pd = popDatasB.get(position);
-                    procedureId = pd.getId();
-                    tvProcess.setText(pd.getProcedureName());
-                    run_findWrokRecordSumTime();
-
-                    popWindowB.dismiss();
-                }
-            });
-        }
-
-        // 创建PopupWindow实例,200,LayoutParams.MATCH_PARENT分别是宽度和高度
-        popWindowB = new PopupWindow(popView, tvProcess.getWidth(),
-                ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        // 设置动画效果
-        // popWindow4.setAnimationStyle(R.style.AnimationFade);
-        popWindowB.setBackgroundDrawable(new BitmapDrawable());
-        popWindowB.setOutsideTouchable(true);
-        popWindowB.setFocusable(true);
-//        popWindowB.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//            @Override
-//            public void onDismiss() {
-//                btnSave.setVisibility(View.VISIBLE);
-//            }
-//        });
-    }
-    /**
-     * 工序 适配器
-     */
-    private class ListAdapter2 extends BaseAdapter {
-
-        private Activity activity;
-        private List<Procedure> datas;
-
-        public ListAdapter2(Activity activity, List<Procedure> datas) {
-            this.activity = activity;
-            this.datas = datas;
-        }
-
-        @Override
-        public int getCount() {
-            if(datas == null) {
-                return 0;
-            }
-            return datas.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            if(datas == null) {
-                return null;
-            }
-            return datas.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View v, ViewGroup parent) {
-            ViewHolder holder = null;
-            if(v == null) {
-                holder = new ViewHolder();
-                v = activity.getLayoutInflater().inflate(R.layout.popup_list_item, null);
-                holder.tv_name = (TextView) v.findViewById(R.id.tv_name);
-
-                v.setTag(holder);
-            }else holder = (ViewHolder) v.getTag();
-
-            holder.tv_name.setText(datas.get(position).getProcedureName());
-
-            return v;
-        }
-
-        class ViewHolder{//listView中显示的组件
-            TextView tv_name;
-
-        }
-    }
 
     /**
      * 创建PopupWindowB 【查询计时项目】
@@ -655,6 +523,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     WorkByTimeManager wtm = popDatasC.get(position);
                     workByTimeManagerId = wtm.getId();
                     tvWtmName.setText(wtm.getWorkName()+"（"+df.format(wtm.getUnitPrice())+"元/小时）");
+                    run_findWrokRecordSumTime();
 
                     popWindowC.dismiss();
                 }
@@ -753,7 +622,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         workRecordNew.setDeptTime(parseDouble(getValues(tvWrite2)));
         workRecordNew.setCreateUserId(user.getId());
         workRecordNew.setLocationName("");
-        workRecordNew.setProcessId(procedureId);
+        workRecordNew.setProcessId(0);
         workRecordNew.setReportType("C"); // 工序汇报类型	 A：按位置汇报， B：按套汇报，C:个人计时
         workRecordNew.setInStockQty(0);
         workRecordNew.setWorkByTimeManagerId(workByTimeManagerId);
@@ -805,7 +674,7 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
         FormBody formBody = new FormBody.Builder()
                 .add("workDate", getValues(tvDate))
                 .add("workStaffId", String.valueOf(user.getStaffId()))
-                .add("processId", String.valueOf(procedureId))
+                .add("workByTimeManagerId", String.valueOf(workByTimeManagerId))
                 .build();
 
         Request request = new Request.Builder()
@@ -871,45 +740,6 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     return;
                 }
                 Message msg = mHandler.obtainMessage(SUCC3, result);
-                mHandler.sendMessage(msg);
-            }
-        });
-    }
-
-    /**
-     * 查询工序列表
-     */
-    private void run_findProcedureList() {
-        showLoadDialog("加载中...");
-        String mUrl = getURL("procedure/findListByParam");
-        FormBody formBody = new FormBody.Builder()
-//                .add("billDateBegin", "2019-05-10")
-                .build();
-
-        Request request = new Request.Builder()
-                .addHeader("cookie", getSession())
-                .url(mUrl)
-                .post(formBody)
-                .build();
-
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                mHandler.sendEmptyMessage(UNSUCC4);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                ResponseBody body = response.body();
-                String result = body.string();
-                LogUtil.e("run_findProcedureList --> onResponse", result);
-                if (!JsonUtil.isSuccess(result)) {
-                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
-                    mHandler.sendMessage(msg);
-                    return;
-                }
-                Message msg = mHandler.obtainMessage(SUCC4, result);
                 mHandler.sendMessage(msg);
             }
         });

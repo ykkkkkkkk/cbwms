@@ -182,6 +182,13 @@
 	            LODOP.SET_PRINT_STYLEA(0, "FontName", "微软雅黑");
 	            LODOP.SET_PRINT_STYLEA(0, "FontSize", "8");
 	            LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+				
+				//打印公司信息图片
+				var imageHeight = totalHeight + 3;
+				var imageH = imageHeight + "mm";
+				LODOP.ADD_PRINT_IMAGE(imageH,"1mm","118mm","16mm","<img border='0' src='/cbwms/static/logo/labelImage.png'/>");
+				LODOP.SET_PRINT_STYLEA(0,"Stretch",2);//按原图比例(不变形)缩放模式
+				
 	            //LODOP.PREVIEW();
 	            LODOP.PRINT();
 	        }

@@ -14,6 +14,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -65,10 +67,20 @@ public abstract class BaseFragment extends Fragment {
 		UncaughtException.getInstance().setContext(parentActivity);
 		mBinder = ButterKnife.bind(this, view);
 
+//		initView();
+//		initData();
+//		setListener();
+		return view;
+	}
+
+	// 因为使用了Kotlin的原因，ButterKnife注解不用写了，需要以下这种写法，他们才能得到值
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
 		initView();
 		initData();
 		setListener();
-		return view;
 	}
 
 	/**

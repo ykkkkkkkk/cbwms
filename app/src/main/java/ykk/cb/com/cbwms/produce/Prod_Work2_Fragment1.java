@@ -21,6 +21,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -34,15 +35,12 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
-import ykk.cb.com.cbwms.comm.Consts;
-import ykk.cb.com.cbwms.model.AllotWork;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.MtlPriceTypeProcedureTemp;
 import ykk.cb.com.cbwms.model.Procedure;
@@ -75,7 +73,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
     ListView listView;
 
     private Prod_Work2_Fragment1 context = this;
-    private static final int SEL_DEPT = 10;
+    private static final int SEL_DEPT = 10, SEL_CONFIRM = 11;
     private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
     private static final int RESULT_NUM = 1;
     private Department department;
@@ -164,10 +162,10 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                     case SUCC3: // 查询工资类型  返回
                         m.popDatasA = JsonUtil.strToList((String) msg.obj, WageType.class);
                         if(!m.isButtonClick) {
-                            // 计时的不显示
-                            for(int i=0; i < m.popDatasA.size(); i++) {
+                            // 集体和计时的不显示
+                            for(int i=m.popDatasA.size()-1; i >= 0; i--){
                                 WageType wt = m.popDatasA.get(i);
-                                if(wt.getWtName().indexOf("时") > -1) {
+                                if( wt.getWtName().indexOf("时") > -1) {
                                     m.popDatasA.remove(i);
                                     break;
                                 }
@@ -325,14 +323,14 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                     Comm.showWarnDialog(mContext, "请选择部门，再查询！");
                     return;
                 }
-                if(popDatasC == null || popDatasC.size() == 0) {
-                    isButtonClick = true;
+//                if(popDatasC == null || popDatasC.size() == 0) {
+//                    isButtonClick = true;
                     run_findMtlPriceListByProdOrder();
-                } else {
-                    isButtonClick = false;
-                    popupWindow_C();
-                    popWindowC.showAsDropDown(tvMtlPriceType);
-                }
+//                } else {
+//                    isButtonClick = false;
+//                    popupWindow_C();
+//                    popWindowC.showAsDropDown(tvMtlPriceType);
+//                }
 
                 break;
             case R.id.tv_process: // 选择工序
@@ -388,10 +386,15 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_save: // 保存
-                if (!saveBefore()) {
-                    return;
-                }
-                run_addList();
+                List<WorkRecordNew> list = saveBefore();
+                if (list == null) return;
+                // 打开确认页面
+                bundle = new Bundle();
+                bundle.putString("workDate", getValues(tvDate));
+                bundle.putSerializable("list", (Serializable) list);
+                bundle.putString("methodName", "addList");
+                showForResult(Prod_Work2_ConfirmDialog.class, SEL_CONFIRM, bundle);
+//                run_addList(strJson);
 
                 break;
             case R.id.btn_clone: // 重置
@@ -434,8 +437,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请选择计价类型，再查询！");
             return;
         }
-        String process = getValues(tvProcess);
-        if(process.length() == 0) {
+        if(getValues(tvProcess).length() == 0) {
             Comm.showWarnDialog(mContext, "请选择工序，再查询！");
             return;
         }
@@ -446,19 +448,50 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
     /**
      * 选择保存之前的判断
      */
-    private boolean saveBefore() {
+    private List<WorkRecordNew> saveBefore() {
         if (checkDatas == null || checkDatas.size() == 0) {
             Comm.showWarnDialog(mContext, "请先查询数据！");
-            return false;
+            return null;
         }
         for(int i=0; i<checkDatas.size(); i++) {
             ProdNodeNew node = checkDatas.get(i);
             if(node.getMlevel() == 1 && node.getWorkQty() > 0 && node.getWorkQty() > node.getUseableQty()) {
                 Comm.showWarnDialog(mContext, "【"+node.getMtlPriceTypeName()+"】，"+node.getLocationName()+"不能大于可用数，可用数"+node.getUseableQty()+"！");
-                return false;
+                return null;
             }
         }
-        return true;
+        getUserInfo();
+
+        List<WorkRecordNew> list = new ArrayList<>();
+        for (int i = 0, size = checkDatas.size(); i < size; i++) {
+            ProdNodeNew node = checkDatas.get(i);
+            if( node.getMlevel() == 1 && node.getWorkQty() > 0) {
+                WorkRecordNew workRecordNew = new WorkRecordNew();
+//                workRecordNew.setDeptId(department.getFitemID());
+                workRecordNew.setDeptId(user.getDepartment().getFitemID());
+                workRecordNew.setParentDeptId(department.getFitemID()); // 上级部门
+                workRecordNew.setWageTypeId(wageTypeId);
+                workRecordNew.setMtlPriceTypeId(node.getMtlPriceTypeId());
+                workRecordNew.setMtlPriceTypeName(node.getMtlPriceTypeName());
+                workRecordNew.setLocationId(node.getLocationId());
+                workRecordNew.setWorkStaffId(user.getStaffId());
+                workRecordNew.setWorkDate(getValues(tvDate));
+                workRecordNew.setWorkQty(node.getWorkQty());
+                workRecordNew.setWorkQty2(node.getWorkQty());
+                workRecordNew.setCreateUserId(user.getId());
+                workRecordNew.setLocationName(node.getLocationName());
+                workRecordNew.setProcessId(procedureId);
+                workRecordNew.setReportType("A"); // 工序汇报类型 A：按位置汇报 B：按套汇报
+                workRecordNew.setInStockQty(node.getInStockQty());
+
+                list.add(workRecordNew);
+            }
+        }
+        if(list.size() == 0) {
+            Comm.showWarnDialog(mContext,"请输入数量完成报工！");
+            return null;
+        }
+        return list;
     }
 
     @Override
@@ -503,6 +536,18 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 }
 
                 break;
+            case SEL_CONFIRM: // 确认报工页面返回
+                if (resultCode == Activity.RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    if (bundle != null) {
+                        isSave = true;
+                        curPos = -1;
+                        toasts("已保存数据✔");
+                        run_smGetDatas();
+                    }
+                }
+
+                break;
         }
     }
 
@@ -531,7 +576,15 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     WageType wt = popDatasA.get(position);
-                    wageTypeId = wt.getId();
+                    int wtId = wt.getId();
+                    if(wtId !=  wageTypeId) {
+                        // 每次变化都会清空
+                        tvMtlPriceType.setText("");
+                        tvProcess.setText("");
+                        checkDatas.clear();
+                        mAdapter.notifyData(-1, checkDatas);
+                    }
+                    wageTypeId = wtId;
                     tvWageType.setText(wt.getWtName());
 
                     popWindowA.dismiss();
@@ -825,42 +878,10 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
     /**
      * 保存方法
      */
-    private void run_addList() {
-        getUserInfo();
-
-        List<WorkRecordNew> list = new ArrayList<>();
-        for (int i = 0, size = checkDatas.size(); i < size; i++) {
-            ProdNodeNew node = checkDatas.get(i);
-            if( node.getMlevel() == 1 && node.getWorkQty() > 0) {
-                WorkRecordNew workRecordNew = new WorkRecordNew();
-                workRecordNew.setDeptId(department.getFitemID());
-                workRecordNew.setWageTypeId(wageTypeId);
-                workRecordNew.setMtlPriceTypeId(node.getMtlPriceTypeId());
-                workRecordNew.setMtlPriceTypeName(node.getMtlPriceTypeName());
-                workRecordNew.setLocationId(node.getLocationId());
-                workRecordNew.setWorkStaffId(user.getStaffId());
-                workRecordNew.setWorkDate(getValues(tvDate));
-                workRecordNew.setWorkQty(node.getWorkQty());
-                workRecordNew.setWorkQty2(node.getWorkQty());
-                workRecordNew.setCreateUserId(user.getId());
-                workRecordNew.setLocationName(node.getLocationName());
-                workRecordNew.setProcessId(procedureId);
-                workRecordNew.setReportType("A"); // 工序汇报类型 A：按位置汇报 B：按套汇报
-                workRecordNew.setInStockQty(node.getInStockQty());
-
-                list.add(workRecordNew);
-            }
-        }
-        if(list.size() == 0) {
-            Comm.showWarnDialog(mContext,"请输入数量完成报工！");
-            return;
-        }
-
+    private void run_addList(String strJson) {
         showLoadDialog("保存中...");
-        String mJson = JsonUtil.objectToString(list);
-        RequestBody body = RequestBody.create(Consts.JSON, mJson);
         FormBody formBody = new FormBody.Builder()
-                .add("strJson", mJson)
+                .add("strJson", strJson)
                 .build();
 
         String mUrl = getURL("workRecordNew/addList");
@@ -1029,6 +1050,8 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("reportType","A") // 工序汇报类型 A：按位置汇报 B：按套汇报
+                .add("wageTypeId", String.valueOf(wageTypeId)) // 工作类型对应的工序
+//                .add("wageTypeName", "个人计件") // 只查询个人计件的工序
                 .add("staffId", String.valueOf(user.getStaffId()))
                 .build();
 

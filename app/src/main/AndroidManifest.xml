@@ -289,6 +289,10 @@
         <activity
             android:name=".produce.Prod_WageMainActivity"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_Work2_ConfirmDialog"
+            android:theme="@style/dialogStyle"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 销售模块 -->

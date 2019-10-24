@@ -41,6 +41,7 @@ public class WorkRecordNew implements Serializable {
 	private double price; // 单价
 	private double money; //金额
 	private String wageTypeName; // 工资类型名称
+	private int parentDeptId; // 上级部门
 
 	public WorkRecordNew() {
 		super();
@@ -308,6 +309,14 @@ public class WorkRecordNew implements Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public int getParentDeptId() {
+		return parentDeptId;
+	}
+
+	public void setParentDeptId(int parentDeptId) {
+		this.parentDeptId = parentDeptId;
 	}
 
 

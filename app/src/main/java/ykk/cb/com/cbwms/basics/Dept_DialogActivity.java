@@ -212,7 +212,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("isAll", String.valueOf(isAll))
                 .add("inStockDate", inStockDate != null ? inStockDate : "") // 生产入库日期
-                .add("columnName","Department_Number") // 排序的字段
+                .add("columnName","d1.Department_Number") // 排序的字段
                 .add("sortWay","ASC") // 升序降序
                 .add("limit", String.valueOf(limit))
                 .add("pageSize", "30")

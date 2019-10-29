@@ -14,6 +14,7 @@ import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyMainActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_K3SearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_ApplyActivity;
 import ykk.cb.com.cbwms.entrance.page4.Allot_PickingListMainActivity;
+import ykk.cb.com.cbwms.entrance.page4.InventoryNow2SearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.InventoryNowSearchActivity;
 import ykk.cb.com.cbwms.entrance.page4.StevedoreActivity;
 
@@ -36,7 +37,8 @@ public class MainTabFragment4 extends BaseFragment {
 
                 break;
             case R.id.relative2: // 库存查询
-                show(InventoryNowSearchActivity.class, null);
+//                show(InventoryNowSearchActivity.class, null);
+                show(InventoryNow2SearchActivity.class, null);
                 break;
             case R.id.relative3: // 调拨查询
                show(Allot_K3SearchActivity.class, null);

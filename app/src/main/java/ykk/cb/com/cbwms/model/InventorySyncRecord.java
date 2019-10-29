@@ -52,6 +52,10 @@ public class InventorySyncRecord implements Serializable {
 
 	// 临时字段，不存表
 	private String stockName;
+	private String mtlNumber;
+	private String mtlName;
+	private String unitName;
+	private double barcodeQty; // 条码数
 
 	public InventorySyncRecord() {
 		super();
@@ -198,6 +202,38 @@ public class InventorySyncRecord implements Serializable {
 
 	public void setStockName(String stockName) {
 		this.stockName = stockName;
+	}
+
+	public String getMtlNumber() {
+		return mtlNumber;
+	}
+
+	public void setMtlNumber(String mtlNumber) {
+		this.mtlNumber = mtlNumber;
+	}
+
+	public String getMtlName() {
+		return mtlName;
+	}
+
+	public void setMtlName(String mtlName) {
+		this.mtlName = mtlName;
+	}
+
+	public double getBarcodeQty() {
+		return barcodeQty;
+	}
+
+	public void setBarcodeQty(double barcodeQty) {
+		this.barcodeQty = barcodeQty;
+	}
+
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
 	}
 
 }

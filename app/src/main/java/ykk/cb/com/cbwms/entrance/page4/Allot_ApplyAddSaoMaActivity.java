@@ -124,6 +124,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
     private int isVMI; // 是否为VMI的单
     private StringBuffer strBarcode_Qty = new StringBuffer();
     private List<Material> curListMtl;
+    private char isTransition; // 是否过渡仓库，Y:是，N：否
 
 
     // 消息处理
@@ -681,6 +682,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                     inStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
                     tvInStockSel.setText(inStock.getfName());
+                    isTransition = inStock.getIsTransition();
                 }
 
                 break;
@@ -927,6 +929,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         String mUrl = getURL("barCodeTable/findBarcodeByMaterial");
         FormBody formBody = new FormBody.Builder()
                 .add("barcode", val)
+                .add("isTransition", String.valueOf(isTransition)) // 是否过渡仓库，Y:是，N：否
                 .build();
 
         Request request = new Request.Builder()

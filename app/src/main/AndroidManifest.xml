@@ -185,6 +185,9 @@
             android:name=".entrance.page4.InventoryNowMtlIdDialog"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".entrance.page4.InventoryNow2SearchActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 设置页面用到的界面 -->

@@ -247,6 +247,11 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         break;
                     case SAOMA: // 扫码之后
                         m.mtlBarcode = m.getValues(m.etMtlCode);
+                        // 调出仓库判断
+                        if(m.outStock == null || m.getValues(m.tvOutStockSel).length() == 0) {
+                            Comm.showWarnDialog(m.context,"请选择调出仓库！");
+                            return;
+                        }
                         // 执行查询方法
                         m.run_smGetDatas(m.mtlBarcode);
 
@@ -682,7 +687,6 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                     inStock = (Stock) data.getSerializableExtra("obj");
                     Log.e("onActivityResult --> SEL_IN_STOCK", inStock.getfName());
                     tvInStockSel.setText(inStock.getfName());
-                    isTransition = inStock.getIsTransition();
                 }
 
                 break;
@@ -704,6 +708,15 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                         tvSupplierSel.setText("");
                     }
                     tvOutStockSel.setText(outStock.getfName());
+                    String isYn = isNULLS(outStock.getIsTransition());
+                    isTransition = isYn.equals("Y") ? 'Y' : 'N';
+                    // 如果换了调出仓库，就清空数据
+                    if(checkDatas.size() > 0) {
+                        checkDatas.clear();
+                        listBarcode.clear();
+                        strBarcode_Qty.setLength(0);
+                        mAdapter.notifyDataSetChanged();
+                    }
                 }
 
                 break;
@@ -805,6 +818,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 .add("strBarcode_Qty", strBarcode_Qty.toString())
                 .add("userId", String.valueOf(user.getId()))
                 .add("userName", user.getUsername())
+                .add("isTransition", String.valueOf(isTransition))
                 .build();
 
         Request request = new Request.Builder()

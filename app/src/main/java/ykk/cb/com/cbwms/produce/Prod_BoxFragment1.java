@@ -600,7 +600,9 @@ public class Prod_BoxFragment1 extends BaseFragment {
         int size = checkDatas.size();
         StringBuilder json = new StringBuilder();
         String custName = getValues(tvCustSel).replace("客户：", "");
-        json.append("{\"boxCount\":\""+countBoxNum+"\",\"printNum\":\""+printNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
+        // 得到项目下的图片logo
+        String imgUrl = getURL("static/logo/labelImage.png");
+        json.append("{\"imgUrl\":\""+imgUrl+"\",\"boxCount\":\""+countBoxNum+"\",\"printNum\":\""+printNum+"\",\"date\":\""+Comm.getSysDate(7)+"\",\"boxNumber\":\""+boxBarCode.getBarCode()+"\",\"custName\":\""+Comm.getRealCustName(custName)+"\",\"items\":");
         json.append("[");
         for(int i=0;i<size;i++){
             MaterialBinningRecord m = checkDatas.get(i);

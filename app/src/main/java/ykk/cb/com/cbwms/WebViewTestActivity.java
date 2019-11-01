@@ -105,7 +105,7 @@ public class WebViewTestActivity extends AppCompatActivity {
         @JavascriptInterface
         public String getLodopAddress() {
             SharedPreferences spfConfig = getSharedPreferences(getResources().getString(R.string.saveConfig), Context.MODE_PRIVATE);
-            String address = spfConfig.getString("lodopAddress", "http://192.168.3.213:8008/CLodopfuncs.js");
+            String address = spfConfig.getString("lodopAddress", "http://192.168.3.166:8008/CLodopfuncs.js");
             return address;
         }
 
@@ -113,7 +113,7 @@ public class WebViewTestActivity extends AppCompatActivity {
         @SuppressLint("JavascriptInterface")
         @JavascriptInterface
         public String showMsg(String msg) {
-            return "http://192.168.3.213:8008/CLodopfuncs.js";
+            return "http://192.168.3.166:8008/CLodopfuncs.js";
         }
     }
 

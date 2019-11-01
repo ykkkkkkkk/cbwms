@@ -61,13 +61,19 @@ class InventoryNow2SearchActivity : BaseActivity() {
 
                 when (msg.what) {
                     m.SUCC1 -> { // 成功
+                        m.listDatas.clear()
                         val obj = JsonUtil.strToObject(msg.obj as String, InventorySyncRecord::class.java)
                         m.listDatas.add(obj)
                         m.mAdapter!!.notifyDataSetChanged()
                     }
                     m.UNSUCC1 -> { // 数据加载失败！
                         m.mAdapter!!.notifyDataSetChanged()
-                        val errMsg = JsonUtil.strToString(msg.obj as String)
+                        var errMsg: String? = null
+                        if(msg.obj == null) {
+                            errMsg = "服务器超时，请重试！"
+                        } else {
+                            errMsg = JsonUtil.strToString(msg.obj as String)
+                        }
                         m.toasts(errMsg)
                     }
                     m.SETFOCUS -> { // 当弹出其他窗口会抢夺焦点，需要跳转下，才能正常得到值
@@ -132,7 +138,6 @@ class InventoryNow2SearchActivity : BaseActivity() {
                     Comm.showWarnDialog(context,"请扫码条码！")
                     return;
                 }
-                listDatas.clear()
                 run_findInventoryBySaoMa()
             }
             R.id.tv_stockName -> {// 选择仓库

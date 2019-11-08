@@ -43,6 +43,7 @@ class InventoryNow2SearchActivity : BaseActivity() {
     private val listDatas = ArrayList<InventorySyncRecord>()
     private var barcode: String? = null
     private var isTextChange: Boolean = false // 是否进入TextChange事件
+    private var stock: Stock? = null
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -184,6 +185,7 @@ class InventoryNow2SearchActivity : BaseActivity() {
         showLoadDialog("加载中...")
         val mUrl = getURL("inventorySyncRecord/findInventoryBySaoMa")
         val formBody = FormBody.Builder()
+                .add("stockId", stock!!.getfStockid().toString())
                 .add("stockName", getValues(tv_stockName))
                 .add("barcode", barcode)
                 .build()
@@ -222,8 +224,8 @@ class InventoryNow2SearchActivity : BaseActivity() {
         when (requestCode) {
             SEL_STOCK -> { // 选中仓库
                 if (resultCode == Activity.RESULT_OK) {
-                    val stock = data!!.getSerializableExtra("obj") as Stock
-                    tv_stockName.setText(stock.getfName())
+                    stock = data!!.getSerializableExtra("obj") as Stock
+                    tv_stockName.setText(stock!!.getfName())
                 }
             }
             BaseFragment.CAMERA_SCAN // 扫一扫成功  返回

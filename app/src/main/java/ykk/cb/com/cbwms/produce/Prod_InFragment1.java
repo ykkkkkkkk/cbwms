@@ -139,6 +139,7 @@ public class Prod_InFragment1 extends BaseFragment {
     private View curRadio;
     private int tabIndex = 1; // 1：无源单 ，2：有源单
     private DecimalFormat df = new DecimalFormat("#.####");
+    private String timesTamp; // 时间戳
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -408,12 +409,6 @@ public class Prod_InFragment1 extends BaseFragment {
         curRadio = radio1;
         hideSoftInputMode(mContext, etMtlCode);
         getUserInfo();
-//        mHandler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                setFocusable(etMtlCode); // 物料代码获取焦点
-//            }
-//        },800);
 
         // 得到默认仓库的值
         defaultStockVal = getXmlValues(spf(getResStr(R.string.saveSystemSet)), EnumDict.STOCKANDPOSTIONTDEFAULTSOURCEOFVALUE.name()).charAt(0);
@@ -423,6 +418,7 @@ public class Prod_InFragment1 extends BaseFragment {
 
             if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
         }
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
     }
 
     @Override
@@ -711,6 +707,7 @@ public class Prod_InFragment1 extends BaseFragment {
      */
     private void reset(char flag) {
         // 清空物料信息
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
         etMtlCode.setText(""); // 物料代码
         mtlBarcode = null;
 //        setEnables(tvInOrg, R.drawable.back_style_blue, true);
@@ -1360,6 +1357,7 @@ public class Prod_InFragment1 extends BaseFragment {
             record.setStrBarcodes(sr2.getStrBarcodes());
             record.setKdAccount(user.getKdAccount());
             record.setKdAccountPassword(user.getKdAccountPassword());
+            record.setTempTimesTamp(timesTamp);
 
             list.add(record);
         }

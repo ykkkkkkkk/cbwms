@@ -32,6 +32,8 @@ public class ScanningRecord implements Serializable {
     private int createUserId;            //创建人id
     private String createUserName;        //创建人
     private char sourceType;            // 来源单据类型（1.物料，2.采购订单，3.收料通知单，4.生产任务单，5.销售订货单，6.拣货单，7.生产装箱，8.采购收料任务单，9.复核单, A.装卸单）
+    private String createDate;			// 创建日期
+    private String timesTamp;			// 时间戳
     // 新加的
     private String receiveOrgFnumber;
     private String purOrgFnumber;
@@ -78,6 +80,7 @@ public class ScanningRecord implements Serializable {
     private String kdAccount; // k3 用户的密码
     private String kdAccountPassword; // k3 用户的密码
     private ScanningRecordTok3 srTok3; // 提交到k3的字段
+    private String tempTimesTamp; // 用于插入到临时表
 
     private Department department;
     private Customer customer;
@@ -685,6 +688,30 @@ public class ScanningRecord implements Serializable {
 
     public void setFplanStartDate(String fplanStartDate) {
         this.fplanStartDate = fplanStartDate;
+    }
+
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
+    }
+
+    public String getTimesTamp() {
+        return timesTamp;
+    }
+
+    public void setTimesTamp(String timesTamp) {
+        this.timesTamp = timesTamp;
+    }
+
+    public String getTempTimesTamp() {
+        return tempTimesTamp;
+    }
+
+    public void setTempTimesTamp(String tempTimesTamp) {
+        this.tempTimesTamp = tempTimesTamp;
     }
 
 

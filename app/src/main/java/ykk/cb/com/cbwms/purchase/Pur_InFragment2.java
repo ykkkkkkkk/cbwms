@@ -120,6 +120,7 @@ public class Pur_InFragment2 extends BaseFragment {
     private List<String> fbillNoList = new ArrayList<>(); // 记录采购入库单号
     private int countSaveSum; // 计算保存的总条数
     private String suppAndBillKey; // 记录当前供应商和单据类型合并的值
+    private String timesTamp; // 时间戳
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -452,6 +453,7 @@ public class Pur_InFragment2 extends BaseFragment {
 
             if(user.getStockPos() != null) defaltStockPos = user.getStockPos();
         }
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
     }
 
     @Override
@@ -670,6 +672,7 @@ public class Pur_InFragment2 extends BaseFragment {
      */
     private void reset(char flag) {
         // 清空物料信息
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
         etMtlNo.setText(""); // 物料代码
 
         setEnables(tvSupplierSel, R.drawable.back_style_blue,true);
@@ -1201,6 +1204,7 @@ public class Pur_InFragment2 extends BaseFragment {
             record.setStrBarcodes(sr2.getStrBarcodes());
             record.setKdAccount(user.getKdAccount());
             record.setKdAccountPassword(user.getKdAccountPassword());
+            record.setTempTimesTamp(timesTamp);
 
             list.add(record);
         }

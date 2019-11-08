@@ -162,6 +162,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
     private boolean isFold; // 是否折叠
     private DecimalFormat df = new DecimalFormat("#.####");
     private String receiveAddress; // 收货地址
+    private String timesTamp; // 时间戳
 
     // 消息处理
     private Sal_OutFragment2B.MyHandler mHandler = new Sal_OutFragment2B.MyHandler(this);
@@ -455,6 +456,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
         if(stockStaff != null) tvStockStaff.setText(stockStaff.getName());
 
         tvSalDate.setText(Comm.getSysDate(7));
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
     }
 
     @Override
@@ -839,6 +841,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
      */
     private void reset(char flag) {
         // 清空物料信息
+        timesTamp = user.getId()+"-"+Comm.randomUUID();
         etBoxCode.setText(""); // 物料代码
         tvCustSel.setText("客户：");
         customer = null;
@@ -1356,6 +1359,7 @@ public class Sal_OutFragment2B extends BaseFragment implements IFragmentExec {
             record.setSrTok3(sr2.getSrTok3());
             record.setLeafNumber(sr2.getLeafNumber());
             record.setLeafNumber2(sr2.getLeafNumber2());
+            record.setTempTimesTamp(timesTamp);
 //            record.setCoveQty(sr2.getCoveQty());
 
             list.add(record);

@@ -819,6 +819,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
                 .add("userId", String.valueOf(user.getId()))
                 .add("userName", user.getUsername())
                 .add("isTransition", String.valueOf(isTransition))
+                .add("stockId", String.valueOf(outStock.getfStockid()))
                 .build();
 
         Request request = new Request.Builder()
@@ -944,6 +945,7 @@ public class Allot_ApplyAddSaoMaActivity extends BaseActivity {
         FormBody formBody = new FormBody.Builder()
                 .add("barcode", val)
                 .add("isTransition", String.valueOf(isTransition)) // 是否过渡仓库，Y:是，N：否
+                .add("stockId", String.valueOf(outStock.getfStockid()))
                 .build();
 
         Request request = new Request.Builder()

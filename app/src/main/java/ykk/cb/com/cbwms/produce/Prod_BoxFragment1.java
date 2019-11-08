@@ -616,7 +616,6 @@ public class Prod_BoxFragment1 extends BaseFragment {
         mWebView.loadUrl("javascript:print("+json.toString()+")");
     }
 
-
     private void saveBefore() {
         if(boxBarCode == null) {
             Comm.showWarnDialog(mContext,"请先扫描箱码！");

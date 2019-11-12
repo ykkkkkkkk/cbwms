@@ -41,6 +41,7 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
+import ykk.cb.com.cbwms.model.AllotWork;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.MtlPriceTypeProcedureTemp;
 import ykk.cb.com.cbwms.model.Procedure;
@@ -74,7 +75,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
 
     private Prod_Work2_Fragment1 context = this;
     private static final int SEL_DEPT = 10, SEL_CONFIRM = 11;
-    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504;
+    private static final int SUCC1 = 200, UNSUCC1 = 500, SUCC2 = 201, UNSUCC2 = 501, SUCC3 = 202, UNSUCC3 = 502, SUCC4 = 204, UNSUCC4 = 504, SUCC5 = 205, UNSUCC5 = 505;
     private static final int RESULT_NUM = 1;
     private Department department;
     private List<ProdNodeNew> checkDatas = new ArrayList<>();
@@ -185,28 +186,30 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                     case UNSUCC3: // 查询工资类型    返回
 
                         break;
-                    case SUCC4: // 查询物料单价类型列表和工序     成功
+                    case SUCC4: // 查询工序     成功
+                        m.popDatasB = JsonUtil.strToList((String) msg.obj, AllotWork.class);
+                        m.popupWindow_B();
+                        m.popWindowB.showAsDropDown(m.tvProcess);
+
+                        break;
+                    case UNSUCC4: // 查询工序    失败
+                        errMsg = JsonUtil.strToString((String) msg.obj);
+                        if (m.isNULLS(errMsg).length() == 0) errMsg = "服务器超时，请重试！";
+                        Comm.showWarnDialog(m.mContext, errMsg);
+
+                        break;
+                    case SUCC5: // 查询物料单价类型列表    成功
                         m.popDatasC = JsonUtil.strToList((String) msg.obj, MtlPriceTypeProcedureTemp.class);
                         m.popupWindow_C();
                         m.popWindowC.showAsDropDown(m.tvMtlPriceType);
 
                         break;
-                    case UNSUCC4: // 查询物料单价类型列表和工序    失败
+                    case UNSUCC5: // 查询物料单价类型列表    失败
                         errMsg = JsonUtil.strToString((String) msg.obj);
                         if (m.isNULLS(errMsg).length() == 0) errMsg = "很抱歉，没能找到数据！！！";
                         Comm.showWarnDialog(m.mContext, errMsg);
 
                         break;
-//                    case SUCC4: // 查询工序     成功
-////                        m.popDatasB = JsonUtil.strToList((String) msg.obj, Procedure.class);
-//                        m.popDatasB = JsonUtil.strToList((String) msg.obj, AllotWork.class);
-//                        m.popupWindow_B();
-//                        m.popWindowB.showAsDropDown(m.tvProcess);
-//
-//                        break;
-//                    case UNSUCC4: // 查询工序    失败
-//
-//                        break;
                 }
             }
         }
@@ -318,38 +321,34 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 }
 
                 break;
+            case R.id.tv_process: // 选择工序
+                if(popDatasB == null || popDatasB.size() == 0) {
+                    isButtonClick = true;
+                    run_findProcedureList();
+                } else {
+                    isButtonClick = false;
+                    popupWindow_B();
+                    popWindowB.showAsDropDown(tvProcess);
+                }
+
+                break;
             case R.id.tv_mtlPriceType: // 选择物料单价类型
                 if(getValues(tvDeptSel).length() == 0) {
                     Comm.showWarnDialog(mContext, "请选择部门，再查询！");
                     return;
                 }
-//                if(popDatasC == null || popDatasC.size() == 0) {
-//                    isButtonClick = true;
-                    run_findMtlPriceListByProdOrder();
-//                } else {
-//                    isButtonClick = false;
-//                    popupWindow_C();
-//                    popWindowC.showAsDropDown(tvMtlPriceType);
-//                }
-
-                break;
-            case R.id.tv_process: // 选择工序
-                if(getValues(tvMtlPriceType).length() == 0 ) {
-                    Comm.showWarnDialog(mContext,"请选择计价类型！");
+                if(getValues(tvProcess).length() == 0 ) {
+                    Comm.showWarnDialog(mContext,"请选择工序！");
                     return;
                 }
-//                if(parseInt(user.getStaffId()) == 0 ) {
-//                    Comm.showWarnDialog(mContext,"请在PC端维护(用户与工序组合)信息！");
-//                    return;
-//                }
-//                if(popDatasB == null || popDatasB.size() == 0) {
-//                    isButtonClick = true;
-////                    run_findProcedureList();
-//                } else {
-//                    isButtonClick = false;
-                    popupWindow_B();
-                    popWindowB.showAsDropDown(tvProcess);
-//                }
+                if(popDatasC == null || popDatasC.size() == 0) {
+                    isButtonClick = true;
+                    run_findMtlPriceListByProdOrder();
+                } else {
+                    isButtonClick = false;
+                    popupWindow_C();
+                    popWindowC.showAsDropDown(tvMtlPriceType);
+                }
 
                 break;
             case R.id.tv_deptSel: // 选择部门
@@ -433,14 +432,14 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
             Comm.showWarnDialog(mContext, "请选择工资类型，在查询！");
             return;
         }
-        if(getValues(tvMtlPriceType).length() == 0) {
-            Comm.showWarnDialog(mContext, "请选择计价类型，再查询！");
-            return;
-        }
         if(getValues(tvProcess).length() == 0) {
             Comm.showWarnDialog(mContext, "请选择工序，再查询！");
             return;
         }
+//        if(getValues(tvMtlPriceType).length() == 0) {
+//            Comm.showWarnDialog(mContext, "请选择计价类型，再查询！");
+//            return;
+//        }
 
         run_smGetDatas();
     }
@@ -582,6 +581,8 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                         tvMtlPriceType.setText("");
                         tvProcess.setText("");
                         checkDatas.clear();
+                        popDatasB = null;
+                        popDatasC = null;
                         mAdapter.notifyData(-1, checkDatas);
                     }
                     wageTypeId = wtId;
@@ -661,8 +662,8 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
      */
     private PopupWindow popWindowB;
     private ListAdapter2 adapterB;
-    private List<Procedure> popDatasB;
-//    private List<AllotWork> popDatasB;
+//    private List<Procedure> popDatasB;
+    private List<AllotWork> popDatasB;
     private void popupWindow_B() {
         if (null != popWindowB) {// 不为空就隐藏
             popWindowB.dismiss();
@@ -682,12 +683,18 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Procedure pd = popDatasB.get(position);
-                    procedureId = pd.getId();
-                    tvProcess.setText(pd.getProcedureName());
-//                    AllotWork pd = popDatasB.get(position);
-//                    procedureId = pd.getProcedureId();
+//                    Procedure pd = popDatasB.get(position);
+//                    procedureId = pd.getId();
 //                    tvProcess.setText(pd.getProcedureName());
+                    AllotWork pd = popDatasB.get(position);
+                    int procedureId2 = pd.getProcedureId();
+                    if(procedureId > 0 && procedureId != procedureId2) {
+                        popDatasC = null;
+                        tvMtlPriceType.setText("");
+                        mtlPriceTypeId = null;
+                    }
+                    procedureId = procedureId2;
+                    tvProcess.setText(pd.getProcedureName());
 
                     popWindowB.dismiss();
                 }
@@ -715,9 +722,9 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
     private class ListAdapter2 extends BaseAdapter {
 
         private Activity activity;
-        private List<Procedure> datas;
+        private List<AllotWork> datas;
 
-        public ListAdapter2(Activity activity, List<Procedure> datas) {
+        public ListAdapter2(Activity activity, List<AllotWork> datas) {
             this.activity = activity;
             this.datas = datas;
         }
@@ -793,10 +800,7 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                     MtlPriceTypeProcedureTemp pd = popDatasC.get(position);
                     mtlPriceTypeId = pd.getMtlPriceTypeId();
                     tvMtlPriceType.setText(pd.getMtlPriceTypeName());
-                    // 联动工序
-                    popDatasB = pd.getListProcedure();
-                    popupWindow_B();
-                    popWindowB.showAsDropDown(tvProcess);
+                    run_smGetDatas();
 
                     popWindowC.dismiss();
                 }
@@ -926,7 +930,10 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("processId", String.valueOf(procedureId))
-                .add("mtlPriceTypeId", mtlPriceTypeId)
+                .add("mtlPriceTypeId", Comm.isNULLS(mtlPriceTypeId))
+                // 以下为参数是根据工序查询物料单价类型列表
+                .add("reportType","A") // 工序汇报类型 A：按位置汇报 B：按套汇报
+                .add("wageTypeId", String.valueOf(wageTypeId)) // 工资类型对应的工序
                 .build();
 
         Request request = new Request.Builder()
@@ -1000,59 +1007,61 @@ public class Prod_Work2_Fragment1 extends BaseFragment {
     /**
      * 查询工序列表
      */
-//    private void run_findProcedureList() {
-//        showLoadDialog("加载中...");
-////        String mUrl = getURL("procedure/findListByParam");
-//        String mUrl = getURL("allotWork/findProcedureListByStaff");
-//        FormBody formBody = new FormBody.Builder()
-//                .add("begDate", getValues(tvDate))
-//                .add("endDate", getValues(tvDate))
-//                .add("staffId", String.valueOf(user.getStaffId()))
-//                .build();
-//
-//        Request request = new Request.Builder()
-//                .addHeader("cookie", getSession())
-//                .url(mUrl)
-//                .post(formBody)
-//                .build();
-//
-//        Call call = okHttpClient.newCall(request);
-//        call.enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//                mHandler.sendEmptyMessage(UNSUCC4);
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                ResponseBody body = response.body();
-//                String result = body.string();
-//                LogUtil.e("run_findProcedureList --> onResponse", result);
-//                if (!JsonUtil.isSuccess(result)) {
-//                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
-//                    mHandler.sendMessage(msg);
-//                    return;
-//                }
-//                Message msg = mHandler.obtainMessage(SUCC4, result);
-//                mHandler.sendMessage(msg);
-//            }
-//        });
-//    }
+    private void run_findProcedureList() {
+        showLoadDialog("加载中...");
+//        String mUrl = getURL("procedure/findListByParam");
+        String mUrl = getURL("allotWork/findProcedureListByStaff");
+        FormBody formBody = new FormBody.Builder()
+                .add("begDate", getValues(tvDate))
+                .add("endDate", getValues(tvDate))
+                .add("staffId", String.valueOf(user.getStaffId()))
+                .add("deptId", String.valueOf(department.getFitemID()))
+                .add("wageTypeId", String.valueOf(wageTypeId))
+                .add("reportType", "A") // 按位置查询
+                .build();
+
+        Request request = new Request.Builder()
+                .addHeader("cookie", getSession())
+                .url(mUrl)
+                .post(formBody)
+                .build();
+
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                mHandler.sendEmptyMessage(UNSUCC4);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                ResponseBody body = response.body();
+                String result = body.string();
+                LogUtil.e("run_findProcedureList --> onResponse", result);
+                if (!JsonUtil.isSuccess(result)) {
+                    Message msg = mHandler.obtainMessage(UNSUCC4, result);
+                    mHandler.sendMessage(msg);
+                    return;
+                }
+                Message msg = mHandler.obtainMessage(SUCC4, result);
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
 
     /**
      * 查询物料单价类型列表和工序列表
      */
     private void run_findMtlPriceListByProdOrder() {
         showLoadDialog("加载中...");
-        String mUrl = getURL("prodInStock/findMtlPriceListByProdOrder");
+        String mUrl = getURL("prodInStock/findMtlPriceListByProdOrder2");
         FormBody formBody = new FormBody.Builder()
                 .add("deptNumber", department.getDepartmentNumber())
                 .add("billDateBegin", getValues(tvDate))
                 .add("billDateEnd", getValues(tvDate))
                 .add("reportType","A") // 工序汇报类型 A：按位置汇报 B：按套汇报
                 .add("wageTypeId", String.valueOf(wageTypeId)) // 工作类型对应的工序
-//                .add("wageTypeName", "个人计件") // 只查询个人计件的工序
-                .add("staffId", String.valueOf(user.getStaffId()))
+                .add("procedureId", String.valueOf(procedureId)) // 工作类型对应的工序
                 .build();
 
         Request request = new Request.Builder()

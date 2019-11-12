@@ -103,6 +103,27 @@
             android:layout_height="match_parent"
             android:ems="2"
             android:gravity="center"
+            android:text="工序"
+            android:textColor="#000000"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_process"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/back_style_blue"
+            android:drawableRight="@drawable/xiala3"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="2"
+            android:layout_marginLeft="@dimen/_3dp"
+            android:gravity="center"
             android:text="计价类型"
             android:textColor="#000000"
             android:textSize="12sp" />
@@ -118,26 +139,6 @@
             android:textColor="@color/black"
             android:textSize="@dimen/_12sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/_3dp"
-            android:ems="2"
-            android:gravity="center"
-            android:text="工序"
-            android:textColor="#000000"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_process"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/back_style_blue"
-            android:drawableRight="@drawable/xiala3"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_12sp" />
     </LinearLayout>
 
     <TextView

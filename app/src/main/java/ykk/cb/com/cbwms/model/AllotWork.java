@@ -23,6 +23,8 @@ public class AllotWork implements Serializable {
 	private String procedureName; // 工序名称
 	private String staffName; // 员工名称
 	private String procedureNumber; // 工序编号
+	private String parentDeptNumber; // 上级部门代码
+	private String parentDeptName; // 上级部门名称
 
 	public AllotWork() {
 		super();
@@ -146,6 +148,22 @@ public class AllotWork implements Serializable {
 
 	public void setParentDeptId(int parentDeptId) {
 		this.parentDeptId = parentDeptId;
+	}
+
+	public String getParentDeptNumber() {
+		return parentDeptNumber;
+	}
+
+	public void setParentDeptNumber(String parentDeptNumber) {
+		this.parentDeptNumber = parentDeptNumber;
+	}
+
+	public String getParentDeptName() {
+		return parentDeptName;
+	}
+
+	public void setParentDeptName(String parentDeptName) {
+		this.parentDeptName = parentDeptName;
 	}
 
 }

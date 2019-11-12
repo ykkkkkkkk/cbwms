@@ -510,7 +510,7 @@ public class Prod_InFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_pass: // 审核
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (k3Number == null) {
                     Comm.showWarnDialog(mContext, "请先保存，然后审核！");
                     return;
@@ -519,7 +519,7 @@ public class Prod_InFragment1 extends BaseFragment {
 
                 break;
             case R.id.btn_clone: // 重置
-                hideKeyboard(mContext.getCurrentFocus());
+//                hideKeyboard(mContext.getCurrentFocus());
                 if (checkDatas != null && checkDatas.size() > 0) {
                     AlertDialog.Builder build = new AlertDialog.Builder(mContext);
                     build.setIcon(R.drawable.caution);

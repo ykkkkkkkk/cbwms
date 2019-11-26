@@ -321,7 +321,7 @@ public class Allot_PickingListFragment2 extends BaseFragment {
                     case SUCC5: // 判断是否存在返回
                         List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
                         for (int i = 0, len = listInventory.size(); i < len; i++) {
-                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
+                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncAvbQty());
                         }
                         m.mAdapter.notifyDataSetChanged();
 
@@ -784,7 +784,7 @@ public class Allot_PickingListFragment2 extends BaseFragment {
                     }
                     InventorySyncRecord inventory = new InventorySyncRecord();
                     inventory.setStockId(stkEntry.getOutStockId());
-                    inventory.setMaterialId(stkEntry.getMtlId());
+                    inventory.setMtlNumber(stkEntry.getMtlFnumber());
                     listInventory.add(inventory);
                 }
                 String strJson = JsonUtil.objectToString(listInventory);

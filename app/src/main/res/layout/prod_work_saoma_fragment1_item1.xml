@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+
+    <TextView
+        android:id="@+id/tv_row"
+        android:layout_width="@dimen/_32dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="行号"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_prodNo"
+        android:layout_width="@dimen/_78dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center|left"
+        android:text="生产单号"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_mtlName"
+        android:layout_width="160dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center|left"
+        android:text="物料名称"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_realWorkQty"
+        android:layout_width="78dp"
+        android:layout_height="@dimen/_46dp"
+        android:background="@drawable/back_style_blue2"
+        android:gravity="center"
+        android:paddingLeft="@dimen/_3dp"
+        android:text="报工数"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_prodQty"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="生产数"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_prodSeqNumber"
+        android:layout_width="98dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="生产序号/条码"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_delRow"
+        android:layout_width="@dimen/_46dp"
+        android:layout_height="@dimen/_46dp"
+        android:background="@drawable/ico_del"
+        android:gravity="center" />
+
+
+</LinearLayout>
+

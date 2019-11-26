@@ -91,7 +91,8 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
     private OkHttpClient okHttpClient = null;
     private User user;
     private Activity mContext;
-    private Prod_Work2MainActivity parent;
+//    private Prod_Work2MainActivity parent;
+    private Prod_WorkBySaoMaMainActivity parent;
     private DecimalFormat df = new DecimalFormat("#.####");
     private int wageTypeId; // 工资类型id
     private int workByTimeManagerId; // 计时项目id
@@ -232,7 +233,8 @@ public class Prod_Work2_Fragment3 extends BaseFragment {
                     .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
                     .build();
         }
-        parent = (Prod_Work2MainActivity) mContext;
+//        parent = (Prod_Work2MainActivity) mContext;
+        parent = (Prod_WorkBySaoMaMainActivity) mContext;
 
     }
 

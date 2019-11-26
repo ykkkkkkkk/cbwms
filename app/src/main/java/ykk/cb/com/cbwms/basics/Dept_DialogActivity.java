@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -33,7 +32,6 @@ import ykk.cb.com.cbwms.basics.adapter.Dept_DialogAdapter;
 import ykk.cb.com.cbwms.comm.BaseDialogActivity;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.model.Department;
-import ykk.cb.com.cbwms.model.Material;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
 import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
@@ -65,6 +63,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
     private boolean isRefresh, isLoadMore, isNextPage;
     private int isAll; // 是否加载所以供应商
     private boolean isCheck; // 是否多选
+    private String prodDate; // 生产日期
     private String inStockDate; // 入库日期
 
     // 消息处理
@@ -152,6 +151,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
             isAll = bundle.getInt("isAll");
             isCheck = bundle.getBoolean("isCheck");
             inStockDate = bundle.getString("inStockDate", "");
+            prodDate = bundle.getString("prodDate", "");
             btnConfirm.setVisibility(isCheck ? View.VISIBLE : View.GONE);
         }
 
@@ -212,6 +212,7 @@ public class Dept_DialogActivity extends BaseDialogActivity implements XRecycler
                 .add("fNumberAndName", getValues(etSearch).trim())
                 .add("isAll", String.valueOf(isAll))
                 .add("inStockDate", inStockDate != null ? inStockDate : "") // 生产入库日期
+                .add("prodDate", prodDate != null ? prodDate : "") // 生产订单日期
                 .add("columnName","d1.Department_Number") // 排序的字段
                 .add("sortWay","ASC") // 升序降序
                 .add("limit", String.valueOf(limit))

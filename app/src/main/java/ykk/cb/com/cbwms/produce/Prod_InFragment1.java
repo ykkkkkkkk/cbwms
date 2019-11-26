@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,10 +46,13 @@ import ykk.cb.com.cbwms.R;
 import ykk.cb.com.cbwms.basics.Dept_DialogActivity;
 import ykk.cb.com.cbwms.basics.StockPos_DialogActivity;
 import ykk.cb.com.cbwms.basics.Stock_DialogActivity;
+import ykk.cb.com.cbwms.basics.adapter.Cust_DialogAdapter;
+import ykk.cb.com.cbwms.comm.BaseDialogActivity;
 import ykk.cb.com.cbwms.comm.BaseFragment;
 import ykk.cb.com.cbwms.comm.Comm;
 import ykk.cb.com.cbwms.comm.Consts;
 import ykk.cb.com.cbwms.model.BarCodeTable;
+import ykk.cb.com.cbwms.model.Customer;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.EnumDict;
 import ykk.cb.com.cbwms.model.InventorySyncRecord;
@@ -66,6 +70,8 @@ import ykk.cb.com.cbwms.produce.adapter.Prod_InFragment1Adapter;
 import ykk.cb.com.cbwms.util.BigdecimalUtil;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
+import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter;
+import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView;
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity;
 
 public class Prod_InFragment1 extends BaseFragment {
@@ -319,7 +325,7 @@ public class Prod_InFragment1 extends BaseFragment {
                     case SUCC4: // 判断是否存在返回
                         List<InventorySyncRecord> listInventory = JsonUtil.strToList((String) msg.obj, InventorySyncRecord.class);
                         for (int i = 0, len = listInventory.size(); i < len; i++) {
-                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncQty());
+                            m.checkDatas.get(i).setInventoryFqty(listInventory.get(i).getSyncAvbQty());
                         }
                         m.mAdapter.notifyDataSetChanged();
 
@@ -594,7 +600,7 @@ public class Prod_InFragment1 extends BaseFragment {
                     }
                     InventorySyncRecord inventory = new InventorySyncRecord();
                     inventory.setStockId(sr2.getStockId());
-                    inventory.setMaterialId(sr2.getFitemId());
+                    inventory.setMtlNumber(sr2.getMtl().getfNumber());
                     listInventory.add(inventory);
                 }
                 String strJson = JsonUtil.objectToString(listInventory);
@@ -1595,5 +1601,195 @@ public class Prod_InFragment1 extends BaseFragment {
         closeHandler(mHandler);
         mBinder.unbind();
         super.onDestroyView();
+    }
+
+    /**
+     * 选择组织dialog
+     */
+    public static class Prod_WorkBySaoMaSelBarcodeDialog extends BaseDialogActivity implements XRecyclerView.LoadingListener {
+
+        @BindView(R.id.btn_close)
+        Button btnClose;
+        @BindView(R.id.xRecyclerView)
+        XRecyclerView xRecyclerView;
+        @BindView(R.id.et_search)
+        EditText etSearch;
+        @BindView(R.id.btn_search)
+        Button btnSearch;
+
+        private Prod_WorkBySaoMaSelBarcodeDialog context = this;
+        private static final int SUCC1 = 200, UNSUCC1 = 501;
+        private List<Customer> listDatas = new ArrayList<>();
+        private Cust_DialogAdapter mAdapter;
+        private OkHttpClient okHttpClient = new OkHttpClient();
+        private int limit = 1;
+        private boolean isRefresh, isLoadMore, isNextPage;
+
+        // 消息处理
+        private MyHandler mHandler = new MyHandler(this);
+
+        private static class MyHandler extends Handler {
+            private final WeakReference<Prod_WorkBySaoMaSelBarcodeDialog> mActivity;
+
+            public MyHandler(Prod_WorkBySaoMaSelBarcodeDialog activity) {
+                mActivity = new WeakReference<Prod_WorkBySaoMaSelBarcodeDialog>(activity);
+            }
+
+            public void handleMessage(Message msg) {
+                Prod_WorkBySaoMaSelBarcodeDialog m = mActivity.get();
+                if (m != null) {
+                    m.hideLoadDialog();
+                    switch (msg.what) {
+                        case SUCC1: // 成功
+                            List<Customer> list = JsonUtil.strToList2((String) msg.obj, Customer.class);
+                            m.listDatas.addAll(list);
+                            m.mAdapter.notifyDataSetChanged();
+
+                            if (m.isRefresh) {
+                                m.xRecyclerView.refreshComplete(true);
+                            } else if (m.isLoadMore) {
+                                m.xRecyclerView.loadMoreComplete(true);
+                            }
+
+                            m.xRecyclerView.setLoadingMoreEnabled(m.isNextPage);
+
+                            break;
+                        case UNSUCC1: // 数据加载失败！
+                            m.toasts("抱歉，没有加载到数据！");
+
+                            break;
+                    }
+                }
+            }
+
+        }
+
+        @Override
+        public int setLayoutResID() {
+            return R.layout.ab_cust_dialog;
+        }
+
+        @Override
+        public void initView() {
+            xRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+            xRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+            mAdapter = new Cust_DialogAdapter(context, listDatas);
+            xRecyclerView.setAdapter(mAdapter);
+            xRecyclerView.setLoadingListener(context);
+
+            xRecyclerView.setPullRefreshEnabled(false); // 上啦刷新禁用
+    //        xRecyclerView.setLoadingMoreEnabled(false); // 不显示下拉刷新的view
+
+            mAdapter.setOnItemClickListener(new BaseRecyclerAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int pos) {
+                    Customer cust = listDatas.get(pos-1);
+                    Intent intent = new Intent();
+                    intent.putExtra("obj", cust);
+                    context.setResult(RESULT_OK, intent);
+                    context.finish();
+                }
+            });
+        }
+
+        @Override
+        public void initData() {
+            initLoadDatas();
+        }
+
+
+        // 监听事件
+        @OnClick({R.id.btn_close, R.id.btn_search})
+        public void onViewClicked(View view) {
+            switch (view.getId()) {
+                case R.id.btn_close:
+                    closeHandler(mHandler);
+                    context.finish();
+
+                    break;
+                case R.id.btn_search:
+                    initLoadDatas();
+
+                    break;
+            }
+        }
+
+        private void initLoadDatas() {
+            limit = 1;
+            listDatas.clear();
+            run_okhttpDatas();
+        }
+
+        /**
+         * 通过okhttp加载数据
+         */
+        private void run_okhttpDatas() {
+            showLoadDialog("加载中...");
+            String mUrl = getURL("findCustomerByParam");
+            FormBody formBody = new FormBody.Builder()
+                    .add("fNumberAndName", getValues(etSearch).trim())
+                    .add("limit", String.valueOf(limit))
+                    .add("pageSize", "30")
+                    .build();
+
+            Request request = new Request.Builder()
+                    .addHeader("cookie", getSession())
+                    .url(mUrl)
+                    .post(formBody)
+                    .build();
+
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    mHandler.sendEmptyMessage(UNSUCC1);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    ResponseBody body = response.body();
+                    String result = body.string();
+                    if(!JsonUtil.isSuccess(result)) {
+                        mHandler.sendEmptyMessage(UNSUCC1);
+                        return;
+                    }
+                    isNextPage = JsonUtil.isNextPage(result, limit);
+
+                    Message msg = mHandler.obtainMessage(SUCC1, result);
+                    Log.e("Cust_DialogActivity --> onResponse", result);
+                    mHandler.sendMessage(msg);
+                }
+            });
+        }
+
+        @Override
+        public void onRefresh() {
+            isRefresh = true;
+            isLoadMore = false;
+            initLoadDatas();
+        }
+
+        @Override
+        public void onLoadMore() {
+            isRefresh = false;
+            isLoadMore = true;
+            limit += 1;
+            run_okhttpDatas();
+        }
+
+        @Override
+        public boolean onKeyDown(int keyCode, KeyEvent event) {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                closeHandler(mHandler);
+                context.finish();
+            }
+            return false;
+        }
+
+        @Override
+        protected void onDestroy() {
+            closeHandler(mHandler);
+            super.onDestroy();
+        }
     }
 }

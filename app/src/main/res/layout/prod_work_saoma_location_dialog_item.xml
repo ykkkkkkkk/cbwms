@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/tv_locationName"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="位置"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_num"
+        android:layout_width="88dp"
+        android:layout_height="@dimen/_46dp"
+        android:gravity="center"
+        android:text="数量"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_operation"
+        android:layout_width="@dimen/_36dp"
+        android:layout_height="@dimen/_36dp"
+        android:layout_margin="@dimen/_5dp"
+        android:background="@drawable/del_ico"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="12sp" />
+
+</LinearLayout>
+

@@ -48,7 +48,7 @@ public class InventoryNowMtlIdDialog extends BaseActivity {
     private OkHttpClient okHttpClient = new OkHttpClient();
     private InventoryNowMtlIdDialogAdapter mAdapter;
     private List<InventorySyncRecord> listDatas = new ArrayList<>();
-    private int mtlId; // 物料id
+    private String mtlNumber; // 物料代码
 
     // 消息处理
     private MyHandler mHandler = new MyHandler(this);
@@ -108,8 +108,8 @@ public class InventoryNowMtlIdDialog extends BaseActivity {
     private void bundle() {
         Bundle bundle = context.getIntent().getExtras();
         if (bundle != null) {
-            mtlId = bundle.getInt("mtlId");
-            String mtlNumber = bundle.getString("mtlNumber","");
+            int mtlId = bundle.getInt("mtlId");
+            mtlNumber = bundle.getString("mtlNumber","");
             String mtlName = bundle.getString("mtlName","");
             tvMtlName.setText(Html.fromHtml("物料代码：<font color='#000000'>"+ mtlNumber +"</font><br>物料名称：<font color='#000000'>"+ mtlName +"</font>"));
         }
@@ -143,7 +143,7 @@ public class InventoryNowMtlIdDialog extends BaseActivity {
         showLoadDialog("加载中...");
         String mUrl = getURL("inventoryNow/findInventoryByMtlId");
         FormBody formBody = new FormBody.Builder()
-                .add("mtlId", String.valueOf(mtlId))
+                .add("mtlNumber", mtlNumber)
                 .build();
 
         Request request = new Request.Builder()

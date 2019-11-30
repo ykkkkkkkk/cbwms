@@ -36,6 +36,7 @@
     <color name="c_515151">#515151</color>
     <color name="c_303f9f">#303f9f</color>
     <color name="c_113992">#113992</color>
+    <color name="c_1823dc">#1823dc</color>
     <color name="result_view">#b0000000</color>
     <color name="viewfinder_mask">#60000000</color>
     <color name="possible_result_points">#c0ffff00</color>

@@ -1,5 +1,7 @@
 package ykk.cb.com.cbwms.model;
 
+import com.google.zxing.common.StringUtils;
+
 import java.io.Serializable;
 
 /**
@@ -28,9 +30,29 @@ public class WorkRecordSaoMaEntry1 implements Serializable {
 	private String wageTypeName; 		// 工资类型名称
 	private String procedureName;		// 工序名称
 	private String workStaffName;		//报工人名称
+	private String checkStatus; 		//临时字段   审核状态  A:未审核 B:已审核 C:部分审核
+	private double addQty;				//汇总数量
+	private double passQty;				//审核数量
+	private String mtlPriceTypeId;		// 物料计价类型id
+	private String mtlPriceTypeName;	// 物料计价类型Name
+	private String strLocationPrice;	// 位置和单价结合（前左:1，前右:1）
+	private double sumPrice;			// 总单价
+	private double sumWorkQty;			// 总套数
+	private double sumMoney;			// 总金额
 
 	public WorkRecordSaoMaEntry1() {
 		super();
+	}
+
+	@Override
+	public Object clone() {
+		WorkRecordSaoMaEntry1 entity = null;
+		try{
+			entity = (WorkRecordSaoMaEntry1) super.clone();  //浅复制
+		}catch(CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return entity;
 	}
 
 	public int getId() {
@@ -56,8 +78,6 @@ public class WorkRecordSaoMaEntry1 implements Serializable {
 	public void setWageTypeId(int wageTypeId) {
 		this.wageTypeId = wageTypeId;
 	}
-
-
 
 	public String getStrLocationQty() {
 		return strLocationQty;
@@ -178,6 +198,79 @@ public class WorkRecordSaoMaEntry1 implements Serializable {
 	public void setBarCodeTableId(int barCodeTableId) {
 		this.barCodeTableId = barCodeTableId;
 	}
+
+	public String getCheckStatus() {
+		return checkStatus;
+	}
+
+	public void setCheckStatus(String checkStatus) {
+		this.checkStatus = checkStatus;
+	}
+
+	public double getAddQty() {
+		return addQty;
+	}
+
+	public void setAddQty(double addQty) {
+		this.addQty = addQty;
+	}
+
+	public double getPassQty() {
+		return passQty;
+	}
+
+	public void setPassQty(double passQty) {
+		this.passQty = passQty;
+	}
+
+	public String getMtlPriceTypeId() {
+		return mtlPriceTypeId;
+	}
+
+	public void setMtlPriceTypeId(String mtlPriceTypeId) {
+		this.mtlPriceTypeId = mtlPriceTypeId;
+	}
+
+	public String getMtlPriceTypeName() {
+		return mtlPriceTypeName;
+	}
+
+	public void setMtlPriceTypeName(String mtlPriceTypeName) {
+		this.mtlPriceTypeName = mtlPriceTypeName;
+	}
+
+	public String getStrLocationPrice() {
+		return strLocationPrice;
+	}
+
+	public void setStrLocationPrice(String strLocationPrice) {
+		this.strLocationPrice = strLocationPrice;
+	}
+
+	public double getSumPrice() {
+		return sumPrice;
+	}
+
+	public void setSumPrice(double sumPrice) {
+		this.sumPrice = sumPrice;
+	}
+
+	public double getSumWorkQty() {
+		return sumWorkQty;
+	}
+
+	public void setSumWorkQty(double sumWorkQty) {
+		this.sumWorkQty = sumWorkQty;
+	}
+
+	public double getSumMoney() {
+		return sumMoney;
+	}
+
+	public void setSumMoney(double sumMoney) {
+		this.sumMoney = sumMoney;
+	}
+
 
 
 }

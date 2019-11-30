@@ -41,7 +41,6 @@ import ykk.cb.com.cbwms.model.AllotWork;
 import ykk.cb.com.cbwms.model.Department;
 import ykk.cb.com.cbwms.model.User;
 import ykk.cb.com.cbwms.model.WorkRecordNew;
-import ykk.cb.com.cbwms.produce.adapter.Prod_Work2_SearchFragment1Adapter;
 import ykk.cb.com.cbwms.produce.adapter.Prod_Work2_SearchFragment3Adapter;
 import ykk.cb.com.cbwms.util.JsonUtil;
 import ykk.cb.com.cbwms.util.LogUtil;
@@ -77,7 +76,8 @@ public class Prod_Work2_Search_Fragment3 extends BaseFragment implements XRecycl
     private OkHttpClient okHttpClient = null;
     private User user;
     private Activity mContext;
-    private Prod_Work2SearchMainActivity parent;
+//    private Prod_Work2SearchMainActivity parent;
+    private Prod_WorkBySaoMa_SearchMainActivity parent;
     private DecimalFormat df = new DecimalFormat("#.####");
     private int limit = 1;
     private boolean isRefresh, isLoadMore, isNextPage;
@@ -193,7 +193,8 @@ public class Prod_Work2_Search_Fragment3 extends BaseFragment implements XRecycl
                     .readTimeout(300, TimeUnit.SECONDS) //设置读取超时时间
                     .build();
         }
-        parent = (Prod_Work2SearchMainActivity) mContext;
+//        parent = (Prod_Work2SearchMainActivity) mContext;
+        parent = (Prod_WorkBySaoMa_SearchMainActivity) mContext;
         getUserInfo();
 
         xRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));

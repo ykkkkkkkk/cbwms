@@ -307,6 +307,12 @@
             android:name=".produce.Prod_WorkBySaoMaSelBarcodeDialog"
             android:theme="@style/dialogStyle"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_WorkBySaoMa_SearchMainActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".produce.Prod_WorkBySaoMa_Search_DetailActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
 
         <!-- 销售模块 -->

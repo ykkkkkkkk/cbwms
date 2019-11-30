@@ -24,6 +24,7 @@ import ykk.cb.com.cbwms.produce.Prod_WageMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_Work2MainActivity;
 import ykk.cb.com.cbwms.produce.Prod_Work2SearchMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_WorkBySaoMaMainActivity;
+import ykk.cb.com.cbwms.produce.Prod_WorkBySaoMa_SearchMainActivity;
 import ykk.cb.com.cbwms.produce.Prod_WorkMainActivity;
 
 public class MainTabFragment2 extends BaseFragment {
@@ -85,7 +86,8 @@ public class MainTabFragment2 extends BaseFragment {
 
                 break;
             case R.id.relative11: // 报工查询
-                show(Prod_Work2SearchMainActivity.class,null);
+//                show(Prod_Work2SearchMainActivity.class,null);
+                show(Prod_WorkBySaoMa_SearchMainActivity.class,null);
 
                 break;
             case R.id.relative12: // 我的工资

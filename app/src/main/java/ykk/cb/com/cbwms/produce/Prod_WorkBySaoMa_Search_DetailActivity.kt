@@ -122,6 +122,8 @@ class Prod_WorkBySaoMa_Search_DetailActivity : BaseDialogActivity() {
                 .add("workDate", workDate)
                 .add("prodEntryId", prodEntryId.toString())
                 .add("procedureId", procedureId.toString())
+                .add("productionseq", getValues(et_productionseq))
+                .add("mtlNumberAndName", getValues(et_mtls))
                 .build()
 
         val request = Request.Builder()

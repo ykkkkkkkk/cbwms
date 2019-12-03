@@ -2,7 +2,6 @@ package ykk.cb.com.cbwms.produce
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v7.widget.DividerItemDecoration
@@ -20,7 +19,6 @@ import ykk.cb.com.cbwms.model.BarCodeTable
 import ykk.cb.com.cbwms.produce.adapter.Prod_WorkBySaoMaSelBarcodeDialogAdapter
 import ykk.cb.com.cbwms.util.JsonUtil
 import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter
-import ykk.cb.com.cbwms.util.xrecyclerview.XRecyclerView
 import java.io.IOException
 import java.io.Serializable
 import java.lang.ref.WeakReference
@@ -29,7 +27,8 @@ import java.util.*
 /**
  * 选择条码dialog
  */
-class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.LoadingListener {
+//class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.LoadingListener {
+class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity() {
 
     companion object {
         private val SUCC1 = 200
@@ -41,13 +40,15 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
     private var mAdapter: Prod_WorkBySaoMaSelBarcodeDialogAdapter? = null
     private val okHttpClient = OkHttpClient()
     private var limit = 1
-    private var isRefresh: Boolean = false
-    private var isLoadMore: Boolean = false
-    private var isNextPage: Boolean = false
+//    private var isRefresh: Boolean = false
+//    private var isLoadMore: Boolean = false
+//    private var isNextPage: Boolean = false
     private var checkAll = true // 全选标识
     private var bctIds:String? = null // 上个页面传来的条码表id
-    private var prodEntryIds:String? = null // 上个页面传来的生产分录id
+    private var prodIds:String? = null // 上个页面传来的拼接多个的生产订单id
     private var procedureId = 0 // 上个页面的工序id
+    private var topProcedureId = 0 // 上个页面的上个工序id
+    private var deptName:String? = null // 上个页面传来的部门名称
 
     // 消息处理
     private val mHandler = MyHandler(this)
@@ -65,21 +66,22 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
                 m.hideLoadDialog()
                 when (msg.what) {
                     SUCC1 -> { // 成功
-                        val list = JsonUtil.strToList2(msg.obj as String, BarCodeTable::class.java)
+//                        val list = JsonUtil.strToList2(msg.obj as String, BarCodeTable::class.java)
+                        val list = JsonUtil.strToList(msg.obj as String, BarCodeTable::class.java)
                         m.listDatas.addAll(list!!)
                         m.mAdapter!!.notifyDataSetChanged()
 
-                        if (m.isRefresh) {
-                            m.xRecyclerView!!.refreshComplete(true)
-                        } else if (m.isLoadMore) {
-                            m.xRecyclerView!!.loadMoreComplete(true)
-                        }
-
-                        m.xRecyclerView!!.isLoadingMoreEnabled = m.isNextPage
+//                        if (m.isRefresh) {
+//                            m.xRecyclerView!!.refreshComplete(true)
+//                        } else if (m.isLoadMore) {
+//                            m.xRecyclerView!!.loadMoreComplete(true)
+//                        }
+//
+//                        m.xRecyclerView!!.isLoadingMoreEnabled = m.isNextPage
                     }
                     UNSUCC1 -> {// 数据加载失败！
                         m . mAdapter!!.notifyDataSetChanged ()
-                        m . xRecyclerView!!.isLoadingMoreEnabled = false
+//                        m . xRecyclerView!!.isLoadingMoreEnabled = false
                         m.toasts("抱歉，没有加载到数据！")
                     }
                 }
@@ -93,17 +95,25 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
     }
 
     override fun initView() {
-        xRecyclerView!!.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
-        xRecyclerView!!.layoutManager = LinearLayoutManager(context)
-        mAdapter = Prod_WorkBySaoMaSelBarcodeDialogAdapter(context, listDatas)
-        xRecyclerView!!.adapter = mAdapter
-        xRecyclerView!!.setLoadingListener(context)
+//        xRecyclerView!!.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+//        xRecyclerView!!.layoutManager = LinearLayoutManager(context)
+//        mAdapter = Prod_WorkBySaoMaSelBarcodeDialogAdapter(context, listDatas)
+//        xRecyclerView!!.adapter = mAdapter
+//        xRecyclerView!!.setLoadingListener(context)
+//
+//        xRecyclerView!!.isPullRefreshEnabled = false // 上啦刷新禁用
+//        xRecyclerView!!.isLoadingMoreEnabled = false // 不显示下拉刷新的view
 
-        xRecyclerView!!.isPullRefreshEnabled = false // 上啦刷新禁用
-        xRecyclerView!!.isLoadingMoreEnabled = false // 不显示下拉刷新的view
+        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        mAdapter = Prod_WorkBySaoMaSelBarcodeDialogAdapter(context, listDatas)
+        recyclerView.adapter = mAdapter
+        //这个是让listview空间失去焦点
+        recyclerView.isFocusable = false
 
         mAdapter!!.onItemClickListener = BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, pos ->
-            val bt = listDatas[pos - 1]
+//            val bt = listDatas[pos - 1]
+            val bt = listDatas[pos]
             if(bt.isCheck == 1) {
                 bt.isCheck = 0
             } else {
@@ -118,10 +128,12 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
         var bundle = context.intent.extras
         if(bundle != null) {
             bctIds = bundle.getString("bctIds", "")
-            prodEntryIds = bundle.getString("prodEntryIds", "")
+            prodIds = bundle.getString("prodIds", "")
             procedureId = bundle.getInt("procedureId")
-            val prodNo = bundle.getString("prodNo", "")
-            setTexts(et_prodNo, prodNo)
+            topProcedureId = bundle.getInt("topProcedureId")
+            deptName = bundle.getString("deptName", "")
+//            val prodNo = bundle.getString("prodNo", "")
+//            setTexts(et_prodNo, prodNo)
         }
 
         initLoadDatas()
@@ -190,15 +202,19 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
      */
     private fun run_okhttpDatas() {
         showLoadDialog("加载中...")
-        val mUrl = getURL("barCodeTable/findBarcodeListByWorkRecordSaoMa")
+//        val mUrl = getURL("barCodeTable/findBarcodeListByWorkRecordSaoMa")
+        val mUrl = getURL("workRecordSaoMa/findBarcodeList")
         val formBody = FormBody.Builder()
-                .add("prodNo", getValues(et_prodNo).trim({ it <= ' ' }))
-                .add("prodEntryIds", prodEntryIds)
+//                .add("prodNo", getValues(et_prodNo).trim({ it <= ' ' }))
+                .add("productionseq", getValues(et_prodNo).trim())
+                .add("prodIds", prodIds)
                 .add("procedureId", procedureId.toString())
-                .add("fNumberAndName", getValues(et_mtls).trim { it <= ' ' })
+                .add("topProcedureId", topProcedureId.toString())
+                .add("deptName", deptName)
+                .add("fNumberAndName", getValues(et_mtls).trim())
                 .add("bctIds", bctIds)
-                .add("limit", limit.toString())
-                .add("pageSize", "30")
+//                .add("limit", limit.toString())
+//                .add("pageSize", "30")
                 .build()
 
         val request = Request.Builder()
@@ -221,7 +237,7 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
                     mHandler.sendEmptyMessage(UNSUCC1)
                     return
                 }
-                isNextPage = JsonUtil.isNextPage(result, limit)
+//                isNextPage = JsonUtil.isNextPage(result, limit)
 
                 val msg = mHandler.obtainMessage(SUCC1, result)
                 Log.e("run_okhttpDatas --> onResponse", result)
@@ -230,18 +246,18 @@ class Prod_WorkBySaoMaSelBarcodeDialog : BaseDialogActivity(), XRecyclerView.Loa
         })
     }
 
-    override fun onRefresh() {
-        isRefresh = true
-        isLoadMore = false
-        initLoadDatas()
-    }
-
-    override fun onLoadMore() {
-        isRefresh = false
-        isLoadMore = true
-        limit += 1
-        run_okhttpDatas()
-    }
+//    override fun onRefresh() {
+//        isRefresh = true
+//        isLoadMore = false
+//        initLoadDatas()
+//    }
+//
+//    override fun onLoadMore() {
+//        isRefresh = false
+//        isLoadMore = true
+//        limit += 1
+//        run_okhttpDatas()
+//    }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

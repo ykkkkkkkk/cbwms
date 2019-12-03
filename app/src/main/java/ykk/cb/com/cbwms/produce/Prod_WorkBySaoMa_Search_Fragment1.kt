@@ -134,7 +134,7 @@ class Prod_WorkBySaoMa_Search_Fragment1 : BaseFragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(mContext!!, DividerItemDecoration.VERTICAL))
         recyclerView.setLayoutManager(LinearLayoutManager(mContext))
-        mAdapter = Prod_WorkBySaoMa_SearchFragment1Adapter(mContext, listDatas)
+        mAdapter = Prod_WorkBySaoMa_SearchFragment1Adapter(mContext!!, listDatas)
         recyclerView.setAdapter(mAdapter)
 
         mAdapter!!.onItemClickListener = BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, pos ->

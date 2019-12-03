@@ -28,7 +28,6 @@ import ykk.cb.com.cbwms.model.*
 import ykk.cb.com.cbwms.produce.adapter.Prod_WorkBySaoMaFragment1Adapter
 import ykk.cb.com.cbwms.util.JsonUtil
 import ykk.cb.com.cbwms.util.LogUtil
-import ykk.cb.com.cbwms.util.basehelper.BaseRecyclerAdapter
 import ykk.cb.com.cbwms.util.zxing.android.CaptureActivity
 import java.io.IOException
 import java.io.Serializable
@@ -36,6 +35,7 @@ import java.lang.ref.WeakReference
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.HashMap
 
 /**
  * 报工界面（按位置）
@@ -53,8 +53,6 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
         private val UNSUCC3 = 502
         private val SUCC4 = 204
         private val UNSUCC4 = 504
-        private val SUCC5 = 205
-        private val UNSUCC5 = 505
         private val RESULT_NUM = 1
         private val SETFOCUS = 2
         private val SAOMA = 3
@@ -225,13 +223,13 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
 
         recyclerView.addItemDecoration(DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL))
         recyclerView.layoutManager = LinearLayoutManager(mContext)
-        mAdapter = Prod_WorkBySaoMaFragment1Adapter(mContext, checkDatas)
+        mAdapter = Prod_WorkBySaoMaFragment1Adapter(mContext!!, checkDatas)
         recyclerView.adapter = mAdapter
         //这个是让listview空间失去焦点
         recyclerView.isFocusable = false
 
         mAdapter!!.setCallBack(object : Prod_WorkBySaoMaFragment1Adapter.MyCallBack {
-            override fun onClick_delRow(entity: WorkRecordSaoMaTemp?, position: Int) {
+            override fun onClick_delRow(entity: WorkRecordSaoMaTemp, position: Int) {
                 // 删除行
                 checkDatas.removeAt(position)
                 mAdapter!!.notifyDataSetChanged()
@@ -248,15 +246,16 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
             }
         })
 
-        mAdapter!!.setOnItemClickListener(BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, pos ->
-            val m = checkDatas[pos]
-            if(m.isCheckRow) {
-                m.isCheckRow = false
-            } else {
-                m.isCheckRow = true
-            }
-            mAdapter!!.notifyDataSetChanged()
-        })
+        // 点击行，选中
+//        mAdapter!!.setOnItemClickListener(BaseRecyclerAdapter.OnItemClickListener { adapter, holder, view, pos ->
+//            val m = checkDatas[pos]
+//            if(m.isCheckRow) {
+//                m.isCheckRow = false
+//            } else {
+//                m.isCheckRow = true
+//            }
+//            mAdapter!!.notifyDataSetChanged()
+//        })
     }
 
     override fun initData() {
@@ -320,23 +319,33 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
                 if(!checkSaoMa(false)) return
                 var bctIds = StringBuffer()
                 var prodNo = ""
-                var prodEntryIds = StringBuffer()
+                var prodIds = StringBuffer()
+                var mapProdId = HashMap<Int, Boolean>();
+                var topProcedureIds = StringBuffer()
                 checkDatas.forEachIndexed { index, it ->
+                    val prodNoTmp = it.workRecordSaoMa.prodNo
+                    val prodId = it.workRecordSaoMa.prodId
                     if(index+1 == checkDatas.size) {
                         bctIds.append(it.workRecordSaoMaEntry1.barCodeTableId.toString()+"")
-                        prodEntryIds.append(it.workRecordSaoMaEntry1.prodEntryId.toString()+"")
                     } else {
                         bctIds.append(it.workRecordSaoMaEntry1.barCodeTableId.toString()+",")
-                        prodEntryIds.append(it.workRecordSaoMaEntry1.prodEntryId.toString()+",")
                     }
+                    if(!mapProdId.containsKey(prodId)) {
+                        prodIds.append(prodId.toString()+",")
+                    }
+                    mapProdId.put(prodId, true)
                     if(prodNo.length == 0) {
-                        prodNo = it.workRecordSaoMa.prodNo
+                        prodNo = prodNoTmp
                     }
+                }
+                if(prodIds.length > 0) { // 去掉最后一个，
+                    prodIds.delete(prodIds.length-1, prodIds.length)
                 }
                 bundle = Bundle()
                 bundle.putString("bctIds", bctIds.toString())
-                bundle.putString("prodNo", prodNo)
-                bundle.putString("prodEntryIds", prodEntryIds.toString())
+//                bundle.putString("prodNo", prodNo)
+                bundle.putString("prodIds", prodIds.toString())
+                bundle.putString("deptName", getValues(tv_deptSel))
                 bundle.putInt("procedureId", procedureId)
                 showForResult(Prod_WorkBySaoMaSelBarcodeDialog::class.java, SEL_BARCODE, bundle)
             }
@@ -439,9 +448,9 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
 
         val list = ArrayList<WorkRecordSaoMaTemp>()
         checkDatas.forEach {
-            if(it.isCheckRow) {
+//            if(it.isCheckRow) {
                 list.add(it)
-            }
+//            }
         }
         if (list.size == 0) {
             Comm.showWarnDialog(mContext, "请选中要报工的行！")
@@ -613,8 +622,14 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
 
             listView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
                 val pd = popDatasB!![position]
-                procedureId = pd.procedureId
+                val procedureId2 = pd.procedureId
+
                 tv_process!!.text = pd.procedureName
+                if(procedureId > 0 && procedureId != procedureId2 && checkDatas.size > 0) {
+                    checkDatas.clear()
+                    mAdapter!!.notifyDataSetChanged()
+                }
+                procedureId = procedureId2
 
                 popWindowB!!.dismiss()
             }
@@ -736,7 +751,7 @@ class Prod_WorkBySaoMa_Fragment1 : BaseFragment() {
                 .add("workDate", getValues(tv_date))
                 .add("bctIds", bctIds)
                 .add("barcode", barcode)
-                .add("wageTypeId", if(checkDatas.size > 0) checkDatas[0].workRecordSaoMaEntry1.wageTypeId.toString() else "")
+//                .add("wageTypeId", if(checkDatas.size > 0) checkDatas[0].workRecordSaoMaEntry1.wageTypeId.toString() else "")
                 .build()
 
         val request = Request.Builder()

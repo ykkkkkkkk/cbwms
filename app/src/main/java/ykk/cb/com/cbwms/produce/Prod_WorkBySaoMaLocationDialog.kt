@@ -104,7 +104,10 @@ class Prod_WorkBySaoMaLocationDialog : BaseDialogActivity() {
                 var strLocationQty = StringBuffer()
                 var step2 = 0 // 步长2
                 listDatas!!.forEach { it ->
-                    strLocationId.append(it.locationId.toString()+",")
+//                    strLocationId.append(it.locationId.toString()+",")
+                    if(it.addQty > 0) {
+                        strLocationId.append(it.locationId.toString()+",")
+                    }
                     if(step2 == 2) {
                         step2 = 0;
                         if(it.addQty > 0) {
